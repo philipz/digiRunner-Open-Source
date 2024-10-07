@@ -1,0 +1,10 @@
+.form-group label {
+  background: #F6F6F6;
+}
+.form-group pre {
+  background: #F6F6F6;
+}
+.border-line{
+  border: 0;
+  border-top:1px solid #ddd;
+}

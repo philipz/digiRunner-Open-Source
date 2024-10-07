@@ -1,0 +1,15 @@
+<div class="form-group row" *ngIf="this.apptJobId">
+  <div class="col-4 col-xl-4 col-lg-4">
+      <label class="control-label">{{'interface_status'|translate}} :&nbsp;</label>
+      <span class="control-label">{{statusName}}</span>
+      <span class="icon px-2" (click)="restartHandler($event)">🔄</span>
+      <br>
+      <label class="control-label icon" (click)="switchErrorMessage($event)">🐞</label>
+      <div class="error_messages w-100 d-block hide"  #error_messages>
+          <div *ngIf="this.showType">介接種類:&nbsp;{{this.type}}</div>
+          <div>介接ID:&nbsp; {{this.apptJobId}}</div>
+          <div *ngIf="stackTrace">&#123;錯誤訊息: {{this.stackTrace}}&#125;</div>
+          <div>原始訊息: {{this.cgRespBody}}</div>
+      </div>
+  </div>
+</div>

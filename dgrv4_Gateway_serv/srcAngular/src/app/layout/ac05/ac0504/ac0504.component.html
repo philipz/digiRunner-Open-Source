@@ -1,0 +1,229 @@
+<app-container [title]="currentTitle">
+    <div [hidden]="pageNum != 1">
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div class="form-group row">
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label class="control-label" for="keyword">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" id="keyword" formControlName="keyword"
+                        placeholder="{{'task_id'|translate}}、{{'task_name'|translate}}、{{'task_type'|translate}}、{{'notice_node'|translate}}">
+                </div>
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label id="startTime_label" class="control-label">{{'task_execute_time'|translate}}</label>
+                    <div class="row">
+                        <div class="col-5 col-xl-5">
+                            <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                formControlName="startTime" dateFormat="yy-mm-dd" [showIcon]="true" [showTime]="true"
+                                [readonlyInput]="true">
+                            </p-calendar>
+                            <div *ngIf="startTime?.invalid && (startTime?.dirty || startTime?.touched)"
+                                class="text-danger">
+                                <small class="form-text">{{startTime.errors.isRequired}}</small>
+                                <small class="form-text">{{startTime.errors.maxlength}}</small>
+                                <small class="form-text">{{startTime.errors.minlength}}</small>
+                                <small class="form-text">{{startTime.errors.pattern}}</small>
+                            </div>
+                        </div>
+                        <div class="col-1 col-xl-1 text-center">
+                            <label style="padding: 3px 20px;">～</label>
+                        </div>
+                        <div class="col-5 col-xl-5">
+                            <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                formControlName="endTime" dateFormat="yy-mm-dd" [showIcon]="true" [showTime]="true"
+                                [readonlyInput]="true">
+                            </p-calendar>
+                            <div *ngIf="endTime?.invalid && (endTime?.dirty || endTime?.touched)" class="text-danger">
+                                <small class="form-text">{{endTime.errors.isRequired}}</small>
+                                <small class="form-text">{{endTime.errors.maxlength}}</small>
+                                <small class="form-text">{{endTime.errors.minlength}}</small>
+                                <small class="form-text">{{endTime.errors.pattern}}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12 col-lg-12">
+                    <button type="submit" class="btn tpi-btn tpi-primary pull-right"
+                        [disabled]="canQuery == false || form.invalid">{{'button.search'|translate}}</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <p-tabView *ngIf="tabTitles" (onChange)="changeTab($event)">
+            <!-- Java、.Net -->
+             <p-tabPanel [header]="tabview.label" *ngFor="let tabview of tabTitles; let i = index" [selected]="i == 0">
+               <p-table *ngIf="cols" [columns]="cols" [value]="dataList" selectionMode="single" styleClass="p-datatable-striped"
+                    [style]="{'word-break':'break-word'}">
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th rowspan="2" scope="col">{{'serial_no'|translate}}</th>
+                            <th rowspan="2" scope="col">{{'task_id'|translate}}</th>
+                            <th rowspan="1" scope="col">{{'task_name'|translate}}</th>
+                            <th rowspan="2" scope="col">{{'task_type'|translate}}</th>
+                            <th rowspan="2" scope="col">{{'notice_node'|translate}}</th>
+                            <th rowspan="1" scope="col">{{'notice_time'|translate}}</th>
+                            <th rowspan="2" scope="col">{{'action'|translate}}</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="1" scope="col">{{'task_param'|translate}}</th>
+                            <th rowspan="1" scope="col">{{'completion_time'|translate}}</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <tr>
+                            <td rowspan="2">
+                                <span>{{rowData.id}}</span>
+                            </td>
+                            <td rowspan="2">
+                                <span>{{rowData.taskId}}</span>
+                            </td>
+                            <td rowspan="1">
+                                <span *ngIf="rowData.taskSignature == ''">&nbsp;</span>
+                                <span *ngIf="rowData.taskSignature != ''">{{rowData.taskSignature}}</span>
+                                <a *ngIf="rowData.isTaskSignatureTruncated == true" href="javascript:void(0)"
+                                    pTooltip="{{rowData.oriTaskSignature}}"
+                                    (click)="copyData(rowData.oriTaskSignature);">{{'show_more'|translate}}</a>
+                            </td>
+                            <td rowspan="2">
+                                <span>{{rowData.coordination}}</span>
+                            </td>
+                            <td rowspan="2">
+                                <span>{{rowData.noticeNode}}</span>
+                            </td>
+                            <td rowspan="1">
+                                <span *ngIf="rowData.noticeTime == ''">&nbsp;</span>
+                                <span *ngIf="rowData.noticeTime != ''">{{rowData.noticeTime}}</span>
+                            </td>
+                            <td rowspan="2" style="text-align:center;width: 130px;">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-deta mr-5"
+                                        (click)="changePage('status',rowData)" [disabled]="canStatus == false">
+                                        <span class="fa fa-search">{{'status'|translate}}</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td rowspan="1">
+                                <span *ngIf="rowData.taskArg == ''">&nbsp;</span>
+                                <span *ngIf="rowData.taskArg != ''">{{rowData.taskArg}}</span>
+                                <a *ngIf="rowData.isTaskArgTruncated == true" href="javascript:void(0)"
+                                    pTooltip="{{rowData.oriTaskArg}}"
+                                    (click)="copyData(rowData.oriTaskArg);">{{'show_more'|translate}}</a>
+                            </td>
+                            <td rowspan="1">
+                                <span *ngIf="rowData.executeTime == ''">&nbsp;</span>
+                                <span *ngIf="rowData.executeTime != ''">{{rowData.executeTime}}</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer" let-columns>
+                        <tr *ngIf="rowcount">
+                            <td [attr.colspan]="columns.length+1">
+                                <span>{{'row_count' | translate}}: {{rowcount}}</span>
+                                <button type="button" class="btn btn-warning pull-right ml-3"
+                                    (click)="moreTaskList();">{{'button.more'|translate}}</button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.colspan]="columns.length+1">
+                                {{'no_rec' | translate}}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+    <div *ngIf="pageNum == 2">
+        <form [formGroup]="form">
+            <div class="form-group row">
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label>{{'task_serial_number' | translate}}</label>
+                    <label class="form-control border-line">{{currentTaskStatus.nodeTaskId}}</label>
+                </div>
+                <div class="col-3 col-xl-3 col-lg-3">
+                    <label>{{'task_src' | translate}}</label>
+                    <label class="form-control border-line">{{currentTaskStatus.taskSrc}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label class="control-label" for="keyword">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" id="keyword" formControlName="keyword"
+                        placeholder="{{'comp_id'|translate}}、{{'node_name'|translate}}、{{'exec_msg'|translate}}">
+                </div>
+                <div class="col-3 col-xl-3 col-lg-3">
+                    <label class="control-label">{{'taks_status'|translate}}</label>
+                    <p-dropdown [options]="successOption" [filter]="true" formControlName="success"
+                        [style]="{'width':'100%'}">
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12 col-lg-12">
+                    <button type="button" class="btn btn-warning pull-right" [disabled]="canStatus == false"
+                        (click)="queryTaskStatus();">{{'button.search'|translate}}</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <p-table *ngIf="taskStatusCols" [columns]="taskStatusCols" [value]="taskStatusList" selectionMode="single" styleClass="p-datatable-striped"
+            [style]="{'word-break':'break-word'}">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" scope="col">
+                        {{col.header}}
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns">
+                        <span *ngIf="col.field == 'competitiveId'">
+                            {{ rowData.competitiveId }}
+                            <a *ngIf="rowData.isCompetitiveIdTruncated == true" href="javascript:void(0)"
+                                pTooltip="{{rowData.oriCompetitiveId}}"
+                                (click)="copyData(rowData.oriCompetitiveId);">{{'show_more'|translate}}</a>
+                        </span>
+                        <span *ngIf="col.field != 'competitiveId' && col.field != 'errorMsg'">
+                            {{ rowData[col.field] }}
+                        </span>
+                        <span *ngIf="col.field == 'errorMsg'">
+                            {{ rowData.errorMsg }}
+                            <a *ngIf="rowData.isErrorMsgTruncated == true" href="javascript:void(0)"
+                                pTooltip="{{rowData.oriErrorMsg}}"
+                                (click)="copyData(rowData.oriErrorMsg);">{{'show_more'|translate}}</a>
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="taskStatusRowcount">
+                    <td [attr.colspan]="columns.length">
+                        <span>{{'row_count' | translate}}: {{taskStatusRowcount}}</span>
+                        <button type="button" class="btn btn-warning pull-right m-3"
+                            (click)="moreTaskStatus();">{{'button.more'|translate}}</button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length">
+                        <span>{{'no_rec' | translate}}</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <button type="button" class="btn btn-warning pull-right m-3"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+    </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

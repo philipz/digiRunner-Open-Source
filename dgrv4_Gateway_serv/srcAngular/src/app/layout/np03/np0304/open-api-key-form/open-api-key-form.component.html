@@ -1,0 +1,216 @@
+<div class="card card-body bg-light mt-3">
+    <form [formGroup]="form">
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'client_id'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.clientId}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.openApiKey.clientId}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'client_name'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.clientName}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.openApiKey.clientName}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'client_alias'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.clientAlias}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.openApiKey.clientAlias}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_date'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.reqDate}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.createDateTime}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_user'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.userName}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.applyUserName}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_org'|translate}}</label>：
+                <label>{{data.data.orgName}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'req_sub_type'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.reqSubtypeName}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.subTitle}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label" id="effectiveDate_label" for="effectiveDate">{{'effective_date'|translate}}</label>：
+                <p-calendar dateFormat="yy/mm/dd" [showIcon]="true" [readonlyInput]="true" [minDate]="minDateValue" appendTo="body"
+                    formControlName="effectiveDate" id="effectiveDate">
+                </p-calendar>
+                <div *ngIf="effectiveDate?.invalid && (effectiveDate?.dirty || effectiveDate?.touched)"
+                    class="text-danger">
+                    <small class="form-text">{{effectiveDate.errors.isRequired | translate}}</small>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_APPLICA'" class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label class="control-label">Open API Key</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.openApiKey}}</label>
+                <label *ngIf="data.operate == formOperate.update">{{data.data.openApiKey.openApiKey}}</label>
+                <label *ngIf="data.operate == formOperate.resend">{{data.data.openApiKey.openApiKey}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label" id="openApiKeyAlias_label" for="openApiKeyAlias"
+                    [ngClass]="{'required':data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'}">{{'open_api_key_alias'|translate}}</label>：
+                <input *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'" type="text" class="form-control" id="openApiKeyAlias"
+                    formControlName="openApiKeyAlias">
+                <div *ngIf="openApiKeyAlias?.invalid && (openApiKeyAlias?.dirty || openApiKeyAlias?.touched)"
+                    class="text-danger">
+                        <small class="form-text">{{openApiKeyAlias.errors.isRequired | translate}}</small>
+                        <small class="form-text">{{openApiKeyAlias.errors.maxlength | translate}}</small>
+                        <!-- <small class="form-text">{{openApiKeyAlias.errors.minlength | translate}}</small>
+                        <small class="form-text">{{openApiKeyAlias.errors.pattern}}</small> -->
+                </div>
+                <label
+                    *ngIf="data.data.reqSubtype == 'OPEN_API_KEY_REVOKE'">{{ checkFromOperation() ? data.data.openApiKeyAlias : data.data.openApiKey.openApiKeyAlias}}</label>
+
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label" id="expiredAt_label" for="expiredAt"
+                    [ngClass]="{'required':data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'}">{{'expired_date'|translate}}</label>：
+                <p-calendar *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'" dateFormat="yy/mm/dd" appendTo="body"
+                    [showIcon]="true" [readonlyInput]="true" [minDate]="minDateValue" formControlName="expiredAt" id="expiredAt"
+                    [style]="{'width':'100%'}" [inputStyle]="{'width':'95%'}">
+                </p-calendar>
+                <div *ngIf="expiredAt?.invalid && (expiredAt?.dirty || expiredAt?.touched)"
+                    class="text-danger">
+                    <small class="form-text">{{expiredAt.errors.isRequired | translate}}</small>
+                </div>
+                <label *ngIf="data.data.reqSubtype == 'OPEN_API_KEY_REVOKE'">{{ checkFromOperation() ? data.data.expiredAt : data.data.openApiKey.expiredAt}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label" id="timesThreshold_label" for="timesThreshold"
+                    [ngClass]="{'required':data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'}">{{'times_threshold'|translate}}</label>：
+                <input *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'" type="number" class="form-control"
+                    formControlName="timesThreshold" min="-1" onkeyup="this.value=Math.round(this.value)" id="timesThreshold"
+                    onafterpaste="this.value=Math.round(this.value)">
+                <div *ngIf="timesThreshold?.invalid && (timesThreshold?.dirty || timesThreshold?.touched)"
+                    class="text-danger">
+                    <small class="form-text">{{timesThreshold.errors.isRequired | translate}}</small>
+                    <small class="form-text">{{timesThreshold.errors.max | translate}}</small>
+                    <small class="form-text">{{timesThreshold.errors.min | translate}}</small>
+                </div>
+                <label
+                    *ngIf="data.data.reqSubtype == 'OPEN_API_KEY_REVOKE'">{{ checkFromOperation() ? data.data.timesThreshold : data.data.openApiKey.timesThreshold}}</label>
+            </div>
+        </div>
+        <div *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_APPLICA'" class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label class="control-label">Secret Key</label>：
+                <label *ngIf="data.operate == formOperate.create">{{data.data.secretKey}}</label>
+                <label *ngIf="data.operate == formOperate.update">{{data.data.openApiKey.secretKey}}</label>
+                <label *ngIf="data.operate == formOperate.resend">{{data.data.openApiKey.secretKey}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label *ngIf="data.operate == formOperate.create" id="reqDesc_label" for="reqDesc"
+                    class="required control-label">{{'apply_desc'|translate}}</label>
+                <label *ngIf="data.operate != formOperate.create" id="reqDesc_label" for="reqDesc"
+                    class="control-label">{{'new_apply_desc'|translate}}</label>：
+                <textarea rows="5" formControlName="reqDesc" class="form-control" id="reqDesc"></textarea>
+                <div *ngIf="reqDesc?.invalid && (reqDesc?.dirty || reqDesc?.touched)" class="text-danger">
+                    <small class="form-text">{{reqDesc.errors.isRequired | translate}}</small>
+                    <small class="form-text">{{reqDesc.errors.maxlength | translate}}</small>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <div *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'">
+                    <label class="required control-label"
+                        style="font-weight: bolder;">{{'choose_api'|translate}}</label>：
+                    <div class="ui-inputgroup mb-1">
+                        <input class="form-control" type="text" placeholder="{{'keyword_search'|translate}}" (keyup.enter)="searchAPI();"
+                            formControlName="keyword">
+                        <button pButton type="button" icon="pi pi-search" class="tpi-night ml-1"
+                            (click)="searchAPI();"></button>
+                    </div>
+                </div>
+                <p-table *ngIf="cols" [columns]="cols" [value]="apiList" selectionMode="single" styleClass="p-datatable-striped"
+                    [(selection)]="selectedApis" [style]="{'word-break':'break-word'}">
+                    <ng-template *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'" pTemplate="caption">
+                        <div class="ui-helper-clearfix">
+                            <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="delete()">
+                                {{ 'button.delete' | translate }}
+                            </button>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'" style="width: 2.25em">
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'" style="width: 2.25em" scope="col">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+                                {{col.header}}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <tr>
+                            <td *ngIf="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE'">
+                                <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                            </td>
+                            <td *ngFor="let col of columns" [style.width]="col.width">
+                                <span *ngIf="col.field=='apiName'">
+                                    ({{rowData['apiKey']}},{{rowData['moduleName']}}) - {{rowData['apiName']}}
+                                </span>
+                                <span
+                                    *ngIf="col.field != 'apiName' && col.field != 'themeDatas' && col.field != 'fileName'">{{rowData[col.field]}}</span>
+                                <div *ngIf="col.field == 'themeDatas'">
+                                    <span *ngFor="let themeItem of rowData[col.field] | keyvalue;let i = index">
+                                        {{themeItem.value}}
+                                        <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                                    </span>
+                                </div>
+                                <span *ngIf="col.field == 'fileName'">
+                                    <a href="javascript:void(0)"
+                                        (click)="downloadFile(rowData['filePath'],rowData['fileName']);">
+                                        {{rowData[col.field]}}
+                                    </a>
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer" let-columns>
+                        <tr *ngIf="rowcount">
+                            <td
+                                [attr.colspan]="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE' ? columns.length+1 : columns.length">
+                                {{'row_count' | translate}}: {{rowcount}}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td
+                                [attr.colspan]="data.data.reqSubtype != 'OPEN_API_KEY_REVOKE' ? columns.length+1 : columns.length">
+                                {{'no_rec' | translate}}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <div class="text-center">
+        <button type="button" class="btn tpi-btn tpi-primary mt-2" (click)="submitForm();"
+            [disabled]="form.invalid || apiList.length == 0 || canSave == false">{{btnName}}</button>
+    </div>
+</div>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>

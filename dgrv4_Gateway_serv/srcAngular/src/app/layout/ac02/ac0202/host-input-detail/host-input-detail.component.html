@@ -1,0 +1,26 @@
+<div class="row mb-1" [formGroup]="form">
+    <div class="col-lg-5 col-5">
+        <input type="text" class="form-control" name="hostName" formControlName="hostName"
+            placeholder="{{'host_name' | translate}}">
+        <div *ngIf="hostName?.invalid && (hostName?.dirty || hostName?.touched)" class="text-danger">
+            <small class="form-text">{{hostName.errors.maxlength | translate:maxLength30}}</small>
+        </div>
+    </div>
+    <div class="col-lg-5 col-5">
+        <input type="text" class="form-control" name="hostIP" formControlName="hostIP"
+            placeholder="{{'host_ip' | translate}}、{{'domain_name' | translate}}">
+        <div *ngIf="hostIP?.invalid && (hostIP?.dirty || hostIP?.touched)" class="text-danger">
+            <!-- <small class="form-text">{{hostIP.errors.ipaddress | translate}}</small> -->
+            <small class="form-text">{{hostIP.errors.pattern | translate}}</small>
+            <small class="form-text">{{hostIP.errors.maxlength | translate:maxLength255}}</small>
+        </div>
+    </div>
+    <div class="col-lg-2 col-2">
+        <!-- <button type="button" class="btn btn-warning pull-right"
+            (click)="delete($event)">{{'button.delete' | translate}}</button> -->
+      <button type="button" class="btn tpi-primary mx-1" (click)="delete($event)"
+            style="border-radius: 50%">
+      <i class="fa fa-minus"></i>
+    </button>
+    </div>
+</div>

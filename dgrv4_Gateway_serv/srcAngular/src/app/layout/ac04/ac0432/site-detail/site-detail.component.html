@@ -1,0 +1,34 @@
+<div class="container py-1">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <div class="form-group row">
+            <div class="col">
+                <label class="required control-label" for="siteCode">{{'site_code' | translate}} </label>
+                <small style="opacity: 0.7"> (ex: "1.0","digirunner_1")</small>
+                <div class="form-inline">
+                    <span class="mr-1">nev.</span> <input formControlName="siteCode" class="form-control w-75">
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col">
+                <label class="required control-label" for="clrVersion">{{'clr_version' | translate}}</label>
+                <div style="display:block;margin-top: 2px;">
+                    <p-dropdown formControlName="clrVersion" [options]="sites" [style]="{'width':'100%','z-index':'1000'}">
+                    </p-dropdown>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col">
+                <label class="control-label" for="siteMemo">{{ 'memo' | translate }}</label>
+                <textarea formControlName="siteMemo" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col">
+                <button type="submit" class="btn btn-warning pull-right"
+                    [disabled]="!this.form.get('siteCode').value || this.form.get('clrVersion').value == 0">{{ submitName }}</button>
+            </div>
+        </div>
+    </form>
+</div>

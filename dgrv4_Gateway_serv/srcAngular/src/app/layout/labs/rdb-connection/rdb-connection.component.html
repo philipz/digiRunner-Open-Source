@@ -1,0 +1,291 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <div class="form-group row">
+      <div class="col">
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create');">{{'button.create'|translate}}</button>
+      </div>
+    </div>
+    <hr>
+    <p-table [value]="tableData" styleClass="p-datatable-striped" [style]="{'word-break':'break-word'}"
+      responsiveLayout="scroll">
+      <!-- <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:180px;">{{'action'|translate}}</colgroup>
+      </ng-template> -->
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <!-- <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th> -->
+          <th>Connection Name</th>
+          <th>JDBC URL</th>
+          <th>Max Pool Size</th>
+          <th>Last Update User</th>
+          <th>Last Update Time</th>
+          <th style="width:180px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="index">
+        <tr>
+          <!-- <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td> -->
+          <td>{{rowData.connectionName}}</td>
+          <td>{{rowData.jdbcUrl}}</td>
+          <td>{{rowData.maxPoolSize}}</td>
+          <td>{{rowData.updateUser}}</td>
+          <td>{{formateDate(rowData.updateDateTime)}}</td>
+
+          <td style="text-align:center;width: 180px">
+            <!-- 詳細資料 -->
+            <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
+              (click)="changePage('detail', rowData)" [pTooltip]="'button.detail' | translate"
+              tooltipPosition="top"></button>
+            <!-- 更新 -->
+            <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+            <!-- 刪除 -->
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('delete',rowData)"
+              [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+
+          </td>
+        </tr>
+      </ng-template>
+      <!-- 查詢更多 -->
+      <!-- <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableData.length">
+          <td [attr.colspan]="6" style="color: #b7b7b7;">
+            <span>{{'row_count' | translate}}: {{tableData.length}}</span>
+
+            <button type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template> -->
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="6">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- Create 建立 / Update 更新 /詳細資料-->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="formEdit">
+      <div class="row">
+
+        <div class="col-6">
+          <div class="col-12 form-group px-0">
+            <label id="connectionName_label" for="connectionName" class="control-label">Connection Name</label>
+            <div style="display:block">
+              <input type="text" class="form-control" id="connectionName" formControlName="connectionName">
+            </div>
+            <div *ngIf="connectionName?.invalid && (connectionName?.dirty || connectionName?.touched)"
+              class="text-danger">
+              <small class="form-text">{{connectionName?.errors.isRequired | translate}}</small>
+            </div>
+          </div>
+          <div class="col-12 form-group px-0">
+            <label id="jdbcUrl_label" for="jdbcUrl" class="control-label">JDBC URL</label>
+            <div style="display:block">
+              <input type="text" class="form-control" id="jdbcUrl" formControlName="jdbcUrl">
+            </div>
+            <div *ngIf="jdbcUrl?.invalid && (jdbcUrl?.dirty || jdbcUrl?.touched)" class="text-danger">
+              <small class="form-text">{{jdbcUrl?.errors.isRequired | translate}}</small>
+            </div>
+          </div>
+
+          <div class="col-12 form-group px-0">
+            <label id="userName_label" for="userName" class="control-label">User Name</label>
+            <div style="display:block">
+              <input type="text" class="form-control" id="userName" formControlName="userName">
+            </div>
+            <div *ngIf="userName?.invalid && (userName?.dirty || userName?.touched)" class="text-danger">
+              <small class="form-text">{{userName?.errors.isRequired | translate}}</small>
+            </div>
+          </div>
+
+          <div class="col-12 form-group px-0">
+            <label id="mima_label" for="mima" class="control-label">Password</label><i class="far fa-question-circle ml-2 " pTooltip="{{'rdb_pwd_tip'|translate}}" [escape]="false"></i>
+            <div style="display:block">
+              <input type="text" class="form-control" id="mima" formControlName="mima">
+            </div>
+          </div>
+
+        </div>
+        <div class="col-6">
+          <label class="control-label">JDBC URL Example</label>
+          <div style="display:block">
+            <textarea rows="10" style="width:100%" class="form-control" [readOnly]="true" pInputTextarea
+              [value]="idbcTip" ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="form-group row">
+        <div class="col-6">
+          <label id="jdbcUrl_label" for="jdbcUrl" class="control-label">JDBC URL</label><i
+            class="far fa-question-circle ml-2 " [pTooltip]="idbcTip"></i>
+          <div style="display:block">
+            <input type="text" class="form-control" id="jdbcUrl" formControlName="jdbcUrl">
+          </div>
+          <div *ngIf="jdbcUrl?.invalid && (jdbcUrl?.dirty || jdbcUrl?.touched)" class="text-danger">
+            <small class="form-text">{{jdbcUrl?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- <div class="form-group row">
+        <div class="col-6">
+          <label id="userName_label" for="userName" class="control-label">User Name</label>
+          <div style="display:block">
+            <input type="text" class="form-control" id="userName" formControlName="userName">
+          </div>
+          <div *ngIf="userName?.invalid && (userName?.dirty || userName?.touched)" class="text-danger">
+            <small class="form-text">{{userName?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <label id="mima_label" for="mima" class="control-label">Password</label>
+          <div style="display:block">
+            <input type="text" class="form-control" id="mima" formControlName="mima">
+          </div> -->
+          <!-- <div *ngIf="mima?.invalid && (mima?.dirty || mima?.touched)" class="text-danger">
+            <small class="form-text">{{mima?.errors.isRequired | translate}}</small>
+          </div> -->
+        <!-- </div>
+      </div> -->
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="maxPoolSize_label" for="maxPoolSize" class="control-label">Max Pool Size</label>
+          <div style="display:block">
+            <input type="number" class="form-control" id="maxPoolSize" formControlName="maxPoolSize">
+          </div>
+          <div *ngIf="maxPoolSize?.invalid && (maxPoolSize?.dirty || maxPoolSize?.touched)" class="text-danger">
+            <small class="form-text">{{maxPoolSize?.errors.isRequired | translate}}</small>
+            <small class="form-text">{{maxPoolSize?.errors.min | translate}}</small>
+            <small class="form-text">{{maxPoolSize?.errors.max | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="connectionTimeout_label" for="connectionTimeout" class="control-label">Connection Timeout(ms)</label>
+          <div style="display:block">
+            <input type="number" class="form-control" id="connectionTimeout" formControlName="connectionTimeout">
+          </div>
+          <div *ngIf="connectionTimeout?.invalid && (connectionTimeout?.dirty || connectionTimeout?.touched)"
+            class="text-danger">
+            <small class="form-text">{{connectionTimeout?.errors.isRequired | translate}}</small>
+            <small class="form-text">{{connectionTimeout?.errors.min | translate}}</small>
+            <small class="form-text">{{connectionTimeout?.errors.max | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="idleTimeout_label" for="idleTimeout" class="control-label">Idle Timeout(ms)</label>
+          <div style="display:block">
+            <input type="number" class="form-control" id="idleTimeout" formControlName="idleTimeout">
+          </div>
+          <div *ngIf="idleTimeout?.invalid && (idleTimeout?.dirty || idleTimeout?.touched)" class="text-danger">
+            <small class="form-text">{{idleTimeout?.errors.isRequired | translate}}</small>
+            <small class="form-text">{{idleTimeout?.errors.min | translate}}</small>
+            <small class="form-text">{{idleTimeout?.errors.max | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="maxLifetime_label" for="maxLifetime" class="control-label">Max Lifetime(ms)</label>
+          <div style="display:block">
+            <input type="number" class="form-control" id="maxLifetime" formControlName="maxLifetime">
+          </div>
+          <div *ngIf="maxLifetime?.invalid && (maxLifetime?.dirty || maxLifetime?.touched)" class="text-danger">
+            <small class="form-text">{{maxLifetime?.errors.isRequired | translate}}</small>
+            <small class="form-text">{{maxLifetime?.errors.min | translate}}</small>
+            <small class="form-text">{{maxLifetime?.errors.max | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12">
+          <label id="dataSourceProperty_label" for="dataSourceProperty" class="control-label">HikariConfig Data Source
+            Properties</label>
+          <div class="form-group px-5 pt-2 keyValueContent pb-1">
+
+            <app-key-value-form formControlName="dataSourceProperty"></app-key-value-form>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row" [hidden]="currentAction!='detail'">
+        <div class="col-6">
+          <label id="createUser_label" for="createUser" class="control-label">Create User</label>
+          <input type="text" class="form-control" id="createUser" formControlName="createUser">
+        </div>
+        <div class="col-6">
+          <label id="createDateTime_label" for="createDateTime" class="control-label">Create Time</label>
+          <input type="text" class="form-control" id="createDateTime" formControlName="createDateTime">
+        </div>
+      </div>
+      <div class="form-group row" [hidden]="currentAction!='detail'">
+        <div class="col-6">
+          <label id="updateUser_label" for="updateUser" class="control-label">Update User</label>
+          <input type="text" class="form-control" id="updateUser" formControlName="updateUser">
+        </div>
+        <div class="col-6">
+          <label id="updateDateTime_label" for="updateDateTime" class="control-label">Update Time</label>
+          <input type="text" class="form-control" id="updateDateTime" formControlName="updateDateTime">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col">
+          <button *ngIf="currentAction != 'detail'" type="button" class="btn tpi-btn tpi-night float-left mr-3"
+            (click)="testConnect();">{{'button.connect_test'|translate}}</button>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+
+          <button *ngIf="currentAction == 'create'" type="button" class="btn tpi-btn tpi-second float-left mr-3"
+            [disabled]="!formEdit.valid" (click)="create();">{{'button.create'|translate}}</button>
+          <button *ngIf="currentAction == 'update'" type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="!formEdit.valid" (click)="update();">{{'button.update'|translate}}</button>
+
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

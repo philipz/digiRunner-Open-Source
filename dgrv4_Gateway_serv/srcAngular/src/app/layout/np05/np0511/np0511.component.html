@@ -1,0 +1,106 @@
+<app-container [title]="title">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label">{{'date_range'|translate}}</label>
+                <div class="row">
+                    <div class="col-5 col-xl-5">
+                        <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                            formControlName="startDate" dateFormat="yy/mm/dd" [showIcon]="true">
+                        </p-calendar>
+                    </div>
+                    <div class="col-1 col-xl-1 text-center">
+                        <label style="padding: 3px 20px;">～</label>
+                    </div>
+                    <div class="col-5 col-xl-5">
+                        <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" formControlName="endDate" appendTo="body"
+                            dateFormat="yy/mm/dd" [showIcon]="true">
+                        </p-calendar>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'keyword_search'|translate}}</label>
+                <input type="text" formControlName="keyword" class="form-control"
+                    placeholder="{{'event_id'|translate}}、{{'event_type'|translate}}、{{'event_name'|translate}}、{{'event_msg'|translate}}、{{'module_name'|translate}}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <button type="submit" class="btn btn-warning pull-right mr-2">{{'button.search'|translate}}</button>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="dataList" selectionMode="single" styleClass="p-datatable-striped"
+        [style]="{'word-break':'break-word'}">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col *ngFor="let col of columns" [style.width]="col.width">
+                <col style="width: 200px;">
+            </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" scope="col" pResizableColumn>
+                    {{col.header}}
+                </th>
+                <th style="width: 200px;" scope="col">{{'action'|translate}}</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-i="rowIndex">
+            <tr>
+                <td *ngFor="let col of columns">
+                    <div style="text-align: center;">
+                        <button *ngIf="col.field == 'keepFlag'" class="star-btn" (click)="keepEvent(rowData, i);">
+                            <img id="keepFlag_{{i}}" style="width: 20px;height: 20px;"
+                                [src]="col.type.transform(rowData[col.field])" alt="keepFlag"/>
+                        </button>
+                    </div>
+                    <div style="text-align: center;">
+                        <button *ngIf="col.field == 'archiveFlag'" class="star-btn" (click)="archiveEvent(rowData, i);"
+                            [disabled]="rowData['keepFlag'] == 'Y' ? true : false">
+                            <img id="archiveFlag_{{i}}" style="width: 20px;height: 20px;"
+                                [src]="col.type.transform(rowData[col.field])" alt="keepFlag"/>
+                        </button>
+                    </div>
+                    <span *ngIf="col.field != 'keepFlag' && col.field != 'archiveFlag' && col.field != 'infoMsg'">
+                        {{rowData[col.field]}}
+                    </span>
+                    <span *ngIf="col.field == 'infoMsg'" (click)="copyInfoMsg(rowData['oriInfoMsg']);">
+                        {{rowData[col.field]}}
+                    </span>
+                    <a *ngIf="col.field == 'infoMsg' && rowData['isMsgTruncated'] == true" href="javascript:void(0)"
+                        pTooltip="{{rowData['oriInfoMsg']}}"
+                        (click)="copyInfoMsg(rowData['oriInfoMsg']);">{{'show_more'|translate}}</a>
+                </td>
+                <td style="text-align: center;width: 200px;">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-deta mr-5"
+                            (click)="showDialog(rowData,formOperate.detail)">
+                            <span class="fa fa-search">{{'detail'|translate}}</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+            <tr *ngIf="rowcount">
+                <td [attr.colspan]="columns.length+1">
+                    <span>{{'row_count' | translate}}: {{rowcount}}</span>
+                    <button type="button" class="btn btn-warning pull-right ml-3"
+                        (click)="moreData();">{{'button.more'|translate}}</button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length+1">
+                    {{'no_rec' | translate}}
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</app-container>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

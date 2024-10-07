@@ -1,0 +1,197 @@
+<app-container [title]="title"  [isDefault]="false"  (headerReturn)="headerReturn()">
+    <form [formGroup]="form">
+        <div class="form-group row">
+            <div class="col-6">
+                <div class="ui-inputgroup">
+                    <input type="file" id="file" accept=".json" (change)="changeFile($event)" formControlName="file"
+                        style="display: none;">
+                    <input type="text" class="form-control" formControlName="fileName"
+                        placeholder="{{'chs_json_file' | translate}}">
+                    <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+                        (click)="openFileBrowser();"></button>
+                </div>
+            </div>
+            <div class="col-6">
+                <!-- <label class="control-label w-100">&nbsp;</label> -->
+                <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="uploadFile()" [disabled]="!file.value">
+                    {{'button.upload'|translate}}
+                </button>
+            </div>
+        </div>
+        <div *ngIf="file.value" class="form-group row">
+            <div class="col-3" style="display:table-cell">
+                <label class="control-label">{{fileName.value}}</label>
+            </div>
+            <div class="col-3" style="display:table-cell">
+                <label class="control-label">{{fileSize.value}}KB</label>
+            </div>
+        </div>
+    </form>
+    <!-- <div class="h-100" style="word-break:break-word;"> -->
+    <p-table *ngIf="cols" [columns]="cols" [value]="apiList" [(selection)]="selected" styleClass="p-datatable-striped"
+        [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+        <ng-template pTemplate="caption">
+            <div class="ui-helper-clearfix">
+                <button [disabled]="!apiList || selected.length == 0" type="button"
+                    class="btn tpi-btn tpi-primary float-left mr-1" (click)="import()">
+                    {{ 'button.import' | translate }}
+                </button>
+                <a [routerLink]="['/ac03/ac0301/']" routerLinkActive="router-link-active"
+                    class="btn tpi-btn tpi-primary float-left mr-1">{{'button.return_to_list' | translate}}</a>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="colgroup" let-columns>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns selectionMode="multiple">
+            <tr style="text-align: center">
+                <th rowspan="2" style="width: 2.25em" scope="col">
+                    <p-tableHeaderCheckbox (click)="selectAll($event)"></p-tableHeaderCheckbox>
+                </th>
+                <th rowspan="1" (click)="changeSort('apiKey');" scope="col">
+                    {{'api_key'|translate}}
+                    <p-sortIcon [field]="apiKey"></p-sortIcon>
+                </th>
+                <!-- <th rowspan="2" (click)="changeSort('moduleName');" scope="col">
+                    {{'module_name'|translate}}
+                    <p-sortIcon [field]="moduleName"></p-sortIcon>
+                </th> -->
+                <th rowspan="2" (click)="changeSort('apiName');" scope="col">
+                    {{'tar_url'|translate}}
+                    <p-sortIcon [field]="srcURL"></p-sortIcon>
+                </th>
+                <th rowspan="2" (click)="changeSort('apiSrc');" scope="col">
+                    {{'api_src'|translate}}
+                    <p-sortIcon [field]="apiSrc"></p-sortIcon>
+                </th>
+                <th rowspan="2" (click)="changeSort('endpoint');" scope="col">
+                    {{'end_point'|translate}}
+                    <p-sortIcon [field]="endpoint"></p-sortIcon>
+                </th>
+                <th rowspan="1" scope="col">{{'check_action'|translate}}</th>
+                <th rowspan="1" scope="col">{{'import_result'|translate}}</th>
+            </tr>
+            <tr style="text-align: center">
+                <th rowspan="1" colspan="1" scope="col">{{'api_name'|translate}}</th>
+                <th rowspan="1" colspan="2" scope="col">{{'desc'|translate}}</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr style="text-align: center">
+                <td rowspan="2" style="width: 2.25em">
+                    <p-tableCheckbox [value]="rowData" [disabled]="rowData.checkAct.v === 'N'">
+                    </p-tableCheckbox>
+                </td>
+                <td rowspan="1" style="width: auto;" >
+                  {{originStringTable(rowData.apiKey)}}
+                  <label class="moreless" *ngIf="rowData.apiKey.ori" (click)="switchOri(rowData.apiKey)">
+                    {{rowData.apiKey.t ? ("show_more" | translate) :'' }}
+                    <i class="fas"
+                      [ngClass]="[rowData.apiKey.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                    {{rowData.apiKey.t ? '' : ("show_less" | translate) }}
+                  </label>
+                    <!-- {{ rowData.apiKey.val }}
+                    <a *ngIf="rowData.apiKey.t == true" href="javascript:void(0)" pTooltip="{{rowData.apiKey.ori}}"
+                        (click)="copyData(rowData.apiKey.ori);">...{{'show_more'|translate}}</a> -->
+                </td>
+                <!-- <td rowspan="2" style="width: auto;">
+                    {{ rowData.moduleName.val }}
+                    <a *ngIf="rowData.moduleName.t == true" href="javascript:void(0)"
+                        pTooltip="{{rowData.moduleName.ori}}"
+                        (click)="copyData(rowData.moduleName.ori);">...{{'show_more'|translate}}</a>
+                </td> -->
+                <td rowspan="2" style="width: auto;">
+                  <span [innerHTML]="decodeSrcUrl( rowData.srcURL)"></span>
+                  <div *ngFor="let srcUrlItem of rowData?.srcURLByIpRedirectMap">
+                    <div>
+                      <span *ngIf="srcUrlItem.ip!=''">[{{srcUrlItem.ip}}]</span>
+                    </div>
+                    <span [innerHTML]="decodeSrcUrl( srcUrlItem.srcURL)"></span>
+                  </div>
+                </td>
+                <td rowspan="2" style="width: auto;">
+                    {{ rowData.apiSrc.n }}
+                </td>
+                <td rowspan="2" style="width: auto;">
+                    {{ rowData.endpoint }}
+                </td>
+                <td rowspan="1" style="width: auto;">
+                    {{ rowData.checkAct.n }}
+                </td>
+                <td rowspan="1"
+                    [ngStyle]="{'width': 'auto', 'background-color': (rowData.result &&rowData.result.v === 'F') ? '#FAEBD7' : ''}">
+                    <span *ngIf="rowData.result">
+                        {{ rowData.result.n }}
+                    </span>
+                </td>
+            </tr>
+            <tr style="text-align: center">
+                <td rowspan="1" colspan="1">
+                  {{originStringTable(rowData.apiName)}}
+                  <label class="moreless" *ngIf="rowData.apiName.ori" (click)="switchOri(rowData.apiName)">
+                    {{rowData.apiName.t ? ("show_more" | translate) :'' }}
+                    <i class="fas"
+                      [ngClass]="[rowData.apiName.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                    {{rowData.apiName.t ? '' : ("show_less" | translate) }}
+                  </label>
+                  <!-- {{ rowData.apiName.val }}
+                  <a *ngIf="rowData.apiName.t == true" href="javascript:void(0)" pTooltip="{{rowData.apiName.ori}}"
+                      (click)="copyData(rowData.apiName.ori);">...{{'show_more'|translate}}</a> -->
+                </td>
+                <td rowspan="1" colspan="2"
+                    [ngStyle]="{'width': 'auto', 'background-color': (rowData.result &&rowData.result.v === 'F') ? '#FAEBD7' : ''}">
+                    {{originStringTable(rowData.memo)}}
+                  <label class="moreless" *ngIf="rowData.memo.ori" (click)="switchOri(rowData.memo)">
+                    {{rowData.memo.t ? ("show_more" | translate) :'' }}
+                    <i class="fas"
+                      [ngClass]="[rowData.memo.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                    {{rowData.memo.t ? '' : ("show_less" | translate) }}
+                  </label>
+                    <!-- {{ rowData.memo.val }}
+                    <a *ngIf="rowData.memo.t == true" href="javascript:void(0)" pTooltip="{{rowData.memo.ori}}"
+                        (click)="copyData(rowData.memo.ori);">...{{'show_more'|translate}}</a> -->
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+            <tr *ngIf="rowcount" style="color: #b7b7b7;">
+                <td [attr.colspan]="columns.length+1">{{'row_count' | translate}}: {{rowcount}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length+1">
+                    {{'no_rec' | translate}}
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <!-- </div> -->
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<!-- <p-toast position="center" key="confirm" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="confirmImport();" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

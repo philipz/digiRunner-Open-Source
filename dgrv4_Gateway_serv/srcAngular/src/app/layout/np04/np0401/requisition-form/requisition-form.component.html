@@ -1,0 +1,242 @@
+<div class="container py-1">
+    <div class="card card-body bg-light mt-3">
+        <!-- 共同基本欄位 -->
+        <div class="form-group row">
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'case_number'|translate}}：</label>
+                <label>{{data.data.detailData.reqOrderNo}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'apply_date'|translate}}：</label>
+                <label>{{data.data.detailData.createDateTime}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'sign_off_type'|translate}}：</label>
+                <label>{{data.data.detailData.title}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'req_sub_type'|translate}}：</label>
+                <label>{{data.data.detailData.subTitle}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'effective_date'|translate}}：</label>
+                <label>{{data.data.detailData.effectiveDate}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'sign_off_status'|translate}}：</label>
+                <label>{{data.data.detailData.chkPointName}} - {{data.data.detailData.chkStatusName}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'apply_org'|translate}}：</label>
+                <label>{{data.data.detailData.orgName}}</label>
+            </div>
+            <div class="col-6 col-sm-6">
+                <label class="control-label">{{'apply_user'|translate}}：</label>
+                <label>{{data.data.detailData.applyUserName}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'API_ON_OFF'" class="col-6 col-sm-6">
+                <label class="control-label">{{'public_flag'|translate}}：</label>
+                <label>{{data.data.detailData.apiOnOff.publicFlagName}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'CLIENT_REG' || data.data.detailData.reqType == 'API_APPLICATION'"
+                class="col-6 col-sm-6">
+                <label class="control-label">{{'application_file'|translate}}：</label>
+                <a *ngIf="data.data.detailData.reqType == 'CLIENT_REG'" href="javascript:void(0)"
+                    (click)="downloadFile(data.data.detailData.clientReg.filePath,data.data.detailData.clientReg.fileName);">
+                    {{data.data.detailData.clientReg.fileName}}
+                </a>
+                <a *ngIf="data.data.detailData.reqType == 'API_APPLICATION'" href="javascript:void(0)"
+                    (click)="downloadFile(data.data.detailData.apiUserApply.filePath,data.data.detailData.apiUserApply.fileName);">
+                    {{data.data.detailData.apiUserApply.fileName}}
+                </a>
+            </div>
+            <div class="col-12 col-sm-12">
+                <label class="control-label">{{'apply_desc'|translate}}：</label>
+                <textarea class="form-control" rows="2" style="resize: none;" [innerHtml]="data.data.detailData.reqDesc"
+                    readonly autoResize="autoResize"></textarea>
+            </div>
+        </div>
+        <!-- 明細資料 - API上下架 & 用戶授權API & Open API Key -->
+        <div class="form-group row">
+            <div class="col-12 col-sm-12">
+                <label class="control-label">{{'dialog.detail_query'|translate}}：</label>
+            </div>
+            <!-- 用戶註冊 -->
+            <div *ngIf="data.data.detailData.reqType == 'CLIENT_REG'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_id'|translate}}：</label>
+                <label>{{data.data.detailData.clientReg.clientId}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'CLIENT_REG'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_name'|translate}}：</label>
+                <label>{{data.data.detailData.clientReg.clientName}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'CLIENT_REG'" class="col-6 col-sm-6">
+                <label class="control-label">{{'emails'|translate}}：</label>
+                <label>{{data.data.detailData.clientReg.emails}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'CLIENT_REG'" class="col-6 col-sm-6">
+                <label class="control-label">{{'public_flag'|translate}}：</label>
+                <label>{{data.data.detailData.clientReg.publicFlagName}}</label>
+            </div>
+            <!-- 用戶授權API -->
+            <div *ngIf="data.data.detailData.reqType == 'API_APPLICATION'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_id'|translate}}：</label>
+                <label>{{data.data.detailData.apiUserApply.clientId}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'API_APPLICATION'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_name'|translate}}：</label>
+                <label>{{data.data.detailData.apiUserApply.clientName}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'API_APPLICATION'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_alias'|translate}}：</label>
+                <label>{{data.data.detailData.apiUserApply.clientAlias}}</label>
+            </div>
+            <!-- Open API Key -->
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_id'|translate}}：</label>
+                <label>{{data.data.detailData.openApiKey.clientId}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-6 col-sm-6">
+                <label class="control-label">{{'client_name'|translate}}：</label>
+                <label>{{data.data.detailData.openApiKey.clientName}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-12 col-sm-12">
+                <label class="control-label">{{'open_api_key_alias'|translate}}：</label>
+                <label>{{data.data.detailData.openApiKey.openApiKeyAlias}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-12 col-sm-12">
+                <label class="control-label">Open API Key：</label>
+                <label>{{data.data.detailData.openApiKey.openApiKey}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-12 col-sm-12">
+                <label class="control-label">Secret Key：</label>
+                <label>{{data.data.detailData.openApiKey.secretKey}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-6 col-sm-6">
+                <label class="control-label">{{'expired_date'|translate}}：</label>
+                <label>{{data.data.detailData.openApiKey.expiredAt}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType == 'OPEN_API_KEY'" class="col-6 col-sm-6">
+                <label class="control-label">{{'times_threshold'|translate}}：</label>
+                <label>{{data.data.detailData.openApiKey.timesThreshold}}</label>
+            </div>
+            <div *ngIf="data.data.detailData.reqType != 'CLIENT_REG'" class="col-12 col-sm-12">
+                <p-table *ngIf="detailCols" [columns]="detailCols" [value]="detailDataList" styleClass="p-datatable-striped"
+                    [style]="{'word-break':'break-word'}">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col style="width: 10%;">
+                        </colgroup>
+                        <colgroup>
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th style="width: 10%;" scope="col">
+                                {{'sort'|translate}}
+                            </th>
+                            <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+                                {{col.header}}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                        <!-- <tr [pSelectableRow]="rowData"> -->
+                          <tr>
+                            <td style="width: 10%;">
+                                <span>
+                                    {{rowIndex + 1}}
+                                </span>
+                            </td>
+                            <td *ngFor="let col of columns" [style.width]="col.width">
+                                <span *ngIf="col.field == 'apiName'">
+                                    ({{rowData['apiKey']}},{{rowData['moduleName']}}) - {{rowData['apiName']}}
+                                </span>
+                                <span
+                                    *ngIf="col.field != 'apiName' && col.field != 'themeList' && col.field != 'docFileInfo'">
+                                    {{rowData[col.field]}}
+                                </span>
+                                <div *ngIf="col.field == 'themeList'">
+                                    <span *ngFor="let themeItem of rowData[col.field] | keyvalue;let i = index">
+                                        {{themeItem.value}}
+                                        <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                                    </span>
+                                </div>
+                                <div *ngIf="col.field == 'docFileInfo'">
+                                    <a *ngFor="let fileItem of rowData[col.field] | keyvalue;let i = index"
+                                        href="javascript:void(0)" (click)="downloadFile(fileItem.value,fileItem.key);">
+                                        {{fileItem.key}}
+                                        <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+        <!-- 歷程Table -->
+        <div *ngIf="data.operate == formOperate.traker" class="form-group row">
+            <div class="col-12 col-sm-12">
+                <label class="control-label">{{'dialog.approval_history'|translate}}：</label>
+            </div>
+            <div class="col-12 col-sm-12">
+                <p-table *ngIf="trakerCols" [columns]="trakerCols" [value]="trakerDataList" [scrollable]="true" styleClass="p-datatable-striped"
+                    scrollHeight="100%" [style]="{'word-break':'break-word'}">
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+                                {{col.header}}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <!-- <tr [pSelectableRow]="rowData"> -->
+                          <tr>
+                            <td *ngFor="let col of columns" [style.width]="col.width">
+                                {{rowData[col.field]}}
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer" let-columns>
+                        <tr *ngIf="rowcount">
+                            <td [attr.colspan]="columns.length" style="color: #b7b7b7;">
+                                <span>{{'row_count' | translate}}: {{rowcount}}</span>
+                                <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                                    (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+                                    <!-- 查詢更多 -->
+                                    <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                                    <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                                    </button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.colspan]="columns.length">
+                                {{'no_rec' | translate}}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+        <!-- 簽核意見 -->
+        <form [formGroup]="form">
+            <div *ngIf="data.operate == formOperate.review" class="form-group row">
+                <div class="col-12 col-sm-12">
+                    <label class="control-label">{{'sign_off_comment'|translate}}</label>
+                    <textarea class="form-control" rows="10" formControlName="reqComment"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br>
+</div>

@@ -1,0 +1,35 @@
+<app-container [title]="title">
+    <ng-container>
+        <small class="form-text text-info text-center">{{'default_allow_exten'|translate}} : zip </small>
+        <div class="upload">
+            <img src="assets/images/icon_cloud@2x.png" alt="">
+            <label class="percentage">{{value}}</label>
+            <input class="choose-file" accept=".zip" type="file" id="choose-file" (change)="openFileBrowser($event)"
+                required style="display:none">
+            <!-- <div class="choose-file" id="choose-file"></div> -->
+            <label for="choose-file" class="upload-file net" data-text="choose 1 file">
+                <span>{{'chs_zip_file'|translate}}</span>
+                <button class="btn btn-up" type="button" [disabled]="disabled"
+                    (click)="uploadNetFiles('')">{{'button.upload'|translate}}</button>
+            </label>
+        </div>
+    </ng-container>
+
+    <div class="container" style="background:#FAFAFA;">
+        <div class="row form-group" style="display:table;padding: 20px;" *ngIf="this.file">
+            <div class="col-4 text-center">
+                <img src="assets/images/icon_file@2x.png" alt="">
+            </div>
+            <div class="col-4 text-center" style="display:table-cell">
+
+                <label>{{this.file.name}}</label>
+
+            </div>
+            <div class="col-4 text-center" style="display:table-cell">
+                <label> {{this.file.size}}KB</label>
+            </div>
+
+        </div>
+    </div>
+    <p-toast [style]="{marginTop: '60px'}" position="top-left" (onClose)="onToastClose($event)"></p-toast>
+</app-container>

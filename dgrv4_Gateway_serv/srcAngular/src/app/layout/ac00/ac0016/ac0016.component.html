@@ -1,0 +1,327 @@
+<!-- Delegate AC User -->
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <div class="form-group row">
+      <div class="col-12">
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create');">{{'button.create'|translate}}</button>
+      </div>
+    </div>
+    <p-table [columns]="cols" [value]="tableData" selectionMode="single" styleClass="p-datatable-striped"
+       [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col" [ngStyle]="{width:col.field=='id'?'175px':'auto'}">
+            {{col.header}}
+          </th>
+          <th style="width:110px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field != 'userAlias'">
+              {{rowData[col.field]}}
+            </span>
+            <div *ngIf="col.field == 'userAlias'">
+              <!-- <img src="https://10.20.30.88:18442/dgrv4/ac4/assets/images/DigiFusion_digiRunner_logo_horizontal.png" -->
+              <img [src]="rowData.icon" style="max-height:50px;border-radius: 50%;">
+              {{rowData.userAlias}}
+            </div>
+          </td>
+          <td style="text-align:center;width: 50px">
+            <button pButton pRipple type="button" icon="fa fa-edit"
+                    class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+                    [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+                    class="p-button-rounded p-button-text p-button-plain" (click)="changePage('delete', rowData)"
+                    [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+          </td>
+
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableDataRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableData.length}}</span>
+              <button  type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+                <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+              </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- 建立 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="form">
+
+      <div class="form-group row">
+        <div class="col-3">
+          <label id="userName_label" for="userName" class="control-label">User Name</label>
+          <input type="text" class="form-control" id="userName" formControlName="userName" placeholder="">
+          <div *ngIf="userName?.invalid && (userName?.dirty || userName?.touched)" class="text-danger">
+            <small class="form-text">{{userName?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <label id="userAlias_label" for="userAlias" class="control-label">User Alias</label>
+          <input type="text" class="form-control" id="userAlias" formControlName="userAlias" placeholder="">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-3">
+          <label id="userEmail_label" for="userEmail" class="control-label">User Email</label>
+          <input type="text" class="form-control" id="userEmail" formControlName="userEmail" placeholder="">
+        </div>
+        <div class="col-3">
+          <label id="idpType_label" for="idpType" class="control-label">Type</label>
+          <p-dropdown [options]="idpTypeList"
+              placeholder="{{'plz_chs' | translate}}" formControlName="idpType" [style]="{'width':'100%'}">
+          </p-dropdown>
+          <div *ngIf="idpType?.invalid && (idpType?.dirty || idpType?.touched)" class="text-danger">
+            <small class="form-text">{{idpType?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="status_label" class="control-label">Status</label>
+          <!-- <div>
+            <div class="form-check-inline" *ngFor="let stat of idpStatusList">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="status" value="{{ stat.value }}"
+                />{{stat.label}}
+              </label>
+            </div>
+          </div> -->
+          <div class="p-form-check-line form-group">
+            <ng-container *ngFor="let stat of idpStatusList">
+              <div class="p-form-check">
+                <p-radioButton formControlName="status" value={{stat.value}}  inputId="status{{stat.value}}"></p-radioButton>
+                <label for="status{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="form-group row">
+        <div class="col-4">
+          <label  class="control-label">User Name</label>
+          <div class="border-style">
+            <img *ngIf="userInfo" [src]="userInfo.icon" class="mt-1" style="width:50px;border-radius: 50%;">
+            {{userInfo?.userAlias}}
+          </div>
+
+        </div>
+        <div class="col-4">
+          <label  class="control-label">Status</label>
+          <div>
+            <label  class="form-control border-style">{{userInfo?.statusName}}</label>
+          </div>
+
+
+        </div>
+        <div class="col-4">
+          <label  class="control-label">Type</label>
+          <div>
+            <label  class="form-control border-style">{{userInfo?.idpType}}</label>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- <div class="form-group row text-left ml-1 mr-1">
+        <div class="card col-12">
+          <div class="card-body">
+            <h5 class="card-subtitle mb-2 text-muted">{{userInfo?.idpType}} ( {{ userInfo?.statusName }} )</h5>
+            <h5 class="card-title">
+              <img *ngIf="userInfo" [src]="userInfo.icon" class="img-thumbnail rounded" >
+              {{userInfo?.userAlias}}
+            </h5>
+          </div>
+      </div>
+      </div> -->
+
+      <!-- 角色清單 -->
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="roleIdList_label" for="roleIdList" class="control-label">{{'role_list' |translate}}<span style="color: red;">*</span></label>
+          <button pButton type="button" icon="pi pi-search" class="ml-1 tpi-primary"
+            (click)="queryRoleMappingList();"></button>
+          <label class="form-control border-line" style="height: unset;">
+            <div *ngIf="roleAliasList.value.length > 0" class="ui-chips ui-widget" id="roleIdList">
+              <ul class="ui-inputtext ui-state-default ui-corner-all">
+                <li *ngFor="let role of roleAliasList.value;let idx = index;"
+                  class="ui-chips-token ui-state-highlight ui-corner-all" style="margin: 0 0.286em 0.3em 0;">
+                  <span class="ui-chips-token-icon pi pi-fw pi-times" (click)="deleteRole(idx);">
+                  </span>
+                  <span class="ui-chips-token-label">
+                    {{role}}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </label>
+          <div *ngIf="roleAliasList?.invalid && (roleAliasList?.dirty || roleAliasList?.touched)" class="text-danger">
+            <small class="form-text">{{roleAliasList?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="form-group row" *ngIf="currentAction == 'create'" >
+        <div class="col-12 col-lg-6">
+          <label id="orgId_label" for="OrganizationChart" class="control-label">{{'org_name' |
+            translate}}</label>
+          <div class="ui-inputgroup">
+            <input type="text" class="form-control" id="orgName" formControlName="orgName"
+              placeholder="{{'org_name' | translate}}" [attr.disabled]="true">
+            <button pButton type="button" icon="pi pi-search" class="ml-1 tpi-primary" (click)="openOrgDialog();"></button>
+          </div>
+          <div *ngIf="orgId?.invalid" class="text-danger">
+            <small class="form-text">{{orgId?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          [disabled]="form.invalid || roleAliasList.value.length == 0"
+          (click)="createData();">{{'button.create'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+   <!-- 更新 -->
+   <div [hidden]="pageNum != 3">
+    <form [formGroup]="formU">
+
+      <div class="form-group row">
+        <div class="col-3">
+          <label id="newUserName_label" for="newUserName" class="control-label">User Name</label>
+          <input type="text" class="form-control" id="newUserName" formControlName="newUserName" placeholder="">
+          <div *ngIf="newUserName_u?.invalid && (newUserName_u?.dirty || newUserName_u?.touched)" class="text-danger">
+            <small class="form-text">{{newUserName_u?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <label id="newUserAlias_label" for="newUserAlias" class="control-label">User Alias</label>
+          <input type="text" class="form-control" id="newUserAlias" formControlName="newUserAlias" placeholder="">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-3">
+          <label id="newUserEmail_label" for="newUserEmail" class="control-label">User Email</label>
+          <input type="text" class="form-control" id="newUserEmail" formControlName="newUserEmail" placeholder="">
+        </div>
+        <div class="col-3">
+          <label id="newIdpType_label" for="newIdpType" class="control-label">Type</label>
+          <p-dropdown [options]="idpTypeList"
+              placeholder="{{'plz_chs' | translate}}" formControlName="newIdpType" [style]="{'width':'100%'}">
+          </p-dropdown>
+          <div *ngIf="newIdpType_u?.invalid && (newIdpType_u?.dirty || newIdpType_u?.touched)" class="text-danger">
+            <small class="form-text">{{newIdpType_u?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="newStatus_label" class="control-label">Status</label>
+          <!-- <div>
+            <div class="form-check-inline" *ngFor="let stat of idpStatusList">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="newStatus" value="{{ stat.value }}"
+                />{{stat.label}}
+              </label>
+            </div>
+          </div> -->
+          <div class="p-form-check-line form-group">
+            <ng-container *ngFor="let stat of idpStatusList">
+              <div class="p-form-check">
+                <p-radioButton formControlName="newStatus" value={{stat.value}}  inputId="newStatus{{stat.value}}"></p-radioButton>
+                <label for="newStatus{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- 角色清單 -->
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="newRoleIdList_label" for="newRoleIdList" class="control-label">{{'role_list' |
+            translate}}</label>
+          <button pButton type="button" icon="pi pi-search" class="ml-1 tpi-primary"
+            (click)="queryRoleMappingList();"></button>
+          <label class="form-control border-line" style="height: unset;">
+            <div *ngIf="newRoleAliasList_u.value.length > 0" class="ui-chips ui-widget">
+              <ul class="ui-inputtext ui-state-default ui-corner-all">
+                <li *ngFor="let role of newRoleAliasList_u.value;let idx = index;"
+                  class="ui-chips-token ui-state-highlight ui-corner-all" style="margin: 0 0.286em 0.3em 0;">
+                  <span class="ui-chips-token-icon pi pi-fw pi-times" (click)="deleteRole(idx);">
+                  </span>
+                  <span class="ui-chips-token-label">
+                    {{role}}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </label>
+          <div *ngIf="newRoleAliasList_u?.invalid && (newRoleAliasList_u?.dirty || newRoleAliasList_u?.touched)" class="text-danger">
+            <small class="form-text">{{newRoleAliasList_u?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+       <div class="form-group row">
+        <div class="col-12 col-lg-6">
+          <label id="newOrgId_label" for="OrganizationChart" class="required control-label">{{'org_name' |
+            translate}}</label>
+          <div class="ui-inputgroup">
+            <input type="text" class="form-control" id="newOrgName" formControlName="newOrgName"
+              placeholder="{{'org_name' | translate}}" [attr.disabled]="true">
+            <button pButton type="button" icon="pi pi-search" class="ml-1 tpi-primary" (click)="openOrgDialog();"></button>
+          </div>
+          <div *ngIf="newOrgId_u?.invalid" class="text-danger">
+            <small class="form-text">{{newOrgId_u?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="formU.invalid || newRoleAliasList_u.value.length == 0 "
+            (click)="updateData();">{{'button.update'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+   </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon" >
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

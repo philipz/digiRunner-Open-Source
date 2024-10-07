@@ -1,0 +1,100 @@
+* {
+  -webkit-transition: margin-left 0.2s ease-in-out;
+  -moz-transition: margin-left 0.2s ease-in-out;
+  -ms-transition: margin-left 0.2s ease-in-out;
+  -o-transition: margin-left 0.2s ease-in-out;
+  transition: margin-left 0.2s ease-in-out;
+}
+.main-container {
+  // margin-top: 56px;
+  margin-left: 295px;
+  padding-left: 15px;
+  padding-right: 15px;
+  // -ms-overflow-x: hidden;
+  // overflow-x: hidden;
+  // overflow-y: scroll;
+  // position: relative;
+  // overflow: hidden;
+  height: 88%;
+  // border-radius: 0;
+position: relative;
+//   z-index: 1000;
+top: 70px;
+// margin-top: 70px;
+// padding-top: 70px;
+
+
+//   left: 235px;
+//   width: 235px;
+//   margin-left: 235px;
+//   margin-bottom: 30px;
+//   border-right: 1px solid #ddd;
+//   border-radius: 0;
+overflow-y: auto;
+background-color: #F6F6F6;
+bottom: 0;
+overflow-x: hidden;
+//   padding-bottom: 40px;
+//   white-space: nowrap;
+//   -webkit-transition: all 0.2s ease-in-out;
+//   -moz-transition: all 0.2s ease-in-out;
+//   -ms-transition: all 0.2s ease-in-out;
+//   -o-transition: all 0.2s ease-in-out;
+//   transition: all 0.2s ease-in-out;
+}
+.collapsed {
+  margin-left: 100px;
+}
+@media screen and (max-width: 992px) {
+  .main-container {
+      margin-left: 0px !important;
+  }
+}
+@media print {
+  .main-container {
+      margin-top: 0px !important;
+      margin-left: 0px !important;
+  }
+}
+
+
+//v4
+// $topnav-background-color: linear-gradient(to bottom, #f49e00 0%, #ee7800 100%);
+// :host {
+//   .navbar {
+//     background: $topnav-background-color;
+//   }
+// }
+
+// .mainContainer {
+//   width: 100%;
+//   height: 100%;
+//   margin: 0px;
+//   overflow-y: auto;
+//   overflow-x: hidden;
+//   position: relative;
+//   z-index: 10;
+// }
+
+// .sidenav {
+//   background-color: #D2E9FF;
+//   width: 300px;
+//   // position: fixed;
+//   // top: 64px;
+//   left: 0;
+//   // padding-bottom: 40px;
+//   height: 100%;
+// }
+// .sidenavMin {
+//   // background-color: #bbd9f5;
+//   width: 50px;
+// }
+
+// .bottomStick{/*border-top:1px solid green;border-bottom:1px solid green;*/position:absolute; bottom:0}
+// .bottomRelative{position:relative;}
+
+
+// .mat-expansion-panel {
+//   background-color: #D2E9FF;
+//   box-shadow: none!important;
+// }

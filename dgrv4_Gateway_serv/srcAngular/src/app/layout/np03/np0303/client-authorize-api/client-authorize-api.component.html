@@ -1,0 +1,163 @@
+<div class="card card-body bg-light mt-3">
+    <form [formGroup]="form">
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_date'|translate}}</label>：
+                <label *ngIf="config.data.operate == formOperate.create">{{createDateTime}}</label>
+                <label *ngIf="config.data.operate != formOperate.create">{{config.data.data.createDateTime}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_org'|translate}}</label>：
+                <label *ngIf="config.data.operate == formOperate.create">{{orgName}}</label>
+                <label *ngIf="config.data.operate != formOperate.create">{{config.data.data.orgName}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label">{{'effective_date'|translate}}</label>：
+                <!-- calendar disabled style [inputStyle]="{'opacity':'0.5','cursor':'default','background-color':'#cccccc'}" -->
+                <p-calendar dateFormat="yy/mm/dd" [showIcon]="true" [readonlyInput]="true" [minDate]="minDateValue" appendTo="body"
+                    formControlName="effectiveDate" id="effectiveDate">
+                </p-calendar>
+                <div *ngIf="effectiveDate?.invalid && (effectiveDate?.dirty || effectiveDate?.touched)" class="text-danger">
+                    <small class="form-text">{{effectiveDate.errors.isRequired | translate}}</small>
+                    <small class="form-text">{{effectiveDate.errors.maxlength | translate}}</small>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'client_id' | translate}}</label>：
+                <label *ngIf="config.data.operate == formOperate.create">{{config.data.data.clientID}}</label>
+                <label *ngIf="config.data.operate != formOperate.create">{{config.data.data.apiUserApply.clientId}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'client_name' | translate}}</label>：
+                <label *ngIf="config.data.operate == formOperate.create">{{config.data.data.clientName}}</label>
+                <label *ngIf="config.data.operate != formOperate.create">{{config.data.data.apiUserApply.clientName}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'client_alias' | translate}}</label>：
+                <label *ngIf="config.data.operate == formOperate.create">{{config.data.data.clientAlias}}</label>
+                <label *ngIf="config.data.operate != formOperate.create">{{config.data.data.apiUserApply.clientAlias}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label *ngIf="config.data.operate == formOperate.create" id="reqDesc_label" for="reqDesc"
+                    class="required control-label">{{'apply_desc'|translate}}</label>
+                <label *ngIf="config.data.operate != formOperate.create" id="reqDesc_label" for="reqDesc"
+                    class="control-label">{{'new_apply_desc'|translate}}</label>：
+                <textarea rows="5" formControlName="reqDesc" class="form-control" id="reqDesc"></textarea>
+                <div *ngIf="reqDesc?.invalid && (reqDesc?.dirty || reqDesc?.touched)" class="text-danger">
+                    <small class="form-text">{{reqDesc.errors.isRequired | translate}}</small>
+                    <small class="form-text">{{reqDesc.errors.maxlength | translate}}</small>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label *ngIf="config.data.operate == formOperate.create"
+                    class="control-label">{{'application_file'|translate}}</label>
+                <label *ngIf="config.data.operate != formOperate.create"
+                    class="control-label">{{'new_application_file'|translate}}</label>：
+
+                <!-- <input type="file" id="file" (change)="fileChange($event.target.files)"> -->
+                
+                <div class="ui-inputgroup">
+                    <input type="file" id="file" style="display: none;"  (change)="fileChange($event.target.files)">
+                    <input type="text" class="form-control" value="{{fileName}}" readOnly
+                    placeholder="{{'upload_file' | translate}}">
+                    <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+                    [pTooltip]="'upload_file' | translate" tooltipPosition="top"
+                    (click)="openFileBrowser();"></button>
+                </div>
+
+
+            </div>
+            <div *ngIf="config.data.operate != formOperate.create && oriFileName?.value" class="col-12 col-xl-12 col-lg-12">
+                <label class="control-label">{{'ori_application_file'|translate}}：{{oriFileName.value}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label class="required control-label">{{'choose_api'|translate}}</label>：
+                <div class="ui-inputgroup mb-1">
+                    <input class="form-control" type="text" placeholder="{{'keyword_search'|translate}}"
+                        formControlName="keyword">
+                    <button pButton type="button" icon="pi pi-search" class="tpi-night ml-1"
+                        (click)="searchAPI();"></button>
+                </div>
+                <p-table *ngIf="cols" [columns]="cols" [value]="authApiList" selectionMode="single" styleClass="p-datatable-striped"
+                    [(selection)]="selectedApis" [style]="{'word-break':'break-word'}">
+                    <ng-template pTemplate="caption">
+                        <div class="ui-helper-clearfix">
+                            <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="delete()">
+                                {{ 'button.delete' | translate }}
+                            </button>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="colgroup" let-columns>
+                        <colgroup>
+                            <col style="width: 2.25em">
+                            <col *ngFor="let col of columns" [style.width]="col.width">
+                        </colgroup>
+                    </ng-template>
+                    <ng-template pTemplate="header" let-columns>
+                        <tr>
+                            <th style="width: 2.25em" scope="col">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+                            <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+                                {{col.header}}
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <tr>
+                            <td>
+                                <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                            </td>
+                            <td *ngFor="let col of columns" [style.width]="col.width">
+                                <span *ngIf="col.field=='apiName'">
+                                    ({{rowData['apiKey']}},{{rowData['moduleName']}}) - {{rowData['apiName']}}
+                                </span>
+                                <span
+                                    *ngIf="col.field != 'apiName' && col.field != 'themeDatas' && col.field != 'fileName'">{{rowData[col.field]}}</span>
+                                <div *ngIf="col.field == 'themeDatas'">
+                                    <span *ngFor="let themeItem of rowData[col.field] | keyvalue;let i = index">
+                                        {{themeItem.value}}
+                                        <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                                    </span>
+                                </div>
+                                <span *ngIf="col.field == 'fileName'">
+                                    <a href="javascript:void(0)"
+                                        (click)="downloadFile(rowData['filePath'],rowData['fileName']);">
+                                        {{fileNameConvert(rowData['fileName'])}}
+                                    </a>
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer" let-columns>
+                        <tr *ngIf="rowcount">
+                            <td [attr.colspan]="columns.length+1">{{'row_count' | translate}}: {{rowcount}}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage" let-columns>
+                        <tr>
+                            <td [attr.colspan]="columns.length+1">
+                                {{'no_rec' | translate}}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <div class="text-center">
+        <button type="button" class="btn tpi-btn tpi-primary mt-2" (click)="submitForm();"
+            [disabled]="form.invalid || authApiList.length == 0">{{btnName}}</button>
+    </div>
+</div>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

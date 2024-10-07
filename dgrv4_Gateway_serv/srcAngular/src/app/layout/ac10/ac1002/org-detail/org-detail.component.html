@@ -1,0 +1,54 @@
+<div class="py-1" [ngClass]="{'container':center}" *ngIf="config.data">
+    <div class="row">
+        <div [ngClass]="{'mx-auto':center,'col-md-10':center,'col-md-12':!center}">
+            <form>
+                <div class="form-group row">
+                    <div class="col-sm-4" *ngIf="!isManager">
+                        <label>{{'dept_code' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.orgCode}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'dept' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.orgName}}</label>
+                    </div>
+                    <div class="col-sm-4"  *ngIf="!isManager">
+                        <label>{{'belonged_dept' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.parentName}}</label>
+                    </div>
+                </div>
+                <div class="form-group row"  *ngIf="!isManager">
+                    <div class="col-sm-4">
+                        <label>{{'contact_name' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.contactName}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'contact_tel' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.contactTel}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'contact_mail' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.contactMail}}</label>
+                    </div>
+                </div>
+                <div class="form-group row"  *ngIf="!isManager">
+                    <div class="col-sm-6">
+                        <label>{{'create_by' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.createUser}}</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="inputContactNumber">{{'create_date' | translate}}</label>
+                        <label class="form-control border-line">{{config.data.createTime}}</label>
+                    </div>
+                </div>
+                <div class="form-group row text-center">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn tpi-btn tpi-primary"
+                            (click)="doUpdate();">{{'button.update' | translate}}</button>
+                        <button type="button" class="btn tpi-btn tpi-primary ml-2" *ngIf="!isManager"
+                            (click)="doDelete();">{{'button.delete' | translate}}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

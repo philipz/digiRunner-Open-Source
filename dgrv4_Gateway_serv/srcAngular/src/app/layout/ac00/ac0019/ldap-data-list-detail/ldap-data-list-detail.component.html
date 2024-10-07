@@ -1,0 +1,59 @@
+<div class="form-group row ldapdetail" [formGroup]="form">
+  <div class="col-11">
+
+    <div class="form-group row">
+      <div class="col-6" *ngIf="action == 'update'||action == 'detail'">
+        <label>Detail ID</label>
+        <label class="form-control border-line" [hidden]="!data?.detailId">{{data?.detailId}}</label>
+      </div>
+      <div class="col-6">
+        <label id="orderNo_label" for="orderNo" class="control-label required">Order</label>
+        <input type="number" class="form-control" id="orderNo" formControlName="orderNo" placeholder="">
+        <div *ngIf="orderNo?.invalid && (orderNo?.dirty || orderNo?.touched)" class="text-danger">
+          <!-- <small class="form-text">{{orderNo?.errors.pattern | translate}}</small> -->
+          <small class="form-text">{{orderNo?.errors.required | translate}}</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="col-12">
+        <label id="ldapUrl_label" for="ldapUrl" class="control-label required">URL</label>
+        <input type="text" class="form-control" id="ldapUrl" formControlName="ldapUrl" placeholder="">
+        <div *ngIf="ldapUrl?.invalid && (ldapUrl?.dirty || ldapUrl?.touched)" class="text-danger">
+          <small class="form-text">{{ldapUrl?.errors.pattern | translate}}</small>
+          <small class="form-text">{{ldapUrl?.errors.required | translate}}</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="col-6">
+        <label id="ldapBaseDn_label" for="ldapBaseDn" class="control-label required">Base DN</label>
+        <input type="text" class="form-control" id="ldapBaseDn" formControlName="ldapBaseDn" placeholder="">
+        <div *ngIf="ldapBaseDn?.invalid && (ldapBaseDn?.dirty || ldapBaseDn?.touched)" class="text-danger">
+          <!-- <small class="form-text">{{ldapBaseDn?.errors.pattern | translate}}</small> -->
+          <small class="form-text">{{ldapBaseDn?.errors.required | translate}}</small>
+        </div>
+      </div>
+      <div class="col-6">
+        <label id="ldapDn_label" for="ldapDn" class="control-label required">Bind DN</label>
+        <input type="text" class="form-control" id="ldapDn" formControlName="ldapDn" placeholder="">
+        <div *ngIf="ldapDn?.invalid && (ldapDn?.dirty || ldapDn?.touched)" class="text-danger">
+          <!-- <small class="form-text">{{ldapDn?.errors.pattern | translate}}</small> -->
+          <small class="form-text">{{ldapDn?.errors.required | translate}}</small>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="col-1 align-self-center" style="text-align: end;" [hidden]="_disabled">
+    <div class="d-inline-flex">
+      <button type="button" class="btn tpi-primary ml-1" (click)="deleteItem()" style="border-radius: 50%">
+        <i class="fa fa-minus"></i>
+      </button>
+    </div>
+  </div>
+
+</div>

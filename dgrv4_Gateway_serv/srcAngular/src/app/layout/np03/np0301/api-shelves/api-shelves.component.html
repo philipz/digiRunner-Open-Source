@@ -1,0 +1,38 @@
+<div class="row mb-1" [formGroup]="form">
+    <div class="col-3 col-lg-3 col-sm-3">
+        <div class="ui-inputgroup">
+            <input type="text" class="form-control" formControlName="apiName" placeholder="{{'api_list' | translate}}"
+                [attr.disabled]="true">
+            <button pButton type="button" icon="pi pi-search" class="tpi-night ml-1" (click)="searchAPI();"
+                [disabled]="subType == 'API_ON_UPDATE'"></button>
+        </div>
+        <div *ngIf="apiName?.invalid && (apiName?.dirty || apiName?.touched)" class="text-danger">
+            <small class="form-text">{{apiName.errors.required | translate}}</small>
+        </div>
+    </div>
+    <div class="col-3 col-lg-3 col-sm-3">
+        <div class="ui-inputgroup">
+            <input type="text" class="form-control" formControlName="themeName"
+                placeholder="{{'theme_name' | translate}}" [attr.disabled]="true">
+            <button pButton type="button" icon="pi pi-search" class="tpi-night ml-1" (click)="searchTheme();"></button>
+        </div>
+        <div *ngIf="themeName?.invalid && (themeName?.dirty || themeName?.touched)" class="text-danger">
+            <small class="form-text">{{themeName.errors.required | translate}}</small>
+        </div>
+    </div>
+    <div class="col-4 col-lg-4 col-sm-4">
+        <div class="ui-inputgroup">
+            <input id="choose-file_{{no}}" type="file" (change)="upload($event)" style="display: none">
+            <input type="text" class="form-control" formControlName="fileName"
+                placeholder="{{'api_doc_upload' | translate}}">
+            <button pButton type="button" icon="pi pi-upload" class="tpi-night ml-1"
+                (click)="openFileBrowser()"></button>
+        </div>
+    </div>
+    <div class="col-2 col-lg-2 col-sm-2">
+        <button type="button" class="btn tpi-btn tpi-primary pull-right"
+            (click)="delete()">{{'button.delete' | translate}}</button>
+    </div>
+</div>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

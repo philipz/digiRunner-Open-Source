@@ -1,0 +1,60 @@
+<form [formGroup]="form" (ngSubmit)="submitForm()" #formDirective="ngForm">
+    <div [ngClass]="{'row' :this.data!.displayInDialog == false }">
+        <div class="col-12" [ngClass]="{'col-lg-3':this.data?.displayInDialog == false}">
+            <div class="form-group row">
+                <div class="col-6 col-xl-6 col-lg-6">
+                    <label class="required control-label">{{'type'|translate}}</label>
+                    <p-dropdown [options]="refItemNos" [filter]="true" placeholder="{{'plz_chs' | translate}}"
+                        formControlName="refItemNo" [style]="{'width':'100%'}">
+                    </p-dropdown>
+                    <div *ngIf="refItemNo?.invalid && (refItemNo?.dirty || refItemNo?.touched)" class="text-danger">
+                        <small class="form-text">{{refItemNo.errors.required | translate}}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-6 col-lg-6">
+                    <label id="refSubitemNo_label" class="control-label">{{'task'|translate}}</label>
+                    <p-dropdown [options]="refSubitemNos" [filter]="true" placeholder="{{'plz_chs' | translate}}"
+                        formControlName="refSubitemNo" [style]="{'width':'100%'}">
+                    </p-dropdown>
+                    <div *ngIf="refSubitemNo?.invalid && (refSubitemNo?.dirty || refSubitemNo?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{refSubitemNo.errors.required | translate}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-6 col-xl-6 col-ls-6">
+                    <label class="required control-label">{{'job_start_date'|translate}}</label>
+                    <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                        formControlName="startDateTime" dateFormat="yy/mm/dd" [showIcon]="true" [showTime]="true">
+                    </p-calendar>
+                    <div *ngIf="startDateTime?.invalid && (startDateTime?.dirty || startDateTime?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{startDateTime.errors.required | translate}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12 col-ls-12">
+                    <label class="control-label">{{'params'|translate}}</label>
+                    <textarea rows="5" formControlName="inParams" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12 col-ls-12">
+                    <label class="control-label">{{'identif_data'|translate}}</label>
+                    <textarea rows="5" formControlName="identifData" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group row  text-center">
+                <div class="col-12 col-xl-12 col-ls-12">
+                    <button type="submit" class="btn tpi-btn tpi-second  mr-2"
+                        [disabled]="form?.invalid">{{'button.create'|translate}}</button>
+
+                    <button type="button" class="btn tpi-btn tpi-primary"
+                        (click)="changePageHandler($event);">{{'button.return_to_list'|translate}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

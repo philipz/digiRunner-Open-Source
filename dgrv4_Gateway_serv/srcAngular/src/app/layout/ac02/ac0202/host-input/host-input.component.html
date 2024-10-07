@@ -1,0 +1,13 @@
+<div class="form-group row" #content>
+    <div class="col-12">
+        <label for="hostList">{{label}}</label>
+        <div class="hosts">
+            <ng-template #hostInput></ng-template>
+        </div>
+        <!-- <button type="button" class="btn btn-warning" (click)="addHostInput()">{{'button.new' | translate}}</button> -->
+        <button type="button" class="btn tpi-second" (click)="addHostInput()"
+            style="border-radius: 50%;">
+        <i class="fa fa-plus"></i>
+    </button>
+    </div>
+</div>

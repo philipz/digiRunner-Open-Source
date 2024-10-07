@@ -1,0 +1,78 @@
+<hr>
+<div class="form-group row">
+    <div class="col-6">
+        <label class="control-label">{{'detail_data' | translate}} UUID</label>
+        <label class="form-control border-line">{{paramItem?.txnUid}}</label>
+    </div>
+    <div class="col-6">
+        <label class="control-label">{{'entity_name' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.entityName}}</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-6">
+        <label class="control-label">{{'action' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.cudName}}</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-12">
+        <label class="control-label">{{'data_type.old' | translate}}
+            <button class="btn tpi-btn tpi-primary ml-2" [disabled]="paramItem?.oldRowBlob==null"
+                (click)="downloadFile(paramItem?.oldRowBlob,paramItem?.txnUid+'_old_data')">{{'button.download'
+                |translate}}</button>
+        </label>
+        <!-- <label class="form-control border-line">{{paramItem?.oldRowContent}}</label> -->
+        <pre
+            style="width: 100%; white-space: pre-wrap; word-wrap: break-word;font-size: 1rem;padding: 1rem;">{{paramItem?.oldRowContent}}</pre>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-12">
+        <label class="control-label">{{'data_type.new' | translate}}
+            <button class="btn tpi-btn tpi-primary ml-2" [disabled]="paramItem?.newRowBlob==null"
+                (click)="downloadFile(paramItem?.newRowBlob,paramItem?.txnUid+'_new_data')">{{'button.download'
+                |translate}}</button>
+        </label>
+        <!-- <label class="form-control border-line">{{paramItem?.newRowContent}}</label> -->
+        <pre
+            style="width: 100%; white-space: pre-wrap; word-wrap: break-word;font-size: 1rem;padding: 1rem;">{{paramItem?.newRowContent}}</pre>
+    </div>
+</div>
+<div class="form-group row" *ngIf="paramItem?.param1 && paramItem?.param1.length>0">
+    <div class="col-12">
+        <label class="control-label">{{'param.1' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.param1}}</label>
+    </div>
+</div>
+<div class="form-group row" *ngIf="paramItem?.param2 && paramItem?.param2.length>0">
+    <div class="col-12">
+        <label class="control-label">{{'param.2' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.param2}}</label>
+    </div>
+</div>
+<div class="form-group row" *ngIf="paramItem?.param3 && paramItem?.param3.length>0">
+    <div class="col-12">
+        <label class="control-label">{{'param.3' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.param3}}</label>
+    </div>
+</div>
+<div class="form-group row" *ngIf="paramItem?.param4 && paramItem?.param4.length>0">
+    <div class="col-12">
+        <label class="control-label">{{'param.4' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.param4}}</label>
+    </div>
+</div>
+<div class="form-group row" *ngIf="paramItem?.param5 && paramItem?.param5.length>0">
+    <div class="col-12">
+        <label class="control-label">{{'param.5' | translate}}</label>
+        <label class="form-control border-line">{{paramItem?.param5}}</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-12">
+        <label class="control-label" style="border-bottom:1px solid #ddd;">{{'stack_trace' | translate}}</label>
+        <pre
+            style="width: 100%; white-space: pre-wrap; word-wrap: break-word;font-size: 1rem;padding: 1rem;">{{paramItem?.stackTrace}}</pre>
+    </div>
+</div>

@@ -1,0 +1,10 @@
+
+<div class="row mb-1 form-inline col-12" [formGroup]="form" style="box-sizing: border-box;">
+
+  <input type="text" class="form-control mr-1" name="key" formControlName="key"  style="width:45%">
+  <input type="text" class="form-control" name="value" formControlName="value"  style="width:45%">
+
+  <button type="button" class="btn tpi-primary ml-1" (click)="deleteRow()" style="border-radius: 50%">
+    <i class="fa fa-minus"></i>
+  </button>
+</div>

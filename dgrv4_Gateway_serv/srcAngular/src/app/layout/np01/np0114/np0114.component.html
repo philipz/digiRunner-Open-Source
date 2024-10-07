@@ -1,0 +1,27 @@
+<app-container [title]="title">
+    <div class="card card-body bg-light mt-3">
+        <form [formGroup]="form">
+            <div class="row">
+                <div class="col-12 col-xl-6">
+                    <div class="form-group row">
+                        <div class="col-12">
+                            <label for="aboutSubject" class="required control-label">{{'title'|translate}}</label>
+                            <input type="text" formControlName="aboutSubject" class="form-control" id="aboutSubject"
+                                placeholder="{{'title'|translate}}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-12">
+                            <label for="aboutDesc" class="required control-label">{{'desc'|translate}}</label>
+                            <textarea formControlName="aboutDesc" rows="6" class="form-control" id="aboutDesc"
+                                placeholder="{{'desc'|translate}}">
+                        </textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn tpi-btn tpi-primary" (click)="send()">{{'send'|translate}}</button>
+                </div>
+            </div>
+        </form>
+        <p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+    </div>
+</app-container>

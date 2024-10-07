@@ -1,0 +1,199 @@
+<app-container [title]="title">
+    <div class="">
+        <!-- <div class="rootItem">
+            {{siteMaps?.siteDesc}}
+            <button type="submit" class="btn btn-deta float-right pt-0"
+                (click)="showDialog(siteMaps,formOperate.create)"> <span
+                    class="fa fa-plus-circle">{{'button.add'|translate}}</span></button>
+        </div> -->
+        <div class="d-none">
+            <ul>
+                <ng-template #recursiveList let-tree>
+                    <li *ngFor="let item of tree">
+                        <div class="caption-text">
+                            <span class="sitemap-icon"><img src="assets/images/sitemap.png" alt=""></span>
+                            <span>{{item.siteDesc}}</span>
+                        </div>
+                        <!-- <span class="subItem">
+                            {{item.siteDesc}}
+                            <div class="btn-group float-right">
+                                <button type="button" class="btn btn-deta"
+                                    (click)="showDialog(item,formOperate.update)">
+                                    <span class="fa fa-edit">{{'button.update'|translate}}</span>
+                                </button>
+                                <button type="button" class="btn btn-deta"
+                                    (click)="showDialog(item,formOperate.create)">
+                                    <span class="fa fa-plus-circle">{{'button.add'|translate}}</span>
+                                </button>
+                                <button type="button" class="btn btn-deta"
+                                    (click)="showDialog(item,formOperate.delete)">
+                                    <span class="fa fa-trash">{{'button.delete'|translate}}</span>
+                                </button>
+                            </div>
+                        </span> -->
+                        <ul *ngIf="item.nodes.length > 0">
+                            <ng-template #recursiveNodeList let-tree>
+                                <li *ngFor="let node of tree">
+                                    <span class="subItem">
+                                        {{node.siteDesc}}
+                                        <div class="btn-group float-right">
+                                            <button type="button" class="btn btn-deta"
+                                                (click)="showDialog(node,formOperate.update)">
+                                                <span class="fa fa-edit">{{'button.update'|translate}}</span>
+                                            </button>
+                                            <button type="button" class="btn btn-deta"
+                                                (click)="showDialog(node,formOperate.create)">
+                                                <span class="fa fa-plus-circle">{{'button.add'|translate}}</span>
+                                            </button>
+                                            <button type="button" class="btn btn-deta"
+                                                (click)="showDialog(node,formOperate.delete)">
+                                                <span class="fa fa-trash-alt">{{'button.delete'|translate}}</span>
+                                            </button>
+                                        </div>
+                                    </span>
+                                </li>
+                            </ng-template>
+                            <ng-container *ngTemplateOutlet="recursiveNodeList; context:{ $implicit: item.nodes }">
+                            </ng-container>
+                        </ul>
+                    </li>
+                </ng-template>
+
+                <!-- <ng-container *ngFor="let site of siteMaps.nodes">
+                    <div class="mb-4">
+                        <div class="caption-text">
+                            <span class="align-middle">{{site.siteDesc}}</span>
+                        </div>
+                        <span class="subItem">{{site.siteDesc}}</span>
+                        <ul *ngIf="checkNodes(site.nodes)==true" class="sitemap-list">
+                            <li *ngFor="let node of site.nodes">
+                                <span class="subItem">
+                                    {{node.siteDesc}}
+                                    <div class="btn-group float-right">
+                                        <button type="button" class="btn btn-deta"
+                                            (click)="showDialog(node,formOperate.update)">
+                                            <span class="fa fa-edit">{{'button.update'|translate}}</span>
+                                        </button>
+                                        <button type="button" class="btn btn-deta"
+                                            (click)="showDialog(node,formOperate.create)">
+                                            <span class="fa fa-plus-circle">{{'button.add'|translate}}</span>
+                                        </button>
+                                        <button type="button" class="btn btn-deta"
+                                            (click)="showDialog(node,formOperate.delete)">
+                                            <span class="fa fa-trash">{{'button.delete'|translate}}</span>
+                                        </button>
+                                    </div>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-container> -->
+            </ul>
+        </div>
+
+
+        <!-- 測試ngx-nestable元件 -->
+        <div class="mx-2 my-2">
+            <button type="button" class="btn tpi-primary mb-2 mr-2" [disabled]="allDisabled" (click)="plus('',itemTemplate)">
+                <span class="fa fa-plus-circle">&nbsp;{{'button.create'|translate}}</span>
+            </button>
+            <button type="button" class="btn tpi-primary mb-2 mr-2" [disabled]="allDisabled" (click)="collapseAll($event)">
+                <span class="fa fa-compress">&nbsp;{{'button.collapse'|translate}}</span>
+            </button>
+            <button type="button" class="btn tpi-primary mb-2" [disabled]="allDisabled" (click)="expandAll($event)">
+                <span class="fa fa-expand-arrows-alt">&nbsp;{{'button.expansion'|translate}}</span>
+            </button>
+            <div class="card">
+                <div class="card-body">
+                    <ngx-nestable *ngIf="list" [(list)]="list" [options]="options" [template]="itemTemplate" #nestable2>
+                    </ngx-nestable>
+                </div>
+            </div>
+        </div>
+        <ng-template #itemTemplate let-row>
+            <div class="w-100 d-flex" style="margin-bottom: 5px;align-items: center;">
+                <div [ngxNestableDragHandle]="row">
+                    <button class="btn" style="background: transparent;font-size: 24px; color: #ff8f20;"><em
+                            class="fa fa-equals"></em></button>
+                </div>
+
+                <div *ngIf="row.item.children && row.item.children.length; else empty_item"
+                    [ngxNestableExpandCollapse]="row">
+                    <button class="btn collapseBtn" style="background: transparent;font-size: 24px; color: #ff8f20;">
+                        <em class="fa" [ngClass]="row.item.$$expanded ? 'fa-angle-up' : 'fa-angle-down'"></em>
+                    </button>
+
+                </div>
+
+                <div>
+                    <div class="sitemapText" [id]="'span_'+ row.item.id" (click)="onClickHandler(row)" #span>{{row.item.name}}</div>
+                    <div style="display: none;" [id]="'input_'+row.item.id">
+                        <input aria-label="name" type="text" class="form-control mr-2" #inputName
+                            (keydown.enter)="onClickHandler(row)" [value]="row.item.name" (keydown.escape)="onEscapeHandler(row)">
+                        <input aria-label="name" type="text" class="form-control" #inputUrl (keydown.escape)="onEscapeHandler(row)"
+                            (keydown.enter)="onClickHandler(row)" [value]="row.item.url">
+                    </div>
+                </div>
+
+                <div style="margin-right: 15px;margin-left: auto;" class="btn-group">
+                    <!-- <button (click)="xxx(row)" class="btn  mr-1" style="background: transparent;font-size: 24px;"><i class="fa fa-edit"></i></button>
+                    <button (click)="plus(row)" class="btn  mr-1" style="background: transparent;font-size: 24px;"><i class="fa fa-plus"></i></button>
+                    <button (click)="xxx(row)" class="btn  mr-1" style="background: transparent;font-size: 24px;"><i class="fa fa-minus"></i></button> -->
+                    <div class="btn-group float-right" *ngTemplateOutlet="row.item.focus?focus:view"></div>
+                    <ng-template #view>
+                        <button type="button" class="btn btn-deta" [disabled]="allDisabled" (click)="plus(row,itemTemplate)">
+                            <span class="fa fa-plus-circle">&nbsp;{{'button.add'|translate}}</span>
+                        </button>
+                        <button type="button" class="btn btn-deta" [disabled]="allDisabled" (click)="remove(row)">
+                            <span class="fa fa-trash-alt">&nbsp;{{'button.delete'|translate}}</span>
+                        </button>
+                    </ng-template>
+
+                    <ng-template #focus>
+                        <button type="button" class="btn btn-deta" (click)="confirm(row,inputName , inputUrl)">
+                            <span class="fa fa-check">&nbsp;{{'button.confirm'|translate}}</span>
+                        </button>
+                        <button type="button" class="btn btn-deta" (click)="cancelEdit(row)">
+                            <span class="fa fa-ban">&nbsp;{{'button.cancel'|translate}}</span>
+                        </button>
+                    </ng-template>
+
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template #empty_item>
+            <span style="width: 40px"></span>
+        </ng-template>
+    </div>
+</app-container>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast key="confirm" [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<!-- <p-toast position="center" key="delete" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="delete()" label="{{'button.confirm' | translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="cancel()" label="{{'button.cancel' | translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>
+

@@ -1,0 +1,470 @@
+<app-container [title]="currentTitle">
+  <!-- <div [hidden]="pageNum != 1"> -->
+  <!-- <div class="m-2">
+      <div class="ui-helper-clearfix">
+        <button type="button" class="btn tpi-btn tpi-primary float-left" style="height:35px;" (click)="changePage('refresh')"
+          [disabled]="canRefresh == false">
+          {{'clear_db_cache'|translate}}
+        </button>
+      </div>
+    </div>
+    <div class="row">
+      <div *ngFor="let item of dataList" class="col-xs-4 col-sm-4 col-md-4 mb-2">
+        <a class="monitor-box"
+          [ngClass]="{'status-green': item.health == 'success', 'status-yellow': item.health == 'warning', 'status-red': item.health == 'danger'}">
+          <div class="caption">{{item.node}}</div>
+          <div class="detail">
+            <div class="icon-status" [ngSwitch]="item.health">
+              <img *ngSwitchCase="'success'" src="assets/images/icon_status_green@2x.png" alt="">
+              <img *ngSwitchCase="'warning'" src="assets/images/icon_status_yellow@2x.png" alt="">
+              <img *ngSwitchCase="'danger'" src="assets/images/icon_status_red@2x.png" alt="">
+            </div>
+            <div class="info">
+              <label class="title">{{'node_id'|translate}}</label>
+              <div class="txt min-txt">{{item.nodeId}}</div>
+            </div>
+            <div class="info">
+              <label class="title">{{'start_time'|translate}}</label>
+              <div class="txt">{{item.startTime}}</div>
+            </div>
+            <div class="info">
+              <label class="title">{{'update_time'|translate}}</label>
+              <div class="txt">{{item.updateTime}}</div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div> -->
+
+    <!-- 註解 改由 period 顯示 2022/12/23-->
+  <!-- <div class="mb-3" style="border-radius:5px;
+                padding: 10px;
+                background: #ffffff;
+                border: 2px solid #DEDEDE;
+                color: #434343;">
+    <label class="mb-0 pl-3" style="font-size:1.3rem">Update Time: {{ reqTime}}</label>
+  </div> -->
+
+  <div class="row">
+    <div class="col-6">
+      <!-- Summary -->
+      <p-card class="tpi-card-content summary">
+        <ng-template pTemplate="header">
+          <div class="row col-12">
+            <div class="col-4">
+              <span style="font-weight: 600;font-size: 1.5rem;">Summary</span>
+            </div>
+          </div>
+        </ng-template>
+        <div class="row">
+          <div class="col-4">
+            <label>Users</label>
+          </div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.summary.users.enabled}}
+              /
+              {{monitorInfo?.summary.users.disabled}} / {{monitorInfo?.summary.users.locked}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(enabled / disabled / locked)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Roles</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.summary.roles}}</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Clients</label></div>
+          <div class="col-8">
+            <label
+              style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.summary.clients.enabled}} /
+              {{monitorInfo?.summary.clients.disabled}} / {{monitorInfo?.summary.clients.locked}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(enabled / disabled / locked)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Groups</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.summary.groups}}</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Register APIs</label></div>
+          <div class="col-8">
+            <label
+              style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.summary.registerApis.on}} /
+              {{monitorInfo?.summary.registerApis.off}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(on / off)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label> Composer APIs</label></div>
+          <div class="col-8">
+            <label
+              style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.summary.composerApis.on}} /
+              {{monitorInfo?.summary.composerApis.off}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(on / off)</label>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <div class="col-6">
+      <!-- Audit -->
+      <p-card class="tpi-card-content audit">
+        <ng-template pTemplate="header">
+          <div class="row col-12">
+            <div class="col-12">
+              <span style="font-weight: 600;font-size: 1.5rem;">Audit ( {{period}} )
+              </span>
+            </div>
+          </div>
+        </ng-template>
+        <div class="row">
+          <div class="col-4"><label>Login</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;;">{{monitorInfo?.audit.login.success}} / {{monitorInfo?.audit.login.fail}}</label>
+              <label style="margin-left: 10px; color:#b7b7b7">(Success / Fail)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>User</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;;">{{monitorInfo?.audit.user.create}} /
+              {{monitorInfo?.audit.user.update}} /
+              {{monitorInfo?.audit.user.delete}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(Create / Update / Delete)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Role</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.audit.role.create}} /
+              {{monitorInfo?.audit.role.update}} /
+              {{monitorInfo?.audit.role.delete}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(Create / Update / Delete)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Client</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.audit.client.create}} /
+              {{monitorInfo?.audit.client.update}} / {{monitorInfo?.audit.client.delete}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(Create / Update / Delete)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Group</label></div>
+          <div class="col-8">
+            <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.audit.group.create}} /
+              {{monitorInfo?.audit.group.update}}
+              / {{monitorInfo?.audit.group.delete}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(Create / Update / Delete)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Register API</label></div>
+          <div class="col-8">
+            <label
+              style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.audit.registerApi.create}} /
+              {{monitorInfo?.audit.registerApi.update}} / {{monitorInfo?.audit.registerApi.delete}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(Create / Update / Delete)</label>
+          </div>
+        </div>
+        <hr class="mt-1 mb-1" style="color:#dedede">
+        <div class="row">
+          <div class="col-4"><label>Composer API</label></div>
+          <div class="col-8">
+            <label
+              style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{monitorInfo?.audit.composerApi.create}} /
+              {{monitorInfo?.audit.composerApi.update}} / {{monitorInfo?.audit.composerApi.delete}}</label>
+            <label style="margin-left: 10px; color:#b7b7b7">(Create / Update / Delete)</label>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+  <hr class="mt-3 mb-3" style="border: 1px solid #FFFFFF">
+  <div class="mb-3" style="border-radius:5px;
+        padding: 10px;
+        background: #ffffff;
+        border: 2px solid #D4E0F3;
+        color: #6096E7;">
+    <label class="mb-0 pl-3" style="font-size:1.3rem">Running Node:</label>
+  </div>
+  <div class="row mt-2">
+    <p-card *ngFor="let item of liveNodeList" class="col-4 mb-2 tpi-card-content runningnode">
+      <ng-template pTemplate="header">
+        <div class="row col-12">
+          <span style="font-weight: 600;font-size: 1.2rem;">{{item.nodeName}}</span>
+        </div>
+      </ng-template>
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Foreign IP</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.ip}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Foreign port</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.port}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Keeper Server IP</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.keeperServerIp}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Keeper Server Port</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.keeperServerPort}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Rcd Cache Size</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.rcdCacheSize}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Dao Cache Size</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.daoCacheSize}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Fix Cache Size</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.fixedCacheSize}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Web local IP</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.webLocalIP}} ({{item.fqdn}})</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Web Server Port</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.serverPort}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Context Path</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.contextpath}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>SSL Enabled</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.serverSslEnabled}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Spring Profiles Active</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.springProfilesActive}}</label>
+        </div>
+      </div>
+
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Startup Time</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;">{{formateDate(item.startupTime)}}</label>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <hr class="mt-3 mb-3" style="border: 1px solid #FFFFFF">
+  <div class="mb-3" style="border-radius:5px;
+        padding: 10px;
+        background: #ffffff;
+        border: 2px solid #D4E0F3;
+        color: #6096E7;">
+    <label class="mb-0 pl-3" style="font-size:1.3rem">Running Composer:</label>
+  </div>
+  <div class="row mt-2">
+    <p-card *ngFor="let item of composerNodeList" class="col-4 mb-2 tpi-card-content runningnode">
+      <ng-template pTemplate="header">
+        <div class="row col-12">
+          <span style="font-weight: 600;font-size: 1.2rem;">{{item.composerID}}</span>
+        </div>
+      </ng-template>
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Foreign IP</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.remoteIP}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Keeper API</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;width: 100%;word-wrap: break-word;">{{item.keeperAPI}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Web local IP</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.webLocalIP}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Web Server Port</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.webServerPort}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Version</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{item.version}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Startup Time</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;font-size: 1.3rem;">{{formateDate(item.startupTime)}}</label>
+        </div>
+      </div>
+
+    </p-card>
+  </div>
+
+  <hr class="mt-3 mb-3" style="border: 1px solid #FFFFFF">
+
+  <div class="mb-3" style="border-radius:5px;
+  padding: 10px;
+  background: #ffffff;
+  border: 2px solid #FCD8CA;
+  color: #EA7448;">
+    <label class="mb-0 pl-3" style="font-size:1.3rem">Lost Record:</label>
+  </div>
+
+  <div class="row mt-2">
+    <p-card *ngFor="let item of lostNodeList" class="col-4 mb-2 tpi-card-content lostnode">
+      <ng-template pTemplate="header">
+        <div class="row col-12">
+          <span style="font-weight: 600;font-size: 1.2rem;">{{item.nodeName}}</span>
+        </div>
+      </ng-template>
+      <!-- <div class="form-group row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Node Name</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.nodeName}}</label>
+        </div>
+      </div> -->
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Foreign IP</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.ip}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Foreign port</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;">{{item.port}}</label>
+        </div>
+      </div>
+      <hr class="mt-1 mb-1" style="color:#dedede">
+      <div class="row">
+        <div class="col-4 col-md-6  col-lg-4"><label>Lost Time</label></div>
+        <div class="col-8 col-md-6  col-lg-8">
+          <label style="font-weight:500;font-size: 1.3rem;;color: #FF6E38;">{{formateDate(item.lostTime)}}</label>
+        </div>
+      </div>
+    </p-card>
+  </div>
+  <!-- </div> -->
+  <!-- <div *ngIf="pageNum == 2">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="radio" class="form-check-input" value='0' formControlName="taskType">
+              <span class="control-label">
+                {{'all'|translate}}
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="radio" class="form-check-input" value='1' formControlName="taskType">
+              <span id="cacheName_label" class="control-label">
+                {{'cache_name_label'|translate}}
+              </span>
+            </label>
+          </div>
+          <p-dropdown [options]="dbCacheNameOpt" [style]="{'width':'100%'}" [filter]="true" formControlName="cacheName"
+            placeholder="{{'plz_chs' | translate}}">
+          </p-dropdown>
+          <div *ngIf="cacheName.invalid && (cacheName.dirty || cacheName.touched)" class="text-danger">
+            <small class="form-text">{{cacheName.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="radio" class="form-check-input" value='2' formControlName="taskType">
+              <span id="tableNames_label" class="control-label">
+                {{'table_name_label'|translate}}
+              </span>
+            </label>
+          </div>
+          <input type="text" class="form-control" placeholder="TSMP_API,TSMP_API_REG" formControlName="tableNames">
+          <div *ngIf="tableNames.invalid && (tableNames.dirty || tableNames.touched)" class="text-danger">
+            <small class="form-text">{{tableNames.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn btn-warning float-left mr-3" [disabled]="form.invalid"
+            (click)="refresh();">{{'button.confirm'|translate}}</button>
+          <button type="button" class="btn btn-warning float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div> -->
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

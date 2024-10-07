@@ -1,0 +1,73 @@
+<div class="py-1" [ngClass]="{'container':center}" *ngIf="data">
+    <div class="row">
+        <div [ngClass]="{'mx-auto':center,'col-md-10':center,'col-md-12':!center}">
+            <form>
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label>{{'event_type' | translate}}</label>
+                        <label class="form-control border-line">{{data.eventTypeName}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'event_name' | translate}}</label>
+                        <label class="form-control border-line">{{data.eventName}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'trace_id' | translate}}</label>
+                        <label class="form-control border-line">{{data.traceId}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label>{{'module_name' | translate}}</label>
+                        <label class="form-control border-line">{{data.moduleName}}</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <label>{{'module_version' | translate}}</label>
+                        <label class="form-control border-line">{{data.moduleVersion}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <label>{{'event_msg' | translate}}</label>
+                        <textarea class="form-control border-line" rows="2" style="resize: none;"
+                            [innerHtml]="data.infoMsg" readonly autoResize="autoResize"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label>{{'is_keep_flag' | translate}}</label>
+                        <label class="form-control border-line">{{data.keepFlag}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'is_archive_flag' | translate}}</label>
+                        <label class="form-control border-line">{{data.archiveFlag}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{{'thread_name' | translate}}</label>
+                        <label class="form-control border-line">{{data.threadName}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label>{{'node_task_id' | translate}}</label>
+                        <label class="form-control border-line">{{data.nodeId}}</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <label>{{'node_name' | translate}}</label>
+                        <label class="form-control border-line">{{data.nodeAlias}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label>{{'create_date' | translate}}</label>
+                        <label class="form-control border-line">{{data.createDateTime}}</label>
+                    </div>
+                    <div class="col-sm-6">
+                        <label>{{'create_user' | translate}}</label>
+                        <label class="form-control border-line">{{data.createUser}}</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

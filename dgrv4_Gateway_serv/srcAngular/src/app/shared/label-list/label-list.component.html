@@ -1,0 +1,42 @@
+<div class=" py-1">
+  <p-scrollPanel [style]="{width: '100%', height: '70vh'}">
+    <p-table [value]="tableData" [(selection)]="selected" [style]="{ 'word-break': 'break-word' }"
+      styleClass="p-datatable-striped" responsiveLayout="scroll">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th style="width: 2.25em">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th>{{"label_list"|translate}}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <!-- <tr [pSelectableRow]="rowData"> -->
+          <tr>
+          <td>
+            <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+          </td>
+          <td>{{rowData}}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="6">
+            {{ "no_rec" | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-scrollPanel>
+  <br />
+
+  <div class="text-center">
+    <button type="button" class="btn tpi-btn tpi-primary mr-3" (click)="chooseRole()"
+      [disabled]="tableData.length == 0">
+      {{ "button.confirm" | translate }}
+    </button>
+    <button type="button" class="btn tpi-btn tpi-cancel" (click)="cancelRole()">
+      {{ "button.cancel" | translate }}
+    </button>
+  </div>
+</div>

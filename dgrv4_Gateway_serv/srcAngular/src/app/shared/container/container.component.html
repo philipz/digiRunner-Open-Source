@@ -1,0 +1,32 @@
+<div class="h-100" >
+    <div class="container-fluid h-100" style="padding-left: 10px;margin-top: 10px;">
+        <div class="row h-100 position-relative ">
+            <div class="col pb-5">
+                <div class="card-title row">
+                    <div class="col-12 col-md-12" *ngIf="isDefault">
+                        <h3 class="bd-title  mb-0" id="content">{{title | translate}}</h3>
+                    </div>
+                    <div class="col-12 col-md-12"  style="text-align: right;" *ngIf="!isDefault">
+
+                        <button  type="button" icon=""
+                                 class="btn float-left tpi-header-return"
+                                (click)="return()">
+                                <i class="fas fa-arrow-left" style="margin-right: 5px;"></i>
+                                {{ 'button.return_to_list'| translate}}
+                        </button>
+
+                      <!-- <span class="bd-title mb-0 " id="content">{{title | translate}}</span> -->
+                      <span class="bd-title mb-0" style="color: #666464;">{{getHead()}} /</span>
+                      <span class="bd-title mb-0" style="color: #FF6E38;font-weight: bold;">{{getTail()}}</span>
+                  </div>
+                    <div class="col d-flex justify-content-center">
+                        <ng-content select="[center-view=center]"></ng-content>
+                    </div>
+                </div>
+                <hr class="my-0 mb-2" />
+
+                <ng-content></ng-content>
+            </div>
+        </div>
+    </div>
+</div>

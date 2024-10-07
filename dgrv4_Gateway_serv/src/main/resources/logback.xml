@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+
+	<property name="Charset" value="UTF-8" />
+	<property name="FileName" value="dgr" />
+	<property name="LogsLocation" value="logs" />
+	<property name="Format1" value="%d{HH:mm:ss.SSS} %-5level [%thread][%logger{0}.%M\(%F:%L\)] %msg%n" />
+
+	<!-- appender -->	
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${Format1}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+	</appender>
+	<appender name="fileout" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<maxFileSize>10MB</maxFileSize>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${Format1}</pattern>
+			<charset>${Charset}</charset>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+	</appender>
+	<appender name="fileerr" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.err.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<maxFileSize>10MB</maxFileSize>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${Format1}</pattern>
+			<charset>${Charset}</charset>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+	</appender>
+	
+	<appender name="fileloguuid" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.loguuid.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<maxFileSize>10MB</maxFileSize>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${Format1}</pattern>
+			<charset>${Charset}</charset>
+		</encoder>
+	    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">      
+	      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator"> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+	        <expression>return message.contains("LOGUUID");</expression>
+	      </evaluator>
+	      <OnMismatch>DENY</OnMismatch>
+	      <OnMatch>ACCEPT</OnMatch>
+	    </filter>
+	</appender>
+
+	<appender name="file_sys_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.file_sys_info.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<maxFileSize>10MB</maxFileSize>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${Format1}</pattern>
+			<charset>${Charset}</charset>
+		</encoder>
+	    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">      
+	      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator"> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+	        <expression>
+	        boolean logStartFlag = message.matches(".*Starting DgrApplication( vv\\d+\\.\\d+\\.\\d+)? using Java.*")
+	        || message.contains("Running with Spring Boot")
+	        || message.contains("profile is active");
+			if (logStartFlag) {
+				tpi.dgrv4.gateway.keeper.TPILogger.logStartingMsg.add(message);
+			}
+	        
+	        return 
+	        logStartFlag
+	        || message.contains("dgr-keeper server [go LIVE]")
+	        || message.contains("This Client Connect to dgr-keeper server")
+	        || message.contains("dgRv4 web server info")
+	        || false;
+	        </expression>
+	      </evaluator>
+	      <OnMismatch>DENY</OnMismatch>
+	      <OnMatch>ACCEPT</OnMatch>
+	    </filter>
+	</appender>
+
+	<!-- logger -->
+	<root level="DEBUG">
+	</root>
+	
+	<!-- Logger 的 level 愈大要放愈下面, 不然會被蓋掉 -->
+	<logger name="tpi.dgrv4" level="ERROR" additivity="false">
+			<appender-ref ref="fileerr" />
+	</logger>
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+			<appender-ref ref="file_sys_info" />
+	</logger>
+	<logger name="org.springframework.boot.web.embedded.tomcat" level="INFO" additivity="false">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="fileout" />
+	</logger>
+	<logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="fileout" />
+	</logger>
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+	 	<appender-ref ref="stdout" />
+	</logger>
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+		<appender-ref ref="fileloguuid" />
+	</logger>	
+		<logger name="tpi.dgrv4" level="TRACE" additivity="false">
+	 	<appender-ref ref="fileout" />
+	</logger>	
+	
+
+	
+	<!-- Default: Product Release
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+			<appender-ref ref="file_sys_info" />
+	</logger>
+	<logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+		<appender-ref ref="fileout" />
+	</logger>
+	<logger name="tpi.dgrv4" level="TRACE" additivity="false">
+	 	<appender-ref ref="fileout" />
+	</logger>
+	-->
+
+
+	<!-- Option: DevOps
+	<logger name="tpi.dgrv4" level="ERROR" additivity="false">
+			<appender-ref ref="fileerr" />
+	</logger>
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+			<appender-ref ref="file_sys_info" />
+	</logger>
+	<logger name="org.springframework.boot.web.embedded.tomcat" level="INFO" additivity="false">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="fileout" />
+	</logger>
+	<logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="fileout" />
+	</logger>
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+	 	<appender-ref ref="stdout" />
+	</logger>
+	<logger name="tpi.dgrv4" level="INFO" additivity="false">
+		<appender-ref ref="fileloguuid" />
+	</logger>	
+		<logger name="tpi.dgrv4" level="TRACE" additivity="false">
+	 	<appender-ref ref="fileout" />
+	</logger>
+
+	-->
+	
+	
+	
+	
+
+
+</configuration>

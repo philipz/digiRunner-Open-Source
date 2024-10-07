@@ -1,0 +1,140 @@
+<form [formGroup]="form" (ngSubmit)="submitForm();" autocomplete="off">
+  <div [ngClass]="{'row' : config.data.displayInDialog == false }" *ngIf="!isManager">
+    <div class="col-12" [ngClass]="{'col-lg-3': config.data.displayInDialog == false}">
+      <div class="form-group row">
+        <div class="col-12 col-lg-6">
+          <label *ngIf="config.data.operate == formOperate.create" for="orgName"
+            class="required control-label">{{'dept_name' | translate}}</label>
+          <label *ngIf="config.data.operate == formOperate.update" for="orgName"
+            class="required control-label">{{'new_org_name' | translate}}</label>
+          <input type="text" class="form-control" id="orgName" formControlName="orgName"
+            placeholder="{{'dept_name' | translate}}">
+          <div *ngIf="orgName?.invalid && (orgName?.dirty || orgName?.touched)" class="text-danger">
+            <small class="form-text">{{orgName.errors.stringalias | translate}}</small>
+            <small class="form-text">{{orgName.errors.maxlength | translate:orgNameLimitChar}}</small>
+            <small class="form-text">{{orgName.errors.required | translate}}</small>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <label *ngIf="config.data.operate == formOperate.create" for="conName"
+            class="required control-label">{{'contact_name' | translate}}</label>
+          <label *ngIf="config.data.operate == formOperate.update" for="conName"
+            class="required control-label">{{'new_contact_name' | translate}}</label>
+          <input type="text" class="form-control" id="conName" formControlName="conName"
+            placeholder="{{'contact_name' | translate}}">
+          <div *ngIf="conName?.invalid && (conName?.dirty || conName?.touched)" class="text-danger">
+            <small class="form-text">{{conName.errors.stringalias | translate}}</small>
+            <small class="form-text">{{conName.errors.maxlength | translate:conNameLimitChar}}</small>
+            <small class="form-text">{{conName.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-6">
+          <label *ngIf="config.data.operate == formOperate.create" for="parentId"
+            class="required control-label">{{'belonged_dept' | translate}}</label>
+          <label *ngIf="config.data.operate == formOperate.update" for="parentId"
+            class="required control-label">{{'new_parent_org' | translate}}</label>
+          <div class="ui-inputgroup">
+            <input type="text" class="form-control" id="parentId" formControlName="parentId"
+              placeholder="{{'belonged_dept' | translate}}" [attr.disabled]="true">
+            <!-- button 用文字 會跑版 難看 故改 icon方式呈現 -->
+            <button pButton type="button" class="tpi-night" style="align-items: center;" (click)="openOrgDialog()"
+              [disabled]="config.data.operate == formOperate.delete" [pTooltip]="'org_chart' | translate">
+              <i class="fas fa-sitemap"></i>
+            </button>
+
+            <!-- <button  type="button" icon=""
+                            class="btn tpi-header-return"
+                            (click)="displayOrgChart=true;"
+
+                            [disabled]="config.data.operate == formOperate.delete">
+                           <i class="fas fa-sitemap" style="margin-left: 5px;"></i>
+                            </button> -->
+
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <label *ngIf="config.data.operate == formOperate.create" for="conTEL"
+            class="required control-label">{{'contact_tel' | translate}}</label>
+          <label *ngIf="config.data.operate == formOperate.update" for="conTEL"
+            class="required control-label">{{'new_contact_tel' | translate}}</label>
+          <input type="text" class="form-control" id="conTEL" formControlName="conTEL"
+            placeholder="{{'contact_tel' | translate}}">
+          <div *ngIf="conTEL?.invalid && (conTEL?.dirty || conTEL?.touched)" class="text-danger">
+            <small class="form-text">{{conTEL.errors.required | translate}}</small>
+            <small class="form-text">{{conTEL.errors.maxlength | translate:conTELLimitChar}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-6">
+          <label *ngIf="config.data.operate == formOperate.create" for="orgCode" class="control-label">{{'dept_code' |
+            translate}}</label>
+          <label *ngIf="config.data.operate == formOperate.update" for="orgCode" class="control-label">{{'new_org_code'
+            | translate}}</label>
+          <input type="text" class="form-control" id="orgCode" formControlName="orgCode"
+            placeholder="{{'dept_code' | translate}}">
+          <div *ngIf="orgCode?.invalid && (orgCode?.dirty || orgCode?.touched)" class="text-danger">
+            <small class="form-text">{{orgCode.errors.maxlength | translate:orgCodeLimitChar}}</small>
+            <small class="form-text">{{orgCode.errors.stringname | translate}}</small>
+          </div>
+        </div>
+        <div class="col-12 col-lg-6">
+          <label *ngIf="config.data.operate == formOperate.create" for="conMail"
+            class="required control-label">{{'contact_mail' | translate}}</label>
+          <label *ngIf="config.data.operate == formOperate.update" for="conMail"
+            class="required control-label">{{'new_contact_mail' | translate}}</label>
+          <!-- <input type="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" class="form-control" id="conMail" formControlName="conMail"
+                        placeholder="{{'contact_mail' | translate}}"> -->
+          <input type="mail" class="form-control" id="conMail" formControlName="conMail"
+            placeholder="{{'contact_mail' | translate}}">
+          <div *ngIf="conMail?.invalid && (conMail?.dirty || conMail?.touched)" class="text-danger">
+            <small class="form-text">{{conMail.errors.required | translate}}</small>
+            <small class="form-text">{{conMail.errors.mailFormat | translate}}</small>
+            <small class="form-text">{{conMail.errors.maxlength | translate:conMailLimitChar}}</small>
+            <!-- <div [hidden]="!conMail.errors?.pattern">
+                            Invalid pattern
+                        </div> -->
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 text-center">
+          <button type="submit" class="btn tpi-btn tpi-primary " [disabled]="!isValid">{{submitBtnName}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isManager">
+    <div class="form-group row">
+      <div class="col-12 col-lg-6">
+        <label for="orgName" class="required control-label">{{'new_org_name' | translate}}</label>
+        <input type="text" class="form-control" id="orgName" formControlName="orgName"
+          placeholder="{{'dept_name' | translate}}">
+        <div *ngIf="orgName?.invalid && (orgName?.dirty || orgName?.touched)" class="text-danger">
+          <small class="form-text">{{orgName.errors.stringalias | translate}}</small>
+          <small class="form-text">{{orgName.errors.maxlength | translate:orgNameLimitChar}}</small>
+          <small class="form-text">{{orgName.errors.required | translate}}</small>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-12 text-center">
+        <button type="button" class="btn tpi-btn tpi-primary "
+        (click)="managerUpdate();">{{"button.update"|translate}}</button>
+      </div>
+    </div>
+  </div>
+</form>
+<!-- <p-dialog  header="{{'org_chart' | translate}}" [(visible)]="displayOrgChart" [modal]="true" [responsive]="true"
+    [dismissableMask]="true" [maximizable]="true" [closable]="false" [contentStyle]="{'overflow':'hidden'}">
+    <app-organization *ngIf="displayOrgChart==true" [orgList]="orgList" (selectedNode)="getOrgNode($event);">
+    </app-organization>
+    <p-footer>
+        <button type="button" class="btn tpi-btn tpi-primary"
+            (click)="displayOrgChart=false;">{{'button.confirm' | translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-cancel" (click)="cancelOrg();">{{'button.cancel' | translate}}</button>
+    </p-footer>
+</p-dialog> -->
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

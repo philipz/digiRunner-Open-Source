@@ -1,0 +1,291 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+    <!-- 查詢 -->
+    <div [hidden]="pageNum != 1">
+        <form [formGroup]="form" (ngSubmit)="queryScopeAuthoritiesList()">
+
+          <span class="p-input-icon-right" style="width:40vw">
+            <i class="pi pi-search tpi-i-search" (click)="queryScopeAuthoritiesList();"></i>
+            <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+              placeholder="{{'auth_id'|translate}}、{{'auth_name'|translate}}、{{'group_auth_desc'|translate}}、{{'auth_level'|translate}}">
+          </span>
+
+          <button type="button" class="btn tpi-btn tpi-second float-right" (click)="changePage('create');"
+          [disabled]="canCreate == false">{{'button.create'|translate}}</button>
+            <!-- <div class="form-group row">
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label id="keyword_label" class="control-label" for="keyword">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" id="keyword" formControlName="keyword"
+                        placeholder="{{'auth_id'|translate}}、{{'auth_name'|translate}}、{{'group_auth_desc'|translate}}、{{'auth_level'|translate}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12 col-lg-12">
+                    <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+                        (click)="queryScopeAuthoritiesList();">{{'button.search' | translate}}</button>
+                    <button type="button" class="btn tpi-btn tpi-second float-right" (click)="changePage('create');"
+                        [disabled]="canCreate == false">{{'button.create'|translate}}</button>
+                </div>
+            </div> -->
+        </form>
+        <hr>
+        <p-table *ngIf="cols" [columns]="cols" [value]="groupAuthoritiesList" selectionMode="single"
+            [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped" responsiveLayout="scroll">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+                <colgroup style="width:210px;">{{'action'|translate}}</colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" scope="col">
+                        {{col.header}}
+                    </th>
+                    <th style="width:210px;" scope="col">{{'action'|translate}}</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                <!-- [pSelectableRow]="rowData" 控制高亮 -->
+                <tr>
+                    <td *ngFor="let col of columns">
+                        <span>{{rowData[col.field]}}</span>
+                    </td>
+                    <td style="text-align: center;width: 210px">
+
+                       <button pButton pRipple type="button" icon="pi pi-eye" [disabled]="canDetail == false"
+                              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('detail',rowData);"
+                              [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+
+                      <button pButton pRipple type="button" icon="fa fa-edit" [disabled]=" canUpdate==false"
+                              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update',rowData);"
+                              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+
+                      <button pButton pRipple type="button" icon="fa fa-trash-alt" [disabled]="canDelete == false"
+                              class="p-button-rounded p-button-text p-button-plain" (click)="deleteProc(rowData)"
+                              [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+
+                        <!-- <div class="btn-group">
+                            <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData);"
+                                [disabled]="canDetail == false">
+                                <span class="fa fa-search">{{'button.detail'|translate}}</span>
+                            </button>
+                            <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);"
+                                [disabled]=" canUpdate==false">
+                                <span class="fa fa-edit">{{'button.update'|translate}}</span>
+                            </button>
+                            <button type="button" class="btn btn-deta" (click)="delete(rowData)"
+                                [disabled]="canDelete == false">
+                                <span class="fa fa-trash">{{'button.delete'|translate}}</span>
+                            </button>
+                        </div> -->
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="groupAuthoritiesListRowCount">
+                    <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+                        <span>{{'row_count' | translate}}: {{groupAuthoritiesListRowCount}}</span>
+                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreScopeAuthoritiesList();">{{'button.more'|translate}}</button> -->
+
+                            <!-- 查詢更多 -->
+                            <button  type="button" class="btn tpi-header-return" (click)="moreScopeAuthoritiesList()">{{ 'button.more'| translate}}
+                            <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                            </button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <!-- 建立 -->
+    <div [hidden]="pageNum != 2">
+        <form [formGroup]="form">
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label id="groupAuthoritieId_label" class="control-label">{{'group_auth_id'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="groupAuthoritieId"
+                        placeholder="{{'group_auth_id'|translate}}">
+                    <div *ngIf="groupAuthoritieId?.invalid && (groupAuthoritieId?.dirty || groupAuthoritieId?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{groupAuthoritieId.errors.pattern}}</small>
+                        <small class="form-text">{{groupAuthoritieId.errors.maxlength}}</small>
+                        <small class="form-text">{{groupAuthoritieId.errors.isRequired}}</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label id="groupAuthoritieName_label" class="control-label">{{'group_auth_name'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="groupAuthoritieName"
+                        placeholder="{{'group_auth_name'|translate}}">
+                    <div *ngIf="groupAuthoritieName?.invalid && (groupAuthoritieName?.dirty || groupAuthoritieName?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{groupAuthoritieName.errors.maxlength}}</small>
+                        <small class="form-text">{{groupAuthoritieName.errors.isRequired}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label id="groupAuthoritieDesc_label" class="control-label">{{'group_auth_desc'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="groupAuthoritieDesc"
+                        placeholder="{{'group_auth_desc'|translate}}">
+                    <div *ngIf="groupAuthoritieDesc?.invalid && (groupAuthoritieDesc?.dirty || groupAuthoritieDesc?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{groupAuthoritieDesc.errors.maxlength}}</small>
+                        <small class="form-text">{{groupAuthoritieDesc.errors.isRequired}}</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label id="groupAuthoritieLevel_label"
+                        class="control-label">{{'group_auth_level'|translate}}</label>
+                    <small class="control-label text-danger ml-2">({{'auth_level_remark' | translate}})</small>
+                    <input type="text" class="form-control" formControlName="groupAuthoritieLevel"
+                        placeholder="{{'group_auth_level'|translate}}">
+                    <div *ngIf="groupAuthoritieLevel?.invalid && (groupAuthoritieLevel?.dirty || groupAuthoritieLevel?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{groupAuthoritieLevel.errors.maxlength}}</small>
+                        <small class="form-text">{{groupAuthoritieLevel.errors.isRequired}}</small>
+                        <small class="form-text">{{groupAuthoritieLevel.errors.pattern}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-lg-12">
+                    <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid"
+                        (click)="create();">{{'button.create'|translate}}</button>
+                    <button type="button" class="btn tpi-btn tpi-primary float-left"
+                        (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- 更新 -->
+    <div [hidden]="pageNum != 3">
+        <form [formGroup]="form">
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label id="groupAuthoritieId_label" class="control-label">{{'group_auth_id'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="groupAuthoritieId"
+                        placeholder="{{'group_auth_id'|translate}}">
+                    <div *ngIf="groupAuthoritieId?.invalid && (groupAuthoritieId?.dirty || groupAuthoritieId?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{groupAuthoritieId.errors.pattern}}</small>
+                        <small class="form-text">{{groupAuthoritieId.errors.maxlength}}</small>
+                        <small class="form-text">{{groupAuthoritieId.errors.isRequired}}</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label id="newGroupAuthoritieName_label"
+                        class="control-label">{{'group_auth_name'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="newGroupAuthoritieName"
+                        placeholder="{{'group_auth_name'|translate}}">
+                    <div *ngIf="newGroupAuthoritieName?.invalid && (newGroupAuthoritieName?.dirty || newGroupAuthoritieName?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{newGroupAuthoritieName.errors.maxlength}}</small>
+                        <small class="form-text">{{newGroupAuthoritieName.errors.isRequired}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label id="newGroupAuthoritieDesc_label"
+                        class="control-label">{{'group_auth_desc'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="newGroupAuthoritieDesc"
+                        placeholder="{{'group_auth_desc'|translate}}">
+                    <div *ngIf="newGroupAuthoritieDesc?.invalid && (newGroupAuthoritieDesc?.dirty || newGroupAuthoritieDesc?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{newGroupAuthoritieDesc.errors.maxlength}}</small>
+                        <small class="form-text">{{newGroupAuthoritieDesc.errors.isRequired}}</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label id="newGroupAuthoritieLevel_label"
+                        class="control-label">{{'group_auth_level'|translate}}</label>
+                    <small class="control-label text-danger ml-2">({{'auth_level_remark' | translate}})</small>
+                    <input type="text" class="form-control" formControlName="newGroupAuthoritieLevel"
+                        placeholder="{{'group_auth_level'|translate}}">
+                    <div *ngIf="newGroupAuthoritieLevel?.invalid && (newGroupAuthoritieLevel?.dirty || newGroupAuthoritieLevel?.touched)"
+                        class="text-danger">
+                        <small class="form-text">{{newGroupAuthoritieLevel.errors.maxlength}}</small>
+                        <small class="form-text">{{newGroupAuthoritieLevel.errors.isRequired}}</small>
+                        <small class="form-text">{{newGroupAuthoritieLevel.errors.pattern}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-lg-12">
+                    <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid"
+                        (click)="update();">{{'button.update'|translate}}</button>
+                    <button type="button" class="btn tpi-btn tpi-primary float-left"
+                        (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- 詳細資料 -->
+    <div [hidden]="pageNum != 4">
+        <form *ngIf="groupAuthoritiesDetail">
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label class="control-label">{{'group_auth_id'|translate}}</label>
+                    <label class="form-control border-line">{{groupAuthoritiesDetail.groupAuthoritieId}}</label>
+                </div>
+                <div class="col-sm-6">
+                    <label class="control-label">{{'group_auth_name'|translate}}</label>
+                    <label class="form-control border-line">{{groupAuthoritiesDetail.groupAuthoritieName}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label class="control-label">{{'group_auth_desc'|translate}}</label>
+                    <label class="form-control border-line">{{groupAuthoritiesDetail.groupAuthoritieDesc}}</label>
+                </div>
+                <div class="col-sm-6">
+                    <label class="control-label">{{'group_auth_level'|translate}}</label>
+                    <small class="control-label text-danger ml-2">({{'auth_level_remark' | translate}})</small>
+                    <label class="form-control border-line">{{groupAuthoritiesDetail.groupAuthoritieLevel}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-lg-12">
+                    <button type="button" class="btn tpi-btn tpi-primary float-left"
+                        (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<!-- <p-toast position="center" key="delete" (onClose)="onReject()" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onConfirm()" label="{{'button.confirm' | translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel' | translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

@@ -1,0 +1,14 @@
+<div class="container py-1 px-0">
+    <div [ngClass]="{'row': this.data?.displayInDialog == false}">
+        <div class="col-12" [ngClass]="{'col-lg-3':this.data?.displayInDialog == false}">
+            <div class="form-group row">
+                <div class="col-12 col-xl-12 col-lg-12">
+                    <div class="list-group">
+                        <app-list-group [height]="'10%'" [disableCheckbox]="true" [showButton]="false" [menu]="menus"
+                            style="width:99%;display:block;" [selected]="this.data?.data.funcCodeList"></app-list-group>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

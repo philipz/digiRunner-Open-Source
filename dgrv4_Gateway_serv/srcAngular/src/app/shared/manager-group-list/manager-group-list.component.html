@@ -1,0 +1,81 @@
+<div class=" py-1">
+  <form [formGroup]="form" (ngSubmit)="queryGroupList()">
+    <div class="form-group">
+      <!-- <div class="col-4 col-xl-4 col-lg-4">
+        <label for="keyword">{{'keyword_search'|translate}}</label>
+        <input type="text" class="form-control" formControlName="keyword"
+          placeholder="{{'group_name'|translate}}、{{'group_alias'|translate}}、{{'group_desc'|translate}}">
+      </div> -->
+      <span class="p-input-icon-right" style="width:40vw">
+        <i class="pi pi-search tpi-i-search" (click)="queryGroupList();"></i>
+        <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+          placeholder="{{'group_name'|translate}}、{{'group_alias'|translate}}、{{'group_desc'|translate}}">
+      </span>
+    </div>
+    <p-scrollPanel [style]="{width: '100%', height: '70vh'}">
+      <p-table *ngIf="groupInfoListCols" [columns]="groupInfoListCols" [value]="groupInfoList" selectionMode="single"
+        responsiveLayout="scroll" styleClass="p-datatable-striped" [(selection)]="selectedGroups"
+        [style]="{'word-break':'break-word'}">
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col style="width: 2.25em">
+            <col *ngFor="let col of columns" [style.width]="col.width">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th style="width: 2.25em" scope="col">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th *ngFor="let col of columns" scope="col">
+              {{col.header}}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <!-- [pSelectableRow]="rowData" 控制高亮 -->
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            </td>
+            <td *ngFor="let col of columns" [style.width]="col.width">
+              <!-- <span *ngIf="col.field == 'groupName'">
+              {{ rowData[col.field] }} - ({{ rowData['groupAlias'] }})
+            </span> -->
+              <span>
+                {{ rowData[col.field] }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+          <tr *ngIf="groupInfoList.length>0">
+            <td [attr.colspan]="columns.length+1">
+              <span>{{'row_count' | translate}}: {{groupInfoList.length}}</span>
+              <button type="button" class="btn tpi-btn tpi-primary pull-right ml-3"
+                (click)="moreGroupList();">{{'button.more'|translate}}</button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length+1">
+              {{'no_rec' | translate}}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-scrollPanel>
+    <br />
+
+    <div class="text-center">
+      <button type="button" class="btn tpi-btn tpi-primary mr-3" (click)="chooseGroup()"
+        [disabled]="selectedGroups.length == 0">
+        {{ "button.confirm" | translate }}
+      </button>
+      <button type="button" class="btn tpi-btn tpi-cancel" (click)="cancelGroup()">
+        {{ "button.cancel" | translate }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,10 @@
+.preview{
+    height: 300px;
+    background: #e9ecef;
+    word-break:break-all;
+    overflow: auto;
+}
+
+.form-group label {
+  background: #F6F6F6;
+}

@@ -1,0 +1,12 @@
+<div class="row" #content>
+  <div class="col-12">
+      <ng-template #srcUrlInput></ng-template>
+      <div style="color:red" [hidden]="_equal100">
+        <small>{{'equal100'| translate}}</small>
+      </div>
+      <button type="button" class="btn tpi-second" (click)="addSrcUrlInput()" [hidden]="_disabled"
+          style="border-radius: 50%;">
+      <i class="fa fa-plus"></i>
+  </button>
+  </div>
+</div>

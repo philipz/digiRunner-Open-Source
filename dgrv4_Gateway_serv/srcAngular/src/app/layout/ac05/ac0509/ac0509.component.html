@@ -1,0 +1,265 @@
+<app-container [title]="currentTitle"  [isDefault]="pageType == 'default'" (headerReturn)="headerReturn()">
+    <div [hidden]="pageType != 'default'">
+        <form [formGroup]="form" (ngSubmit)="submitForm();">
+            <div class="form-group row">
+                <div class="col-8">
+                    <label id="startDate_label" class="control-label" for="startDate">{{'date_range'|translate}}</label>
+                    <label id="endDate_label" class="control-label" for="endDate"
+                        style="display: none;">{{'date_range'|translate}}</label>
+                    <div class="row">
+                        <div class="col-1 col-xl-1 ">
+                            <p-button type="button" icon="pi pi-caret-left" (onClick)="preMonth();" styleClass="tpi-dark">
+                            </p-button>
+                        </div>
+                        <div class="col-1 col-xl-1 px-0" style="text-align: center;">
+                            <span style="font-size: larger;">{{currentDate.getMonth() + 1}}
+                                {{'calendar.month'|translate}}</span>
+                        </div>
+                        <div class="col-1 col-xl-1">
+                            <p-button type="button" icon="pi pi-caret-right" (onClick)="nextMonth()" styleClass="tpi-dark">
+                            </p-button>
+                        </div>
+                        <div class="col-4">
+                            <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                formControlName="startDate" dateFormat="yy-mm-dd" [showIcon]="true" [showIcon]="true"
+                                showButtonBar="true" id="startDate" class="control-label"
+                                (onTodayClick)="onTodayClick('dateS')"></p-calendar>
+                            <div *ngIf="startDate?.invalid && (startDate?.dirty || startDate?.touched)" class="text-danger">
+                                <small class="form-text">{{startDate.errors.isRequired | translate}}</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <p-calendar [style]="{'width':'95%'}" formControlName="endDate" appendTo="body"
+                                [inputStyle]="{'width':'100%'}" dateFormat="yy-mm-dd" [showIcon]="true" id="endDate"
+                                showButtonBar="true" class="control-label" (onTodayClick)="onTodayClick('dateE')">
+                            </p-calendar>
+                            <div *ngIf="endDate?.invalid && (endDate?.dirty || endDate?.touched)" class="text-danger">
+                                <small class="form-text">{{endDate.errors.isRequired | translate}}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12">
+                    <label class="control-label" for="keywords">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" id="keywords" formControlName="keywords"
+                        placeholder="{{'user_alias'|translate}}、{{'client_id'|translate}}、{{'api_url'|translate}}、{{'api_event'|translate}}、{{'user_ip'|translate}}、{{'user_hostname'|translate}}、{{'user_role'|translate}}、{{'param_name'|translate}}、ORIG API URL、{{'host_uuid'|translate}}">
+                </div>
+            </div>
+            <div class="form-group pt-2">
+                <button type="submit" class="btn tpi-btn tpi-primary pull-right mr-3" [disabled]="form.invalid">{{'button.search' |
+                    translate}}</button>
+            </div>
+        </form>
+        <hr>
+        <p-table *ngIf="cols" [columns]="cols" [value]="tableData" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped">
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'audit_id'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'client_id'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'api_url'|translate}}</th>
+                    <th rowspan="2" style="width: 15%;" scope="col">{{'api_event'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'user_ip'|translate}}</th>
+                    <th rowspan="2" style="width: 15%;" scope="col">{{'user_role'|translate}}</th>
+                    <th rowspan="2" style="width: 10%;" scope="col">{{'event_create_datetime'|translate}}</th>
+                    <th rowspan="2" style="width: 10%;" scope="col">{{'action'|translate}}</th>
+                </tr>
+                <tr>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'host_uuid'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'user_alias'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">ORIG API URL</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'user_hostname'|translate}}</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-i="rowIndex">
+                <tr>
+                    <td rowspan="1" style="width: 5%;">{{rowData.auditLongId}}</td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.clientId == ''">&nbsp;</span>
+                        <span *ngIf="rowData.clientId != ''">{{rowData.clientId}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 20%;">
+                        <span>{{rowData.apiUrl}}</span>
+                    </td>
+                    <td rowspan="2" style="width: 5%;">{{rowData.eventNo}} - {{rowData.eventName}}</td>
+
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.userIp == ''">&nbsp;</span>
+                        <span *ngIf="rowData.userIp != ''">{{rowData.userIp}}</span>
+                    </td>
+
+                    <td rowspan="2" style="width: 5%;">{{rowData.userRole}}</td>
+                    <td rowspan="2" style="width: 5%;">{{rowData.createDateTime}}</td>
+
+                    <td rowspan="2" style="text-align:center">
+                        <!-- <div class="btn-group">
+                            <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData)">
+                                <span class="fa fa-search">{{'detail'|translate}}</span>
+                            </button>
+                        </div> -->
+                        <button pButton pRipple type="button" icon="pi pi-eye"
+                                class="p-button-rounded p-button-text p-button-plain" (click)="changePage('detail', rowData)"
+                                [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.txnUid == ''">&nbsp;</span>
+                        <span *ngIf="rowData.txnUid != ''">{{rowData.txnUid}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.userName == ''">&nbsp;</span>
+                        <span *ngIf="rowData.userName != ''">{{rowData.userName}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.origApiUrl == ''">&nbsp;</span>
+                        <span *ngIf="rowData.origApiUrl != ''">{{rowData.origApiUrl}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.userHostname == ''">&nbsp;</span>
+                        <span *ngIf="rowData.userHostname != ''">{{rowData.userHostname}}</span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="tableData && tableData.length>0">
+                    <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+                        <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableData && tableData.length}}</span>
+                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+                            <!-- 查詢更多 -->
+                            <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                            <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                            </button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div [hidden]="pageType != 'detail'">
+        <div class="form-group row">
+            <div class="col-4">
+                <label class="control-label">{{'audit_id' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.auditLongId}}</label>
+            </div>
+            <div class="col-4">
+                <label class="control-label">{{'event_create_datetime' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.createDateTime}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12">
+                <label class="control-label">{{'host_uuid' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.txnUid}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12">
+                <label class="control-label">{{'api_url' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.apiUrl}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12">
+                <label class="control-label">ORIG API URL</label>
+                <label class="form-control border-line">{{selectItem.origApiUrl}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4">
+                <label class="control-label">{{'client_id' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.clientId}}</label>
+            </div>
+            <div class="col-4">
+                <label class="control-label">{{'user_alias' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.userName}}</label>
+            </div>
+            <div class="col-4">
+                <label class="control-label">{{'api_event' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.eventNo}} - {{selectItem.eventName}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4">
+                <label class="control-label">{{'user_ip' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.userIp}}</label>
+            </div>
+            <div class="col-4">
+                <label class="control-label">{{'user_hostname' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.userHostname}}</label>
+            </div>
+        </div>
+        <!-- 使用者角色 -->
+        <div class="form-group row">
+            <div class="col-12">
+                <label class="control-label">{{'user_role' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.userRole}}</label>
+            </div>
+        </div>
+
+        <div class="form-group row" *ngIf="selectItem?.param1 && selectItem?.param1.length>0">
+            <div class="col-12">
+                <label class="control-label">{{'param.1' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.param1}}</label>
+            </div>
+        </div>
+        <div class="form-group row" *ngIf="selectItem?.param2 && selectItem?.param2.length>0">
+            <div class="col-12">
+                <label class="control-label">{{'param.2' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.param2}}</label>
+            </div>
+        </div>
+        <div class="form-group row" *ngIf="selectItem?.param3 && selectItem?.param3.length>0">
+            <div class="col-12">
+                <label class="control-label">{{'param.3' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.param3}}</label>
+            </div>
+        </div>
+        <div class="form-group row" *ngIf="selectItem?.param4 && selectItem?.param4.length>0">
+            <div class="col-12">
+                <label class="control-label">{{'param.4' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.param4}}</label>
+            </div>
+        </div>
+        <div class="form-group row" *ngIf="selectItem?.param5 && selectItem?.param5.length>0">
+            <div class="col-12">
+                <label class="control-label">{{'param.5' | translate}}</label>
+                <label class="form-control border-line">{{selectItem.param5}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12">
+                <label class="control-label" style="border-bottom:1px solid #ddd;">{{'stack_trace' | translate}}</label>
+                <pre
+                    style="width: 100%; white-space: pre-wrap; word-wrap: break-word;font-size: 1rem;padding: 1rem;">{{selectItem.stackTrace}}</pre>
+            </div>
+        </div>
+
+        <div class="form-group col-12">
+            <ng-template #paramitem></ng-template>
+          </div>
+
+
+        <div class="form-group row">
+            <div class="col-12 col-lg-12">
+                <button type="button" class="btn tpi-btn tpi-primary float-left mr-2" [disabled]="generated"
+                    (click)="getDetailData()">{{'button.expansion'|translate}}</button>
+
+                <button type="button" class="btn tpi-btn tpi-primary float-left"
+                    (click)="changePage('default');">{{'button.return_to_list'|translate}}</button>
+            </div>
+
+        </div>
+
+    </div>
+</app-container>

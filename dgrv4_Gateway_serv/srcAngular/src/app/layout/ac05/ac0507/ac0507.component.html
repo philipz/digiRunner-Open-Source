@@ -1,0 +1,215 @@
+<app-container [title]="currentTitle">
+    <div [hidden]="pageNum != 1">
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div class="form-group row">
+                <div class="col-6 col-xl-6">
+                    <label class="control-label">{{'date_range'|translate}}</label>
+                    <div class="row">
+                        <div class="col-6 col-xl-6">
+                            <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" formControlName="timeStart" appendTo="body"
+                            dateFormat="yy-mm-dd" showTime="true" [showIcon]="true"></p-calendar>
+                            </div>
+                            <div class="col-6 col-xl-6">
+                                <p-calendar [style]="{'width':'95%'}" formControlName="timeEnd" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                dateFormat="yy-mm-dd" showTime="true" [showIcon]="true">
+                            </p-calendar>
+                            </div>
+                    </div>
+
+                </div>
+                <!-- <div class="col-3 col-xl-3"> -->
+                    <!-- <label class="control-label">{{'end_time'|translate}}</label> -->
+
+                <!-- </div> -->
+                <div class="col-3 col-xl-3">
+                    <label class="control-label">{{'txid_api'|translate}}</label>
+                    <!-- <input type="text" class="form-control" id="txID" formControlName="txID" placeholder="txID"> -->
+                    <div class="ui-inputgroup">
+                        <input type="text" class="form-control" formControlName="apiAlias"
+                            placeholder="{{'module_name' | translate}}-{{'api_name'|translate}}({{'api_key'|translate}})">
+                        <button pButton type="button" icon="pi pi-search" class="ml-1 tpi-primary"
+                            (click)="changePage('api_list');"></button>
+                    </div>
+                </div>
+                <div class="col-3 col-xl-3">
+                    <label for="keyword" class="control-label">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="keyword"
+                        placeholder="{{'user'|translate}}、{{'r_code'|translate}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-3">
+                    <button type="submit" class="btn tpi-btn tpi-primary pull-right">{{'button.search'|translate}}</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <p-table *ngIf="cols" [columns]="selectedColumns" [value]="auditLogList" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped"
+            [resizableColumns]="false" selectionMode="single">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+                <colgroup style="width:130px;">{{'action'|translate}}</colgroup>
+            </ng-template>
+            <ng-template pTemplate="caption">
+                <div class="cus_label" style="text-align:left;display: table;">
+                    <p-multiSelect [options]="cols" [(ngModel)]="selectedColumns" optionLabel="header"
+                        selectedItemsLabel="{{'cols_selected'|translate:selectedColumns.length}}"
+                        [style]="{minWidth: '200px','z-index':'999'}" defaultLabel="{{'chs_cols'|translate}}">
+                    </p-multiSelect>
+                    <div class="pl-1" style="display:table-cell;vertical-align: middle">
+                        <button *ngIf="auditLogList" class="btn tpi-btn tpi-primary float-right p-1 ml-2"
+                            (click)="exportFile(true)">{{
+                            'button.export_excel' | translate }}</button>
+                    </div>
+                    <!-- <div class="pl-1" style="display:table-cell;vertical-align: middle">
+                        <button *ngIf="auditLogList" class="btn btn-warning float-right p-0 ml-2"
+                            (click)="exportFile(false)">{{
+                            'button.export_csv' | translate }}</button>
+                    </div> -->
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" scope="col" pResizableColumn>
+                        {{col.header}}
+                    </th>
+                    <th style="width:130px;" scope="col">{{'action'|translate}}</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-i="rowIndex">
+                <tr>
+                    <td *ngFor="let col of columns">
+                        {{ rowData[col.field] }}
+                    </td>
+                    <td style="text-align:center;width: 130px;">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData)">
+                                <span class="fa fa-search">{{'button.detail'|translate}}</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="rowcount">
+                    <td [attr.colspan]="columns.length+1">
+                        {{'row_count' | translate}}: {{rowcount}}
+                        <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreAuditLogData();">{{'button.more'|translate}}</button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <!-- API清單 -->
+    <div [hidden]="pageNum != 2">
+        <form [formGroup]="apiForm" (ngSubmit)="queryApiList();">
+            <div class="form-group row">
+                <div class="col-6 col-xl-6">
+                    <label for="keyword" class="control-label">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" formControlName="keyword"
+                        placeholder="{{'module_name'|translate}}、{{'api_name'|translate}}、{{'api_key'|translate}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-3">
+                    <button type="submit" class="btn btn-warning pull-right">{{'button.search'|translate}}</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <p-table *ngIf="apiListCols" [columns]="apiListCols" [value]="apiList" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped"
+            selectionMode="single" [(selection)]="selectedApi">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col style="width: 2.25em">
+                    <col *ngFor="let col of columns" style="width: inherit;">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns selectionMode="multiple">
+                <tr>
+                    <th style="width: 2.25em" scope="col"></th>
+                    <th *ngFor="let col of columns" style="width: inherit;" scope="col">
+                        {{col.header}}
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <!-- [pSelectableRow]="rowData" 控制高亮 -->
+                <tr>
+                    <td>
+                        <p-tableRadioButton [value]="rowData"></p-tableRadioButton>
+                    </td>
+                    <td *ngFor="let col of columns" style="width: auto;">
+                        <span>
+                            {{rowData[col.field].val}}
+                            <a *ngIf="rowData[col.field].t == true" href="javascript:void(0)"
+                                pTooltip="{{rowData[col.field].ori}}"
+                                (click)="copyData(rowData[col.field].ori);">...{{'show_more'|translate}}</a>
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="apiListRowcount">
+                    <td [attr.colspan]="columns.length+1">
+                        {{'row_count' | translate}}: {{apiListRowcount}}
+                        <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreApiList();">{{'button.more'|translate}}</button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <br>
+        <div class="form-group row">
+            <div class="col-6 col-xl-6">
+                <button type="button" class="btn btn-warning pull-right mr-3"
+                    (click)="chooseApi();">{{'button.confirm'|translate}}</button>
+                <button type="button" class="btn btn-warning pull-right mr-3"
+                    (click)="cancelApi();">{{'button.cancel'|translate}}</button>
+            </div>
+        </div>
+    </div>
+    <div [hidden]="pageNum != 3">
+        <form *ngIf="auditLogDetail">
+            <div class="form-group row">
+                <div class="col-12 col-xl-12">
+                    <label class="control-label">Http Header</label>
+                    <textarea class="form-control" rows="5" style="resize: none;"
+                        [innerHtml]="auditLogDetail.httpHeader" readonly autoResize="autoResize"></textarea>
+                </div>
+            </div>
+            <hr>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12">
+                    <label class="control-label">Body</label>
+                    <textarea class="form-control" rows="15" style="resize: none;" [innerHtml]="auditLogDetail.mBody"
+                        readonly autoResize="autoResize"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-12 col-xl-12">
+                    <button type="button" class="btn btn-warning pull-right mr-3"
+                        (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

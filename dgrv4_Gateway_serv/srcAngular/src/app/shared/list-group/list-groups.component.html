@@ -1,0 +1,37 @@
+<form [formGroup]="form">
+    <div [ngStyle]="{'max-height': this.height}" style="overflow-y:auto;overflow-x: hidden">
+        <div class="row" style="display: block;">
+            <div class="col">
+                <ul class="list-group list-group-flush" *ngFor="let menu of filter(newMenus);let i = index">
+                    <li class="list-group-item px-0">
+                        <div class="checkbox">
+                            <div>
+                                <input type="checkbox" value=""
+                                    (change)="menuChange($event,(menuMainReplace(menu.main)))"
+                                    [formControlName]="(menuMainReplace(menu.main))">
+                                <a class="btn collapsed" data-toggle="collapse" [href]="'#mains'+menu.main.replace('.','_')"
+                                    role="button" aria-expanded="true">
+                                    {{menu.main | transform_menu}}<span class="mr-3"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="collapse" [id]="'mains'+menu.main.replace('.','_')" *ngIf="menu.subs && menu.subs.length">
+                            <div class="form-check" class="list-group-item" *ngFor="let sub of menu.subs;let j = index">
+                                <input type="checkbox"
+                                    (change)="menuChange($event,(menuMainReplace(menu.main)+'-'+j.toString()))"
+                                    class="form-check-input" [id]="menu.main.replace('.','_')+'_'+sub.name+'-'+j.toString()"
+                                    [formControlName]="(menuMainReplace(menu.main)+'-'+j.toString())">
+                                <label class="form-check-label" [for]="sub.name"
+                                    style="margin-left:10px;position:absolute;bottom:18px;">
+                                    {{sub.name | transform_menu}} ({{sub.value}})</label>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col text-center" *ngIf="showButton">
+                <button type="button" (click)="click()" class="btn btn-warning">Update</button>
+            </div>
+        </div>
+    </div>
+</form>

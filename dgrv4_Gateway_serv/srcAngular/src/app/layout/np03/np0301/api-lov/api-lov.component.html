@@ -1,0 +1,89 @@
+<div class="container py-1">
+    <div class="row">
+        <div class="col-12 col-sm-12">
+            <div class="ui-inputgroup">
+                <input class="form-control" type="text" placeholder="{{'keyword_search'|translate}}"
+                    [(ngModel)]='keyword' (keyup.enter)="searchAPI()">
+                <button pButton type="button" icon="pi pi-search" class="tpi-night"
+                    (click)="searchAPI();"></button>
+            </div>
+        </div>
+        <!-- <div class="col-2 col-sm-2">
+            <button type="button" pButton icon="pi pi-search" (click)="searchAPI();"></button>
+        </div> -->
+    </div>
+    <br>
+    <p-table *ngIf="cols" [columns]="cols" [value]="dataList" [(selection)]="selected" styleClass="p-datatable-striped"
+        [style]="{'word-break':'break-word'}">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col style="width: 2.25em">
+                <col *ngFor="let col of columns" [style.width]="col.width">
+            </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngIf="config.data.data.selectionMode == 'multiple'" style="width: 2.25em" scope="col">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th *ngIf="config.data.data.selectionMode == 'single'" style="width: 2.25em" scope="col"></th>
+                <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+                    {{col.header}}
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr [pSelectableRow]="rowData">
+                <td *ngIf="config.data.data.selectionMode == 'multiple'">
+                    <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                </td>
+                <td *ngIf="config.data.data.selectionMode == 'single'">
+                    <p-tableRadioButton [value]="rowData"></p-tableRadioButton>
+                </td>
+                <td *ngFor="let col of columns" [style.width]="col.width">
+                    <span *ngIf="col.field=='apiName'">
+                        ({{rowData['apiKey']}},{{rowData['moduleName']}}) - {{rowData['apiName']}}
+                    </span>
+                    <span *ngIf="col.field != 'apiName' && col.field != 'themeDatas' && col.field != 'fileName'">
+                        {{rowData[col.field]}}
+                    </span>
+                    <div *ngIf="col.field == 'themeDatas'">
+                        <span *ngFor="let themeItem of rowData[col.field] | keyvalue;let i = index">
+                            {{themeItem.value}}
+                            <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                        </span>
+                    </div>
+                    <span *ngIf="col.field == 'fileName'">
+                        <a href="javascript:void(0)" (click)="downloadFile(rowData['filePath'],rowData['fileName']);">
+                            {{fileNameConvert(rowData['fileName'])}}
+                        </a>
+                    </span>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+            <tr *ngIf="rowcount">
+                <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+                    <span>{{'row_count' | translate}}: {{rowcount}}</span>
+                    <!-- <button type="button" class="btn btn-warning pull-right ml-3" (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+                    <!-- 查詢更多 -->
+                    <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                      <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length+1">
+                    {{'no_rec' | translate}}
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <br>
+    <div class="text-center">
+        <button type="button" class="btn tpi-btn tpi-primary" (click)="chooseAPI();">{{'button.save'|translate}}</button>
+    </div>
+</div>

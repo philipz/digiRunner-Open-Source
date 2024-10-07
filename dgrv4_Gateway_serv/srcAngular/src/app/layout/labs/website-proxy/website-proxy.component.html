@@ -1,0 +1,284 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form">
+
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- <label id="status_label" class="control-label">{{ "keyword_search" | translate }}</label> -->
+          <span class="p-input-icon-right" style="width: 100%;">
+            <i class="pi pi-search tpi-i-search" (click)="queryData();"></i>
+            <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+              placeholder="{{'website_name'|translate}}、URL、Context Path、{{'remark'| translate}}"
+              (keyup.enter)="queryData()">
+          </span>
+        </div>
+        <div class="col-4">
+          <!-- <label id="status_label" class="control-label">{{ "status" | translate }}</label> -->
+          <div class="p-form-check-line form-group">
+            <ng-container *ngFor="let stat of statusList">
+              <div class="p-form-check">
+                <p-radioButton formControlName="websiteStatus" value={{stat.value}}
+                  inputId="websiteStatus{{stat.value}}"></p-radioButton>
+                <label for="websiteStatus{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="col">
+          <button type="button" class="btn tpi-btn tpi-second float-right"
+            (click)="changePage('create');">{{'button.create'|translate}}</button>
+        </div>
+
+      </div>
+      <!-- <div class="form-group row">
+        <div class="col-6">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3 "
+            (click)="queryData();">{{'button.search' | translate}}</button>
+        </div>
+        <div class="col-6">
+
+          <button type="button" class="btn tpi-btn tpi-second float-right"
+            (click)="changePage('create');">{{'button.create'|translate}}</button>
+        </div>
+      </div> -->
+      <div class="col-12 px-0" style="display: flex;justify-content: space-between;">
+
+        <button type="button" class="btn tpi-btn tpi-primary mr-2"
+          (click)="exportWebsiteProxy()">{{'button.export'|translate}}</button>
+
+        <div style="display: flex;align-items: center;">
+
+          <div class="ui-inputgroup mr-2">
+            <input type="file" id="file" style="display: none;" accept=".xlsx" (change)="fileChange($event)">
+            <input type="text" class="form-control" value="{{fileName}}" readOnly
+              placeholder="{{'upload_file' | translate}}">
+            <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+              [pTooltip]="'upload_file' | translate" tooltipPosition="top" (click)="openFileBrowser();"></button>
+          </div>
+          <button type="button" class="btn tpi-btn tpi-primary mr-2" [disabled]="!fileName"
+            (click)="importWebsiteProxy()">{{'button.import'|translate}}</button>
+          <!-- <i class="far fa-question-circle" pTooltip="{{'import_key_tip'|translate:{key:'WEBSITE_NAME'} }}" -->
+          <i class="far fa-question-circle tip" pTooltip='<ol style="padding-inline-start: 20px;margin-block-end: 0;"><li>{{"import_key_tip"|translate:{key:"WEBSITE_NAME"} }}</li><li>{{"target_url_remove_n_import"|translate }}</li></ol>'
+           [escape]="false"></i>
+        </div>
+      </div>
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="tableData" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field != 'remark'"
+              [ngStyle]="{color: (col.field == 'statusName' && rowData['status'] == 'N')? '#dc3545' : ''}">
+              {{rowData[col.field]}}
+            </span>
+            <span *ngIf="col.field == 'remark'">
+              {{originStringTable(rowData[col.field])}}
+              <label class="moreless" *ngIf="rowData[col.field].ori" (click)="switchOri(rowData[col.field])">
+                {{rowData[col.field].t ? ("show_more" | translate) :'' }}
+                <i class="fas"
+                  [ngClass]="[rowData[col.field].t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                {{rowData[col.field].t ? '' : ("show_less" | translate) }}
+              </label>
+            </span>
+          </td>
+          <td style="text-align:center;width: 150px">
+            <div>
+              <!-- 詳細資料 -->
+              <button pButton pRipple type="button" icon="pi pi-eye"
+                class="p-button-rounded p-button-text p-button-plain" (click)="changePage('detail', rowData)"
+                [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+
+              <!-- 更新 -->
+              <button pButton pRipple type="button" icon="fa fa-edit"
+                class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+                [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+
+              <!-- 刪除 -->
+              <button pButton pRipple type="button" icon="fa fa-trash-alt"
+                class="p-button-rounded p-button-text p-button-plain" (click)="changePage('delete',rowData)"
+                [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableData.length>0">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableData.length}}</span>
+            <button type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- 建立 / 更新 / 詳細資料 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="formC">
+      <div class="form-group row">
+        <div class="col-4">
+          <label id="websiteName_label" for="websiteName" class="control-label">{{ "website_name" | translate }}</label>
+          <input type="text" class="form-control" id="websiteName" formControlName="websiteName">
+          <div *ngIf="websiteNameC.invalid && (websiteNameC.dirty || websiteNameC.touched)" class="text-danger">
+            <small class="form-text">{{websiteNameC.errors.isRequired}}</small>
+            <small class="form-text">{{websiteNameC.errors.maxlength | translate}}</small>
+          </div>
+        </div>
+        <div class="col-4">
+          <label id="websiteStatus_label" for="websiteStatus" class="control-label">{{ "status" | translate }}</label>
+          <div class="p-form-check-line form-group">
+            <ng-container *ngFor="let stat of statusListIgnoreAll">
+              <div class="p-form-check">
+                <p-radioButton formControlName="websiteStatus" value={{stat.value}}
+                  inputId="websiteStatus_{{stat.value}}"></p-radioButton>
+                <label for="websiteStatus_{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+              </div>
+            </ng-container>
+          </div>
+          <!-- <div>
+            <div class="form-check-inline" *ngFor="let stat of statusListIgnoreAll">
+              <label class="form-check-label ml-2">
+                <input type="radio" class="form-check-input" formControlName="websiteStatus" value="{{ stat.value }}"
+                  [ngClass]="(stat.value=='Y'||stat.value=='N') ? stat.value=='Y'? 'bluerdo':'redrdo' : ''" />{{stat.label}}
+              </label>
+            </div>
+          </div> -->
+          <div *ngIf="websiteStatusC.invalid && (websiteStatusC.dirty || websiteStatusC.touched)" class="text-danger">
+            <small class="form-text">{{websiteStatusC.errors.isRequired}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <label class="control-label">{{ "check_item" | translate }}</label>
+          <div class="p-form-check-line">
+            <div class="p-form-check">
+              <p-checkbox [binary]="true" inputId="auth" formControlName="auth" trueValue="Y"
+                falseValue="N"></p-checkbox>
+              <label class="mb-0 ml-2" for="auth">Auth</label>
+            </div>
+            <div class="p-form-check">
+              <p-checkbox [binary]="true" inputId="sqlInj" formControlName="sqlInjection" trueValue="Y"
+                falseValue="N"></p-checkbox>
+              <label class="mb-0 ml-2" for="sqlInj">SQL Injection</label>
+            </div>
+            <div class="p-form-check">
+              <p-checkbox [binary]="true" inputId="tps" formControlName="traffic" trueValue="Y"
+                falseValue="N"></p-checkbox>
+              <label class="mb-0 ml-2" for="tps">TPS</label>
+            </div>
+            <div class="p-form-check">
+              <p-checkbox [binary]="true" inputId="xss" formControlName="xss" trueValue="Y" falseValue="N"></p-checkbox>
+              <label class="mb-0 ml-2" for="xss">XSS</label>
+            </div>
+            <div class="p-form-check">
+              <p-checkbox [binary]="true" inputId="xxe" formControlName="xxe" trueValue="Y" falseValue="N"></p-checkbox>
+              <label class="mb-0 ml-2" for="xxe">XXE</label>
+            </div>
+            <div class="p-form-check">
+              <p-checkbox [binary]="true" inputId="showLog" formControlName="showLog" trueValue="Y"
+                falseValue="N"></p-checkbox>
+              <label class="mb-0 ml-2" for="showLog">Show Log</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="form-group">
+        <label id="showLog_label" for="showLog" class="control-label">{{ 'show4logs'| translate}}</label>
+        <div class="col-12">
+          <div class="form-check-inline col-12">
+            <label class="form-check-label">
+              <input type="radio" class="form-check-input" formControlName="showLog" value="Y">{{ 'yes'| translate}}
+            </label>
+            <label class="form-check-label ml-5">
+              <input type="radio" class="form-check-input" formControlName="showLog" value="N">{{ 'negate'| translate}}
+            </label>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- URL -->
+      <div class="form-group">
+        <app-website-setting formControlName="webSiteList" (formValid)="formValid($event)"></app-website-setting>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-7">
+          <label id="tps_label" for="tps" class="control-label">{{ "tps_node" | translate }}</label>
+          <input id="tps" type="number" class="form-control" formControlName="tps">
+          <div *ngIf="tps.invalid && (tps.dirty || tps.touched)" class="text-danger">
+            <small class="form-text">{{tps.errors.isRequired}}</small>
+            <small class="form-text">{{tps.errors.min | translate}}</small>
+            <small class="form-text">{{tps.errors.max | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-7">
+          <label id="ignoreApi_label" for="ignoreApi" class="control-label">Ignore API</label>
+          <textarea id="ignoreApi" rows="3" class="form-control" formControlName="ignoreApi"></textarea>
+        </div>
+      </div>
+
+      <!-- 備註 -->
+      <div class="form-group row">
+        <div class="col-7">
+          <label id="remark_label" for="remark" class="control-label">{{ "memo" | translate }}</label>
+          <textarea rows="3" formControlName="remark" class="form-control"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn float-left mr-3" [hidden]="currentAction=='detail'"
+            [ngClass]="[btnName == ('button.create'|translate) ? 'tpi-second': 'tpi-primary']"
+            [disabled]="!formC.valid || !this._formValid" (click)="procData();">{{btnName}}</button>
+
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

@@ -1,0 +1,115 @@
+<div class="py-1" [ngClass]="{'container':center}" *ngIf="data">
+    <div class="row">
+        <div [ngClass]="{'mx-auto':center,'col-md-10':center,'col-md-12':!center}">
+            <!-- <form> -->
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label>{{'add_job_id'|translate}}</label>
+                    <label class="form-control border-line">{{data.apptJobId}}</label>
+                </div>
+                <div class="col-sm-4">
+                    <label>{{'item_no'|translate}}</label>
+                    <label class="form-control border-line">{{data.itemName}}</label>
+                </div>
+                <div class="col-sm-4">
+                    <label>{{'subitem_no'|translate}}</label>
+                    <label class="form-control border-line">{{data.subItemName}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label>{{'can_exec'|translate}}</label>
+                    <label class="form-control border-line">{{data.canExec}}</label>
+                </div>
+                <div class="col-sm-3">
+                    <label>{{'status'|translate}}</label>
+                    <label class="form-control border-line">{{data.status}}</label>
+                </div>
+                <div class="col-sm-3">
+                    <label>{{'job_step'|translate}}</label>
+                    <label class="form-control border-line">{{data.jobStep}}</label>
+                </div>
+                <div class="col-sm-3">
+                    <label>{{'exec_result'|translate}}</label>
+                    <label class="form-control border-line">{{data.execResult}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label>{{'exec_owner'|translate}}</label>
+                    <label class="form-control border-line">{{data.execOwner}}</label>
+                </div>
+                <div class="col-sm-6">
+                    <label>{{'start_time'|translate}}</label>
+                    <label class="form-control border-line">{{data.startDateTime}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label>{{'params'|translate}}</label>
+                    <label class="form-control border-line" style="height: unset;">
+                        <textarea class="form-control" rows="10" style="resize: none;" readonly
+                            autoResize="autoResize">{{data.inParams}}</textarea>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label>{{'identif_data'|translate}}</label>
+                    <label class="form-control border-line" style="height: unset;">
+                        <textarea class="form-control" rows="10" style="resize: none;" readonly
+                            autoResize="autoResize">{{data.identifData}}</textarea>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label>{{'exec_msg'|translate}}</label>
+                    <label class="form-control border-line" style="height: unset;"></label>
+                    <!-- ngModel in form tag need [ngModelOptions]="{standalone: true}" -->
+                    <textarea class="form-control" rows="10" style="resize: none;" readonly
+                        autoResize="autoResize">{{data.stackTrace}}</textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label>{{'create_date'|translate}}</label>
+                    <label class="form-control border-line">{{data.createDateTime}}</label>
+                </div>
+                <div class="col-sm-6">
+                    <label>{{'create_user'|translate}}</label>
+                    <label class="form-control border-line">{{data.createUser}}</label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label>{{'update_date'|translate}}</label>
+                    <label class="form-control border-line">{{data.updateDateTime}}</label>
+                </div>
+                <div class="col-sm-6">
+                    <label>{{'update_user'|translate}}</label>
+                    <label class="form-control border-line">{{data.updateUser}}</label>
+                </div>
+            </div>
+            <div class="form-group row" >
+                <div class="col-sm-12" *ngFor="let file of data.fileList">
+                    <label>{{'related_files'|translate}} : </label>
+                    <label>{{file.fileName}}</label>
+                    <button type="button" class="btn tpi-btn tpi-primary ml-2 mb-1" (click)="downloadFile(file.filePath,file.fileName)">
+                        <span class="fa fa-download">{{'button.download'|translate}}</span>
+                    </button>
+                    <hr style="margin-top: 0;margin-bottom: 0;">
+                    <label class="form-control preview">{{file.isPreviewable === 'Y' ? file.fileContent : 'cant_preview'|translate }}</label>
+                </div>
+               <hr>
+            </div>
+            <div class="form-group row  text-center">
+                <div class="col-12 col-xl-12 col-ls-12">
+                    <button type="button" class="btn tpi-btn tpi-primary mr-2"
+                        (click)="changePageHandler($event);">{{'button.return_to_list'|translate}}</button>
+                </div>
+            </div>
+            <!-- </form> -->
+        </div>
+    </div>
+</div>

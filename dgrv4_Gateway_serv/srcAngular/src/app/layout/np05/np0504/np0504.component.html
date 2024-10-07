@@ -1,0 +1,230 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+    <div [hidden]="pageNum != 1">
+        <form [formGroup]="form" (ngSubmit)="submitForm();">
+            <div class="form-group row">
+                <div class="col-lg-4 col-md-6 col-sm-8 ">
+                    <label id="startDate_label" class="control-label">{{'date_range'|translate}}</label>
+                    <div class="d-flex ">
+                        <div >
+                            <p-calendar [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                formControlName="startDate" dateFormat="yy/mm/dd" [showIcon]="true"
+                                [readonlyInput]="true">
+                            </p-calendar>
+                            <div *ngIf="startDate?.invalid && (startDate?.dirty || startDate?.touched)"
+                                class="text-danger">
+                                <small class="form-text">{{startDate.errors.isRequired}}</small>
+                                <small class="form-text">{{startDate.errors.pattern}}</small>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <label style="padding: 5px 10px;">～</label>
+                        </div>
+                        <div>
+                            <p-calendar [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                formControlName="endDate" dateFormat="yy/mm/dd" [showIcon]="true"
+                                [readonlyInput]="true">
+                            </p-calendar>
+                            <div *ngIf="endDate?.invalid && (endDate?.dirty || endDate?.touched)" class="text-danger">
+                                <small class="form-text">{{endDate.errors.isRequired}}</small>
+                                <small class="form-text">{{endDate.errors.pattern}}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label class="control-label" for="keyword">{{'keyword_search'|translate}}</label>
+                    <input type="text" class="form-control" id="keyword" formControlName="keyword"
+                        placeholder="{{'client_id'|translate}}、{{'client_name'|translate}}、{{'client_alias'|translate}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-3 col-xl-3 col-lg-3">
+                    <button type="submit" class="btn tpi-btn tpi-primary float-left mr-3">{{'button.search'|translate}}</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <p-table *ngIf="clientOpenApiKeyListCols" [columns]="clientOpenApiKeyListCols" styleClass="p-datatable-striped"
+            [value]="clientOpenApiKeyListData" selectionMode="single" [style]="{'word-break':'break-word'}"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+                <colgroup style="width:200px;">{{'action'|translate}}</colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" scope="col">
+                        {{col.header}}
+                    </th>
+                    <th style="width:200px;" scope="col">{{'action'|translate}}
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns" [style.width]="col.width">
+                        <span>
+                            {{rowData[col.field]}}
+                        </span>
+                    </td>
+                    <td style="text-align:center;width: 200px">
+                        <div class="btn-group">
+                            <!-- <button type="button" class="btn btn-deta mr-5" (click)="queryOpenApiKeyDetail(rowData);">
+                                <span class="fa fa-search">{{'button.detail'|translate}}</span>
+                            </button> -->
+                            <button pButton pRipple type="button" icon="pi pi-eye"
+                                    class="p-button-rounded p-button-text p-button-plain" (click)="queryOpenApiKeyDetail(rowData)"
+                                    [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="clientOpenApiKeyRowcount">
+                    <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+                        <span>{{'row_count' | translate}}: {{clientOpenApiKeyRowcount}}</span>
+                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreClientOpenApiKeyList();">{{'button.more'|translate}}</button> -->
+
+                            <!-- 查詢更多 -->
+                            <button  type="button" class="btn tpi-header-return" (click)="moreClientOpenApiKeyList()">{{ 'button.more'| translate}}
+                            <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                            </button>
+
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <!-- Open API Key Detail -->
+    <div [hidden]="pageNum != 2">
+        <div class="card card-body bg-light mt-3">
+            <form *ngIf="openApiKeyDetailData">
+                <div class="form-group row">
+                    <div class="col-12 col-xl-12 col-lg-12">
+                        <label class="control-label">API Key</label>：
+                        <label>{{openApiKeyDetailData.openApiKey}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-12 col-xl-12 col-lg-12">
+                        <label class="control-label">{{'open_api_key_alias'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.openApiKeyAlias}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-12 col-xl-12 col-lg-12">
+                        <label class="control-label">Secret Key</label>：
+                        <label>{{openApiKeyDetailData.secretKey}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-4 col-xl-4 col-lg-4">
+                        <label class="control-label">{{'status'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.openApiKeyStatusName}}</label>
+                    </div>
+                    <div class="col-4 col-xl-4 col-lg-4">
+                        <label class="control-label">{{'times_quota'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.timesQuota}}</label>
+                    </div>
+                    <div class="col-4 col-xl-4 col-lg-4">
+                        <label class="control-label">{{'use_quota'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.timesThreshold}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-4 col-xl-4 col-lg-4">
+                        <label class="control-label">{{'create_date'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.createDateTime}}</label>
+                    </div>
+                    <div class="col-4 col-xl-4 col-lg-4">
+                        <label class="control-label">{{'expired_date'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.expiredAt}}</label>
+                    </div>
+                    <div class="col-4 col-xl-4 col-lg-4">
+                        <label class="control-label">{{'revoked_date'|translate}}</label>：
+                        <label>{{openApiKeyDetailData.revokedAt}}</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-12 col-xl-12 col-lg-12">
+                        <label class="control-label">{{'auth_api'|translate}}</label>：
+                        <p-table *ngIf="openApiKeyDetailCols" [columns]="openApiKeyDetailCols" styleClass="p-datatable-striped"
+                            [value]="openApiKeyDetailData.dataList" selectionMode="single"
+                            [style]="{'word-break':'break-word'}">
+                            <ng-template pTemplate="colgroup" let-columns>
+                                <colgroup>
+                                    <col *ngFor="let col of columns" [style.width]="col.width">
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th *ngFor="let col of columns" scope="col">
+                                        {{col.header}}
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                                <tr>
+                                    <td *ngFor="let col of columns" [style.width]="col.width">
+                                        <span *ngIf="col.field != 'themeDatas' && col.field != 'fileName'">
+                                            {{rowData[col.field]}}
+                                        </span>
+                                        <div *ngIf="col.field == 'themeDatas'">
+                                            <span *ngFor="let themeItem of rowData[col.field] | keyvalue;let i = index">
+                                                {{themeItem.value}}
+                                                <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                                            </span>
+                                        </div>
+                                        <span *ngIf="col.field == 'fileName'">
+                                            <a href="javascript:void(0)"
+                                                (click)="downloadFile(rowData['filePath'],rowData['fileName']);">
+                                                {{rowData[col.field]}}
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="footer" let-columns>
+                                <tr *ngIf="openApiKeyDetailRowcount">
+                                    <td [attr.colspan]="columns.length" style="color: #b7b7b7;">
+                                        <span>{{'row_count' | translate}}: {{openApiKeyDetailRowcount}}</span>
+                                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                                            (click)="moreOpenApiKeyDetailData();">{{'button.more'|translate}}</button> -->
+
+                                            <button  type="button" class="btn tpi-header-return" (click)="moreOpenApiKeyDetailData()">{{ 'button.more'| translate}}
+                                              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                                              </button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage" let-columns>
+                                <tr>
+                                    <td [attr.colspan]="columns.length">
+                                        {{'no_rec' | translate}}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+                    (click)="changePage('query');">{{'button.return'|translate}}</button>
+            </div>
+        </div>
+    </div>
+</app-container>

@@ -1,0 +1,38 @@
+<form [formGroup]="form">
+  <div class="key-value-row">
+    <p-checkbox [binary]="true" formControlName="selected" ></p-checkbox>
+    <!-- 鍵 -->
+    <label class="col-form-label" *ngIf="keyLabel">{{ keyLabel }}</label>
+    <input type="text" class="form-control" name="key" formControlName="key" />
+    <ng-container *ngIf="key.invalid && (key.dirty || key.touched)">
+      <small class="form-text text-danger">{{ key.errors!["maxlength"] }}</small>
+    </ng-container>
+    <!-- 值 -->
+    <label class="col-form-label" *ngIf="valueLabel">{{valueLabel}}</label>
+    <input type="text" class="form-control" name="value" formControlName="value" />
+    <ng-container *ngIf="value.invalid && (value.dirty || value.touched)">
+      <small class="form-text text-danger">{{ value.errors!["ipaddress"] }}</small>
+    </ng-container>
+    <button type="button" class="btn btn-icon tpi-primary" (click)="delete($event)">
+      <i class="fa fa-minus"></i>
+    </button>
+  </div>
+  <!-- <div style="display: flex; align-items: center; justify-content: center"> -->
+    <!-- <button
+      type="button"
+      style="
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 20px;
+      "
+      (click)="delete($event)"
+    >
+      <div><i class="fa fa-minus"></i></div>
+    </button> -->
+  <!-- </div> -->
+</form>

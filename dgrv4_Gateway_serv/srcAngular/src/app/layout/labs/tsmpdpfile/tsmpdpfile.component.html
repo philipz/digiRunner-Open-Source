@@ -1,0 +1,694 @@
+<!-- 系統組態 > 維護TSMP_SETTING np0602 -->
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <!-- 查詢 -->
+  <div *ngIf="pageNum == 1">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-5">
+          <label class="control-label" id="startDate_label">{{'lastUpdDateTime'|translate}}</label>
+          <div class="d-flex">
+            <div>
+              <p-calendar [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" formControlName="startDate" appendTo="body"
+                dateFormat="yy/mm/dd" [maxDate]="dateSmaxDate" [showIcon]="true" showTime="true" [showIcon]="true"
+                showButtonBar="true" (onClearClick)="onClearClick('startDate')"
+                (onTodayClick)="onTodayClick('startDate')" [readonlyInput]="true"></p-calendar>
+              <div *ngIf="startDate.invalid && (startDate.dirty || startDate.touched)" class="text-danger">
+                <small class="form-text">{{startDate.errors.required | translate}}</small>
+              </div>
+            </div>
+            <label style="padding: 5px 10px;">～</label>
+            <div>
+              <p-calendar [style]="{'width':'100%'}" formControlName="endDate" [inputStyle]="{'width':'100%'}" appendTo="body"
+                dateFormat="yy/mm/dd" showTime="true" [showIcon]="true" [minDate]="dateEminDate" showButtonBar="true"
+                (onClearClick)="onClearClick('endDate')" (onTodayClick)="onTodayClick('endDate')"
+                [readonlyInput]="true">
+              </p-calendar>
+              <div *ngIf="endDate.invalid && (endDate.dirty || endDate.touched)" class="text-danger">
+                <small class="form-text">{{endDate.errors.required | translate}}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <label class="control-label">{{'file_classification'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <p-dropdown [options]="fileClassifications" [filter]="true" formControlName="fileClassification"
+              placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}">
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="col-3">
+          <label class="control-label">{{'reference_ID'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <input type="number" class="form-control" formControlName="refId">
+          </div>
+          <div *ngIf="form.get('refId').invalid && (form.get('refId').dirty || form.get('refId').touched)"
+            class="text-danger">
+            <small class="form-text">{{form.get('refId').errors.max}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label class="control-label">{{'keyword_search'|translate}}</label>
+          <input type="text" class="form-control" formControlName="keyword" (keyup.enter)="queryTsmpdpFileList()"
+            placeholder="{{'tsmpdpfile_serial_number'|translate}}、{{'file_name'|translate}}">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3 " [disabled]="form.invalid"
+          (click)="queryTsmpdpFileList();">{{'button.search' | translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create');">{{'button.create'|translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-primary float-right mr-3"
+          (click)="changePage('resource_recycling_bucket');"><i class="fa fa-trash-alt"></i>{{'button.resource_recycling_bucket' | translate}}</button>
+        </div>
+      </div>
+
+
+    </form>
+
+    <!-- 查詢 -->
+    <p-table *ngIf="cols" [columns]="cols" [value]="tableData" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:180px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:180px;" scope="col">{{'action'|translate}}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field == 'fileId'">
+              {{rowData[col.field]}}
+            </span>
+            <span *ngIf="col.field == 'fileName'">
+              {{originStringTable(rowData[col.field])}}
+              <a *ngIf="rowData[col.field].ori" href="javascript:void(0)" (click)="switchOri(rowData[col.field])">
+                <label>{{!rowData[col.field].t ? ("show_less" | translate) : ("show_more" | translate)}}
+                  <i class="fas" [ngClass]="[!rowData[col.field].t ? 'fa-angle-double-left float-left mt-1 mr-1': 'fa-angle-double-right ']"></i></label>
+              </a>
+              <!-- <span *ngIf="rowData[col.field].t">
+
+                <a href="javascript:void(0)" pTooltip="{{rowData[col.field].ori}}">{{'show_more'|translate}}</a>
+              </span> -->
+            </span>
+            <span *ngIf="col.field != 'fileId' && col.field != 'fileName'">
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align:center;width: 180px">
+            <!-- <div class="btn-group"> -->
+              <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+              <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);">
+                <span class="fa fa-edit">{{'button.update' | translate}}</span> >
+              </button>-->
+              <button pButton pRipple type="button" icon="fa fa-trash-alt"
+              class="p-button-rounded p-button-text p-button-plain"
+              (click)="moveItemToBucket(rowData)" [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+              <!-- <button type="button" class="btn btn-deta" (click)="moveItemToBucket(rowData);">
+                <span class="fa fa-trash">{{'button.delete' | translate}}</span>
+              </button> -->
+
+              <button pButton pRipple type="button" icon="fa fa-download" *ngIf="rowData['filePath']"
+              class="p-button-rounded p-button-text p-button-plain"
+              (click)="downloadFile(rowData['filePath'],rowData['fileName']['t']?rowData['fileName']['ori']:rowData['fileName']['val']);"
+               [pTooltip]="'button.download' | translate" tooltipPosition="top"></button>
+
+              <!-- <button *ngIf="rowData['filePath']" type="button" class="btn btn-deta"
+                (click)="downloadFile(rowData['filePath'],rowData['fileName']['t']?rowData['fileName']['ori']:rowData['fileName']['val']);">
+                <span class="fa fa-download">{{'button.download' | translate}}</span>
+              </button> -->
+            <!-- </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableDataRowcount">
+          <td [attr.colspan]="columns.length+1" style="color:#b7b7b7">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableDataRowcount}}</span>
+              <!-- 查詢更多 -->
+              <button  type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+                <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+              </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+
+
+
+  </div>
+  <!-- 建立 -->
+  <div *ngIf="pageNum == 2">
+    <form [formGroup]="formAdd">
+      <div class="form-group row">
+        <div class="col-3">
+          <label class="control-label" id="refFileCateCode_label">{{'file_classification'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <p-dropdown [options]="fileClassifications" [filter]="true" formControlName="refFileCateCode"
+              placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}">
+            </p-dropdown>
+            <div *ngIf="refFileCateCode_add.invalid && (refFileCateCode_add.dirty || refFileCateCode_add.touched)"
+              class="text-danger">
+              <small class="form-text">{{refFileCateCode_add.errors.required | translate}}</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-3">
+          <label class="control-label" id="refId_label">{{'reference_ID'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <input type="number" class="form-control" formControlName="refId">
+          </div>
+          <div *ngIf="formAdd.get('refId').invalid && (formAdd.get('refId').dirty || formAdd.get('refId').touched)"
+            class="text-danger">
+            <small class="form-text">{{formAdd.get('refId').errors.isRequired}}</small>
+            <small class="form-text">{{formAdd.get('refId').errors.max}}</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <label class="control-label">{{'add_to_recycle_bin'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <p-checkbox [binary]="true" [formControl]="formAdd.controls['isTmpfile']"></p-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <label id="id_label" class="control-label" id="fileName_label">{{ 'file_name' | translate}}</label>
+          <input type="text" class="form-control" formControlName="fileName">
+          <div
+            *ngIf="formAdd.get('fileName').invalid && (formAdd.get('fileName').dirty || formAdd.get('fileName').touched)"
+            class="text-danger">
+            <small class="form-text">{{formAdd.get('fileName').errors.isRequired}}</small>
+            <small class="form-text">{{formAdd.get('fileName').errors.maxlength | translate}}</small>
+            <small class="form-text">{{formAdd.get('fileName').errors.minlength | translate}}</small>
+            <small class="form-text">{{formAdd.get('fileName').errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12">
+          <label for="fileName" class="control-label">{{'upload_file'|translate}}</label>
+          <div class="row">
+            <div class="col-sm-6" style="padding-right: unset;">
+              <input type="file" id="fileName" (change)="fileChange($event.target.files)" formControlName="tmpfileName"
+                style="display: none;">
+              <input type="text" class="form-control" style="display: unset;" value="{{_fileName}}" disabled>
+              <span *ngIf="_fileData">{{ _fileData.size | fileSize }}</span>
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn tpi-btn tpi-primary pull-right"
+                (click)="openFileBrowser();">{{'chs_file'|translate}}</button>
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn tpi-btn tpi-primary pull-right" (click)="clearFile();"
+                *ngIf="this._fileName">{{'recovery'|translate}}</button>
+            </div>
+          </div>
+          <!-- <img id="showImage" src="{{imgPath}}"> -->
+          <div *ngIf="fileName_add.invalid && (fileName_add.dirty || fileName_add.touched)" class="text-danger">
+            <small class="form-text">{{fileName_add.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-second float-left mr-3" [disabled]="formAdd.invalid"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 更新 -->
+  <div *ngIf="pageNum == 3">
+    <form [formGroup]="formUpdate">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label class="control-label">{{'value'|translate}}</label>
+          <label class="form-control border-line">{{formUpdate.get("fileId").value}}</label>
+
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label class="control-label" id="refFileCateCode_label">{{'file_classification'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <p-dropdown [options]="fileClassifications" [filter]="true" formControlName="refFileCateCode"
+              placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}">
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="col-6">
+          <label class="control-label" id="refId_label">{{'reference_ID'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <input type="number" class="form-control" formControlName="refId">
+          </div>
+          <div *ngIf="refId_formUpdate.invalid && (refId_formUpdate.dirty || refId_formUpdate.touched)"
+            class="text-danger">
+            <small class="form-text">{{refId_formUpdate.errors.isRequired| translate}}</small>
+            <small class="form-text">{{refId_formUpdate.errors.max| translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="fileName_label" class="control-label">{{'file_name'|translate}}</label>
+          <input type="text" class="form-control" formControlName="fileName">
+          <div
+            *ngIf="formUpdate.get('fileName').invalid && (formUpdate.get('fileName').dirty || formUpdate.get('fileName').touched)"
+            class="text-danger">
+            <small class="form-text">{{formUpdate.get('fileName').errors.isRequired| translate}}</small>
+            <small class="form-text">{{formUpdate.get('fileName').errors.maxlength | translate}}</small>
+            <small class="form-text">{{formUpdate.get('fileName').errors.minlength | translate}}</small>
+            <small class="form-text">{{formUpdate.get('fileName').errors.pattern| translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-3 col-lg-3">
+          <label class="control-label">{{'create_user'|translate}}</label>
+          <label class="form-control border-line">{{formUpdate.get("createUser").value}}</label>
+        </div>
+        <div class="col-3 col-lg-3">
+          <label class="control-label">{{'create_date'|translate}}</label>
+          <label class="form-control border-line">{{formUpdate.get("createDateTime").value}}</label>
+        </div>
+        <div class="col-3 col-lg-3">
+          <label class="control-label">{{'update_user'|translate}}</label>
+          <label class="form-control border-line">{{formUpdate.get("updateUser").value}}</label>
+        </div>
+        <div class="col-3 col-lg-3">
+          <label class="control-label">{{'update_date'|translate}}</label>
+          <label class="form-control border-line">{{formUpdate.get("updateDateTime").value}}</label>
+        </div>
+      </div>
+
+      <div class="form-group row" *ngIf="formUpdate.get('isBlob').value=='Y'">
+        <div class="col-12 col-lg-12">
+          <!-- <button *ngIf="formUpdate.get('isBlob').value && isDisplayPreviewBlock" type="button" class="btn btn-deta"
+            (click)="downloadFile(formUpdate.get('filePath').value,formUpdate.get('fileName').value);">
+            <span class="fa fa-download">{{'button.download' | translate}}</span>
+          </button> -->
+
+          <button pButton pRipple type="button" icon="fa fa-download" *ngIf="formUpdate.get('isBlob').value && isDisplayPreviewBlock"
+                  class="p-button-rounded p-button-text p-button-plain"
+                  (click)="downloadFile(formUpdate.get('filePath').value,formUpdate.get('fileName').value);"
+                  [pTooltip]="'button.download' | translate" tooltipPosition="top"></button>
+
+          <!-- <button type="button" class="btn btn-deta" (click)="openFileBrowser_update();">
+            {{'chs_file'|translate}}
+          </button> -->
+
+          <button pButton pRipple type="button" icon="fa fa-upload"
+                  class="p-button-rounded p-button-text p-button-plain"
+                  (click)="openFileBrowser_update();"
+                  [pTooltip]="'chs_file' | translate" tooltipPosition="top"></button>
+
+          <!-- <button *ngIf="isDisplayPreviewBlock" type="button" class="btn btn-deta" (click)="removeFile();">
+            {{'remove'|translate}}
+          </button> -->
+
+          <button pButton pRipple type="button" icon="fa fa-trash-alt"
+          class="p-button-rounded p-button-text p-button-plain"
+          (click)="removeFile();"
+          [pTooltip]="'remove' | translate" tooltipPosition="top"></button>
+
+
+          <button pButton pRipple type="button" icon="fa fa-undo" *ngIf="!isDisplayPreviewBlock"
+                  class="p-button-rounded p-button-text p-button-plain"
+                  (click)="recoveryFile();"
+                  [pTooltip]="'recovery' | translate" tooltipPosition="top"></button>
+          <!-- <button *ngIf="!isDisplayPreviewBlock" type="button" class="btn btn-deta" (click)="recoveryFile();">
+            {{'recovery'|translate}}
+          </button> -->
+          <textarea *ngIf="isDisplayPreviewBlock" rows="5" formControlName="blobData" class="form-control" readonly
+            autoResize="autoResize"></textarea>
+
+          <input type="file" id="fileName_update" *ngIf="!isDisplayPreviewBlock"
+            (change)="fileChange_update($event.target.files)" style="display: none;">
+          <input *ngIf="!isDisplayPreviewBlock" type="text" class="form-control" style="display: unset;"
+            value="{{_fileName}}" disabled>
+          <span *ngIf="!isDisplayPreviewBlock&&_fileData">{{ _fileData.size | fileSize }}</span>
+        </div>
+      </div>
+
+      <div class="form-group row" *ngIf="formUpdate.get('isBlob').value=='N'">
+        <div class="col-sm-6">
+          <label for="fileName" class="control-label">{{'upload_file'|translate}}</label>
+          <div class="row">
+            <div class="col-sm-6" style="padding-right: unset;">
+              <input type="file" id="fileName" (change)="fileChange($event.target.files)" formControlName="tmpfileName"
+                style="display: none;">
+              <input type="text" class="form-control" style="display: unset;" value="{{_fileName}}" disabled>
+              <span *ngIf="_fileData">{{ _fileData.size | fileSize }}</span>
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn tpi-btn tpi-primary pull-right"
+                (click)="openFileBrowser();">{{'chs_file'|translate}}</button>
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn tpi-btn tpi-primary pull-right" (click)="clearFile();"
+                *ngIf="this._fileName">{{'recovery'|translate}}</button>
+            </div>
+          </div>
+          <!-- <img id="showImage" src="{{imgPath}}"> -->
+          <div *ngIf="fileName_add.invalid && (fileName_add.dirty || fileName_add.touched)" class="text-danger">
+            <small class="form-text">{{fileName_add.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="formUpdate.invalid"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 刪除 -->
+  <div *ngIf="pageNum == 4">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="newVal_label" for="newVal" class="control-label">{{'value'|translate}}</label>
+          <textarea rows="5" class="form-control" disabled></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="memo_label" for="memo" class="control-label">{{'memo'|translate}}</label>
+          <textarea rows="5" class="form-control" disabled></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn btn-warning float-left mr-3" (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn btn-warning float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 資源回收桶 -->
+  <div *ngIf="pageNum == 5">
+    <span style="color: red;">{{bucketDeadline}}</span>
+    <form [formGroup]="formBucket">
+      <div class="form-group row">
+        <div class="col-4">
+          <label class="control-label" id="startDate_label">{{'lastUpdDateTime'|translate}}</label>
+          <div class="row">
+            <div class="col-6">
+              <p-calendar [style]="{'width':'95%'}" [inputStyle]="{'width':'100%'}" formControlName="startDate" appendTo="body"
+                dateFormat="yy/mm/dd" [maxDate]="dateSmaxDate_formBucket" [showIcon]="true" showTime="true"
+                [showIcon]="true" showButtonBar="true" (onClearClick)="onClearClick('startDate')"
+                (onTodayClick)="onTodayClick('startDate')" [readonlyInput]="true"></p-calendar>
+              <div
+                *ngIf="formBucket.get('startDate').invalid && (formBucket.get('startDate').dirty || formBucket.get('startDate').touched)"
+                class="text-danger">
+                <small class="form-text">{{formBucket.get('startDate').errors.required | translate}}</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <p-calendar [style]="{'width':'95%'}" formControlName="endDate" [inputStyle]="{'width':'100%'}" appendTo="body"
+                dateFormat="yy/mm/dd" showTime="true" [showIcon]="true" [minDate]="dateEminDate_formBucket"
+                showButtonBar="true" (onClearClick)="onClearClick('endDate')" (onTodayClick)="onTodayClick('endDate')"
+                [readonlyInput]="true">
+              </p-calendar>
+              <div
+                *ngIf="formBucket.get('endDate').invalid && (formBucket.get('endDate').dirty || formBucket.get('endDate').touched)"
+                class="text-danger">
+                <small class="form-text">{{formBucket.get('endDate').errors.required | translate}}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-3">
+          <label class="control-label">{{'file_classification'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <p-dropdown [options]="fileClassifications" [filter]="true" formControlName="fileClassification"
+              placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}">
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="col-3">
+          <label class="control-label">{{'reference_ID'|translate}}</label>
+          <div style="display: block" class="w-100">
+            <input type="number" class="form-control" formControlName="refId">
+          </div>
+          <div
+            *ngIf="formBucket.get('refId').invalid && (formBucket.get('refId').dirty || formBucket.get('refId').touched)"
+            class="text-danger">
+            <small class="form-text">{{formBucket.get('refId').errors.max}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label class="control-label">{{'keyword_search'|translate}}</label>
+          <input type="text" class="form-control" formControlName="keyword"
+            (keyup.enter)="queryResourceRecyclingBucket()"
+            placeholder="{{'tsmpdpfile_serial_number'|translate}}、{{'file_name'|translate}}">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-10 col-xl-10 col-lg-10">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="formBucket.invalid"
+            (click)="queryResourceRecyclingBucket();">{{'button.search' | translate}}</button>
+
+        </div>
+      </div>
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="tableDataBucket" selectionMode="single"
+      [style]="{'word-break':'break-word'}" [(selection)]="selected" styleClass="p-datatable-striped">
+      <ng-template pTemplate="caption">
+        <div class="ui-helper-clearfix">
+            <button type="button" class="btn tpi-primary float-left mr-3" (click)="multiReductionPopup();"
+            [disabled]="selected.length==0">{{'button.reduction' | translate}}</button>
+            <button type="button" class="btn tpi-night float-left" (click)="multiDeletePopup();"
+              [disabled]="selected.length==0">{{'button.delete_permanently'|translate}}</button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:240px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th style="width: 2.25em" scope="col">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:200px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+          </td>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field == 'fileId'">
+              {{rowData[col.field]}}
+            </span>
+            <span *ngIf="col.field == 'fileName'" >
+              {{originStringTable(rowData.fileName)}}
+              <label class="moreless" *ngIf="rowData.fileName.ori" (click)="switchOri(rowData.fileName)">
+                {{rowData.fileName.t ?  ("show_more" | translate): ''}}
+                <i  class="fas" [ngClass]="[rowData.fileName.t ? 'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                {{rowData.fileName.t ? '' : ("show_less" | translate)  }}
+              </label>
+            </span>
+            <span *ngIf="col.field != 'fileId' && col.field != 'fileName'">
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align:center;width: 200px">
+            <!-- <div class="btn-group">
+              <button type="button" class="btn btn-deta mr-5" (click)="singleReductionPopup(rowData);">
+                <span class="fa fa-reply">{{'button.reduction' | translate}}</span>
+              </button>
+              <button type="button" class="btn btn-deta mr-5" (click)="singleDeletePops(rowData)">
+                <span class="fa fa-trash-alt">{{'button.delete_permanently' | translate}}</span>
+              </button>
+              <button *ngIf="rowData['filePath']!==''" type="button" class="btn btn-deta"
+                (click)="downloadFile(rowData['filePath'],rowData['fileName']['t']?rowData['fileName']['ori']:rowData['fileName']['val']);">
+                <span class="fa fa-download">{{'button.download' | translate}}</span>
+              </button>
+            </div> -->
+
+            <button pButton pRipple type="button" icon="fa fa-undo"
+            class="p-button-rounded p-button-text p-button-plain"
+            (click)="singleReductionPopup(rowData);"
+            [pTooltip]="'button.reduction' | translate" tooltipPosition="top"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+            class="p-button-rounded p-button-text p-button-plain"
+            (click)="singleDeletePops(rowData)"
+            [pTooltip]="'button.delete_permanently' | translate" tooltipPosition="top"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-download" *ngIf="rowData['filePath']!==''"
+            class="p-button-rounded p-button-text p-button-plain"
+            (click)="downloadFile(rowData['filePath'],rowData['fileName']['t']?rowData['fileName']['ori']:rowData['fileName']['val']);"
+            [pTooltip]="'button.download' | translate" tooltipPosition="top"></button>
+
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableDataRowcountBucket">
+          <td [attr.colspan]="columns.length+2" style="color: #b7b7b7;">
+            <span>{{'row_count' | translate}}: {{tableDataRowcountBucket}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3" [disabled]="formBucket.invalid"
+              (click)="getMoreDataBucket();">{{'button.more'|translate}}</button> -->
+
+
+              <!-- 查詢更多 -->
+              <button  type="button" class="btn tpi-header-return" (click)="getMoreDataBucket()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+              </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+2">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="form-group row mt-2">
+      <div class="col-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left"
+          (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+      </div>
+    </div>
+  </div>
+
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left" (onClose)="onToastClose($event)"></p-toast>
+<!-- <p-toast position="center" key="reductionPopup" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="reductionConfirm()" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+  </p-toast> -->
+
+<!-- <p-toast position="center" key="deletePopup" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="deleteConfirm()" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+  </p-toast> -->
+
+<!-- <p-toast position="center" key="moveItemToBucket" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="moveItemToBucketConfirm()" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+  </p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

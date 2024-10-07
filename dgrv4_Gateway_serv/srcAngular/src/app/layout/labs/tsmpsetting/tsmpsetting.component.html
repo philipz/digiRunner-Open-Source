@@ -1,0 +1,302 @@
+<!-- 系統組態 > 維護TSMP_SETTING np0602 -->
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <!-- 查詢 -->
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form">
+      <div class="form-group col-12 px-0">
+        <!-- <div class="col-12"> -->
+        <!-- <label class="control-label">{{'keyword_search'|translate}}</label> -->
+        <!-- <input type="text" class="form-control" formControlName="keyword" (keyup.enter)="queryTsmpSettingList()"
+            placeholder="{{'key'|translate}}、{{'value'|translate}}、{{'memo'|translate}}"> -->
+
+        <span class="p-input-icon-right" style="width: 40vw;">
+          <i class="pi pi-search tpi-i-search" (click)="queryTsmpSettingList();"></i>
+          <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+            placeholder="{{'key'|translate}}、{{'value'|translate}}、{{'memo'|translate}}"
+            (keyup.enter)="queryTsmpSettingList()">
+        </span>
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create');">{{'button.create'|translate}}</button>
+
+        <!-- </div> -->
+      </div>
+      <div class="col-12 px-0" style="display: flex;justify-content: space-between;">
+        <!-- 匯出 tsmp setting -->
+        <div style="display: flex;align-items: center;">
+          <button type="button" class="btn tpi-btn tpi-primary"
+            (click)="changePage('export');">{{'button.export'|translate}}</button>
+          <i class="far fa-question-circle ml-2 " pTooltip="{{'check_filename_before_import'|translate }}"
+            [escape]="false"></i>
+        </div>
+        <!-- 匯入 -->
+        <div style="display: flex;align-items: center;">
+          <div class="ui-inputgroup mr-2">
+            <input type="file" id="file" style="display: none;" accept=".xlsx" (change)="fileChange($event)">
+            <input type="text" class="form-control" value="{{fileName}}" readOnly
+              placeholder="{{'upload_file' | translate}}">
+            <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+              [pTooltip]="'upload_file' | translate" tooltipPosition="top" (click)="openFileBrowser();"></button>
+          </div>
+          <button type="button" class="btn tpi-btn tpi-primary mr-2" [disabled]="!fileName"
+            (click)="importTsmpSetting();">{{'button.import'|translate}}</button>
+          <i class="far fa-question-circle" pTooltip="{{'import_key_tip'|translate:{key:'ID'} }}" [escape]="false"></i>
+        </div>
+
+      </div>
+      <!-- <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12"> -->
+      <!-- <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="queryTsmpSettingList();">{{'button.search' | translate}}</button> -->
+
+      <!-- [disabled]="canCreate == false" -->
+      <!-- </div>
+      </div> -->
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="tableData" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field == 'id'">
+              {{rowData[col.field]}}
+            </span>
+            <!-- <span *ngIf="col.field === 'apiKey'">
+              {{ originStringTable(rowData[col.field]) }}
+              <a *ngIf="rowData[col.field].ori" href="javascript:void(0)" (click)="switchOri(rowData[col.field])">
+                  <label>{{!rowData[col.field].t ? ("show_less" | translate) : ("show_more" | translate)}}
+                    <i class="fas" [ngClass]="[!rowData[col.field].t ? 'fa-angle-double-left float-left mt-1 mr-1': 'fa-angle-double-right ']"></i></label>
+              </a>
+            </span> -->
+            <span *ngIf="col.field != 'id'">
+              {{originStringTable(rowData[col.field])}}
+              <label class="moreless" *ngIf="rowData[col.field].ori" (click)="switchOri(rowData[col.field])">
+                {{rowData[col.field].t ? ("show_more" | translate) :'' }}
+                <i class="fas"
+                  [ngClass]="[rowData[col.field].t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                {{rowData[col.field].t ? '' : ("show_less" | translate) }}
+              </label>
+              <!-- <a *ngIf="rowData[col.field].ori" href="javascript:void(0)" (click)="switchOri(rowData[col.field])">
+                <label>{{!rowData[col.field].t ? ("show_less" | translate) : ("show_more" | translate)}}
+                  <i class="fas" [ngClass]="[!rowData[col.field].t ? 'fa-angle-double-left float-left mt-1 mr-1': 'fa-angle-double-right ']"></i></label>
+              </a> -->
+              <!-- <span *ngIf="rowData[col.field].t">
+                ...
+                <a href="javascript:void(0)" pTooltip="{{rowData[col.field].ori}}">{{'show_more'|translate}}</a>
+              </span> -->
+
+            </span>
+          </td>
+          <td style="text-align:center;width: 150px">
+            <div>
+              <button pButton pRipple type="button" icon="fa fa-edit"
+                class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+                [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+              <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);">
+                <span class="fa fa-edit">{{'button.update' | translate}}</span>
+              </button> -->
+              <button pButton pRipple type="button" icon="fa fa-trash-alt"
+                class="p-button-rounded p-button-text p-button-plain" (click)="changePage('delete',rowData)"
+                [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+              <!-- <button type="button" class="btn btn-deta" (click)="changePage('delete',rowData);">
+                <span class="fa fa-trash">{{'button.delete' | translate}}</span>
+              </button> -->
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableDataRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableDataRowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+              (click)="getMoreData();">{{'button.more'|translate}}</button> -->
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- 建立 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <label id="id_label" for="id" class="control-label">{{ 'key' | translate}}</label>
+          <input type="text" class="form-control" id="id" formControlName="id">
+          <div *ngIf="id.invalid && (id.dirty || id.touched)" class="text-danger">
+            <small class="form-text">{{id.errors.isRequired}}</small>
+            <small class="form-text">{{id.errors.maxlength | translate}}</small>
+            <small class="form-text">{{id.errors.minlength | translate}}</small>
+            <small class="form-text">{{id.errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="value_label" for="value" class="control-label">{{'value'|translate}}</label>
+          <textarea rows="5" formControlName="value" class="form-control"></textarea>
+          <div *ngIf="value.invalid && (value.dirty || value.touched)" class="text-danger">
+            <small class="form-text">{{value.errors.isRequired}}</small>
+            <small class="form-text">{{value.errors.maxlength | translate}}</small>
+            <small class="form-text">{{value.errors.minlength | translate}}</small>
+            <small class="form-text">{{value.errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="memo_label" for="memo" class="control-label">{{'memo'|translate}}</label>
+          <textarea rows="5" formControlName="memo" class="form-control"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label *ngIf="pageNum==2" id="encrptionType_label" for="encrptionType"></label>
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-second float-left mr-3" [disabled]="form.invalid"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-second float-left mr-3" [disabled]="form.invalid"
+            (click)="procData('ENC');">{{btnName}}(ENC)</button>
+          <button type="button" class="btn tpi-btn tpi-second float-left mr-3" [disabled]="form.invalid"
+            (click)="procData('TAEASK');">{{btnName}}(TAEASK)</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 更新 -->
+  <div [hidden]="pageNum != 3">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <label id="id_label" for="id" class="control-label">{{ 'key' | translate}}</label>
+          <label class="form-control border-line">{{id.value}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="newVal_label" for="newVal" class="control-label">{{'value'|translate}}</label>
+          <textarea rows="5" formControlName="newVal" class="form-control"></textarea>
+          <div *ngIf="newVal.invalid && (newVal.dirty || newVal.touched)" class="text-danger">
+            <small class="form-text">{{newVal.errors.isRequired}}</small>
+            <small class="form-text">{{newVal.errors.maxlength | translate}}</small>
+            <small class="form-text">{{newVal.errors.minlength | translate}}</small>
+            <small class="form-text">{{newVal.errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="memo_label" for="memo" class="control-label">{{'memo'|translate}}</label>
+          <textarea rows="5" formControlName="memo" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label *ngIf="pageNum==3" id="encrptionType_label" for="encrptionType"></label>
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid"
+            (click)="procData('ENC');">{{btnName}}(ENC)</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid"
+            (click)="procData('TAEASK');">{{btnName}}(TAEASK)</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 刪除 -->
+  <div [hidden]="pageNum != 4">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <label id="id_label" for="id" class="control-label">{{ 'key' | translate}}</label>
+          <label class="form-control border-line">{{id.value}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="newVal_label" for="newVal" class="control-label">{{'value'|translate}}</label>
+          <textarea rows="5" class="form-control" disabled>{{value.value}}</textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="memo_label" for="memo" class="control-label">{{'memo'|translate}}</label>
+          <textarea rows="5" class="form-control" disabled>{{memo.value}}</textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left" (onClose)="onToastClose($event)"></p-toast>
+<!-- <p-toast position="center" key="deleteMsg" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+  <ng-template let-message pTemplate="message">
+      <div style="text-align: center">
+          <em class="fas fa-exclamation-triangle fa-3x"></em>
+          <h4>{{message.summary}}</h4>
+          <p>{{message.detail}}</p>
+      </div>
+      <div class="ui-g ui-fluid">
+          <div class="ui-g-6">
+              <button type="button" pButton (click)="deleteConfirm()" label="{{'button.confirm'|translate}}"
+                  class="ui-button-success"></button>
+          </div>
+          <div class="ui-g-6">
+              <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                  class="ui-button-secondary"></button>
+          </div>
+      </div>
+  </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

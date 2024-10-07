@@ -1,0 +1,39 @@
+<form [formGroup]="form">
+    <div [ngStyle]="{'max-height': this.height}" style="overflow-y:auto;overflow-x: hidden">
+        <div class="row" style="display: block;">
+            <div class="col">
+                <ul class="list-group list-group-flush" *ngFor="let menu of newMenus">
+                    <li class="list-group-item px-0">
+
+                        <div class="checkbox">
+                            <div>
+                                <input type="checkbox" value="" (change)="menuChange($event,menu.main)" [formControlName]="menu.main">
+                                <a class="btn collapsed" data-toggle="collapse" [href]="'#mains'+menu.main" role="button" aria-expanded="true" >
+                                  {{menu.main | transform_menu}} ({{menu.main}})<span class="mr-3"></span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="collapse" [id]="'mains'+menu.main" *ngIf="menu.subs && menu.subs.length">
+                            <div class="form-check" class="list-group-item" *ngFor="let sub of menu.subs">
+                                <input type="checkbox" (change)="menuChange($event,sub.name)" class="form-check-input" [id]="sub.name" [formControlName]="sub.name">
+                                <label class="form-check-label" [for]="sub.name" style="margin-left:10px;position:absolute;bottom:18px;">
+                      {{sub.name | transform_menu}} ({{sub.name}})</label>
+                            </div>
+
+                        </div>
+                        <hr>
+                    </li>
+                </ul>
+            </div>
+            <!-- <div class="col text-center" *ngIf="showButton">
+                <button type="button" (click)="click()" class="btn btn-warning">{{'button.update' | translate}}</button>
+            </div> -->
+        </div>
+    </div>
+    <div class="row" style="display: block;">
+        <div class="col text-center" *ngIf="showButton">
+            <button type="button" (click)="click()" class="btn btn-warning">{{'button.update' | translate}}</button>
+        </div>
+    </div>
+</form>

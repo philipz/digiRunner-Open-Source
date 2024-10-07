@@ -1,0 +1,491 @@
+<!-- 系統組態 > 維護TSMP_DP_Items np0603 -->
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <!-- 查詢 -->
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-xl-6 col-lg-6">
+          <label class="control-label">{{'keyword_search'|translate}}</label>
+          <!-- <input type="text" class="form-control" formControlName="keyword" (keyup.enter)="queryTsmpDpItemsList()"
+            placeholder="{{'cate_no'|translate}}、{{'cate_name'|translate}}、{{'subitem_seqno'|translate}}、{{'subitem_name'|translate}}、{{'param_name'|translate}}"> -->
+
+          <span class="p-input-icon-right" style="width: 100%;">
+            <i class="pi pi-search tpi-i-search" (click)="queryTsmpDpItemsList();"></i>
+            <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+              placeholder="{{'cate_no'|translate}}、{{'cate_name'|translate}}、{{'subitem_seqno'|translate}}、{{'subitem_name'|translate}}、{{'param_name'|translate}}"
+              (keyup.enter)="queryTsmpDpItemsList()">
+          </span>
+        </div>
+
+        <div class="col-3 col-xl-3 col-lg-3">
+          <label class="control-label">{{'locale'|translate}}</label>
+          <p-dropdown [showClear]="true" [filter]="true" [options]="localeList" formControlName="locale"
+            placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}" (onChange)="localeChange()"></p-dropdown>
+        </div>
+      </div>
+      <div class="col-12 px-0" style="display: flex;justify-content: space-between;">
+
+          <!-- 匯出 tsmp dp items -->
+          <button type="button" class="btn tpi-btn tpi-primary mr-2"
+            (click)="changePage('export');">{{'button.export'|translate}}</button>
+
+        <div style="display: flex;align-items: center;">
+
+          <div class="ui-inputgroup mr-2">
+            <input type="file" id="file" style="display: none;" accept=".xlsx" (change)="fileChange($event)">
+            <input type="text" class="form-control" value="{{fileName}}" readOnly
+              placeholder="{{'upload_file' | translate}}">
+            <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+              [pTooltip]="'upload_file' | translate" tooltipPosition="top" (click)="openFileBrowser();"></button>
+          </div>
+          <button type="button" class="btn tpi-btn tpi-primary mr-2" [disabled]="!fileName"
+            (click)="importTsmpDpItems()">{{'button.import'|translate}}</button>
+          <i class="far fa-question-circle" pTooltip='<ol style="padding-inline-start: 20px;margin-block-end: 0;"><li>{{"import_key_tip"|translate:{key:"ITEM_NO+SUBITEM_NO+LOCALE"} }}</li><li>{{"use_in_multi_language"|translate }}</li></ol>'
+             [escape]="false"></i>
+
+        </div>
+      </div>
+      <!-- <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12"> -->
+      <!-- <button type="button" class="btn btn-warning float-left mr-3"
+            (click)="queryTsmpDpItemsList();">{{'button.search' | translate}}</button> -->
+      <!-- <button type="button" class="btn btn-primary float-left"
+            (click)="changePage('create');">{{'button.create'|translate}}</button>           -->
+      <!-- </div>> -->
+      <!-- </div> -->
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="tableData" [style]="{'word-break':'break-word'}"
+      styleClass="p-datatable-striped" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align:center;width: 150px">
+            <!-- <div class="btn-group"> -->
+            <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
+              (click)="changePage('subitem',rowData)" [pTooltip]="'button.query' | translate"
+              tooltipPosition="top"></button>
+            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('subitem',rowData);">
+                <span class="fa fa-search">{{'button.query' | translate}}</span>
+              </button> -->
+            <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('itemUpdate', rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+            <!-- <button type="button" class="btn btn-deta" (click)="changePage('itemUpdate',rowData);">
+                <span class="fa fa-edit">{{'button.update' | translate}}</span>
+              </button> -->
+            <!-- </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableDataRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableDataRowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+              (click)="getMoreData();">{{'button.more'|translate}}</button> -->
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- 子分類清單 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="subitemForm">
+
+      <div class="form-group row">
+        <div class="col-3 col-xl-3 col-lg-3">
+          <label class="control-label">{{'cate_no'|translate}}</label>
+          <label class="form-control border-line">{{selectedItem.itemNo}}</label>
+        </div>
+        <div class="col-3 col-xl-3 col-lg-3">
+          <label class="control-label">{{'cate_name'|translate}}</label>
+          <label class="form-control border-line">{{selectedItem.itemName}}</label>
+        </div>
+        <div class="col-3 col-xl-3 col-lg-3">
+          <label class="control-label">{{'locale'|translate}}</label>
+          <p-dropdown [showClear]="true" [filter]="true" [options]="localeList" formControlName="locale"
+            placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}" (onChange)="localeChange()"></p-dropdown>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6 col-xl-6 col-lg-6">
+          <label class="control-label">{{'keyword_search'|translate}}</label>
+          <input type="text" class="form-control" formControlName="keyword" (keyup.enter)="queryTsmpDpItemsList()"
+            placeholder="{{'serial_no2'|translate}}、{{'subitem_seqno'|translate}}、{{'subitem_name'|translate}}、{{'param_name'|translate}}">
+        </div>
+      </div>
+    </form>
+    <div class="form-group row">
+      <div class="col-12 col-xl-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          (click)="queryTsmpDpItemsList();">{{'button.search' | translate}}</button>
+
+        <button type="button" class="btn tpi-btn tpi-primary float-left"
+          (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+      </div>
+    </div>
+
+    <hr>
+    <p-table *ngIf="subCols" [columns]="subCols" [value]="subTableData" responsiveLayout="scroll"
+      [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped">
+      <ng-template pTemplate="colgroup" let-columns responseLayout="Scroll">
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align:center;width: 150px">
+            <!-- <div class="btn-group"> -->
+            <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
+              (click)="changePage('subitemDetail', null, rowData)" [pTooltip]="'button.query' | translate"
+              tooltipPosition="top"></button>
+            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('subitemDetail', null, rowData);">
+                <span class="fa fa-search">{{'button.query' | translate}}</span>
+              </button> -->
+            <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('subItemUpdate', null, rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+            <!-- <button type="button" class="btn btn-deta" (click)="changePage('subItemUpdate', null, rowData);">
+                <span class="fa fa-edit">{{'button.update' | translate}}</span>
+              </button> -->
+            <!-- </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="subTableRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span>{{'row_count' | translate}}: {{subTableRowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+              (click)="getMoreSubData();">{{'button.more'|translate}}</button> -->
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="getMoreSubData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
+
+  <!-- 子分類明細 -->
+  <div [hidden]="pageNum != 3">
+    <div class="form-group row">
+      <div class="col-2">
+        <label class="control-label">{{'serial_no2'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.itemId}}</label>
+      </div>
+      <div class="col-2">
+        <label class="control-label">{{'seqno'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.sortBy}}</label>
+      </div>
+      <div class="col-2">
+        <label class="control-label mr-5">{{'default_cr'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.isDefault}}</label>
+        <!-- <input class="align-middle checkbox" type="checkbox"> -->
+      </div>
+      <div class="col-2">
+        <label class="control-label">{{'locale'|translate}}</label>
+        <p-dropdown [showClear]="true" [filter]="true" [options]="localeList" [(ngModel)]="subitemDetail.locale"
+          placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}" (onChange)="subitemDetaillocaleChange()">
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="col-3">
+        <label class="control-label">{{'cate_no'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.itemNo}}</label>
+      </div>
+      <div class="col-3">
+        <label class="control-label">{{'cate_name'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.itemName}}</label>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="col-3">
+        <label class="control-label">{{'subitem_seqno'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.subitemNo}}</label>
+      </div>
+      <div class="col-3">
+        <label class="control-label">{{'subitem_name'|translate}}</label>
+        <label class="form-control border-line">{{subitemDetail.subitemName}}</label>
+      </div>
+    </div>
+    <!-- 參數表單 -->
+    <p-table [value]="subitemDetail.params" styleClass="p-datatable-striped" responsiveLayout="scroll">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th style="width: 20%">
+            {{'param_no'|translate}}
+          </th>
+          <th>
+            {{'param_value'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+        <tr>
+          <td>
+            {{index+1}}
+          </td>
+          <td>
+            {{rowData}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="form-group row mt-5">
+      <div class="col-12 col-xl-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left"
+          (click)="changePage('subitem');">{{'button.return_to_list'|translate}}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 更新子分類 -->
+  <div class="form-group" [hidden]="pageNum != 4">
+    <form [formGroup]="detailForm">
+      <div class="form-group row">
+        <div class="col-2">
+          <label class="control-label">{{'serial_no2'|translate}}</label>
+          <label class="form-control border-line">{{subitemDetail.itemId}}</label>
+        </div>
+        <div class="col-2">
+          <label class="control-label">{{'seqno'|translate}}</label>
+          <label class="form-control border-line">{{subitemDetail.sortBy}}</label>
+        </div>
+        <div class="col-2">
+          <label class="control-label col-12">{{'default_cr'|translate}}</label>
+          <!-- <label class="form-control border-line">{{subitemDetail.isDefault}}</label> -->
+          <!-- <div class="col-12" style="border-top:1px solid #ddd;">
+            <input class="align-middle checkbox" type="checkbox" formControlName="isDefault">
+          </div> -->
+          <div class="p-form-check col">
+            <p-checkbox [binary]="true" inputId="isDefault" formControlName="isDefault"></p-checkbox>
+            <!-- <label class="ml-2 mb-0" for="isDefault">{{'reset_pwd_attempts' | translate}}</label> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-3">
+          <!-- <label id="itemNo_label" for="itemNo" class="control-label">{{'cate_no'|translate}}</label>
+          <label class="form-control border-line" id="itemNo">{{subitemDetail.itemNo}}</label> -->
+          <label id="itemNo_label" for="itemNo" class="control-label">{{ 'cate_no' | translate}}</label>
+          <!-- <input type="text" class="form-control" id="itemNo" formControlName="itemNo"> -->
+          <label class="form-control border-line" id="itemNo">{{subitemDetail.itemNo}}</label>
+          <!-- <div *ngIf="subitemNo.invalid && (subitemNo.dirty || subitemNo.touched)" class="text-danger">
+            <small class="form-text">{{subitemNo.errors.isRequired}}</small>
+            <small class="form-text">{{subitemNo.errors.maxlength | translate}}</small>
+            <small class="form-text">{{subitemNo.errors.minlength | translate}}</small>
+            <small class="form-text">{{subitemNo.errors.pattern}}</small>
+          </div> -->
+        </div>
+        <div class="col-3">
+          <label class="control-label">{{'cate_name'|translate}}</label>
+          <label class="form-control border-line">{{subitemDetail.itemName}}</label>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="form-group col-3">
+          <label id="subitemNo_label" for="subitemNo" class="control-label required">{{ 'subitem_seqno' |
+            translate}}</label>
+          <input type="text" class="form-control" id="subitemNo" formControlName="subitemNo">
+          <div *ngIf="subitemNo.invalid && (subitemNo.dirty || subitemNo.touched)" class="text-danger">
+            <small class="form-text">{{subitemNo.errors.isRequired}}</small>
+            <small class="form-text">{{subitemNo.errors.maxlength | translate}}</small>
+            <small class="form-text">{{subitemNo.errors.minlength | translate}}</small>
+            <small class="form-text">{{subitemNo.errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 語系區塊 -->
+      <!-- <div class="row">
+        <div class="col-12 row">
+          <div class="col-2" style="border-top:1px solid #ddd;">
+            <label>{{'locale'|translate}}</label>
+          </div>
+          <div class="col-6" style="border-top:1px solid #ddd;">
+            <label id="subitemNameList_label" for="subitemNameList"
+              class="control-label required">{{'subitem_name'|translate}}</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group col-12 ">
+        <ng-template #localeitem></ng-template>
+      </div> -->
+
+      <!-- 參數區塊 -->
+      <!-- <div class="row">
+        <div class="row col-12">
+          <div class="col-2" style="border-top:1px solid #ddd;">
+            <label>{{'param_no'|translate}}</label>
+          </div>
+          <div class="col-6" style="border-top:1px solid #ddd;">
+            <label>{{ 'param_value' | translate}}</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group col-12">
+        <ng-template #paramitem></ng-template>
+      </div> -->
+
+      <div class="form-group col-12">
+        <ng-template #subitems></ng-template>
+      </div>
+
+      <div class="form-group row mt-5">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="detailForm.invalid || !subitemsValid"
+            (click)="procData();">{{'button.update'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('subitem');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 更新分類 -->
+  <div class="form-group" [hidden]="pageNum != 5">
+    <form [formGroup]="itemForm">
+      <div class="form-group row">
+        <div class="col-3">
+          <label id="itemNo_label" for="itemNo" class="control-label required">{{ 'cate_no' | translate}}</label>
+          <input type="text" class="form-control" id="itemNo" formControlName="itemNo">
+          <div *ngIf="itemForm_itemNo.invalid && (itemForm_itemNo.dirty || itemForm_itemNo.touched)"
+            class="text-danger">
+            <small class="form-text">{{itemForm_itemNo.errors.required | translate}}</small>
+            <!-- <small class="form-text">{{itemNo.errors.maxlength | translate}}</small>
+            <small class="form-text">{{itemNo.errors.minlength | translate}}</small>
+            <small class="form-text">{{itemNo.errors.pattern}}</small> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 語系區塊 -->
+      <div class=" row">
+        <div class="col-12 row">
+          <div class="col-2" style="border-top:1px solid #ddd;">
+            <label>{{'locale'|translate}}</label>
+          </div>
+          <div class="col-6" style="border-top:1px solid #ddd;">
+            <label id="subitemNameList_label" for="subitemNameList"
+              class="control-label required">{{'cate_name'|translate}}</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group col-12 ">
+        <ng-template #locale></ng-template>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="itemForm.invalid || !localeValid" (click)="procData();">{{'button.update'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left" (onClose)="onToastClose($event)"></p-toast>
+<!-- <p-toast position="center" key="deleteMsg" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+  <ng-template let-message pTemplate="message">
+    <div style="text-align: center">
+      <em class="fas fa-exclamation-triangle fa-3x"></em>
+      <h4>{{message.summary}}</h4>
+      <p>{{message.detail}}</p>
+    </div>
+    <div class="ui-g ui-fluid">
+      <div class="ui-g-6">
+        <button type="button" pButton (click)="deleteConfirm()" label="{{'button.confirm'|translate}}"
+          class="ui-button-success"></button>
+      </div>
+      <div class="ui-g-6">
+        <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+          class="ui-button-secondary"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

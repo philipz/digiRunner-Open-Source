@@ -1,0 +1,3479 @@
+-- DGR_AUDIT_LOGD definition
+
+-- Drop table
+
+-- DROP TABLE DGR_AUDIT_LOGD;
+
+CREATE TABLE DGR_AUDIT_LOGD (
+	AUDIT_LONG_ID bigint NOT NULL,
+	TXN_UID varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ENTITY_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CUD varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OLD_ROW varbinary(MAX) NULL,
+	NEW_ROW varbinary(MAX) NULL,
+	PARAM1 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM2 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM3 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM4 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM5 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STACK_TRACE varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+
+	CONSTRAINT PK__DGR_AUDI__C66406B12FF01A11 PRIMARY KEY (AUDIT_LONG_ID)
+);
+
+
+-- DGR_AUDIT_LOGM definition
+
+-- Drop table
+
+-- DROP TABLE DGR_AUDIT_LOGM;
+
+CREATE TABLE DGR_AUDIT_LOGM (
+	AUDIT_LONG_ID bigint NOT NULL,
+	AUDIT_EXT_ID bigint DEFAULT 0 NOT NULL,
+	TXN_UID varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	USER_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CLIENT_ID varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_URL varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ORIG_API_URL varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EVENT_NO varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	USER_IP varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	USER_HOSTNAME varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	USER_ROLE varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM1 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM2 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM3 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM4 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM5 varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STACK_TRACE varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK_dgr_audit_logm_1 PRIMARY KEY (AUDIT_LONG_ID,AUDIT_EXT_ID),
+	CONSTRAINT UK_dgr_audit_logm_1 UNIQUE (TXN_UID)
+);
+
+
+
+-- DGR_COMPOSER_FLOW definition
+
+-- Drop table
+
+-- DROP TABLE DGR_COMPOSER_FLOW;
+
+CREATE TABLE DGR_COMPOSER_FLOW (
+	FLOW_ID bigint NOT NULL,
+	MODULE_NAME nvarchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FLOW_DATA varbinary(MAX) NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK_DGR_COMPOSER_FLOW PRIMARY KEY (FLOW_ID),
+	CONSTRAINT u_DGR_COMPOSER_FLOW UNIQUE (MODULE_NAME,API_ID)
+);
+
+
+
+-- DGR_NODE_LOST_CONTACT definition
+
+-- Drop table
+
+-- DROP TABLE DGR_NODE_LOST_CONTACT;
+
+CREATE TABLE DGR_NODE_LOST_CONTACT (
+	LOST_CONTACT_ID bigint NOT NULL,
+	NODE_NAME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IP nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PORT int NOT NULL,
+	LOST_TIME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIMESTAMP bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK_DGR_NODE_LOST_CONTACT PRIMARY KEY (LOST_CONTACT_ID)
+);
+
+
+-- DGR_OAUTH_APPROVALS definition
+
+-- Drop table
+
+-- DROP TABLE DGR_OAUTH_APPROVALS;
+
+CREATE TABLE DGR_OAUTH_APPROVALS (
+	OAUTH_APPROVALS_ID bigint NOT NULL,
+	USER_NAME varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLIENT_ID varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	[SCOPE] varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STATUS varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXPIRES_AT datetime NULL,
+	LAST_MODIFIED_AT datetime NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK_dgr_oauth_approvals PRIMARY KEY (OAUTH_APPROVALS_ID)
+);
+
+
+-- GROUPS definition
+
+-- Drop table
+
+-- DROP TABLE GROUPS;
+
+CREATE TABLE GROUPS (
+	ID bigint IDENTITY(1,1) NOT NULL,
+	GROUP_NAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT GROUPS_PK PRIMARY KEY (ID)
+);
+
+
+-- OAUTH_APPROVALS definition
+
+-- Drop table
+
+-- DROP TABLE OAUTH_APPROVALS;
+
+CREATE TABLE OAUTH_APPROVALS (
+	USERID varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLIENTID varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	[SCOPE] varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STATUS varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXPIRESAT datetime NULL,
+	LASTMODIFIEDAT datetime NULL
+);
+
+
+-- OAUTH_CLIENT_DETAILS definition
+
+-- Drop table
+
+-- DROP TABLE OAUTH_CLIENT_DETAILS;
+
+CREATE TABLE OAUTH_CLIENT_DETAILS (
+	CLIENT_ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RESOURCE_IDS nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CLIENT_SECRET nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	[SCOPE] nvarchar(2048) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	AUTHORIZED_GRANT_TYPES nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	WEB_SERVER_REDIRECT_URI nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	AUTHORITIES nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	ACCESS_TOKEN_VALIDITY int DEFAULT NULL NULL,
+	REFRESH_TOKEN_VALIDITY int DEFAULT NULL NULL,
+	ADDITIONAL_INFORMATION nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	AUTOAPPROVE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CONSTRAINT OAUTH_CLIENT_DETAILS_PK PRIMARY KEY (CLIENT_ID)
+);
+
+
+-- OAUTH_CODE definition
+
+-- Drop table
+
+-- DROP TABLE OAUTH_CODE;
+
+CREATE TABLE OAUTH_CODE (
+	CODE varchar(256) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	AUTHENTICATION varbinary(1) NULL,
+	CREATED datetime DEFAULT getdate() NULL
+);
+
+
+-- SEQ_STORE definition
+
+-- Drop table
+
+-- DROP TABLE SEQ_STORE;
+
+CREATE TABLE SEQ_STORE (
+	SEQUENCE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NEXT_VAL bigint NULL,
+	CONSTRAINT SEQ_STORE_PK PRIMARY KEY (SEQUENCE_NAME)
+);
+
+
+-- TSMPN_API_MODULE definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_API_MODULE;
+
+CREATE TABLE TSMPN_API_MODULE (
+	ID bigint NOT NULL,
+	MODULE_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_APP_CLASS nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_BYTES varbinary(MAX) NOT NULL,
+	MODULE_MD5 nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_TYPE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	UPLOAD_TIME datetime NOT NULL,
+	UPLOADER_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	STATUS_TIME datetime NULL,
+	STATUS_USER nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ACTIVE bit NOT NULL,
+	NODE_TASK_ID bigint NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	TARGET_VERSION varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CONSTRAINT TSMPN_API_MODULE_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMPN_API_MODULE_UQ UNIQUE (MODULE_NAME,MODULE_VERSION)
+);
+
+
+
+-- TSMPN_NODE_TASK definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_NODE_TASK;
+
+CREATE TABLE TSMPN_NODE_TASK (
+	ID bigint NOT NULL,
+	TASK_SIGNATURE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TASK_ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TASK_ARG nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	COORDINATION nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EXECUTE_TIME datetime NOT NULL,
+	NOTICE_NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NOTICE_TIME datetime NOT NULL,
+	CONSTRAINT TSMPN_NODE_TASK_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMPN_NODE_TASK_UQ UNIQUE (TASK_SIGNATURE,TASK_ID)
+);
+
+
+
+-- TSMPN_SITE definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_SITE;
+
+CREATE TABLE TSMPN_SITE (
+	SITE_ID int IDENTITY(1,1) NOT NULL,
+	SITE_CODE nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SITE_MEMO nvarchar(MAX) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ACTIVE bit NOT NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NULL,
+	PROTOCOL_TYPE nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	BINDING_IP nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	BINDING_PORT int NOT NULL,
+	APP_POOL nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ROOT_PATH nvarchar(MAX) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLR_VERSION nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK__TSMPN_DC__46564CF959B403E7 PRIMARY KEY (SITE_ID)
+);
+
+
+-- TSMPN_SITE_MODULE definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_SITE_MODULE;
+
+CREATE TABLE TSMPN_SITE_MODULE (
+	SITE_ID int NOT NULL,
+	MODULE_ID int NOT NULL,
+	NODE_TASK_ID int NULL,
+	CONSTRAINT PK__TSMPN_DC__346EE4DD9F6CAAFE PRIMARY KEY (SITE_ID)
+);
+
+
+-- TSMPN_SITE_NODE definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_SITE_NODE;
+
+CREATE TABLE TSMPN_SITE_NODE (
+	NODE nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SITE_ID int NOT NULL,
+	NODE_TASK_ID int NULL,
+	CONSTRAINT PK__TSMPN_SI__7FE77B04E92FA18C PRIMARY KEY (NODE,SITE_ID)
+);
+
+
+-- TSMP_ALERT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ALERT;
+
+CREATE TABLE TSMP_ALERT (
+	ALERT_ID int NOT NULL,
+	ALERT_NAME nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ALERT_TYPE nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ALERT_ENABLED bit NOT NULL,
+	THRESHOLD int NULL,
+	DURATION int NULL,
+	ALERT_INTERVAL int NULL,
+	C_FLAG bit NOT NULL,
+	IM_FLAG bit NOT NULL,
+	IM_TYPE nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	IM_ID nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EX_TYPE char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EX_DAYS nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EX_TIME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALERT_DESC nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALERT_SYS varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	ALERT_MSG varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CREATE_TIME datetime NULL,
+	UPDATE_TIME datetime NULL,
+	CREATE_USER nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	UPDATE_USER nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	ES_SEARCH_PAYLOAD varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	MODULENAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RESPONSETIME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_ALERT_PK PRIMARY KEY (ALERT_ID)
+);
+
+
+-- TSMP_ALERT_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ALERT_LOG;
+
+CREATE TABLE TSMP_ALERT_LOG (
+	ALERT_LOG_ID bigint NOT NULL,
+	ALERT_ID int DEFAULT -1 NOT NULL,
+	ROLE_ID varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALERT_MSG varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '' NOT NULL,
+	SENDER_TYPE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	[RESULT] varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '0' NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_ALE__D0179E6573F31ED4 PRIMARY KEY (ALERT_LOG_ID)
+);
+
+
+-- TSMP_API definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_API;
+
+CREATE TABLE TSMP_API (
+	API_KEY nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME nvarchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	API_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_SRC char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_DESC nvarchar(1500) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	UPDATE_TIME datetime NULL,
+	CREATE_USER varchar(128) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_USER varchar(128) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	API_OWNER varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	PUBLIC_FLAG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	SRC_URL nvarchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DATA_FORMAT char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	JWE_FLAG varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	JWE_FLAG_RESP varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	API_CACHE_FLAG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	MOCK_STATUS_CODE CHAR(3) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	MOCK_HEADERS VARCHAR(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	MOCK_BODY nvarchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_API_PK PRIMARY KEY (API_KEY,MODULE_NAME),
+	CONSTRAINT TSMP_API_UQ UNIQUE (API_KEY,MODULE_NAME)
+);
+
+
+-- TSMP_API_EXT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_API_EXT;
+
+CREATE TABLE TSMP_API_EXT (
+	API_KEY varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DP_STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DP_STU_DATE_TIME datetime NULL,
+	REF_ORDERM_ID bigint NOT NULL,
+	API_EXT_ID bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_API_EXT_PK PRIMARY KEY (API_KEY,MODULE_NAME),
+	CONSTRAINT TSMP_API_EXT_UQ UNIQUE (API_EXT_ID)
+);
+
+
+
+-- TSMP_API_IMP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_API_IMP;
+
+CREATE TABLE TSMP_API_IMP (
+	API_KEY varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RECORD_TYPE char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	BATCH_NO int NOT NULL,
+	FILENAME varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	API_DESC varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	API_OWNER varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	URL_RID char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '0' NULL,
+	API_SRC char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'M' NULL,
+	SRC_URL NVARCHAR(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	API_UUID varchar(64) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PATH_OF_JSON varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	METHOD_OF_JSON varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PARAMS_OF_JSON varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	HEADERS_OF_JSON varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSUMES_OF_JSON varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PRODUCES_OF_JSON varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	FLOW varchar(MAX) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CHECK_ACT char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	[RESULT] char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MEMO varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	NO_OAUTH char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	JWE_FLAG varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	JWE_FLAG_RESP varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	FUN_FLAG int NULL,
+	CONSTRAINT TSMP_API_IMP_PK PRIMARY KEY (API_KEY,MODULE_NAME,RECORD_TYPE,BATCH_NO)
+);
+
+
+-- TSMP_API_MODULE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_API_MODULE;
+
+CREATE TABLE TSMP_API_MODULE (
+	ID bigint NOT NULL,
+	MODULE_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_APP_CLASS nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_BYTES varbinary(MAX) NOT NULL,
+	MODULE_MD5 nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_TYPE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	UPLOAD_TIME datetime DEFAULT getdate() NULL,
+	UPLOADER_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	STATUS_TIME datetime NULL,
+	STATUS_USER nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ACTIVE bit NOT NULL,
+	NODE_TASK_ID bigint NULL,
+	V2_FLAG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CONSTRAINT TSMP_API_MODULE_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMP_API_MODULE_UQ UNIQUE (MODULE_NAME,MODULE_VERSION)
+);
+
+
+
+-- TSMP_API_REG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_API_REG;
+
+CREATE TABLE TSMP_API_REG (
+	API_KEY nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SRC_URL nvarchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REG_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_UUID nvarchar(64) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PATH_OF_JSON nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	METHOD_OF_JSON nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PARAMS_OF_JSON nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	HEADERS_OF_JSON nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSUMES_OF_JSON nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PRODUCES_OF_JSON nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	URL_RID char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 0 NOT NULL,
+	REGHOST_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	NO_OAUTH char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	FUN_FLAG int DEFAULT 0 NULL,
+	CONSTRAINT TSMP_API_REG_PK PRIMARY KEY (API_KEY,MODULE_NAME),
+	CONSTRAINT TSMP_API_REG_UQ UNIQUE (API_KEY,MODULE_NAME)
+);
+
+
+
+-- TSMP_AUTH_CODE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_AUTH_CODE;
+
+CREATE TABLE TSMP_AUTH_CODE (
+	AUTH_CODE_ID bigint NOT NULL,
+	AUTH_CODE varchar(1000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EXPIRE_DATE_TIME bigint NOT NULL,
+	STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '0' NOT NULL,
+	AUTH_TYPE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLIENT_NAME varchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_AUTH_CODE_PK PRIMARY KEY (AUTH_CODE_ID),
+	CONSTRAINT TSMP_AUTH_CODE_UK UNIQUE (AUTH_CODE)
+);
+
+
+
+CREATE TABLE tsmp_client (
+	CLIENT_ID nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CLIENT_NAME nvarchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CLIENT_STATUS nchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TPS int NOT NULL,
+	EMAILS nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CREATE_TIME datetime2(0) NOT NULL,
+	UPDATE_TIME datetime2(0) DEFAULT NULL NULL,
+	OWNER nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REMARK nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_USER nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	API_QUOTA int DEFAULT NULL NULL,
+	API_USED int DEFAULT NULL NULL,
+	C_PRIORITY int DEFAULT 5 NULL,
+	PWD_FAIL_TIMES int DEFAULT 0 NULL,
+	CLIENT_ALIAS varchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	SECURITY_LEVEL_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	SIGNUP_NUM varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	FAIL_TRESHHOLD int DEFAULT 3 NULL,
+	ACCESS_TOKEN_QUOTA int DEFAULT 0 NULL,
+	REFRESH_TOKEN_QUOTA int DEFAULT 0 NULL,
+	CLIENT_SECRET varchar(128) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	START_DATE bigint NULL,
+	END_DATE bigint NULL,
+	START_TIME_PER_DAY bigint NULL,
+	END_TIME_PER_DAY bigint NULL,
+	TIME_ZONE varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK_tsmp_client_CLIENT_ID PRIMARY KEY (CLIENT_ID)
+);
+
+
+-- TSMP_CLIENT_CERT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_CLIENT_CERT;
+
+CREATE TABLE TSMP_CLIENT_CERT (
+	CLIENT_CERT_ID bigint NOT NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CERT_FILE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FILE_CONTENT varbinary(MAX) NOT NULL,
+	PUB_KEY varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CERT_VERSION varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CERT_SERIAL_NUM varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	S_ALGORITHM_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALGORITHM_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CERT_THUMBPRINT varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IUID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ISSUER_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SUID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_AT bigint NOT NULL,
+	EXPIRED_AT bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEY_SIZE int DEFAULT 0 NOT NULL,
+	CONSTRAINT PK__TSMP_CLI__2B9BA8858276E37C PRIMARY KEY (CLIENT_CERT_ID)
+);
+
+
+-- TSMP_CLIENT_CERT2 definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_CLIENT_CERT2;
+
+CREATE TABLE TSMP_CLIENT_CERT2 (
+	CLIENT_CERT2_ID bigint NOT NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CERT_FILE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FILE_CONTENT varbinary(MAX) NOT NULL,
+	PUB_KEY varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CERT_VERSION varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CERT_SERIAL_NUM varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	S_ALGORITHM_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALGORITHM_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CERT_THUMBPRINT varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IUID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ISSUER_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SUID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_AT bigint NOT NULL,
+	EXPIRED_AT bigint NOT NULL,
+	KEY_SIZE int DEFAULT 0 NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_CLI__E50D5A1CCC18E56F PRIMARY KEY (CLIENT_CERT2_ID)
+);
+
+
+-- TSMP_CLIENT_GROUP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_CLIENT_GROUP;
+
+CREATE TABLE TSMP_CLIENT_GROUP (
+	CLIENT_ID nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT TSMP_CLIENT_GROUP_PK PRIMARY KEY (CLIENT_ID,GROUP_ID)
+);
+
+
+-- TSMP_CLIENT_HOST definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_CLIENT_HOST;
+
+CREATE TABLE TSMP_CLIENT_HOST (
+	HOST_SEQ int NOT NULL,
+	CLIENT_ID nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HOST_NAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HOST_IP nvarchar(15) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime NOT NULL,
+	CONSTRAINT TSMP_CLIENT_HOST_PK PRIMARY KEY (HOST_SEQ)
+);
+
+
+-- TSMP_CLIENT_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_CLIENT_LOG;
+
+CREATE TABLE TSMP_CLIENT_LOG (
+	LOG_SEQ nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IS_LOGIN bit NOT NULL,
+	AGENT nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EVENT_TYPE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EVENT_MSG nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EVENT_TIME datetime NOT NULL,
+	CLIENT_ID nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CLIENT_IP nvarchar(15) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	USER_NAME nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TXSN nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime NOT NULL,
+	CONSTRAINT TSMP_CLIENT_LOG_PK PRIMARY KEY (LOG_SEQ)
+);
+
+
+-- TSMP_CLIENT_VGROUP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_CLIENT_VGROUP;
+
+CREATE TABLE TSMP_CLIENT_VGROUP (
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	VGROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK__TSMP_CLI__F33E6CE769E46A3D PRIMARY KEY (CLIENT_ID,VGROUP_ID)
+);
+
+
+-- TSMP_DC definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DC;
+
+CREATE TABLE TSMP_DC (
+	DC_ID bigint NOT NULL,
+	DC_CODE varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DC_MEMO varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ACTIVE bit NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NULL,
+	CONSTRAINT DC_ID_PK PRIMARY KEY (DC_ID)
+);
+
+
+-- TSMP_DC_MODULE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DC_MODULE;
+
+CREATE TABLE TSMP_DC_MODULE (
+	DC_ID bigint NOT NULL,
+	MODULE_ID bigint NOT NULL,
+	NODE_TASK_ID bigint NULL,
+	CONSTRAINT TSMP_DC_MODULE_PK PRIMARY KEY (DC_ID,MODULE_ID)
+);
+
+
+-- TSMP_DC_NODE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DC_NODE;
+
+CREATE TABLE TSMP_DC_NODE (
+	NODE varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DC_ID bigint NOT NULL,
+	NODE_TASK_ID bigint NULL,
+	CONSTRAINT TSMP_DC_NODE_PK PRIMARY KEY (NODE,DC_ID)
+);
+
+
+-- TSMP_DP_ABOUT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_ABOUT;
+
+CREATE TABLE TSMP_DP_ABOUT (
+	SEQ_ID bigint IDENTITY(1,1) NOT NULL,
+	ABOUT_SUBJECT nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ABOUT_DESC nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime DEFAULT getdate() NOT NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_DP_ABOUT_PK PRIMARY KEY (SEQ_ID)
+);
+
+
+-- TSMP_DP_API_APP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_API_APP;
+
+CREATE TABLE TSMP_DP_API_APP (
+	REF_APP_ID bigint NOT NULL,
+	REF_API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT TSMP_DP_API_APP_PK PRIMARY KEY (REF_APP_ID,REF_API_UID)
+);
+
+
+-- TSMP_DP_API_AUTH2 definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_API_AUTH2;
+
+CREATE TABLE TSMP_DP_API_AUTH2 (
+	API_AUTH_ID bigint NOT NULL,
+	REF_CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	APPLY_STATUS varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	APPLY_PURPOSE nvarchar(3000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_REVIEW_USER nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REVIEW_REMARK varchar(3000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(MAX) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_API_AUTH2_PK PRIMARY KEY (API_AUTH_ID)
+);
+
+
+-- TSMP_DP_API_THEME definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_API_THEME;
+
+CREATE TABLE TSMP_DP_API_THEME (
+	REF_API_THEME_ID bigint NOT NULL,
+	REF_API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT TSMP_DP_API_THEME_PK PRIMARY KEY (REF_API_THEME_ID,REF_API_UID)
+);
+
+
+-- TSMP_DP_API_VIEW_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_API_VIEW_LOG;
+
+CREATE TABLE TSMP_DP_API_VIEW_LOG (
+	SEQ_ID bigint IDENTITY(1,1) NOT NULL,
+	API_ID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FROM_IP nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VIEW_DATE date NOT NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT TSMP_DP_API_VIEW_LOG_PK PRIMARY KEY (SEQ_ID)
+);
+
+
+-- TSMP_DP_APP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_APP;
+
+CREATE TABLE TSMP_DP_APP (
+	APP_ID bigint IDENTITY(1,1) NOT NULL,
+	REF_APP_CATE_ID bigint NOT NULL,
+	NAME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	INTRO nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	AUTHOR nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DATA_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_APP_PK PRIMARY KEY (APP_ID)
+);
+
+
+-- TSMP_DP_APPT_JOB definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_APPT_JOB;
+
+CREATE TABLE TSMP_DP_APPT_JOB (
+	APPT_JOB_ID bigint NOT NULL,
+	REF_ITEM_NO varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_SUBITEM_NO varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'W' NOT NULL,
+	IN_PARAMS varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXEC_RESULT varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXEC_OWNER varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYS' NULL,
+	STACK_TRACE varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	JOB_STEP varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	START_DATE_TIME datetime NOT NULL,
+	FROM_JOB_ID bigint NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	IDENTIF_DATA varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PERIOD_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT newid() NOT NULL,
+	PERIOD_ITEMS_ID bigint DEFAULT 0 NOT NULL,
+	PERIOD_NEXTTIME bigint NULL,
+	CONSTRAINT TSMP_DP_APPT_JOB_PK PRIMARY KEY (APPT_JOB_ID),
+	CONSTRAINT UK_TSMP_DP_APPT_JOB_1 UNIQUE (PERIOD_UID,PERIOD_ITEMS_ID,PERIOD_NEXTTIME)
+);
+
+
+
+-- TSMP_DP_APPT_RJOB definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_APPT_RJOB;
+
+CREATE TABLE TSMP_DP_APPT_RJOB (
+	APPT_RJOB_ID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RJOB_NAME varchar(60) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CRON_EXPRESSION varchar(700) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CRON_JSON varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CRON_DESC varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	NEXT_DATE_TIME bigint NOT NULL,
+	LAST_DATE_TIME bigint NULL,
+	EFF_DATE_TIME bigint NULL,
+	INV_DATE_TIME bigint NULL,
+	REMARK varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH varchar(396) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK__TSMP_DP___1A34A65327E98170 PRIMARY KEY (APPT_RJOB_ID)
+);
+
+
+-- TSMP_DP_APPT_RJOB_D definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_APPT_RJOB_D;
+
+CREATE TABLE TSMP_DP_APPT_RJOB_D (
+	APPT_RJOB_D_ID bigint NOT NULL,
+	APPT_RJOB_ID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_ITEM_NO varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_SUBITEM_NO varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	IN_PARAMS varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	IDENTIF_DATA varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SORT_BY int DEFAULT 0 NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH varchar(186) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK__TSMP_DP___6C65543266040A05 PRIMARY KEY (APPT_RJOB_D_ID)
+);
+
+
+-- TSMP_DP_APP_CATEGORY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_APP_CATEGORY;
+
+CREATE TABLE TSMP_DP_APP_CATEGORY (
+	APP_CATE_ID bigint IDENTITY(1,1) NOT NULL,
+	APP_CATE_NAME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DATA_SORT int NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_APP_CATEGORY_PK PRIMARY KEY (APP_CATE_ID)
+);
+
+
+-- TSMP_DP_CALLAPI definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_CALLAPI;
+
+CREATE TABLE TSMP_DP_CALLAPI (
+	CALLAPI_ID bigint NOT NULL,
+	REQ_URL varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REQ_MSG varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RESP_MSG varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TOKEN_URL varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SIGN_CODE_URL varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	AUTH varchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT PK__TSMP_DP___52163FC88CCBB49C PRIMARY KEY (CALLAPI_ID)
+);
+
+
+-- TSMP_DP_CHK_LAYER definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_CHK_LAYER;
+
+CREATE TABLE TSMP_DP_CHK_LAYER (
+	CHK_LAYER_ID bigint NOT NULL,
+	REVIEW_TYPE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LAYER int NOT NULL,
+	ROLE_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_DP_CHK_LAYER_PK PRIMARY KEY (REVIEW_TYPE,LAYER,ROLE_ID)
+);
+
+
+-- TSMP_DP_CHK_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_CHK_LOG;
+
+CREATE TABLE TSMP_DP_CHK_LOG (
+	CHK_LOG_ID bigint NOT NULL,
+	REQ_ORDERS_ID bigint NOT NULL,
+	REQ_ORDERM_ID bigint NOT NULL,
+	LAYER int NOT NULL,
+	REQ_COMMENT varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REVIEW_STATUS varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT TSMP_DP_CHK_LOG_PK PRIMARY KEY (CHK_LOG_ID)
+);
+
+
+-- TSMP_DP_CLIENTEXT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_CLIENTEXT;
+
+CREATE TABLE TSMP_DP_CLIENTEXT (
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CLIENT_SEQ_ID bigint NOT NULL,
+	CONTENT_TXT nvarchar(1000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REG_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '0' NOT NULL,
+	PWD_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	PWD_RESET_KEY varchar(22) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REVIEW_REMARK varchar(3000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REF_REVIEW_USER nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RESUBMIT_DATE_TIME datetime NULL,
+	PUBLIC_FLAG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_CLIENTEXT_PK PRIMARY KEY (CLIENT_ID),
+	CONSTRAINT UK_TSMP_DP_CLIENTEXT_1 UNIQUE (CLIENT_SEQ_ID)
+);
+
+
+-- TSMP_DP_DENIED_MODULE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_DENIED_MODULE;
+
+CREATE TABLE TSMP_DP_DENIED_MODULE (
+	REF_MODULE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT TSMP_DP_DENIED_MODULE_PK PRIMARY KEY (REF_MODULE_NAME)
+);
+
+
+-- TSMP_DP_FAQ_ANSWER definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_FAQ_ANSWER;
+
+CREATE TABLE TSMP_DP_FAQ_ANSWER (
+	ANSWER_ID bigint IDENTITY(1,1) NOT NULL,
+	ANSWER_NAME nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ANSWER_NAME_EN nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REF_QUESTION_ID bigint NOT NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NOT NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(MAX) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_FAQ_ANSWER_PK PRIMARY KEY (ANSWER_ID)
+);
+
+
+-- TSMP_DP_FAQ_QUESTION definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_FAQ_QUESTION;
+
+CREATE TABLE TSMP_DP_FAQ_QUESTION (
+	QUESTION_ID bigint IDENTITY(1,1) NOT NULL,
+	QUESTION_NAME nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	QUESTION_NAME_EN nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DATA_SORT int NULL,
+	DATA_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NOT NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(MAX) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_FAQ_QUESTION_PK PRIMARY KEY (QUESTION_ID)
+);
+
+
+-- TSMP_DP_FILE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_FILE;
+
+CREATE TABLE TSMP_DP_FILE (
+	FILE_ID bigint NOT NULL,
+	FILE_NAME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FILE_PATH varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_FILE_CATE_CODE nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_ID bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(400) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	IS_BLOB varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'N' NULL,
+	IS_TMPFILE varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'N' NULL,
+	BLOB_DATA varbinary(MAX) NULL,
+	CONSTRAINT TSMP_DP_FILE_PK PRIMARY KEY (FILE_ID),
+	CONSTRAINT TSMP_DP_FILE_UQ UNIQUE (FILE_NAME,REF_FILE_CATE_CODE,REF_ID)
+);
+
+
+-- TSMP_DP_ITEMS definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_ITEMS;
+
+CREATE TABLE TSMP_DP_ITEMS (
+	ITEM_ID bigint NOT NULL,
+	ITEM_NO varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ITEM_NAME varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SUBITEM_NO varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SUBITEM_NAME varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SORT_BY int DEFAULT 0 NOT NULL,
+	IS_DEFAULT varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM1 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM2 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM3 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM4 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARAM5 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	LOCALE varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'zh-TW' NOT NULL,
+	CONSTRAINT TSMP_DP_ITEMS_PK PRIMARY KEY (ITEM_NO,SUBITEM_NO,LOCALE)
+);
+
+
+-- TSMP_DP_MAIL_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_MAIL_LOG;
+
+CREATE TABLE TSMP_DP_MAIL_LOG (
+	MAILLOG_ID bigint NOT NULL,
+	RECIPIENTS varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TEMPLATE_TXT varchar(3800) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_CODE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	[RESULT] varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '0' NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_MAIL_LOG_PK PRIMARY KEY (MAILLOG_ID)
+);
+
+
+-- TSMP_DP_MAIL_TPLT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_MAIL_TPLT;
+
+CREATE TABLE TSMP_DP_MAIL_TPLT (
+	MAILTPLT_ID bigint NOT NULL,
+	CODE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TEMPLATE_TXT varchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REMARK varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(2120) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_MAIL_TPLT_PK PRIMARY KEY (MAILTPLT_ID),
+	CONSTRAINT TSMP_DP_MAIL_TPLT_UQ UNIQUE (CODE)
+);
+
+
+
+-- TSMP_DP_NEWS definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_NEWS;
+
+CREATE TABLE TSMP_DP_NEWS (
+	NEWS_ID bigint NOT NULL,
+	NEW_TITLE varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '_' NOT NULL,
+	NEW_CONTENT varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	POST_DATE_TIME datetime NOT NULL,
+	REF_TYPE_SUBITEM_NO varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH varchar(2148) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_NEWS_PK PRIMARY KEY (NEWS_ID)
+);
+
+
+-- TSMP_DP_REQ_ORDERD1 definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERD1;
+
+CREATE TABLE TSMP_DP_REQ_ORDERD1 (
+	REQ_ORDERD1_ID bigint NOT NULL,
+	REF_REQ_ORDERM_ID bigint NOT NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_DP___0B71A1986D69F005 PRIMARY KEY (REQ_ORDERD1_ID)
+);
+
+
+-- TSMP_DP_REQ_ORDERD2 definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERD2;
+
+CREATE TABLE TSMP_DP_REQ_ORDERD2 (
+	REQ_ORDERD2_ID bigint NOT NULL,
+	REF_REQ_ORDERM_ID bigint NOT NULL,
+	API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	PUBLIC_FLAG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_REQ_ORDERD2_PK PRIMARY KEY (REQ_ORDERD2_ID)
+);
+
+
+-- TSMP_DP_REQ_ORDERD2D definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERD2D;
+
+CREATE TABLE TSMP_DP_REQ_ORDERD2D (
+	REQ_ORDERD2_ID bigint NOT NULL,
+	API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_THEME_ID bigint NOT NULL,
+	REQ_ORDERD2D_ID bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_DP_REQ_ORDERD2D_PK PRIMARY KEY (REQ_ORDERD2_ID,API_UID,REF_THEME_ID),
+	CONSTRAINT TSMP_DP_REQ_ORDERD2D_UQ UNIQUE (REQ_ORDERD2D_ID)
+);
+
+
+
+-- TSMP_DP_REQ_ORDERD3 definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERD3;
+
+CREATE TABLE TSMP_DP_REQ_ORDERD3 (
+	REQ_ORDERD3_ID bigint NOT NULL,
+	REF_REQ_ORDERM_ID bigint NOT NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_DP___146D169EE6624DD1 PRIMARY KEY (REQ_ORDERD3_ID)
+);
+
+
+-- TSMP_DP_REQ_ORDERD5 definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERD5;
+
+CREATE TABLE TSMP_DP_REQ_ORDERD5 (
+	REQ_ORDERD5_ID bigint NOT NULL,
+	CLIENT_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REF_REQ_ORDERM_ID bigint NOT NULL,
+	REF_OPEN_APIKEY_ID bigint NULL,
+	OPEN_APIKEY varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SECRET_KEY varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	OPEN_APIKEY_ALIAS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TIMES_THRESHOLD int DEFAULT 0 NOT NULL,
+	EXPIRED_AT bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_DP___E39A3795F4A4B710 PRIMARY KEY (REQ_ORDERD5_ID)
+);
+
+
+-- TSMP_DP_REQ_ORDERD5D definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERD5D;
+
+CREATE TABLE TSMP_DP_REQ_ORDERD5D (
+	REF_REQ_ORDERD5_ID bigint NOT NULL,
+	REF_API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REQ_ORDERD5D_ID bigint NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_DP___82C1A2323C5A3049 PRIMARY KEY (REF_REQ_ORDERD5_ID,REF_API_UID)
+);
+
+
+-- TSMP_DP_REQ_ORDERM definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERM;
+
+CREATE TABLE TSMP_DP_REQ_ORDERM (
+	REQ_ORDERM_ID bigint NOT NULL,
+	REQ_ORDER_NO varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REQ_TYPE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REQ_SUBTYPE varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REQ_DESC nvarchar(1000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REQ_USER_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EFFECTIVE_DATE datetime NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(1020) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_REQ_ORDERM_PK PRIMARY KEY (REQ_ORDERM_ID),
+	CONSTRAINT TSMP_DP_REQ_ORDERM_UQ UNIQUE (REQ_ORDER_NO)
+);
+
+
+
+-- TSMP_DP_REQ_ORDERS definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_REQ_ORDERS;
+
+CREATE TABLE TSMP_DP_REQ_ORDERS (
+	REQ_ORDERS_ID bigint NOT NULL,
+	REQ_ORDERM_ID bigint NOT NULL,
+	LAYER int NOT NULL,
+	REQ_COMMENT varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	REVIEW_STATUS varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'WAIT1' NOT NULL,
+	STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	PROC_FLAG int NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_REQ_ORDERS_PK PRIMARY KEY (REQ_ORDERS_ID)
+);
+
+
+-- TSMP_DP_SITE_MAP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_SITE_MAP;
+
+CREATE TABLE TSMP_DP_SITE_MAP (
+	SITE_ID bigint IDENTITY(1,1) NOT NULL,
+	SITE_PARENT_ID bigint NOT NULL,
+	SITE_DESC nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DATA_SORT int NOT NULL,
+	SITE_URL nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_DP_SITE_MAP_PK PRIMARY KEY (SITE_ID)
+);
+
+
+-- TSMP_DP_THEME_CATEGORY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_DP_THEME_CATEGORY;
+
+CREATE TABLE TSMP_DP_THEME_CATEGORY (
+	ID bigint IDENTITY(1,1) NOT NULL,
+	THEME_NAME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DATA_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT '1' NOT NULL,
+	DATA_SORT int NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_DP_THEME_CATEGORY_PK PRIMARY KEY (ID)
+);
+
+-- TSMP_EVENTS definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_EVENTS;
+
+CREATE TABLE TSMP_EVENTS (
+	EVENT_ID bigint NOT NULL,
+	EVENT_TYPE_ID varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EVENT_NAME_ID varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TRACE_ID varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	INFO_MSG nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	KEEP_FLAG varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'N' NOT NULL,
+	ARCHIVE_FLAG varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'N' NOT NULL,
+	NODE_ALIAS nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	NODE_ID varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	THREAD_NAME nvarchar(1000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	CONSTRAINT PK__TSMP_EVE__241A510CC33625BB PRIMARY KEY (EVENT_ID)
+);
+
+
+-- TSMP_FUNC definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_FUNC;
+
+CREATE TABLE TSMP_FUNC (
+	FUNC_CODE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FUNC_NAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FUNC_NAME_EN nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	FUNC_DESC nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	LOCALE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NOT NULL,
+	FUNC_URL nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CONSTRAINT TSMP_FUNC_PK PRIMARY KEY (FUNC_CODE,LOCALE)
+);
+
+
+-- TSMP_FUNC_EDITION definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_FUNC_EDITION;
+
+CREATE TABLE TSMP_FUNC_EDITION (
+	FUNC_CODE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FUNC_NAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FUNC_NAME_EN nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	FUNC_DESC nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	FUNC_URL nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	LOCALE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'zh-TW' NOT NULL,
+	UPDATE_USER nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	UPDATE_TIME datetime NOT NULL,
+	V_ENTERPRISE int DEFAULT 0 NOT NULL,
+	V_EXPRESS int DEFAULT 0 NOT NULL,
+	V_DIGILOGS int DEFAULT 0 NOT NULL,
+	V_TAIPEIGOV int DEFAULT 0 NOT NULL,
+	V_SCB int DEFAULT 0 NOT NULL,
+	CONSTRAINT PK__TSMP_FUN__41BBB003335C2F43 PRIMARY KEY (FUNC_CODE,LOCALE)
+);
+
+
+-- TSMP_GROUP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_GROUP;
+
+CREATE TABLE TSMP_GROUP (
+	GROUP_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_NAME nvarchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime NOT NULL,
+	UPDATE_TIME datetime NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	GROUP_ALIAS varchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	GROUP_DESC varchar(1500) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	GROUP_ACCESS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	SECURITY_LEVEL_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	ALLOW_DAYS int DEFAULT 0 NULL,
+	ALLOW_TIMES int DEFAULT 0 NULL,
+	VGROUP_FLAG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 0 NOT NULL,
+	VGROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VGROUP_NAME varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_GROUP_PK PRIMARY KEY (GROUP_ID)
+);
+
+
+-- TSMP_GROUP_API definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_GROUP_API;
+
+CREATE TABLE TSMP_GROUP_API (
+	GROUP_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_KEY nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	CONSTRAINT TSMP_GROUP_API_PK PRIMARY KEY (GROUP_ID,API_KEY,MODULE_NAME)
+);
+
+
+-- TSMP_GROUP_AUTHORITIES definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_GROUP_AUTHORITIES;
+
+CREATE TABLE TSMP_GROUP_AUTHORITIES (
+	GROUP_AUTHORITIE_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_AUTHORITIE_NAME varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_AUTHORITIE_DESC varchar(60) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	GROUP_AUTHORITIE_LEVEL varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_GROUP_AUTHORITIES_PK PRIMARY KEY (GROUP_AUTHORITIE_ID),
+	CONSTRAINT TSMP_GROUP_AUTHORITIES_UQ UNIQUE (GROUP_AUTHORITIE_NAME)
+);
+
+
+
+-- TSMP_GROUP_AUTHORITIES_MAP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_GROUP_AUTHORITIES_MAP;
+
+CREATE TABLE TSMP_GROUP_AUTHORITIES_MAP (
+	GROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_AUTHORITIE_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT TSMP_GROUP_AUTHORITIES_MAP_PK PRIMARY KEY (GROUP_ID,GROUP_AUTHORITIE_ID)
+);
+
+
+-- TSMP_GROUP_TIMES_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_GROUP_TIMES_LOG;
+
+CREATE TABLE TSMP_GROUP_TIMES_LOG (
+	SEQ_NO bigint NOT NULL,
+	JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXPIRE_TIME datetime NULL,
+	CREATE_TIME datetime NULL,
+	REEXPIRED_TIME datetime NULL,
+	TIMES_QUOTA int NULL,
+	TIMES_THRESHOLD int NULL,
+	REJTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_GROUP_TIMES_LOG_PK PRIMARY KEY (SEQ_NO),
+	CONSTRAINT TSMP_GROUP_TIMES_LOG_UQ UNIQUE (JTI,GROUP_ID)
+);
+
+
+
+-- TSMP_HEARTBEAT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_HEARTBEAT;
+
+CREATE TABLE TSMP_HEARTBEAT (
+	NODE_ID nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	START_TIME datetime DEFAULT getdate() NULL,
+	UPDATE_TIME datetime DEFAULT getdate() NULL,
+	NODE_INFO nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_HEARTBEAT_PK PRIMARY KEY (NODE_ID)
+);
+
+
+-- TSMP_NODE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_NODE;
+
+CREATE TABLE TSMP_NODE (
+	ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	START_TIME datetime DEFAULT getdate() NULL,
+	UPDATE_TIME datetime DEFAULT getdate() NULL,
+	NODE nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_NODE_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_NODE_TASK definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_NODE_TASK;
+
+CREATE TABLE TSMP_NODE_TASK (
+	ID bigint NOT NULL,
+	TASK_SIGNATURE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TASK_ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TASK_ARG nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	COORDINATION nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EXECUTE_TIME datetime DEFAULT getdate() NULL,
+	NOTICE_NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NOTICE_TIME datetime DEFAULT getdate() NULL,
+	MODULE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	MODULE_VERSION varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_NODE_TASK_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMP_NODE_TASK_UQ UNIQUE (TASK_SIGNATURE,TASK_ID)
+);
+
+
+
+-- TSMP_OPEN_APIKEY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_OPEN_APIKEY;
+
+CREATE TABLE TSMP_OPEN_APIKEY (
+	OPEN_APIKEY_ID bigint NOT NULL,
+	CLIENT_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OPEN_APIKEY varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SECRET_KEY varchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OPEN_APIKEY_ALIAS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TIMES_QUOTA int DEFAULT -1 NOT NULL,
+	TIMES_THRESHOLD int DEFAULT -1 NOT NULL,
+	EXPIRED_AT bigint NOT NULL,
+	REVOKED_AT bigint NULL,
+	OPEN_APIKEY_STATUS varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 1 NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	ROLLOVER_FLAG varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'N' NOT NULL,
+	CONSTRAINT PK__TSMP_OPE__D10224997C92C3F2 PRIMARY KEY (OPEN_APIKEY_ID),
+	CONSTRAINT UK_TSMP_OPEN_APIKEY_01 UNIQUE (OPEN_APIKEY)
+);
+
+
+
+-- TSMP_OPEN_APIKEY_MAP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_OPEN_APIKEY_MAP;
+
+CREATE TABLE TSMP_OPEN_APIKEY_MAP (
+	OPEN_APIKEY_MAP_ID bigint NOT NULL,
+	REF_OPEN_APIKEY_ID bigint NOT NULL,
+	REF_API_UID varchar(36) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT PK__TSMP_OPE__28803B3DE415A8E1 PRIMARY KEY (OPEN_APIKEY_MAP_ID)
+);
+
+
+-- TSMP_ORGANIZATION definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ORGANIZATION;
+
+CREATE TABLE TSMP_ORGANIZATION (
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ORG_NAME varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PARENT_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ORG_PATH varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NULL,
+	CONTACT_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONTACT_TEL varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONTACT_MAIL varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ORG_CODE varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_ORGANIZATION_PK PRIMARY KEY (ORG_ID),
+	CONSTRAINT TSMP_ORGANIZATION_UQ UNIQUE (ORG_NAME)
+);
+
+
+
+-- TSMP_OTP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_OTP;
+
+CREATE TABLE TSMP_OTP (
+	OPAQUE varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OTP varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ERR_TIMES int NULL,
+	CREATE_TIME datetime NULL,
+	VALID_TIME datetime NULL,
+	CHECK_TIME datetime NULL,
+	USED char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_OTP_PK PRIMARY KEY (OPAQUE)
+);
+
+
+-- TSMP_REG_HOST definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_REG_HOST;
+
+CREATE TABLE TSMP_REG_HOST (
+	REGHOST_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REGHOST varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REGHOST_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ENABLED char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CLIENTID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HEARTBEAT datetime NULL,
+	MEMO varchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NULL,
+	CONSTRAINT TSMP_REG_HOST_PK PRIMARY KEY (REGHOST_ID),
+	CONSTRAINT TSMP_REG_HOST_UQ UNIQUE (REGHOST)
+);
+
+
+
+-- TSMP_REG_MODULE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_REG_MODULE;
+
+CREATE TABLE TSMP_REG_MODULE (
+	REG_MODULE_ID bigint NOT NULL,
+	MODULE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_SRC varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LATEST varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'N' NOT NULL,
+	UPLOAD_DATE_TIME datetime NOT NULL,
+	UPLOAD_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_REG_MODULE_PK PRIMARY KEY (REG_MODULE_ID),
+	CONSTRAINT TSMP_REG_MODULE_UK UNIQUE (MODULE_NAME,MODULE_VERSION)
+);
+
+
+
+-- TSMP_REPORT_DATA definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_REPORT_DATA;
+
+CREATE TABLE TSMP_REPORT_DATA (
+	ID bigint NOT NULL,
+	REPORT_TYPE int NOT NULL,
+	DATE_TIME_RANGE_TYPE int NOT NULL,
+	LAST_ROW_DATE_TIME datetime NOT NULL,
+	STATISTICS_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	STRING_GROUP1 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STRING_GROUP2 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	STRING_GROUP3 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	INT_VALUE1 bigint NULL,
+	INT_VALUE2 bigint NULL,
+	INT_VALUE3 bigint NULL,
+	ORGID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_REPORT_DATA_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_REPORT_URL definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_REPORT_URL;
+
+CREATE TABLE TSMP_REPORT_URL (
+	REPORT_ID nvarchar(8) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TIME_RANGE char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REPORT_URL nvarchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT TSMP_REPORT_URL_UQ UNIQUE (REPORT_ID,TIME_RANGE)
+);
+
+
+
+-- TSMP_REQ_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_REQ_LOG;
+
+CREATE TABLE TSMP_REQ_LOG (
+	ID varchar(63) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RTIME datetime NOT NULL,
+	ATYPE varchar(3) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE_ALIAS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	URL varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CIP varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ORGID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TXID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ENTRY varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TUSER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	JTI varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_REQ_LOG_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_REQ_LOG_HISTORY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_REQ_LOG_HISTORY;
+
+CREATE TABLE TSMP_REQ_LOG_HISTORY (
+	ID varchar(63) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RTIME datetime NOT NULL,
+	ATYPE varchar(3) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_NAME varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MODULE_VERSION varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE_ALIAS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	URL varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CIP varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ORGID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TXID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ENTRY varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TUSER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	JTI varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_REQ_LOG_HISTORY_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_RES_LOG definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_RES_LOG;
+
+CREATE TABLE TSMP_RES_LOG (
+	ID varchar(63) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EXE_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ELAPSE int NOT NULL,
+	RCODE varchar(63) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HTTP_STATUS int NOT NULL,
+	ERR_MSG varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_RES_LOG_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_RES_LOG_HISTORY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_RES_LOG_HISTORY;
+
+CREATE TABLE TSMP_RES_LOG_HISTORY (
+	ID varchar(63) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EXE_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ELAPSE int NOT NULL,
+	RCODE varchar(63) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HTTP_STATUS int NOT NULL,
+	ERR_MSG varchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	CONSTRAINT TSMP_RES_LOG_HISTORY_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_ROLE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ROLE;
+
+CREATE TABLE TSMP_ROLE (
+	ROLE_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ROLE_NAME nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime2(0) NOT NULL,
+	ROLE_ALIAS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_ROLE_PK PRIMARY KEY (ROLE_ID)
+);
+
+
+-- TSMP_ROLE_ALERT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ROLE_ALERT;
+
+CREATE TABLE TSMP_ROLE_ALERT (
+	ROLE_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ALERT_ID int NOT NULL,
+	CONSTRAINT TSMP_ROLE_ALERT_PK PRIMARY KEY (ROLE_ID,ALERT_ID)
+);
+
+
+-- TSMP_ROLE_FUNC definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ROLE_FUNC;
+
+CREATE TABLE TSMP_ROLE_FUNC (
+	ROLE_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	FUNC_CODE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT TSMP_ROLE_FUNC_PK PRIMARY KEY (ROLE_ID,FUNC_CODE)
+);
+
+
+-- TSMP_ROLE_PRIVILEGE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ROLE_PRIVILEGE;
+
+CREATE TABLE TSMP_ROLE_PRIVILEGE (
+	ROLE_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ROLE_SCOPE varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_ROLE_PRIVILEGE_PK PRIMARY KEY (ROLE_ID)
+);
+
+
+-- TSMP_ROLE_ROLE_MAPPING definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ROLE_ROLE_MAPPING;
+
+CREATE TABLE TSMP_ROLE_ROLE_MAPPING (
+	ROLE_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ROLE_NAME_MAPPING varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ROLE_ROLE_ID bigint NOT NULL,
+	CONSTRAINT PK__TSMP_ROL__54B12C7F5E85E8C1 PRIMARY KEY (ROLE_ROLE_ID)
+);
+
+
+-- TSMP_ROLE_TXID_MAP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_ROLE_TXID_MAP;
+
+CREATE TABLE TSMP_ROLE_TXID_MAP (
+	ROLE_TXID_MAP_ID bigint NOT NULL,
+	ROLE_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TXID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LIST_TYPE varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_DATE_TIME datetime DEFAULT getdate() NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK__TSMP_ROL__A23299F0ABDD921A PRIMARY KEY (ROLE_TXID_MAP_ID),
+	CONSTRAINT UQ__TSMP_ROL__A2E36CD32450FB1D UNIQUE (ROLE_ID,TXID)
+);
+
+
+
+-- TSMP_RTN_CODE definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_RTN_CODE;
+
+CREATE TABLE TSMP_RTN_CODE (
+	TSMP_RTN_CODE nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LOCALE nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TSMP_RTN_MSG nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TSMP_RTN_DESC nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_RTN_CODE_PK PRIMARY KEY (TSMP_RTN_CODE,LOCALE)
+);
+
+
+-- TSMP_SECURITY_LEVEL definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_SECURITY_LEVEL;
+
+CREATE TABLE TSMP_SECURITY_LEVEL (
+	SECURITY_LEVEL_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SECURITY_LEVEL_NAME varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	SECURITY_LEVEL_DESC varchar(60) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_SECURITY_LEVEL_PK PRIMARY KEY (SECURITY_LEVEL_ID),
+	CONSTRAINT TSMP_SECURITY_LEVEL_UQ UNIQUE (SECURITY_LEVEL_NAME)
+);
+
+
+
+-- TSMP_SESSION definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_SESSION;
+
+CREATE TABLE TSMP_SESSION (
+	API_SESSION_ID nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CUST_ID nvarchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CUST_NAME nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONST_DATA nvarchar(1000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	USER_IP nvarchar(15) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_SESSION_PK PRIMARY KEY (API_SESSION_ID)
+);
+
+
+-- TSMP_SESS_ATTRS definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_SESS_ATTRS;
+
+CREATE TABLE TSMP_SESS_ATTRS (
+	API_SESSION_ID nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ATTR_NAME nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ATTR_VALUES nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime DEFAULT getdate() NULL,
+	CONSTRAINT TSMP_SESS_ATTRS_PK PRIMARY KEY (API_SESSION_ID,ATTR_NAME)
+);
+
+
+-- TSMP_SETTING definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_SETTING;
+
+CREATE TABLE TSMP_SETTING (
+	ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	VALUE nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	MEMO varchar(512) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CONSTRAINT TSMP_SETTING_PK PRIMARY KEY (ID)
+);
+
+
+-- TSMP_TOKEN_HISTORY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_TOKEN_HISTORY;
+
+CREATE TABLE TSMP_TOKEN_HISTORY (
+	SEQ_NO bigint NOT NULL,
+	USER_NID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	USER_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TOKEN_JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	[SCOPE] nvarchar(2048) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXPIRED_AT datetime NOT NULL,
+	CREATE_AT datetime NOT NULL,
+	STIME datetime NULL,
+	REVOKED_AT datetime NULL,
+	REVOKED_STATUS char(2) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RETOKEN_JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REEXPIRED_AT datetime NOT NULL,
+	RFT_REVOKED_AT datetime NULL,
+	RFT_REVOKED_STATUS varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TOKEN_QUOTA int NULL,
+	TOKEN_USED int NULL,
+	RFT_QUOTA int NULL,
+	RFT_USED int NULL,
+	CONSTRAINT PK__TSMP_TOK__04B917665DBF83EC PRIMARY KEY (SEQ_NO)
+);
+
+
+-- TSMP_TOKEN_HISTORY_HOUSING definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_TOKEN_HISTORY_HOUSING;
+
+CREATE TABLE TSMP_TOKEN_HISTORY_HOUSING (
+	SEQ_NO bigint NOT NULL,
+	USER_NID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	USER_NAME varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CLIENT_ID varchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TOKEN_JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	[SCOPE] nvarchar(2048) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	EXPIRED_AT datetime NOT NULL,
+	CREATE_AT datetime NOT NULL,
+	STIME datetime NULL,
+	REVOKED_AT datetime NULL,
+	REVOKED_STATUS char(2) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RETOKEN_JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	REEXPIRED_AT datetime NOT NULL,
+	CONSTRAINT PK__TSMP_TOK__04B91766B301F2B3 PRIMARY KEY (SEQ_NO)
+);
+
+
+-- TSMP_TOKEN_USAGE_COUNT definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_TOKEN_USAGE_COUNT;
+
+CREATE TABLE TSMP_TOKEN_USAGE_COUNT (
+	TOKEN_JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TIMES_THRESHOLD int NOT NULL,
+	TOKEN_TYPE char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	EXPIRED_AT datetime NOT NULL,
+	CONSTRAINT TSMP_TOKEN_USAGE_COUNT_PK PRIMARY KEY (TOKEN_JTI)
+);
+
+
+-- TSMP_TOKEN_USAGE_HISTORY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_TOKEN_USAGE_HISTORY;
+
+CREATE TABLE TSMP_TOKEN_USAGE_HISTORY (
+	SEQ_ID int NOT NULL,
+	TGTL_SEQ_ID int NOT NULL,
+	TOKEN_JTI varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	[SCOPE] nvarchar(2048) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TXTIME datetime NULL,
+	EXPIREDTIME datetime NULL,
+	CONSTRAINT TSMP_TOKEN_USAGE_HISTORY_PK PRIMARY KEY (SEQ_ID,TGTL_SEQ_ID)
+);
+
+
+-- TSMP_TXKEY definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_TXKEY;
+
+CREATE TABLE TSMP_TXKEY (
+	KEY_ID bigint NOT NULL,
+	TX_KEY nvarchar(64) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IV nvarchar(64) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALG char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime NOT NULL
+);
+
+
+-- TSMP_TXTOKEN definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_TXTOKEN;
+
+CREATE TABLE TSMP_TXTOKEN (
+	TXTOKEN nvarchar(64) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	TXTOKEN_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime DEFAULT getdate() NULL,
+	USE_TIME datetime NULL,
+	CONSTRAINT TSMP_TXTOKEN_PK PRIMARY KEY (TXTOKEN)
+);
+
+
+-- TSMP_USER definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_USER;
+
+CREATE TABLE TSMP_USER (
+	USER_ID nvarchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	USER_NAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	USER_STATUS char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	USER_EMAIL nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LOGON_DATE datetime NULL,
+	LOGOFF_DATE datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	UPDATE_TIME datetime NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CREATE_TIME datetime NOT NULL,
+	PWD_FAIL_TIMES int NOT NULL,
+	ORG_ID varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	USER_ALIAS varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT NULL NULL,
+	CONSTRAINT TSMP_USER_PK PRIMARY KEY (USER_ID),
+	CONSTRAINT TSMP_USER_UQ UNIQUE (USER_NAME)
+);
+
+
+
+-- TSMP_VGROUP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_VGROUP;
+
+CREATE TABLE TSMP_VGROUP (
+	VGROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	VGROUP_NAME varchar(150) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	VGROUP_ALIAS nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VGROUP_DESC varchar(1500) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	VGROUP_ACCESS varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SECURITY_LEVEL_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ALLOW_DAYS int DEFAULT 0 NOT NULL,
+	ALLOW_TIMES int DEFAULT 0 NOT NULL,
+	CREATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime NOT NULL,
+	UPDATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK__TSMP_VGR__DE8138EF3FD63771 PRIMARY KEY (VGROUP_ID)
+);
+
+
+-- TSMP_VGROUP_AUTHORITIES_MAP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_VGROUP_AUTHORITIES_MAP;
+
+CREATE TABLE TSMP_VGROUP_AUTHORITIES_MAP (
+	VGROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	VGROUP_AUTHORITIE_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK__TSMP_VGR__35028088CB3D59AA PRIMARY KEY (VGROUP_ID,VGROUP_AUTHORITIE_ID)
+);
+
+
+-- TSMP_VGROUP_GROUP definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_VGROUP_GROUP;
+
+CREATE TABLE TSMP_VGROUP_GROUP (
+	VGROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_ID varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CREATE_TIME datetime NOT NULL,
+	CONSTRAINT PK__TSMP_VGR__2D6ED2D200A8B000 PRIMARY KEY (VGROUP_ID,GROUP_ID)
+);
+
+
+-- USERS definition
+
+-- Drop table
+
+-- DROP TABLE USERS;
+
+CREATE TABLE USERS (
+	USERNAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PASSWORD nvarchar(60) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ENABLED tinyint NOT NULL,
+	CONSTRAINT USERS_PK PRIMARY KEY (USERNAME)
+);
+
+
+-- ldap_auth_result definition
+
+-- Drop table
+
+-- DROP TABLE ldap_auth_result;
+
+CREATE TABLE ldap_auth_result (
+	ldap_id bigint NOT NULL,
+	user_name varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	code_challenge varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	user_ip varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	use_date_time datetime NULL,
+	create_date_time datetime DEFAULT getdate() NULL,
+	create_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'LDAP_SYSTEM' NULL,
+	update_date_time datetime NULL,
+	update_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	version int DEFAULT 1 NULL,
+	CONSTRAINT PK__ldap_aut__5276F8687FD23D6B PRIMARY KEY (ldap_id)
+);
+
+
+-- sso_auth_result definition
+
+-- Drop table
+
+-- DROP TABLE sso_auth_result;
+
+CREATE TABLE sso_auth_result (
+	sso_id bigint NOT NULL,
+	user_name varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	code_challenge varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	create_date_time datetime DEFAULT getdate() NULL,
+	create_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SSO SYSTEM' NULL,
+	update_date_time datetime NULL,
+	update_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	version int DEFAULT 1 NULL,
+	use_date_time datetime NULL,
+	CONSTRAINT PK__sso_auth__757D3B69341D5632 PRIMARY KEY (sso_id)
+);
+
+
+-- tsmp_dp_mail_tplten definition
+
+-- Drop table
+
+-- DROP TABLE tsmp_dp_mail_tplten;
+
+CREATE TABLE tsmp_dp_mail_tplten (
+	mailtplt_id bigint NOT NULL,
+	code varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	template_txt varchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	remark varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	create_date_time datetime DEFAULT getdate() NULL,
+	create_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	update_date_time datetime NULL,
+	update_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	version int DEFAULT 1 NULL,
+	keyword_search nvarchar(2120) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT tsmp_dp_mail_tplten_pk PRIMARY KEY (mailtplt_id),
+	CONSTRAINT tsmp_dp_mail_tplten_uq UNIQUE (code)
+);
+
+
+
+-- tsmp_dp_mail_tplttw definition
+
+-- Drop table
+
+-- DROP TABLE tsmp_dp_mail_tplttw;
+
+CREATE TABLE tsmp_dp_mail_tplttw (
+	mailtplt_id bigint NOT NULL,
+	code varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	template_txt varchar(2000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	remark varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	create_date_time datetime DEFAULT getdate() NULL,
+	create_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	update_date_time datetime NULL,
+	update_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	version int DEFAULT 1 NULL,
+	keyword_search nvarchar(2120) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT tsmp_dp_mail_tplttw_pk PRIMARY KEY (mailtplt_id),
+	CONSTRAINT tsmp_dp_mail_tplttw_uq UNIQUE (code)
+);
+
+
+
+-- tsmp_notice_log definition
+
+-- Drop table
+
+-- DROP TABLE tsmp_notice_log;
+
+CREATE TABLE tsmp_notice_log (
+	notice_log_id bigint NOT NULL,
+	notice_src varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	notice_mthd varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	notice_key varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	detail_id bigint NULL,
+	last_notice_date_time datetime DEFAULT getdate() NOT NULL,
+	CONSTRAINT PK__tsmp_not__4F502FF80C5E52B5 PRIMARY KEY (notice_log_id)
+);
+
+
+-- tsmp_sso_user_secret definition
+
+-- Drop table
+
+-- DROP TABLE tsmp_sso_user_secret;
+
+CREATE TABLE tsmp_sso_user_secret (
+	user_secret_id bigint NOT NULL,
+	user_name varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	secret varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	create_date_time datetime DEFAULT getdate() NULL,
+	create_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SSO SYSTEM' NULL,
+	update_date_time datetime NULL,
+	update_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	version int DEFAULT 1 NULL,
+	CONSTRAINT PK__tsmp_sso__3DCEBC116472E733 PRIMARY KEY (user_secret_id)
+);
+
+
+-- AUTHORITIES definition
+
+-- Drop table
+
+-- DROP TABLE AUTHORITIES;
+
+CREATE TABLE AUTHORITIES (
+	USERNAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	AUTHORITY nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT AUTHORITIES_UQ UNIQUE (USERNAME,AUTHORITY),
+	CONSTRAINT AUTHORITIES_FK FOREIGN KEY (USERNAME) REFERENCES USERS(USERNAME)
+);
+
+
+-- GROUP_AUTHORITIES definition
+
+-- Drop table
+
+-- DROP TABLE GROUP_AUTHORITIES;
+
+CREATE TABLE GROUP_AUTHORITIES (
+	GROUP_ID bigint NOT NULL,
+	AUTHORITY nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT GROUP_AUTHORITIES_UQ UNIQUE (GROUP_ID),
+	CONSTRAINT GROUP_AUTHORITIES_FK FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID)
+);
+
+
+
+-- GROUP_MEMBERS definition
+
+-- Drop table
+
+-- DROP TABLE GROUP_MEMBERS;
+
+CREATE TABLE GROUP_MEMBERS (
+	ID bigint IDENTITY(1,1) NOT NULL,
+	USERNAME nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	GROUP_ID bigint NOT NULL,
+	CONSTRAINT GROUP_MEMBERS_PK PRIMARY KEY (ID),
+	CONSTRAINT GROUP_MEMBERS_UQ UNIQUE (GROUP_ID),
+	CONSTRAINT GROUP_MEMBERS_FK FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(ID)
+);
+
+
+
+-- TSMPN_API_DETAIL definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_API_DETAIL;
+
+CREATE TABLE TSMPN_API_DETAIL (
+	ID bigint NOT NULL,
+	API_MODULE_ID bigint NOT NULL,
+	API_KEY nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PATH_OF_JSON nvarchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	METHOD_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PARAMS_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HEADERS_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSUMES_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PRODUCES_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	URL_RID bit NOT NULL,
+	CONSTRAINT TSMPN_API_DETAIL_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMPN_API_DETAIL_UQ UNIQUE (API_MODULE_ID,API_KEY),
+	CONSTRAINT TSMPN_API_DETAIL_FK FOREIGN KEY (API_MODULE_ID) REFERENCES TSMPN_API_MODULE(ID)
+);
+
+
+
+-- TSMPN_NODE_TASK_WORK definition
+
+-- Drop table
+
+-- DROP TABLE TSMPN_NODE_TASK_WORK;
+
+CREATE TABLE TSMPN_NODE_TASK_WORK (
+	ID bigint NOT NULL,
+	NODE_TASK_ID bigint NOT NULL,
+	COMPETITIVE_ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	COMPETITIVE_TIME datetime NOT NULL,
+	COMPETITIVE_NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	UPDATE_TIME datetime NOT NULL,
+	SUCCESS bit NULL,
+	ERROR_MSG nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMPN_NODE_TASK_WORK_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMPN_NODE_TASK_WORK_UQ UNIQUE (NODE_TASK_ID,COMPETITIVE_ID),
+	CONSTRAINT TSMPN_NODE_TASK_WORK_FK FOREIGN KEY (NODE_TASK_ID) REFERENCES TSMPN_NODE_TASK(ID)
+);
+
+
+
+-- TSMP_API_DETAIL definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_API_DETAIL;
+
+CREATE TABLE TSMP_API_DETAIL (
+	ID bigint NOT NULL,
+	API_MODULE_ID bigint NOT NULL,
+	API_KEY nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	API_NAME nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PATH_OF_JSON nvarchar(1024) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	METHOD_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PARAMS_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	HEADERS_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSUMES_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PRODUCES_OF_JSON nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT TSMP_API_DETAIL_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMP_API_DETAIL_UQ UNIQUE (API_MODULE_ID,API_KEY),
+	CONSTRAINT TSMP_API_DETAIL_FK FOREIGN KEY (API_MODULE_ID) REFERENCES TSMP_API_MODULE(ID)
+);
+
+
+
+-- TSMP_NODE_TASK_WORK definition
+
+-- Drop table
+
+-- DROP TABLE TSMP_NODE_TASK_WORK;
+
+CREATE TABLE TSMP_NODE_TASK_WORK (
+	ID bigint NOT NULL,
+	NODE_TASK_ID bigint NOT NULL,
+	COMPETITIVE_ID nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	COMPETITIVE_TIME datetime DEFAULT getdate() NULL,
+	COMPETITIVE_NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NODE nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	UPDATE_TIME datetime DEFAULT getdate() NULL,
+	SUCCESS bit NULL,
+	ERROR_MSG nvarchar(1023) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT TSMP_NODE_TASK_WORK_PK PRIMARY KEY (ID),
+	CONSTRAINT TSMP_NODE_TASK_WORK_UQ UNIQUE (NODE_TASK_ID,COMPETITIVE_ID),
+	CONSTRAINT TSMP_NODE_TASK_WORK_FK FOREIGN KEY (NODE_TASK_ID) REFERENCES TSMP_NODE_TASK(ID)
+);
+
+
+CREATE TABLE cus_setting (
+	cus_setting_id bigint NOT NULL,
+	setting_no varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	setting_name varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	subsetting_no varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	subsetting_name varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	sort_by int DEFAULT 0 NOT NULL,
+	is_default varchar(1) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	param1 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	param2 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	param3 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	param4 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	param5 varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	create_date_time datetime DEFAULT getdate() NULL,
+	create_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 'SYSTEM' NULL,
+	update_date_time datetime NULL,
+	update_user varchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	version int DEFAULT 1 NULL,
+	keyword_search nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK__cus_sett__6EB471A879BAE8F1 PRIMARY KEY (setting_no,subsetting_no)
+);
+
+create sequence  SEQ_TSMP_USER_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_NODE_TASK_WORK_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_NODE_TASK_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_NODE_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_DC_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_CLIENT_HOST_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_API_MODULE_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_API_DETAIL_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TOKEN_USAGE_HISTORY_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TOKEN_HISTORY_HOUSING_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_GROUP_TIMES_LOG_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_TOKEN_HISTORY_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_VGROUP_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_EVENTS_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_ALERT_LOG_PK start with 1 increment by 2000000000;
+create sequence  SEQ_TSMP_GROUP_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_ROLE_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_ORGANIZATION_PK increment by 1 start with 2000000000;
+create sequence  SEQ_TSMP_ALERT_PK increment by 1 start with 2000000000;
+
+
+-- 20230105, v4 新增 SSO IdP使用者基本資料, Mini Lee
+CREATE TABLE dgr_ac_idp_user ( 
+	ac_idp_user_id 			BIGINT 			NOT NULL, 				-- ID 使用 RandomSeqLongUtil.getRandomLongByDefault() 產生 
+	user_name 				NVARCHAR(400)	NOT NULL, 				-- 使用者名稱(視IdP類型決定) 
+	user_alias 				VARCHAR(200), 							-- 使用者別名 
+	user_status 			VARCHAR(1) 		NOT NULL DEFAULT '1', 	-- 使用者狀態 1：request(預設)，2：allow，"3：denny 
+	user_email 				VARCHAR(500), 							-- 使用者E-Mail 
+	org_id 					VARCHAR(200), 							-- 組織ID from TSMP_ORGANIZATION.org_id 
+	idp_type 				VARCHAR(50) 	NOT NULL, 				-- IdP類型 例如:"MS" 或 "GOOGLE" 
+	code1					BIGINT,									-- 安全驗證碼1
+	code2					BIGINT,									-- 安全驗證碼2
+	id_token_jwtstr			VARCHAR(4000),							-- IdP ID Token 的 JWT  	
+	access_token_jwtstr		VARCHAR(4000),							-- IdP Access Token 的 JWT  	
+	refresh_token_jwtstr	VARCHAR(4000),							-- IdP Refresh Token 的 JWT  	
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT DEFAULT 1, 							-- 版號 C/U時, 增量+1
+	PRIMARY KEY (ac_idp_user_id), 
+	UNIQUE (user_name, idp_type) 
+);
+
+-- 20230105, v4 新增 SSO IdP授權碼記錄檔, Mini Lee
+CREATE TABLE dgr_ac_idp_auth_code ( 
+	ac_idp_auth_code_id BIGINT 			NOT NULL, 				-- ID (流水號) 
+	auth_code 			VARCHAR(50) 	NOT NULL, 				-- 授權碼, 即 dgRcode 
+	expire_date_time 	BIGINT 			NOT NULL, 				-- 有效期限 超過此期限即不可使用此授權碼 
+	status 				VARCHAR(1) 		NOT NULL DEFAULT '0', 	-- 狀態 0：可用；1：已使用；2：失效 
+	idp_type 			VARCHAR(50), 							-- IdP類型 例如: "MS" 或 "GOOGLE" 
+	user_name 			NVARCHAR(400) 	NOT NULL, 				-- 使用者名稱(視IdP類型決定) from DGR_AC_IDP_USER.user_name 
+	create_date_time 	DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 		VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 	DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料
+	update_user 		VARCHAR(255), 							-- 更新人員 
+	version 			INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1 
+	PRIMARY KEY (ac_idp_auth_code_id), 
+	UNIQUE (auth_code) 
+);
+
+-- 20230105, v4 新增 SSO IdP資料, Mini Lee
+CREATE TABLE dgr_ac_idp_info ( 
+	ac_idp_info_id 		BIGINT 			NOT NULL, 				-- ID 使用 RandomSeqLongUtil 機制產生 
+	idp_type 			VARCHAR(50) 	NOT NULL, 				-- IdP類型 例如:"MS" 或 "GOOGLE"  
+	client_id 			NVARCHAR(400) 	NOT NULL, 				-- 用戶端編號(視IdP類型決定) 
+	client_mima 		VARCHAR(200) 	NOT NULL, 				-- 用戶端密碼 
+	client_name 		VARCHAR(200), 							-- 用戶端名稱 
+	client_status 		VARCHAR(1) 		NOT NULL DEFAULT 'Y', 	-- 用戶端狀態 Y: 啟用 (預設), N: 停用 
+	well_known_url 		VARCHAR(4000) 	NOT NULL, 				-- IdP 的 Well Known URL 
+	callback_url 		VARCHAR(400) 	NOT NULL, 				-- 已授權的重新導向 URI
+	auth_url 			VARCHAR(4000), 							-- IdP 的 Auth URL 
+	access_token_url 	VARCHAR(4000), 							-- IdP 的 Access Token URL 
+	scope 				VARCHAR(4000), 							-- IdP 的 scope 
+	create_date_time 	DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間
+	create_user 		VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 	DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料
+	update_user 		VARCHAR(255), 							-- 更新人員 
+	version 			INT DEFAULT 1, 							-- 版號 C/U時, 增量+1
+	PRIMARY KEY (ac_idp_info_id), 
+	UNIQUE (idp_type, client_id) 
+); 
+
+-- 20230105, v4 拿掉 Authorities 的 FOREIGN KEY (username) REFERENCES users(username), Mini Lee
+ALTER TABLE AUTHORITIES DROP CONSTRAINT AUTHORITIES_FK ;
+
+-- 202308731, v4 因為要異動USERNAME長度，所以先移除CONSTRAINT AUTHORITIES_UQ, Min。
+ALTER TABLE AUTHORITIES DROP CONSTRAINT AUTHORITIES_UQ;
+
+-- 20230105, v4 增加 Authorities.username 長度為 NVARCHAR(400), Mini Lee
+ALTER TABLE AUTHORITIES ALTER COLUMN USERNAME NVARCHAR(400);
+
+-- 202308731, v4 因為要異動USERNAME長度，移除CONSTRAINT AUTHORITIES_UQ，要將CONSTRAINT AUTHORITIES_UQ加回來, Min。
+ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_UQ UNIQUE (USERNAME, AUTHORITY);
+
+-- 20230223 v4 新增 SSO AC IdP資料 (LDAP), Mini Lee
+CREATE TABLE dgr_ac_idp_info_ldap (  
+	ac_idp_info_ldap_id 	BIGINT 			NOT NULL, 				-- ID 
+	ldap_url 				VARCHAR(4000) 	NOT NULL, 				-- Ldap登入的URL 
+	ldap_dn 				VARCHAR(4000) 	NOT NULL, 				-- Ldap登入的使用者DN 
+	ldap_timeout 			INT 			NOT NULL, 				-- Ldap登入的連線timeout,單位毫秒 
+	ldap_status 			VARCHAR(1) 		NOT NULL DEFAULT 'Y', 	-- Ldap狀態 
+	approval_result_mail 	VARCHAR(4000) 	NOT NULL, 				-- 審核結果收件人,多組以逗號(,)隔開 
+	icon_file				VARCHAR(4000),							-- 圖示檔案
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	PRIMARY KEY (ac_idp_info_ldap_id) 
+);
+
+-- 20230320, v4, SSO AC IdP資料 (LDAP), 增加欄位, Mini Lee
+ALTER TABLE dgr_ac_idp_info_ldap ADD page_title VARCHAR(400);
+
+-- 20230325, v4, 增加長度, Tom
+ALTER TABLE TSMP_API_REG ALTER COLUMN METHOD_OF_JSON NVARCHAR(200) NOT NULL;
+ALTER TABLE TSMP_API_IMP ALTER COLUMN METHOD_OF_JSON VARCHAR(200) NOT NULL;
+
+-- 20230330 TSMP_DP_REQ_ORDERM 更改為 REQ_USER_ID varchar(255) Zoe_Lee
+ALTER TABLE TSMP_DP_REQ_ORDERM ALTER COLUMN REQ_USER_ID varchar(255) ;
+
+-- 20230406 v4 新增websocket proxy, Tom
+CREATE TABLE dgr_web_socket_mapping (  
+	ws_mapping_id 	        BIGINT 			NOT NULL, 				-- ID 
+	site_name 				VARCHAR(50) 	NOT NULL, 			    -- 站點名稱
+	target_ws               VARCHAR(200) 	NOT NULL,	            -- web socket server的目標
+	memo                    NVARCHAR(2000), 				            -- 備註
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	keyword_search		    VARCHAR(250),						-- LikeSearch使用: site_name | target_ws
+	CONSTRAINT PK_DGR_WEB_SOCKET_MAPPING PRIMARY KEY (ws_mapping_id),
+	CONSTRAINT UK_DGR_WEB_SOCKET_MAPPING UNIQUE (site_name)
+);
+
+-- 20230327, v4 新增 Gateway IdP Auth記錄檔主檔	, Mini Lee
+CREATE TABLE dgr_gtw_idp_auth_m (  
+	gtw_idp_auth_m_id 	BIGINT 			NOT NULL, 		-- ID (流水號) 
+	state 				VARCHAR(40) 	NOT NULL, 		-- 隨機字串UUID 
+	idp_type 			VARCHAR(50) 	NOT NULL, 		-- IdP類型 
+	client_id 			VARCHAR(40) 	NOT NULL, 		-- dgR 的 client_id
+	auth_code 			VARCHAR(50),					-- 授權碼, 即 dgRcode
+	create_date_time 	DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間
+	create_user 		VARCHAR(255) 	DEFAULT 'SYSTEM', -- 建立人員 
+	update_date_time 	DATETIME, 						-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料
+	update_user 		VARCHAR(255), 					-- 更新人員 
+	version 			INT DEFAULT 1, 					-- 版號 C/U時, 增量+1
+	PRIMARY KEY (gtw_idp_auth_m_id), 
+	UNIQUE (state)  
+);
+
+-- 20230327 v4 新增 Gateway IdP Auth記錄檔明細檔, Mini Lee
+CREATE TABLE dgr_gtw_idp_auth_d (  
+	gtw_idp_auth_d_id 		BIGINT 			NOT NULL, 				   -- ID (流水號) 
+	ref_gtw_idp_auth_m_id 	BIGINT 			NOT NULL, 				   -- MasterPK 
+	scope 					VARCHAR(200) 	NOT NULL, 				   -- OpenID Connect Scope
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	PRIMARY KEY (gtw_idp_auth_d_id)
+);
+
+-- 20230327, v4 新增 Gateway IdP授權碼記錄檔, Mini Lee
+CREATE TABLE dgr_gtw_idp_auth_code ( 
+	gtw_idp_auth_code_id 	BIGINT 			NOT NULL, 				-- ID (流水號) 
+	auth_code 				VARCHAR(50) 	NOT NULL,				-- 授權碼, 即 dgRcode 
+	phase					VARCHAR(10) 	NOT NULL,				-- 階段, "STATE" 或 "AUTH CODE"
+	status 					VARCHAR(1)		NOT NULL DEFAULT 'A', 	-- 授權碼狀態 
+	expire_date_time 		BIGINT 			NOT NULL,				-- 授權碼有效期限 
+	idp_type 				VARCHAR(50) 	NOT NULL, 				-- IdP類型
+	client_id 				VARCHAR(40),							-- dgRunner 的 client_id
+	user_name 				VARCHAR(400)	NOT NULL, 				-- 使用者名稱 
+	user_alias 				NVARCHAR(400), 							-- 使用者別名 
+	user_email 				VARCHAR(500), 							-- 使用者E-Mail 
+	user_picture 			VARCHAR(4000), 							-- 使用者圖示 
+	id_token_jwtstr 		VARCHAR(4000), 							-- IdP ID Token 的 JWT 
+	access_token_jwtstr 	VARCHAR(4000), 							-- IdP Access Token 的 JWT 
+	refresh_token_jwtstr 	VARCHAR(4000), 							-- IdP Refresh Token 的 JWT 
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	PRIMARY KEY (gtw_idp_auth_code_id), 
+	UNIQUE (auth_code) 
+); 
+
+-- 20230327 v4 新增 Gateway IdP資料 (Oauth2.0 GOOGLE / MS), Mini Lee
+CREATE TABLE dgr_gtw_idp_info_o (
+	gtw_idp_info_o_id 		BIGINT 			NOT NULL, 				-- ID, 使用 RandomSeqLongUtil 機制產生
+	client_id 				VARCHAR(40) 	NOT NULL, 				-- digiRunner 的 client_id, from TSMP_CLIENT.client_id 
+	idp_type 				VARCHAR(50) 	NOT NULL, 				-- IdP類型, 全大寫, 例如:"MS" 或 "GOOGLE" 
+	status 					VARCHAR(1) 		NOT NULL DEFAULT 'Y', 	-- 狀態, Y: 啟用 (預設), N: 停用
+	remark					VARCHAR(200), 							-- 說明
+	idp_client_id 			NVARCHAR(400)	NOT NULL, 				-- IdP用戶端編號
+	idp_client_mima 		VARCHAR(200)	NOT NULL, 				-- IdP用戶端密碼 
+	idp_client_name 		VARCHAR(200), 							-- IdP用戶端名稱 
+	well_known_url 			VARCHAR(4000), 							-- IdP 的 Well Known URL 
+	callback_url 			VARCHAR(400) 	NOT NULL, 				-- 已授權的重新導向 URI 
+	auth_url 				VARCHAR(4000), 							-- IdP 的 Auth URL 
+	access_token_url 		VARCHAR(4000), 							-- IdP 的 Access Token URL 
+	scope 					VARCHAR(4000), 							-- IdP 的 scope
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	PRIMARY KEY (gtw_idp_info_o_id)
+); 
+
+-- 20230327 v4 新增 Gateway IdP資料 (LDAP), Mini Lee
+CREATE TABLE dgr_gtw_idp_info_l (  
+	gtw_idp_info_l_id 		BIGINT 			NOT NULL, 				-- ID, 使用 RandomSeqLongUtil 機制產生
+	client_id 				VARCHAR(40) 	NOT NULL, 				-- digiRunner 的 client_id, from TSMP_CLIENT.client_id
+	status 					VARCHAR(1) 		NOT NULL DEFAULT 'Y', 	-- 狀態, Y: 啟用 (預設), N: 停用
+	remark					VARCHAR(200), 							-- 說明
+	ldap_url 				VARCHAR(4000) 	NOT NULL, 				-- Ldap登入的URL 
+	ldap_dn 				VARCHAR(4000) 	NOT NULL, 				-- Ldap登入的使用者DN 
+	ldap_timeout 			INT 			NOT NULL, 				-- Ldap登入的連線timeout,單位毫秒
+	icon_file 				VARCHAR(4000), 							-- 登入頁圖示檔案 
+	page_title 				VARCHAR(400) 	NOT NULL, 				-- 登入頁標題 
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	PRIMARY KEY (gtw_idp_info_l_id)
+);
+
+-- 20230327 v4 新增 Gateway IdP資料 (JDBC), Mini Lee
+CREATE TABLE dgr_gtw_idp_info_j (  
+	gtw_idp_info_j_id 		BIGINT 			NOT NULL, 				-- ID, 使用 RandomSeqLongUtil 機制產生
+	client_id 				VARCHAR(40) 	NOT NULL, 				-- digiRunner 的 client_id, from TSMP_CLIENT.client_id 
+	idp_type 				VARCHAR(50) 	NOT NULL, 				-- IdP類型, 全大寫
+	status 					VARCHAR(1) 		NOT NULL DEFAULT 'Y', 	-- 狀態, Y: 啟用 (預設), N: 停用
+	remark					VARCHAR(200), 							-- 說明
+	host 					VARCHAR(4000) 	NOT NULL, 				-- 資料庫的Host 
+	port 					INT 			NOT NULL, 				-- 資料庫的Port 
+	db_schema 				VARCHAR(200) 	NOT NULL, 				-- 資料庫的名稱 
+	db_user_name 			VARCHAR(200) 	NOT NULL, 				-- 資料庫的使用者名稱 
+	db_user_mima 			VARCHAR(200) 	NOT NULL, 				-- 資料庫的密碼 
+	icon_file				VARCHAR(4000),							-- 登入頁圖示檔案
+	page_title				VARCHAR(400)	NOT NULL, 				-- 登入頁標題
+	create_date_time 		DATETIME 		DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) 	DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 								-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 							-- 更新人員 
+	version 				INT 			DEFAULT 1, 				-- 版號 C/U時, 增量+1
+	PRIMARY KEY (gtw_idp_info_j_id)
+);
+
+-- 20230407, v4 網站反向代理主檔, Kevin Cheng
+CREATE TABLE DGR_WEBSITE (
+	DGR_WEBSITE_ID bigint NOT NULL,
+	WEBSITE_NAME varchar(50) NOT NULL,
+	WEBSITE_STATUS varchar(1) DEFAULT 'Y' NOT NULL,
+	REMARK varchar(500) NULL,
+	CREATE_DATE_TIME datetime DEFAULT GETDATE() NULL,
+	CREATE_USER varchar(255) DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(600) NULL,
+	CONSTRAINT PK_DGR_WEBSITE PRIMARY KEY (DGR_WEBSITE_ID)
+);
+
+-- 20230407, v4 網站反向代理明細檔, Kevin Cheng
+CREATE TABLE DGR_WEBSITE_DETAIL (
+	DGR_WEBSITE_DETAIL_ID bigint NOT NULL,
+	DGR_WEBSITE_ID bigint NOT NULL,
+	PROBABILITY int NOT NULL,
+	URL varchar(1000) NOT NULL,
+	CONTENT_PATH varchar(200) NULL,
+	CREATE_DATE_TIME datetime DEFAULT GETDATE() NULL,
+	CREATE_USER varchar(255) DEFAULT 'SYSTEM' NULL,
+	UPDATE_DATE_TIME datetime NULL,
+	UPDATE_USER varchar(255) NULL,
+	VERSION int DEFAULT 1 NULL,
+	KEYWORD_SEARCH nvarchar(1500) NULL,
+	CONSTRAINT PK_DGR_WEBSITE_DETAIL PRIMARY KEY (DGR_WEBSITE_DETAIL_ID)
+);
+
+-- 20230420, v4 入口網(DP)的Application	, Kevin Cheng
+CREATE TABLE dp_app (
+	dp_application_id BIGINT NOT NULL,                         -- ID
+	application_name VARCHAR(50) NOT NULL,                     -- Application名稱
+	application_desc VARCHAR(500),                             -- Application說明
+	client_id VARCHAR(40) NOT NULL,                            -- CLIENT_ID
+	open_apikey_id BIGINT,                                     -- 
+	open_apikey_status VARCHAR(1),                             -- DGRK狀態
+	user_name NVARCHAR(400) NOT NULL,                          -- 使用者名稱(視IdP類型決定)
+	id_token_jwtstr VARCHAR(4000) NOT NULL,                    -- IdP ID Token 的 JWT
+	create_date_time DATETIME DEFAULT CURRENT_TIMESTAMP,       -- 建立日期
+	create_user VARCHAR(255) DEFAULT 'SYSTEM',                 -- 建立人員
+	update_date_time DATETIME,                                 -- 更新日期
+	update_user VARCHAR(255),                                  -- 更新人員
+	version INT DEFAULT 1,                                     -- 版號
+	KEYWORD_SEARCH nvarchar(600) NULL,
+	PRIMARY KEY (dp_application_id)
+);
+
+-- 20230420, v4 入口網(DP)的使用者	, Kevin Cheng
+CREATE TABLE dp_user (
+    dp_user_id BIGINT NOT NULL,                           -- ID
+    user_name NVARCHAR(400) NOT NULL,                     -- 使用者名稱(視IdP類型決定)
+    user_alias VARCHAR(200),                              -- 使用者別名
+    id_token_jwtstr VARCHAR(4000) NOT NULL,               -- IdP ID Token 的 JWT
+    user_identity VARCHAR(1) NOT NULL DEFAULT 'U',                 -- 使用者身份
+	create_date_time DATETIME DEFAULT CURRENT_TIMESTAMP,  -- 建立日期
+	create_user VARCHAR(255) DEFAULT 'SYSTEM',            -- 建立人員
+	update_date_time DATETIME,                            -- 更新日期
+	update_user VARCHAR(255),                             -- 更新人員
+	version INT DEFAULT 1,                                -- 版號
+	KEYWORD_SEARCH nvarchar(800) NULL,
+	PRIMARY KEY (dp_user_id),
+	UNIQUE (user_name)
+);
+
+-- 20230420, v4 入口網(DP)的API_DOC檔案	, Kevin Cheng
+CREATE TABLE dp_file (
+    dp_file_id BIGINT NOT NULL,                              -- ID
+    file_name NVARCHAR(100) NOT NULL,                        -- 檔案名稱
+    module_name NVARCHAR(150) NOT NULL,                      -- Module Name
+    api_key NVARCHAR(255) NOT NULL,                          -- API Key
+    blob_data VARBINARY(MAX) NOT NULL,                       -- 檔案本體
+    create_date_time DATETIME DEFAULT CURRENT_TIMESTAMP,     -- 建立日期
+    create_user VARCHAR(255) DEFAULT 'SYSTEM',               -- 建立人員
+    update_date_time DATETIME,                               -- 更新日期
+    update_user VARCHAR(255),                                -- 更新人員
+    version INT DEFAULT 1,                                   -- 版號
+    PRIMARY KEY (dp_file_id)
+);
+-- 20230421, TSMP access_token 歷史紀錄, 增加欄位, Mini Lee
+ALTER TABLE TSMP_TOKEN_HISTORY ADD IDP_TYPE VARCHAR(50);
+
+-- 20230502, TSMP Token 歷史紀錄, 增加欄位, Mini Lee
+ALTER TABLE TSMP_TOKEN_HISTORY ADD ID_TOKEN_JWTSTR VARCHAR(4000);
+ALTER TABLE TSMP_TOKEN_HISTORY ADD REFRESH_TOKEN_JWTSTR VARCHAR(4000);
+
+-- 20230515, v4 入口網(DP)的Application	, 刪除欄位 , Kevin Cheng
+ALTER TABLE dp_app DROP COLUMN open_apikey_status;
+
+-- 20230531, SSO AC IdP資料 (LDAP), 增加欄位, Mini Lee
+ALTER TABLE dgr_ac_idp_info_ldap ADD ldap_base_dn VARCHAR(4000);
+
+-- 20230531, Gateway IdP資料 (LDAP), 增加欄位, Mini Lee
+ALTER TABLE dgr_gtw_idp_info_l ADD ldap_base_dn VARCHAR(4000);
+
+-- 20230616, dashboard最新資料, Tom chu
+CREATE TABLE dgr_dashboard_last_data (
+	dashboard_id BIGINT NOT NULL,
+	dashboard_type INT NOT NULL,
+	time_type INT NOT NULL,
+	str1 NVARCHAR(500),
+	str2 NVARCHAR(500),
+	str3 NVARCHAR(500),
+	num1 BIGINT,
+	num2 BIGINT,
+	num3 BIGINT,
+	num4 BIGINT,
+	sort_num INT DEFAULT 1,                                  
+    CONSTRAINT pk_dgr_dashboard_last_data PRIMARY KEY (dashboard_id)
+);
+
+--  20230616,dgr_dashboard_api_elapse dashboard   ,zoe Lee
+CREATE TABLE dgr_dashboard_api_elapse (
+    id    BIGINT NOT NULL,    -- ID
+    rtime    TIMESTAMP NOT NULL,    -- record time
+    cid    VARCHAR(50) NOT NULL,    -- token所攜帶的client id
+    elapse    INT NOT NULL,    -- API執行耗時(ms)
+    module_name    VARCHAR(150) NOT NULL,    -- 模組名稱
+    txid    VARCHAR(255) NOT NULL,    -- 其實也就是ApiKey
+    api_name    NVARCHAR(500) NOT NULL,    -- api名稱
+    exe_status    CHAR NOT NULL,    -- 此次API呼叫成功與否
+    http_status    INT NOT NULL,    -- response的http status
+    PRIMARY KEY(id)
+);
+
+-- 20230105, v4 修改 dp_app 欄位型態 , min
+ALTER TABLE dp_app ALTER COLUMN application_name NVARCHAR(50);
+ALTER TABLE dp_app ALTER COLUMN application_desc NVARCHAR(500);
+
+--  20230705,tsmp_req_res_log_history  ,zoe Lee
+CREATE TABLE tsmp_req_res_log_history (
+    id    VARCHAR(63) NOT NULL,    -- ID
+    rtime    TIMESTAMP NOT NULL,    -- record time
+    atype    VARCHAR(3) NOT NULL,    -- API type
+    module_name    VARCHAR(255) NOT NULL,    -- 模組名稱
+    module_version    VARCHAR(255) NOT NULL,    -- 模組版本
+    node_alias    VARCHAR(255) NOT NULL,    -- tsmp node alias
+    node_id    VARCHAR(255) NOT NULL,    -- node id
+    url    VARCHAR(255) NOT NULL,    -- 呼叫API時的路徑
+    cip    VARCHAR(255) NOT NULL,    -- client remote ip
+    orgid    VARCHAR(255) NOT NULL,    -- API隸屬於哪個組織的ID
+    txid    VARCHAR(255),    -- 其實也就是ApiKey
+    entry    VARCHAR(255),    -- tsmpc , tsmpg 轉導時寫入 , 一般module為null
+    cid    VARCHAR(255),    -- token所攜帶的client id
+    tuser    VARCHAR(255),    -- token所攜帶的user
+    jti    VARCHAR(255),    -- token的jti
+    exe_status    CHAR NOT NULL,    -- 此次API呼叫成功與否
+    elapse    INT NOT NULL,    -- API執行耗時(ms)
+    rcode    VARCHAR(63) NOT NULL,    -- return code
+    http_status    INT NOT NULL,    -- response的http status
+    err_msg    VARCHAR(4000),    -- 錯誤訊息
+
+    PRIMARY KEY(id)
+);
+
+-- 20230706 刪除dgr_dashboard_api_elapse ,zoe Lee
+DROP TABLE dgr_dashboard_api_elapse;
+
+-- 20230726, 增加欄位給dashboard統計用, Tom
+ALTER TABLE tsmp_api ADD success BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE tsmp_api ADD fail BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE tsmp_api ADD total BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE tsmp_api ADD elapse BIGINT NOT NULL DEFAULT 0;
+
+-- 20230802 , tsmp_req_res_log_history.rtime 格式改為datetime  , Zoe Lee
+ALTER TABLE tsmp_req_res_log_history DROP COLUMN rtime;
+ALTER TABLE tsmp_req_res_log_history ADD rtime datetime;
+
+-- 20230802 , tsmp_req_res_log_history增加新欄位year_month  , Zoe Lee
+ALTER TABLE tsmp_req_res_log_history ADD rtime_year_month varchar(8);
+
+-- 20230808 , v4 入口網(DP)的 API_VERSION	, Kevin Cheng
+CREATE TABLE dp_api_version (
+  dp_api_version_id BIGINT NOT NULL,                    -- ID
+  module_name NVARCHAR(150) NOT NULL,                   -- Module Name
+  api_key NVARCHAR(255) NOT NULL,                       -- API Key
+  dp_api_version NVARCHAR(10) NOT NULL,                 -- API版本號
+  start_of_life BIGINT NOT NULL,                        -- API生命週期(起)
+  end_of_life BIGINT,                                   -- API生命週期(迄)
+  remark NVARCHAR(500),                                 -- 備註
+  time_zone varchar(200) NOT NULL,                      -- 時區
+  create_date_time DATETIME DEFAULT CURRENT_TIMESTAMP,  -- 建立日期
+  create_user VARCHAR(255) DEFAULT 'SYSTEM',            -- 建立人員
+  update_date_time DATETIME,                            -- 更新日期
+  update_user VARCHAR(255),                             -- 更新人員
+  version INT DEFAULT 1,                                -- 版號
+  PRIMARY KEY (dp_api_version_id)
+);
+
+
+-- 20230824, website proxy	, 刪除content path欄位 , min
+ALTER TABLE DGR_WEBSITE_DETAIL DROP COLUMN CONTENT_PATH;
+
+-- 20230824 SSO AC IdP資料 (Multi-LDAP) 主檔, Mini Lee
+CREATE TABLE dgr_ac_idp_info_mldap_m(
+	ac_idp_info_mldap_m_id 	BIGINT NOT NULL, 					-- ID 
+	ldap_timeout 			INT NOT NULL, 						-- Ldap登入的連線timeout,單位毫秒 
+	status 					VARCHAR(1) NOT NULL DEFAULT 'Y', 	-- 狀態 
+	policy 					VARCHAR(1) NOT NULL DEFAULT 'S', 	-- 驗證的方式, 依順序或隨機 
+	approval_result_mail	VARCHAR(4000) NOT NULL, 			-- 審核結果收件人,多組以逗號(,)隔開 
+	icon_file 				VARCHAR(4000), 						-- 圖示檔案 
+	page_title				VARCHAR(400) NOT NULL, 				-- 登入頁標題 
+	create_date_time 		DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 			VARCHAR(255) DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 		DATETIME, 							-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 			VARCHAR(255), 						-- 更新人員 
+	version 				INT DEFAULT 1, 						-- 版號 C/U時, 增量+1 
+	PRIMARY KEY (ac_idp_info_mldap_m_id) 
+);
+
+-- 20230824, SSO AC IdP資料 (Multi-LDAP) 明細檔, Mini Lee
+CREATE TABLE dgr_ac_idp_info_mldap_d (  
+	ac_idp_info_mldap_d_id 		BIGINT NOT NULL, 					-- ID 
+	ref_ac_idp_info_mldap_m_id 	BIGINT NOT NULL, 					-- Master PK 
+	order_no 					INT NOT NULL, 						-- 順序 
+	ldap_url 					VARCHAR(4000) NOT NULL, 			-- Ldap登入的URL 
+	ldap_dn 					VARCHAR(4000) NOT NULL, 			-- Ldap登入的使用者DN 
+	ldap_base_dn 				VARCHAR(4000) NOT NULL, 			-- Ldap基礎DN   
+	create_date_time 			DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 				VARCHAR(255) DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 			DATETIME, 							-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 				VARCHAR(255), 						-- 更新人員 
+	version 					INT DEFAULT 1, 						-- 版號 C/U時, 增量+1
+	PRIMARY KEY (ac_idp_info_mldap_d_id)    
+); 
+
+-- 20230829 , dgr_dashboard_es_log  , Zoe Lee
+CREATE TABLE dgr_dashboard_es_log (
+    id    VARCHAR(63) NOT NULL,    -- ID
+    rtime    DATETIME NOT NULL,    -- record time
+    module_name    VARCHAR(255) NOT NULL,    -- 模組名稱
+    orgid    VARCHAR(255) NOT NULL,    -- API隸屬於哪個組織的ID
+    txid    VARCHAR(255),    -- 其實也就是ApiKey
+    cid    VARCHAR(255),    -- token所攜帶的client id
+    exe_status    CHAR NOT NULL,    -- 此次API呼叫成功與否
+    elapse    INT NOT NULL,    -- API執行耗時(ms)
+    http_status    INT NOT NULL,    -- response的http status
+    rtime_year_month    VARCHAR(8),    -- RTIME的年月
+    CONSTRAINT pk_dgr_dashboard_es_log  PRIMARY KEY (id)
+);
+
+-- 202300906,dgLv3, 移除多餘欄位, Kevin K
+ALTER TABLE tsmp_dp_mail_log DROP COLUMN IF EXISTS keyword_search;
+-- 202300906,dgLv3, 增加紀錄錯誤訊息欄位, Kevin K
+ALTER TABLE tsmp_dp_mail_log ADD stack_trace VARCHAR(4000);
+
+-- 20230908, 移除不用的table, Tom
+DROP TABLE TSMP_REQ_LOG_HISTORY;
+DROP TABLE TSMP_RES_LOG_HISTORY;
+
+-- 20230912, Gateway IdP資料 (API), Mini Lee
+CREATE TABLE dgr_gtw_idp_info_a (  
+	gtw_idp_info_a_id 	BIGINT NOT NULL, 					-- ID, 使用 RandomSeqLongUtil 機制產生 
+	client_id 			VARCHAR(40) NOT NULL, 				-- 在 digiRunner 註冊的 client_id 
+	status 				VARCHAR(1) 	NOT NULL DEFAULT 'Y', 	-- 狀態 
+	remark 				VARCHAR(200), 						-- 說明 
+	api_method 			VARCHAR(10) NOT NULL, 				-- 登入的 API HTTP method 
+	api_url 			VARCHAR(4000) NOT NULL, 			-- 登入的 API URL
+	req_header 			VARCHAR(4000), 						-- 調用 API 的 Request Header 內容 
+	req_body_type 		VARCHAR(1) NOT NULL DEFAULT 'N', 	-- 調用 API 的 Request Body 類型 
+	req_body 			VARCHAR(4000), 						-- 調用 API 的 Request Body 內容 
+	suc_by_type 		VARCHAR(1) NOT NULL DEFAULT 'H', 	-- 判定登入成功的類型 
+	suc_by_field 		VARCHAR(200), 						-- 當 suc_by_type 為 "R",判定登入成功的 Response JSON 欄位 
+	suc_by_value 		VARCHAR(200), 						-- 當 suc_by_type 為 "R",判定登入成功的 Response JSON 值
+	idt_name 			VARCHAR(200), 						-- ID token 的 name 值,來源 Response JSON 欄位 
+	idt_email 			VARCHAR(200), 						-- ID token 的 email 值,來源 Response JSON 欄位 
+	idt_picture 		VARCHAR(200), 						-- ID token 的 picture 值,來源 Response JSON 欄位
+	icon_file 			VARCHAR(4000), 						-- 登入頁圖示檔案 
+	page_title 			VARCHAR(400) NOT NULL, 				-- 登入頁標題 
+	create_date_time 	DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	create_user 		VARCHAR(255) DEFAULT 'SYSTEM', 		-- 建立人員 
+	update_date_time 	DATETIME, 							-- 更新日期 表示最後Update的人, 日期時間, Null 表示是新建資料 
+	update_user 		VARCHAR(255), 						-- 更新人員 
+	version 			INT DEFAULT 1, 						-- 版號 C/U時, 增量+1  
+	PRIMARY KEY (gtw_idp_info_a_id)   
+);
+
+-- 20230912, Gateway IdP授權碼記錄檔, 增加欄位, Mini Lee
+ALTER TABLE DGR_GTW_IDP_AUTH_CODE ADD API_RESP NVARCHAR(4000);
+
+-- 20230912, TSMP Token 歷史紀錄, 增加欄位, Mini Lee
+ALTER TABLE TSMP_TOKEN_HISTORY ADD API_RESP NVARCHAR(4000);
+
+-- 20230914, 移除DP的table, min
+DROP TABLE dp_app;
+DROP TABLE dp_user;
+DROP TABLE dp_file;
+DROP TABLE dp_api_version;
+
+-- 20230918, Gateway IdP Auth記錄檔主檔, 增加欄位, Mini Lee
+ALTER TABLE dgr_gtw_idp_auth_m ADD redirect_uri VARCHAR(400); 
+
+-- 20230918, TSMP用戶端OAuth2驗證資料(Spring), 增加欄位, Mini Lee
+ALTER TABLE oauth_client_details ADD web_server_redirect_uri1 NVARCHAR(255); 
+ALTER TABLE oauth_client_details ADD web_server_redirect_uri2 NVARCHAR(255);
+ALTER TABLE oauth_client_details ADD web_server_redirect_uri3 NVARCHAR(255);
+ALTER TABLE oauth_client_details ADD web_server_redirect_uri4 NVARCHAR(255);
+ALTER TABLE oauth_client_details ADD web_server_redirect_uri5 NVARCHAR(255);
+
+-- 20230919, 來源IP 增加填寫Hostname, 增加欄位長度 , Zoe Lee
+ALTER TABLE tsmp_client_host ALTER COLUMN host_ip nvarchar(255)  NOT NULL;
+
+-- 20230920, TSMP API基本資料, 增加欄位 API_RELEASE_TIME, Kevin Cheng
+ALTER TABLE TSMP_API ADD API_RELEASE_TIME DATETIME NULL;
+
+-- 20230926, API匯入匯出要有MOCK資料, Tom
+ALTER TABLE TSMP_API_IMP ADD MOCK_STATUS_CODE CHAR(3);
+ALTER TABLE TSMP_API_IMP ADD MOCK_HEADERS VARCHAR(2000);
+ALTER TABLE TSMP_API_IMP ADD MOCK_BODY NVARCHAR(2000);
+
+-- 20231003 , zoe lee 增加 dgr_ac_idp_info_api 
+CREATE TABLE dgr_ac_idp_info_api (
+    ac_idp_info_api_id    BIGINT NOT NULL,    -- ID
+    status    VARCHAR(1) NOT NULL DEFAULT 'Y',    -- 狀態
+    approval_result_mail    VARCHAR(4000) NOT NULL,    -- 審核結果收件人,多組以逗號(,)隔開
+    api_method    VARCHAR(10) NOT NULL,    -- 登入 API 的 HTTP method
+    api_url    VARCHAR(4000) NOT NULL,    -- 登入 API 的 URL
+    req_header    VARCHAR(4000),    -- 調用 API 的 Request Header 內容
+    req_body_type    VARCHAR(1) NOT NULL DEFAULT 'N',    -- 調用 API 的 Request Body 類型
+    req_body    VARCHAR(4000),    -- 調用 API 的 Request Body 內容
+    suc_by_type    VARCHAR(1) NOT NULL DEFAULT 'H',    -- 判定登入成功的類型
+    suc_by_field    VARCHAR(200),    -- 當 SUC_BY_TYPE 為 "R",判定登入成功的 Response JSON 欄位
+    suc_by_value    VARCHAR(200),    -- 當 SUC_BY_TYPE 為 "R",判定登入成功的 Response JSON 值,多個以逗號分隔(不要有空格)
+    idt_name    VARCHAR(200),    -- ID token 的 name 值,對應登入 API Response JSON 欄位
+    idt_email    VARCHAR(200),    -- ID token 的 email 值,對應登入 API Response JSON 欄位
+    idt_picture    VARCHAR(200),    -- ID token 的 picture 值,對應登入 API Response JSON 欄位
+    icon_file    VARCHAR(4000),    -- 登入頁圖示檔案
+    page_title    VARCHAR(400) NOT NULL,    -- 登入頁標題
+    create_date_time    DATETIME,    -- 建立日期
+    create_user    VARCHAR(255) DEFAULT 'SYSTEM',    -- 建立人員
+    update_date_time    DATETIME,    -- 更新日期
+    update_user    VARCHAR(255),    -- 更新人員
+    version    INT DEFAULT '1',    -- 版號
+    keyword_search    NVARCHAR(200),    -- LikeSearch使用
+    CONSTRAINT PK_ PRIMARY KEY (ac_idp_info_api_id)
+);
+
+-- 20231003 , zoe lee 更改 dgr_ac_idp_user user_alias 型態
+ALTER TABLE dgr_ac_idp_user ALTER COLUMN user_alias nvarchar(200)  NULL;
+
+-- 20231011, rdb連線資訊, tom
+CREATE TABLE dgr_rdb_connection (
+    connection_name    NVARCHAR(50) NOT NULL,    -- 名稱
+    jdbc_url    VARCHAR(200) NOT NULL,    -- 連線URL
+    user_name    VARCHAR(100) NOT NULL,    -- 帳號
+    mima    VARCHAR(500) NOT NULL,    -- MIMA
+    max_pool_size    INT NOT NULL DEFAULT 10,    -- 最大連線數量
+    connection_timeout    INT NOT NULL DEFAULT 30000,    -- 連線取得超時設定(ms)
+    idle_timeout    INT NOT NULL DEFAULT 600000,    -- 空閒連線的存活時間(ms)
+    max_lifetime    INT NOT NULL DEFAULT 1800000,    -- 連線的最大存活時間(ms)
+    data_source_property    VARCHAR(4000),    -- DataSourceProperty的設定
+    create_date_time DATETIME DEFAULT CURRENT_TIMESTAMP,      -- 建立日期
+    create_user VARCHAR(255) DEFAULT 'SYSTEM',            -- 建立人員
+    update_date_time DATETIME,                           -- 更新日期
+    update_user VARCHAR(255),                             -- 更新人員
+    version INT DEFAULT 1,                                -- 版號
+    CONSTRAINT pk_dgr_rdb_connection PRIMARY KEY(connection_name)
+);
+
+-- 20231019, DGR_WEBSITE 網站反向代理主檔, 增加欄位, Mini Lee
+ALTER TABLE DGR_WEBSITE ADD AUTH VARCHAR(1) DEFAULT 'N' NOT NULL;
+ALTER TABLE DGR_WEBSITE ADD SQL_INJECTION VARCHAR(1) DEFAULT 'N' NOT NULL;
+ALTER TABLE DGR_WEBSITE ADD TRAFFIC VARCHAR(1) DEFAULT 'N' NOT NULL;
+ALTER TABLE DGR_WEBSITE ADD XSS VARCHAR(1) DEFAULT 'N' NOT NULL;
+ALTER TABLE DGR_WEBSITE ADD XXE VARCHAR(1) DEFAULT 'N' NOT NULL;
+ALTER TABLE DGR_WEBSITE ADD TPS INT DEFAULT 0 NOT NULL;
+ALTER TABLE DGR_WEBSITE ADD IGNORE_API NVARCHAR(4000);
+
+-- 20231020, 增加欄位長度, Mini Lee
+ALTER TABLE dgr_gtw_idp_auth_m ALTER COLUMN state VARCHAR(1000) NOT NULL;
+ALTER TABLE dgr_gtw_idp_auth_code ALTER COLUMN auth_code VARCHAR(1000) NOT NULL;
+
+-- 20231030, DGR_WEBSITE 網站反向代理主檔, 增加欄位, TOM
+ALTER TABLE DGR_WEBSITE ADD SHOW_LOG VARCHAR(1) DEFAULT 'N' NOT NULL;
+
+-- 20231103, 增加欄位 ,Zoe Lee
+ALTER TABLE TSMP_API_REG ADD REDIRECT_BY_IP char(1) DEFAULT 'N' NULL;
+ALTER TABLE TSMP_API_REG ADD IP_FOR_REDIRECT1 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_SRC_URL1 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_FOR_REDIRECT2 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_SRC_URL2 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_FOR_REDIRECT3 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_SRC_URL3 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_FOR_REDIRECT4 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_SRC_URL4 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_FOR_REDIRECT5 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD IP_SRC_URL5 nvarchar(2000) NULL;
+
+ALTER TABLE TSMP_API_REG ADD HEADER_MASK_KEY nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD HEADER_MASK_POLICY char(1) DEFAULT '0'  NULL;
+ALTER TABLE TSMP_API_REG ADD HEADER_MASK_POLICY_NUM int NULL;
+ALTER TABLE TSMP_API_REG ADD HEADER_MASK_POLICY_SYMBOL varchar(10)  NULL;
+
+ALTER TABLE TSMP_API_REG ADD BODY_MASK_KEYWORD nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_REG ADD BODY_MASK_POLICY char(1) DEFAULT '0' NULL;
+ALTER TABLE TSMP_API_REG ADD BODY_MASK_POLICY_NUM int NULL;
+ALTER TABLE TSMP_API_REG ADD BODY_MASK_POLICY_SYMBOL varchar(10) NULL;
+
+-- 20231108, 增加欄位 ,Zoe Lee
+ALTER TABLE TSMP_API_IMP ADD REDIRECT_BY_IP char(1) DEFAULT 'N' NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_FOR_REDIRECT1 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_SRC_URL1 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_FOR_REDIRECT2 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_SRC_URL2 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_FOR_REDIRECT3 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_SRC_URL3 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_FOR_REDIRECT4 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_SRC_URL4 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_FOR_REDIRECT5 nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD IP_SRC_URL5 nvarchar(2000) NULL;
+
+ALTER TABLE TSMP_API_IMP ADD HEADER_MASK_KEY nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD HEADER_MASK_POLICY char(1) DEFAULT '0'  NULL;
+ALTER TABLE TSMP_API_IMP ADD HEADER_MASK_POLICY_NUM int NULL;
+ALTER TABLE TSMP_API_IMP ADD HEADER_MASK_POLICY_SYMBOL varchar(10)  NULL;
+
+ALTER TABLE TSMP_API_IMP ADD BODY_MASK_KEYWORD nvarchar(2000) NULL;
+ALTER TABLE TSMP_API_IMP ADD BODY_MASK_POLICY char(1) DEFAULT '0' NULL;
+ALTER TABLE TSMP_API_IMP ADD BODY_MASK_POLICY_NUM int NULL;
+ALTER TABLE TSMP_API_IMP ADD BODY_MASK_POLICY_SYMBOL varchar(10) NULL;
+
+-- 20231110, Gateway IdP Auth記錄檔主檔	, 增加欄位, Mini Lee
+ALTER TABLE dgr_gtw_idp_auth_m ADD code_challenge NVARCHAR(1000);
+ALTER TABLE dgr_gtw_idp_auth_m ADD code_challenge_method VARCHAR(10);
+ 
+-- 20231110, Gateway IdP授權碼記錄檔, 增加欄位, Mini Lee
+ALTER TABLE dgr_gtw_idp_auth_code ADD state VARCHAR(1000);
+
+-- 20231117 刪除 dgr_gtw_idp_info_j, Mini Lee
+DROP TABLE dgr_gtw_idp_info_j;
+
+-- 20231117, Gateway IdP資料 (JDBC), Mini Lee
+CREATE TABLE dgr_gtw_idp_info_jdbc (  
+	GTW_IDP_INFO_JDBC_ID BIGINT NOT NULL, 		-- ID 
+	CLIENT_ID 			VARCHAR(40) NOT NULL, 	-- digiRunner 的 client_id 
+	STATUS 				VARCHAR(1) NOT NULL DEFAULT 'Y', -- 狀態 
+	REMARK 				NVARCHAR(200), 			-- 說明 
+	CONNECTION_NAME 	NVARCHAR(50) NOT NULL, 	-- RDB連線資訊的名稱 
+	SQL_PTMT 			NVARCHAR(1000) NOT NULL, -- 查詢RDB的SQL(Prepare Statement) 
+	SQL_PARAMS	 		NVARCHAR(1000) NOT NULL, -- 查詢RDB的SQL參數 
+	USER_MIMA_ALG 		VARCHAR(40) NOT NULL, 	-- RDB存放密碼所使用的演算法 
+	USER_MIMA_COL_NAME 	VARCHAR(200) NOT NULL, 	-- RDB的密碼欄位名稱 
+	IDT_SUB 			VARCHAR(200) NOT NULL, 	-- ID token 的 sub(唯一值) 值,對應RDB的欄位 
+	IDT_NAME 			VARCHAR(200), 			-- ID token 的 name 值,對應RDB的欄位 
+	IDT_EMAIL 			VARCHAR(200), 			-- ID token 的 email 值,對應RDB的欄位 
+	IDT_PICTURE 		VARCHAR(200), 			-- ID token 的 picture 值,對應RDB的欄位 
+	ICON_FILE 			VARCHAR(4000), 			-- 登入頁圖示檔案 
+	PAGE_TITLE 			NVARCHAR(400) NOT NULL, -- 登入頁標題
+	CREATE_DATE_TIME 	DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人
+	CREATE_USER 		NVARCHAR(1000) DEFAULT 'SYSTEM', -- 建立人員 
+	UPDATE_DATE_TIME 	DATETIME, 				-- 更新日期 表示最後Update的人
+	UPDATE_USER 		NVARCHAR(1000), 		-- 更新人員 
+	VERSION 			INT DEFAULT 1,  		-- 版號 C/U時, 增量+1 
+	PRIMARY KEY (GTW_IDP_INFO_JDBC_ID)    
+);
+
+--20231123, 增加欄位 ,Zoe Lee
+ALTER TABLE TSMP_API ADD LABEL1 nvarchar(20) NULL;
+ALTER TABLE TSMP_API ADD LABEL2 nvarchar(20) NULL;
+ALTER TABLE TSMP_API ADD LABEL3 nvarchar(20) NULL;
+ALTER TABLE TSMP_API ADD LABEL4 nvarchar(20) NULL;
+ALTER TABLE TSMP_API ADD LABEL5 nvarchar(20) NULL;
+
+ALTER TABLE TSMP_API_IMP ADD LABEL1 nvarchar(20) NULL;
+ALTER TABLE TSMP_API_IMP ADD LABEL2 nvarchar(20) NULL;
+ALTER TABLE TSMP_API_IMP ADD LABEL3 nvarchar(20) NULL;
+ALTER TABLE TSMP_API_IMP ADD LABEL4 nvarchar(20) NULL;
+ALTER TABLE TSMP_API_IMP ADD LABEL5 nvarchar(20) NULL;
+
+--20231130, TSMP_API_REG.SRC_URL 拿掉NOT NULL ,Zoe Lee
+ALTER TABLE TSMP_API_REG ALTER COLUMN SRC_URL nvarchar(2000) NULL;
+
+-- 20231201, 增加固定快取時間欄位, Tom
+ALTER TABLE TSMP_API ADD FIXED_CACHE_TIME INT DEFAULT 0 NOT NULL;
+ALTER TABLE TSMP_API_IMP ADD API_CACHE_FLAG CHAR(1) DEFAULT '1' NOT NULL;
+ALTER TABLE TSMP_API_IMP ADD FIXED_CACHE_TIME INT DEFAULT 0 NOT NULL;
+
+-- 20231207, X-Api-Key資料, Mini Lee
+CREATE TABLE DGR_X_API_KEY (  
+	API_KEY_ID 			BIGINT NOT NULL, 		-- ID 
+	CLIENT_ID 			VARCHAR(40) NOT NULL, 	-- digiRunner 的 client_id 
+	API_KEY_ALIAS 		NVARCHAR(100) NOT NULL, -- X-Api-Key 別名 
+	EFFECTIVE_AT 		BIGINT NOT NULL, 		-- 生效日期 
+	EXPIRED_AT 			BIGINT NOT NULL, 		-- 到期日期 
+	API_KEY 			VARCHAR(100), 			-- X-Api-Key 的值 	
+	API_KEY_MASK 		VARCHAR(100) NOT NULL, 	-- X-Api-Key 經過遮罩的值 
+	API_KEY_EN 			VARCHAR(100) NOT NULL, 	-- X-Api-Key 經過SHA256 的值 
+	CREATE_DATE_TIME 	DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	CREATE_USER 		NVARCHAR(1000) DEFAULT 'SYSTEM', -- 建立人員 
+	UPDATE_DATE_TIME 	DATETIME, 				-- 更新日期 表示最後Update的人, 日期時間
+	UPDATE_USER 		NVARCHAR(1000), 		-- 更新人員 
+	VERSION 			INT DEFAULT 1, 			-- 版號 C/U時, 增量+1  
+	PRIMARY KEY (API_KEY_ID)    
+);  
+
+-- 20231207, X-Api-Key與群組關係, Mini Lee
+CREATE TABLE DGR_X_API_KEY_MAP (  
+	API_KEY_MAP_ID 		BIGINT NOT NULL, 		-- ID 
+	REF_API_KEY_ID 		BIGINT NOT NULL, 		-- Master PK 
+	GROUP_ID 			NVARCHAR(10) NOT NULL, 	-- 群組 ID 
+	CREATE_DATE_TIME 	DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 
+	CREATE_USER 		NVARCHAR(1000) DEFAULT 'SYSTEM', -- 建立人員 
+	UPDATE_DATE_TIME 	DATETIME, 				-- 更新日期 
+	UPDATE_USER 		NVARCHAR(1000), 		-- 更新人員 
+	VERSION 			INT DEFAULT 1, 			-- 版號
+	PRIMARY KEY (API_KEY_MAP_ID)  
+);
+
+-- 20231212, 增加欄位 DP_CLIENT_SECRET, Kevin Cheng
+ALTER TABLE tsmp_client ADD dp_client_secret VARCHAR(128);
+
+-- 20231222, 調整欄位 dp_client_secret 為 dp_client_entry, 資料型態 nvarchar, Kevin Cheng
+EXEC sp_rename 'tsmp_client.dp_client_secret', 'dp_client_entry', 'COLUMN';
+ALTER TABLE tsmp_client ALTER COLUMN dp_client_entry NVARCHAR(128);
+
+-- 20231228, 調整欄位 dp_client_secret 長度從 128 到 1000, Kevin Cheng
+ALTER TABLE tsmp_client ALTER COLUMN dp_client_entry NVARCHAR(1000);
+
+-- 20240108, TSMP外部API註冊資料, 增加欄位, Mini Lee
+ALTER TABLE TSMP_API_REG ADD FAIL_DISCOVERY_POLICY VARCHAR(1) DEFAULT '0';
+ALTER TABLE TSMP_API_REG ADD FAIL_HANDLE_POLICY VARCHAR(1) DEFAULT '0';
+
+-- 20240108, TSMP API 匯入資料, 增加欄位, Mini Lee
+ALTER TABLE TSMP_API_IMP ADD FAIL_DISCOVERY_POLICY VARCHAR(1) DEFAULT '0';
+ALTER TABLE TSMP_API_IMP ADD FAIL_HANDLE_POLICY VARCHAR(1) DEFAULT '0';
+
+-- 20240122,TSMP 功能維護資料, 增加欄位  ,Zoe Lee
+ALTER TABLE TSMP_FUNC ADD FUNC_TYPE char(1) DEFAULT '1' ;
+
+-- 20240306, 用戶端匯出/入, Tom
+CREATE TABLE DGR_IMPORT_CLIENT_RELATED_TEMP (  
+	TEMP_ID 		BIGINT NOT NULL, 		-- ID 
+	IMPORT_CLIENT_RELATED 	VARBINARY(MAX) NOT NULL, 	-- 匯入的資料
+	ANALYZE_CLIENT_RELATED 	VARBINARY(MAX) NOT NULL, 	-- 分析的資料
+	CREATE_DATE_TIME 	DATETIME DEFAULT CURRENT_TIMESTAMP, -- 建立日期 資料初始建立的人, 日期時間 
+	CREATE_USER 		NVARCHAR(1000) DEFAULT 'SYSTEM', -- 建立人員 
+	UPDATE_DATE_TIME 	DATETIME, 				-- 更新日期 表示最後Update的人, 日期時間
+	UPDATE_USER 		NVARCHAR(1000), 		-- 更新人員 
+	VERSION 			INT DEFAULT 1, 			-- 版號 C/U時, 增量+1  
+	CONSTRAINT DGR_IMPORT_CLIENT_RELATED_TEMP_PK PRIMARY KEY (TEMP_ID)  
+); 
+
+-- 20240402, 增加api狀態, Tom
+ALTER TABLE TSMP_API_IMP ADD API_STATUS CHAR(1) DEFAULT '2' NOT NULL;
+
+-- 20240402,新增PUBLIC_FLAG,API_RELEASE_TIME匯入欄位, Webber
+ALTER TABLE TSMP_API_IMP ADD PUBLIC_FLAG CHAR(1) NULL;
+ALTER TABLE TSMP_API_IMP ADD API_RELEASE_TIME DATETIME NULL;
+
+-- 20240429 , dgr_web_socket_mapping 新增欄位 ,Zoe Lee
+ALTER TABLE dgr_web_socket_mapping ADD auth varchar(1) DEFAULT 'N' NOT NULL;
+
+-- 20240430, 添加兩個欄位用於預定DP上下架功能, Kevin Cheng
+ALTER TABLE TSMP_API ADD SCHEDULED_LAUNCH_DATE BIGINT DEFAULT 0;
+ALTER TABLE TSMP_API ADD SCHEDULED_REMOVAL_DATE BIGINT DEFAULT 0;
+
+-- 20240516, 添加兩個欄位用於預定DGR API啟用停用功能, Kevin Cheng
+ALTER TABLE TSMP_API ADD ENABLE_SCHEDULED_DATE BIGINT DEFAULT 0;
+ALTER TABLE TSMP_API ADD DISABLE_SCHEDULED_DATE BIGINT DEFAULT 0;
+
+-- 20240603, TSMP_API_IMP API匯入匯出添加四個欄位,兩個預定DP上下架功能, 兩個預定DGR API啟用停用功能, Webber Luo
+ALTER TABLE TSMP_API_IMP ADD SCHEDULED_LAUNCH_DATE BIGINT DEFAULT 0;
+ALTER TABLE TSMP_API_IMP ADD SCHEDULED_REMOVAL_DATE BIGINT DEFAULT 0;
+ALTER TABLE TSMP_API_IMP ADD ENABLE_SCHEDULED_DATE BIGINT DEFAULT 0;
+ALTER TABLE TSMP_API_IMP ADD DISABLE_SCHEDULED_DATE BIGINT DEFAULT 0;
+
+-- 20240625, 這是DP的dp_app TABLE 因為DGR的用戶端匯出入有用到所以移動到這, Tom
+---- start DP的dp_app TABLE ----
+-- 20230420, v4 入口網(DP)的Application	, Kevin Cheng
+CREATE TABLE dp_app (
+	dp_application_id BIGINT NOT NULL,                         -- ID
+	application_name NVARCHAR(50) NOT NULL,                     -- Application名稱
+	application_desc NVARCHAR(500),                             -- Application說明
+	client_id VARCHAR(40) NOT NULL,                            -- CLIENT_ID
+	open_apikey_id BIGINT,                                     -- 
+	open_apikey_status VARCHAR(1),                             -- DGRK狀態
+	user_name NVARCHAR(400) NOT NULL,                          -- 使用者名稱(視IdP類型決定)
+	id_token_jwtstr NVARCHAR(4000) NOT NULL,                    -- IdP ID Token 的 JWT
+	create_date_time DATETIME DEFAULT CURRENT_TIMESTAMP,       -- 建立日期
+	create_user NVARCHAR(1000) DEFAULT 'SYSTEM',                 -- 建立人員
+	update_date_time DATETIME,                                 -- 更新日期
+	update_user NVARCHAR(1000),                                  -- 更新人員
+	version INT DEFAULT 1,                                     -- 版號
+	KEYWORD_SEARCH nvarchar(600) NULL,
+	PRIMARY KEY (dp_application_id)
+);
+
+-- 20230515, v4 入口網(DP)的Application	, 刪除欄位 , Kevin Cheng
+ALTER TABLE dp_app DROP COLUMN open_apikey_status;
+
+-- 20231105, v4 修改 dp_app 欄位型態 , min (NOT NULL 20240625補上的)
+ALTER TABLE dp_app ALTER COLUMN application_name NVARCHAR(50) NOT NULL;
+ALTER TABLE dp_app ALTER COLUMN application_desc NVARCHAR(500);
+
+-- 20231123, v4 入口網(DP) DP APP 新增 ISS 欄位, Kevin Cheng
+ALTER TABLE dp_app ADD iss VARCHAR(4000) NOT NULL DEFAULT 'NULL';
+
+-- 20231128, v4 入口網(DP) 改欄位名, Kevin Cheng
+EXEC sp_rename 'dp_app.user_name', 'dp_user_name', 'COLUMN';
+
+-- 20231228, 移除 open_apikey_id 欄位, jhmin
+ALTER TABLE dp_app DROP COLUMN open_apikey_id;
+---- end DP的dp_app TABLE ----

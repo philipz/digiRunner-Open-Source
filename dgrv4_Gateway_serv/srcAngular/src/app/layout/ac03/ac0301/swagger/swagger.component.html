@@ -1,0 +1,16 @@
+<form [formGroup]="form">
+  <div class="h-100">
+    <label class="col-12">Swagger URL</label>
+
+    <div class="col-12" [style]="{display: 'flex',width: '100%','align-items': 'center'}">
+      <input class="form-control" id="swgUrl" formControlName="swgUrl" readonly />
+    </div>
+
+    <div class="col-12 mt-3" [style]="{display: 'flex',width: '100%','align-items': 'center',height:'100%'}">
+      <pre style="background: #3c3c3c;border: solid 1px #e1e1e1;float: left;min-height: 67vh;width: 100%;color: #fff;"
+        class="p-2" [innerText]="formatJson" (dblclick)="copyData(formatJson)">
+      </pre>
+    </div>
+  </div>
+</form>
+<p-toast [style]="{ marginTop: '60px' }" position="top-left"></p-toast>

@@ -1,0 +1,387 @@
+div.login {
+
+  height: 100%;
+  width: 100%;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffae22+0,ed9a47+100 */
+  background: #ffffff;
+  /* Old browsers */
+
+}
+
+form.login_form {
+  background-color: #fff;
+  height: 475px;
+  width: 381px;
+  /* margin: 100px auto 0px; */
+  box-shadow: 0px 0px 40px 0px #bc7730;
+  -moz-box-shadow: 0px 0px 40px 0px #bc7730;
+  -webkit-box-shadow: 0px 0px 40px 0px #bc7730;
+  box-shadow: 0px 0px 40px 0px #bc7730;
+}
+
+div.bg_img {
+  font-family: PingFangSC-Regular, sans-serif;
+  font-size: 16px;
+  margin: 0px;
+  padding: 0px;
+  background-color: #FBF9F6;
+  font-weight: 400;
+  color: #5A5541;
+  height: 100%;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffae22+0,ed9a47+100 */
+  background: #ff8f20;
+  /* Old browsers */
+  background: -moz-linear-gradient(-45deg, #ffae22 0%, #ff8f20 100%);
+  /* FF3.6-15 */
+  background: -webkit-linear-gradient(-45deg, #ffae22 0%, #ff8f20 100%);
+  /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(135deg, #ffae22 0%, #ff8f20 100%);
+  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffae22', endColorstr='#ff8f20', GradientType=1);
+  /* IE6-9 fallback on horizontal gradient */
+  min-height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+
+
+section.bg,
+div.bg {
+  height: 100%;
+  // background-image: url(../../../assets/images/pt.png);
+  margin-left: 0!important;
+  margin-right: 0!important;
+}
+
+
+.sign {
+  width: 20%;
+  height: 475px;
+  background-color: #fff;
+  margin: 100px auto 0px;
+  box-shadow: 0px 0px 40px 0px #bc7730;
+  -moz-box-shadow: 0px 0px 40px 0px #bc7730;
+  -webkit-box-shadow: 0px 0px 40px 0px #bc7730;
+  box-shadow: 0px 0px 40px 0px #bc7730;
+  display: table;
+}
+
+
+.logo_top img {
+  width: 90%;
+}
+
+div.logo_top {
+  padding-top: 10px;
+  background-color: #fff;
+}
+
+div.logo_top,
+i.logo_top {
+  text-align: center;
+  display: inherit;
+  // margin-top: 100px;
+  width: 100%;
+}
+
+.line {
+  text-align: center;
+  padding-top: 30px;
+  background-color: #fff;
+}
+
+.line img {
+  width: 275px;
+}
+
+.sign_row {
+
+  text-align: center;
+  padding: 12px 0px;
+ img{
+   width: 30px;
+   padding-top: 1px;
+ }
+
+}
+
+.sign_box {
+  padding: 28px 20px;
+  text-align: center;
+  background: #fff;
+}
+
+
+.date input,
+.sign_box input {
+  height: 46px;
+  width: 100%;
+  font-size: 20px;
+  display: inline-block;
+  padding: 14px 10px 13px 50px;
+  background-color: #fff;
+
+
+  color: #666666;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  border: 1px solid #B7B7B7;
+  box-shadow: 0px 0px 15px 10px #F8F8F8;
+  border-radius: 30px;
+}
+
+.date input:active {
+  border: 1px #27BEC5 solid;
+}
+
+.date input:focus {
+  border: 1px #27BEC5 solid;
+  -webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, .075), 0 0 0px rgba(102, 175, 233, .6);
+  box-shadow: inset 0 0px 0px rgba(0, 0, 0, .075), 0 0 0px rgba(102, 175, 233, .6)
+}
+
+.sign_row span{
+  position: absolute;
+  margin-left: 7px;
+  margin-top: 7px;
+  align-items: center;
+}
+
+.footer {
+  position: fixed;
+  text-align: center;
+  bottom: 0;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  color: #666666;
+  background-color: #DEDEDE;
+  z-index: 10;
+}
+
+
+.index_footer {
+  text-align: center;
+  background-color: #5A5541;
+  position: fixed;
+  bottom: 0;
+}
+
+
+
+// .btn-red {
+//   color: #fff;
+//   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f49e00+0,ee7800+100 */
+//   background: #f49e00;
+//   /* Old browsers */
+//   background: -moz-linear-gradient(top, #f49e00 0%, #ee7800 100%);
+//   /* FF3.6-15 */
+//   background: -webkit-linear-gradient(top, #f49e00 0%, #ee7800 100%);
+//   /* Chrome10-25,Safari5.1-6 */
+//   background: linear-gradient(to bottom, #f49e00 0%, #ee7800 100%);
+//   /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+//   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f49e00', endColorstr='#ee7800', GradientType=0);
+//   /* IE6-9 */
+//   border-radius: 60px;
+//   outline: none;
+//   height: 38px;
+//   margin: 4px;
+//   font-size: 18px;
+//   font-weight: 300;
+//   padding: 6px 18px;
+//   cursor: pointer;
+//   min-width: 190px;
+//   border: 0px;
+//   height: 46px;
+// }
+
+.login_bg{
+    background-image: linear-gradient(to right, #ff8f20, #ffae22);
+}
+
+.btn-login{
+  color:#fff;
+  width: 120px;
+  height: 35px;
+  background: #666666;
+  border-radius: 50px;
+  flex: none;
+  order: 2;
+  flex-grow: 0;
+}
+
+.btn-login:hover{
+  background:#EF622D;
+}
+
+
+::-webkit-input-placeholder {
+  color: #999999;
+}
+
+:-moz-placeholder {
+  /* Firefox 18- */
+  color: #999999;
+}
+
+::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #999999;
+}
+
+:-ms-input-placeholder {
+  color: #999999;
+}
+
+
+// --------
+
+$topnav-background-color: #fff;
+
+:host {
+  display: block;
+}
+
+.login-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  background: #ffffff;
+  /* Old browsers */
+  // background: -moz-linear-gradient(top, #f49e00 0%, #ee7800 100%);
+  /* FF3.6-15 */
+  // background: -webkit-linear-gradient(top, #f49e00 0%, #ee7800 100%);
+  /* Chrome10-25,Safari5.1-6 */
+  // background: linear-gradient(to bottom, #f49e00 0%, #ee7800 100%);
+  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  // filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f49e00', endColorstr='#ee7800', GradientType=0);
+  /* IE6-9 */
+  text-align: center;
+  // color: #fff;
+
+  .col-lg-4 {
+    padding: 0;
+  }
+
+  .input-lg {
+    height: 46px;
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.3333333;
+    border-radius: 0;
+  }
+
+  .input-underline {
+    background: 0 0;
+    border: none;
+    box-shadow: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    border-radius: 0;
+  }
+
+  .input-underline:focus {
+    border-bottom: 2px solid #fff;
+    box-shadow: none;
+  }
+
+  .rounded-btn {
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.8);
+    background: $topnav-background-color;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    font-size: 18px;
+    line-height: 40px;
+    padding: 0 25px;
+  }
+
+  .rounded-btn:hover,
+  .rounded-btn:focus,
+  .rounded-btn:active,
+  .rounded-btn:visited {
+    color: rgba(255, 255, 255, 1);
+    border: 2px solid rgba(255, 255, 255, 1);
+    outline: none;
+  }
+
+  h1 {
+    font-weight: 400;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 36px;
+
+    small {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  .form-group {
+    padding: 8px 0;
+
+    input::-webkit-input-placeholder {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    input:-moz-placeholder {
+      /* Firefox 18- */
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    input::-moz-placeholder {
+      /* Firefox 19+ */
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    input:-ms-input-placeholder {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+  }
+
+  .form-content {
+    padding: 40px 0;
+  }
+
+  .user-avatar {
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+}
+
+.login_section {
+   background:#fff;
+  //  font-family: PingFangSC-Regular, sans-serif;
+  //  font-family: PingFangSC-Regular, sans-serif;
+  font-size: 16px;
+  margin:0px;
+  // padding: 0px;
+  background-color: #FBF9F6;
+  font-weight: 400;
+
+  // color: #5A5541;
+  //  -webkit-box-shadow: 0px 0px 40px 0px #bc7730;
+  //  -moz-box-shadow: 0px 0px 40px 0px #bc7730;
+  //  box-shadow: 0px 0px 40px 0px #bc7730;
+}
+
+.login-base{
+  position: absolute;
+  z-index:1;
+  left:0
+}
+
+.login-visual{
+  position: absolute;
+  z-index:3;
+  left:6%
+}

@@ -1,0 +1,451 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form" (ngSubmit)="queryClientList()">
+      <div class="form-group row col-12">
+        <span class="p-input-icon-right" style="width:40vw">
+          <i class="pi pi-search tpi-i-search" (click)="queryClientList();"></i>
+          <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+            placeholder="{{'client_id'|translate}}、{{'client_name'|translate}}、{{'client_alias'|translate}}">
+        </span>
+      </div>
+    </form>
+    <hr>
+    <p-table *ngIf="clientListCols" [columns]="clientListCols" [value]="clientList" selectionMode="single"
+      styleClass="p-datatable-striped" [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:50px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:50px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align:center;width: 50px">
+            <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
+              (click)="viewGtwIdPinfoList(rowData)" [pTooltip]="'button.detail' | translate"
+              tooltipPosition="top"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="clientList.length>0">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{clientList.length}}</span>
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="moreClientList()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Gtw API Idp 依 Client ID -->
+  <div [hidden]="pageNum != 2">
+    <div class="form-group row">
+      <div class="col-12 col-xl-12 col-lg-12">
+        <label class="control-label">{{'client_id' | translate}}: {{currentClient?.clientId}}</label>
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create')">{{'button.create'|translate}}</button>
+      </div>
+    </div>
+
+    <p-table [value]="gtwIdpList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
+      styleClass="p-datatable-striped">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th rowspan="2" style="width: 10%;" scope="col">Icon</th>
+          <th rowspan="1" style="width: 20%;" scope="col">ID</th>
+          <th rowspan="1" style="width: 20%;" scope="col">HTTP Method</th>
+          <th rowspan="1" style="width: 20%;" scope="col">Page Title</th>
+          <th rowspan="1" style="width: 15%;" scope="col">Create User</th>
+          <th rowspan="1" style="width: 15%;" scope="col">Create Time</th>
+          <th rowspan="2" style="min-width:150px" scope="col">{{'action' | translate}}</th>
+        </tr>
+        <tr>
+          <th rowspan="1" scope="col">Enable</th>
+          <th rowspan="1" scope="col">URL</th>
+          <th rowspan="1" scope="col">Remark</th>
+          <th rowspan="1" scope="col">Update User</th>
+          <th rowspan="1" scope="col">Update Time</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td rowspan="2">
+            <img [alt]="rowData.iconFile" [src]="rowData.iconFile" />
+          </td>
+          <td rowspan="1">{{rowData.id}}</td>
+          <td rowspan="1">{{rowData.apiMethod}}</td>
+          <td rowspan="1">{{rowData.pageTitle}}</td>
+          <td rowspan="1">{{rowData.createUser}}</td>
+          <td rowspan="1">{{formateDate(rowData.createDateTime)}}</td>
+
+          <td rowspan="2" style="text-align: center;">
+
+            <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
+              [pTooltip]="'button.detail' | translate" tooltipPosition="top"
+              (click)="changePage('detail', rowData)"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.update' | translate"
+              tooltipPosition="top" (click)="changePage('update', rowData)"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+              class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.delete' | translate"
+              tooltipPosition="top" (click)="changePage('delete', rowData)"></button>
+
+          </td>
+        </tr>
+        <tr>
+          <td rowspan="1" style="text-align: center;">
+            <img [alt]="rowData.status" style="width: 20px; height: 20px"
+              [src]="rowData.status ==='Y' ? 'assets/images/icon_green.png': 'assets/images/icon_red.png'" />
+          </td>
+          <td rowspan="1">{{rowData.apiUrl}}</td>
+          <td rowspan="1">{{rowData.remark}}</td>
+          <td rowspan="1">{{rowData.updateUser}}</td>
+          <td rowspan="1">{{formateDate(rowData.updateDateTime)}}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="9">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="form-group row mt-3">
+      <div class="col-12 col-xl-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          (click)="changePage('queryClientList');">{{'button.return_to_list'|translate}}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create 建立 / Update 更新 /詳細資料-->
+  <div [hidden]="pageNum != 4">
+    <form [formGroup]="formEdit">
+      <div class="form-group row" [hidden]="currentAction =='create'">
+        <div class="col-3">
+          <label id="id_label" for="id" class="control-label">ID</label>
+          <input type="text" class="form-control" id="id" formControlName="id">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-3">
+          <!--Client ID -->
+          <label id="clientId_label" for="clientId" class="control-label">Client ID</label>
+          <input type="text" class="form-control" id="clientId" formControlName="clientId">
+          <div *ngIf="clientId?.invalid && (clientId?.dirty || clientId?.touched)" class="text-danger">
+            <small class="form-text">{{clientId?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <label id="status_label" class="control-label">Enable</label>
+          <div class="p-form-check-line form-group">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="status" value="Y" inputId="statusY"></p-radioButton>
+                <label for="statusY" class="ml-2 mb-0">Y</label>
+              </div>
+              <div class="p-form-check">
+                <p-radioButton formControlName="status" value="N" inputId="statusN"></p-radioButton>
+                <label for="statusN" class="ml-2 mb-0">N</label>
+              </div>
+            </ng-container>
+          </div>
+          <!-- <div class="col-12">
+            <div class="form-check-inline col-12">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="status" value="Y"> Y
+              </label>
+              <label class="form-check-label ml-5">
+                <input type="radio" class="form-check-input" formControlName="status" value="N"> N
+              </label>
+            </div>
+          </div> -->
+          <div *ngIf="status?.invalid && (status?.dirty || status?.touched)" class="text-danger">
+            <small class="form-text">{{status?.errors.pattern | translate}}</small>
+            <small class="form-text">{{status?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="remark_label" for="remark" class="control-label">Remark</label>
+          <div style="display:block">
+            <textarea rows="2" style="width:100%" id="remark" formControlName="remark" pInputTextarea></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="pageTitle_label" for="pageTitle" class="control-label">Page Title</label>
+          <input type="text" class="form-control" id="pageTitle" formControlName="pageTitle">
+          <div *ngIf="pageTitle?.invalid && (pageTitle?.dirty || pageTitle?.touched)" class="text-danger">
+            <small class="form-text">{{pageTitle?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-8">
+          <label for="iconFile" class="control-label">Icon</label>
+
+          <div class="row col-auto" [hidden]="currentAction ==='detail'">
+            <div class="mr-2">
+              <button type="button" class="btn tpi-btn tpi-night pull-right"
+                (click)="openFileBrowser();">{{'chs_file'|translate}}</button>
+            </div>
+            <div class="">
+              <button type="button" class="btn tpi-btn tpi-night pull-right" (click)="clearFile();"
+                *ngIf="this._fileSrc">{{'remove'|translate}}</button>
+            </div>
+            <div class="col-sm-6" style="padding-right: unset;">
+              <input type="file" id="fileName" (change)="fileChange($event.target.files)" formControlName="iconFile"
+                style="display: none;">
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-auto">
+          <img [src]="_fileSrc">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <label>Request</label>
+          <div class="form-group px-5 py-2 keyValueContent">
+            <!-- URL -->
+            <div class="form-group row">
+              <div class="col-12">
+                <label id="apiMethod_label" for="apiMethod" class="control-label">URL</label>
+                <div class="col-12 px-0" [style]="{display: 'flex',width: '100%','align-items': 'center'}">
+                  <p-dropdown [options]="methodsList" formControlName="apiMethod"
+                    [style]="{'width':'100%'}"></p-dropdown>
+                  <input type="text" class="form-control" formControlName="apiUrl" />
+
+                </div>
+                <div *ngIf="apiUrl?.invalid && (apiUrl?.dirty || apiUrl?.touched)" class="text-danger">
+                  <small class="form-text">{{apiUrl?.errors.isRequired | translate}}</small>
+                  <small class="form-text">{{apiUrl?.errors.pattern | translate}}</small>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <!-- Request Header -->
+            <div class="form-group row">
+              <div class="col-12">
+                <label id="reqHeader_label" for="reqHeader" class="control-label">Request Header</label>
+                <app-key-value-form formControlName="reqHeader"></app-key-value-form>
+              </div>
+            </div>
+            <hr>
+            <!-- Request Body -->
+            <div class="form-group row">
+              <div class="col-12">
+                <!-- <div class="form-check-inline col-12"></div> -->
+                <div>
+                  <label id="reqBodyType_label" class="control-label">Request Body</label>
+                </div>
+                <div class="p-form-check-line form-group">
+                  <ng-container *ngFor="let stat of bodyType">
+                    <div class="p-form-check">
+                      <p-radioButton formControlName="reqBodyType" value={{stat.value}}  inputId="reqBodyType_{{stat.value}}"></p-radioButton>
+                      <label for="reqBodyType_{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+                    </div>
+                  </ng-container>
+                </div>
+
+                <!-- <div class="form-group">
+                  <div class="form-check-inline" *ngFor="let stat of bodyType">
+                    <label class="form-check-label" [for]="'reqBodyType_'+stat.value">
+                      <input type="radio" class="form-check-input" [id]="'reqBodyType_'+stat.value"
+                        formControlName="reqBodyType" value={{stat.value}}>
+                      {{stat.label}}
+                    </label>
+                  </div>
+                </div> -->
+                <div *ngIf="reqBodyType?.invalid && (reqBodyType?.dirty || reqBodyType?.touched)" class="text-danger">
+                  <small class="form-text">{{reqBodyType?.errors.isRequired | translate}}</small>
+                </div>
+                <app-key-value-form #keyValueComp formControlName="reqBody" [required]="true"
+                  [hidden]="!reqBodyType.value ||reqBodyType.value=='N'||reqBodyType.value=='R'"></app-key-value-form>
+                <div class="row form-group" *ngIf="reqBodyType.value=='R'">
+                  <div class="col-6" style="display:block">
+                    <textarea rows="8" style="width:100%" id="reqBody" formControlName="reqBody" class="form-control"
+                      pInputTextarea></textarea>
+                  </div>
+                  <div class="col-6">
+                    <label class="control-label">Request Example</label>
+                    <div style="display:block">
+                      <textarea rows="6" style="width:100%" class="form-control" [readOnly]="true" pInputTextarea
+                        [value]="rawExp"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12">
+          <label>Response</label>
+          <div class="form-group px-5 pt-2 keyValueContent">
+            <div class="form-group row">
+              <div class="col-12">
+                <div class="p-form-check-line form-group">
+                  <ng-container *ngFor="let stat of respType">
+                    <div class="p-form-check">
+                      <p-radioButton formControlName="sucByType" value={{stat.value}}  inputId="respType{{stat.value}}"></p-radioButton>
+                      <label for="respType{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+                    </div>
+                  </ng-container>
+                </div>
+                <!-- <div class="form-check-inline" *ngFor="let stat of respType">
+                  <label class="form-check-label">
+                    <input type="radio" class="form-check-input" formControlName="sucByType" value={{stat.value}}>
+                    {{stat.label}}
+                  </label>
+                </div> -->
+                <div *ngIf="sucByType?.invalid && (sucByType?.dirty || sucByType?.touched)" class="text-danger">
+                  <small class="form-text">{{sucByType?.errors.isRequired | translate}}</small>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row" [hidden]="sucByType.value=='H'">
+              <div class="col-6">
+                <label id="sucByField_label" for="sucByField" class="control-label required">JSON Field</label>
+                <input type="text" class="form-control" id="sucByField" formControlName="sucByField">
+                <div *ngIf="sucByField?.invalid && (sucByField?.dirty || sucByField?.touched)" class="text-danger">
+                  <small class="form-text">{{sucByField?.errors.isRequired | translate}}</small>
+                </div>
+              </div>
+
+              <div class="col-6">
+                <label id="sucByValue_label" for="sucByValue" class="control-label required">Value</label>
+                <input type="text" class="form-control" id="sucByValue" formControlName="sucByValue">
+                <div *ngIf="sucByValue?.invalid && (sucByValue?.dirty || sucByValue?.touched)" class="text-danger">
+                  <small class="form-text">{{sucByValue?.errors.isRequired | translate}}</small>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="form-group row pb-2">
+              <div class="col-6">
+                <div class="col-12 px-0 form-group">
+                  <label id="idtName_label" for="idtName" class="control-label" style="font-weight: bolder;">ID
+                    Token.name</label>
+                  <input type="text" class="form-control" id="idtName" formControlName="idtName">
+                </div>
+                <div class="col-12 px-0 form-group">
+                  <label id="idtEmail_label" for="idtEmail" class="control-label" style="font-weight: bolder;">ID
+                    Token.email</label>
+                  <input type="text" class="form-control" id="idtEmail" formControlName="idtEmail">
+                </div>
+                <div class="col-12 px-0 form-group">
+                  <label id="idtPicture_label" for="idtPicture" class="control-label" style="font-weight: bolder;">ID
+                    Token.picture</label>
+                  <input type="text" class="form-control" id="idtPicture" formControlName="idtPicture">
+                </div>
+              </div>
+              <div class="col-6">
+                <label class="control-label">ID Token Example</label>
+                <div style="display:block">
+                  <textarea rows="8" style="width:100%" class="form-control" [readOnly]="true" pInputTextarea
+                    [value]="idTokenExp"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row" [hidden]="currentAction!='detail'">
+        <div class="col-6">
+          <label id="createUser_label" for="createUser" class="control-label">Create User</label>
+          <input type="text" class="form-control" id="createUser" formControlName="createUser">
+        </div>
+        <div class="col-6">
+          <label id="createDateTime_label" for="createDateTime" class="control-label">Create Time</label>
+          <input type="text" class="form-control" id="createDateTime" formControlName="createDateTime">
+        </div>
+      </div>
+      <div class="form-group row" [hidden]="currentAction!='detail'">
+        <div class="col-6">
+          <label id="updateUser_label" for="updateUser" class="control-label">Update User</label>
+          <input type="text" class="form-control" id="updateUser" formControlName="updateUser">
+        </div>
+        <div class="col-6">
+          <label id="updateDateTime_label" for="updateDateTime" class="control-label">Update Time</label>
+          <input type="text" class="form-control" id="updateDateTime" formControlName="updateDateTime">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+
+          <button *ngIf="currentAction == 'create'" type="button" class="btn tpi-btn tpi-second float-left mr-3"
+            [disabled]="!formEdit.valid" (click)="create();">{{'button.create'|translate}}</button>
+          <button *ngIf="currentAction == 'update'" type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="!formEdit.valid" (click)="update();">{{'button.update'|translate}}</button>
+
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('clientList');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

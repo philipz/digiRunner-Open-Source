@@ -1,0 +1,93 @@
+<nav class="sidebar" [ngClass]="{sidebarPushRight: isActive, collapsed: collapsed}">
+  <div class="list-group" *ngIf="menus">
+    <div *ngFor="let menu of menus">
+      <app-sidebar-template [menu]="menu" (menuClick)="menuClick($event)"></app-sidebar-template>
+    </div>
+
+    <!-- <div class="nested-menu" #menu1>
+      <a class="list-group-item" (click)="addExpandClass(menu1)">
+        <img src="assets/images/m-1.png" style="width:30px;" />
+        <span>權限管理</span>
+      </a>
+      <li class="nested" [class.expand]="1 === 1">
+        <ul class="submenu">
+          <li>
+            <a routerLink="/api-explore">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>API 內容</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>API Client設定</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>API 設定</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </div> -->
+    <!-- <div class="nested-menu" #menu2>
+      <a class="list-group-item" (click)="addExpandClass(menu2)">
+        <img src="assets/images/m-2.png" style="width:30px;" />
+        <span>TSMP 管理</span>
+      </a>
+      <li class="nested" [class.expand]="1==1">
+        <ul class="submenu">
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>TSMP Nodes</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </div>
+
+    <div class="nested-menu" #menu3>
+      <a class="list-group-item" (click)="addExpandClass(menu3)">
+        <img src="assets/images/m-3.png" style="width:30px;" />
+        <span>權限管理</span>
+      </a>
+      <li class="nested" [class.expand]="1==1">
+        <ul class="submenu">
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>角色與功能</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>角色與使用者</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>使用者管理</span>
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0)">
+              <i class="fa fa-monument"></i>&nbsp;
+              <span>帳號資訊</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </div> -->
+
+  </div>
+  <!-- 停用左側收合，若要使用打開mark即可 -->
+  <!-- <div class="toggle-button" [ngClass]="{collapsed: collapsed}" (click)="toggleCollapsed()">
+    <i class="fa fa-fw fa-angle-double-left"></i>&nbsp;
+    <span>{{ 'Collapse Sidebar'}}</span>
+  </div> -->
+</nav>

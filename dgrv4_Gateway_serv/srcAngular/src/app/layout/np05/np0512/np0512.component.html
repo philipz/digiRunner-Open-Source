@@ -1,0 +1,127 @@
+<app-container [title]="title">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <div class="form-group row">
+            <div class="col-5 col-xl-5 col-lg-5">
+                <label class="control-label">{{'keyword_search'|translate}}</label>
+                <input type="text" formControlName="keyword" class="form-control"
+                    placeholder="{{'keyword_search'|translate}}">
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label">{{'date_range'|translate}}</label>
+                <div class="d-flex">
+                    <div >
+                        <p-calendar [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                            formControlName="startDate" dateFormat="yy/mm/dd" [showIcon]="true">
+                        </p-calendar>
+                        <div *ngIf="startDate?.invalid && (startDate?.dirty || startDate?.touched)" class="text-danger">
+                            <small class="form-text">{{startDate.errors.required | translate}}</small>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="padding: 5px 10px;">～</label>
+                    </div>
+                    <div>
+                        <p-calendar [style]="{'width':'100%'}" formControlName="endDate" [inputStyle]="{'width':'100%'}" appendTo="body"
+                            dateFormat="yy/mm/dd" [showIcon]="true">
+                        </p-calendar>
+                        <div *ngIf="endDate?.invalid && (endDate?.dirty || endDate?.touched)" class="text-danger">
+                            <small class="form-text">{{endDate.errors.required | translate}}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 col-xl-3 col-lg-3">
+                <label class="control-label">{{'org_query.label'|translate}}</label>
+                <div class="p-form-check-line form-group">
+                  <ng-container *ngFor="let stat of orgFlagType">
+                    <div class="p-form-check">
+                      <p-radioButton formControlName="orgFlag" value={{stat.value}}  inputId="orgFlag{{stat.value}}"></p-radioButton>
+                      <label for="orgFlag{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+                    </div>
+                  </ng-container>
+                </div>
+                <!-- <div>
+                    <div class="form-check-inline" *ngFor="let type of orgFlagType">
+                        <label class="form-check-label">
+                            <input type="radio" class="form-check-input" formControlName="orgFlag"
+                                value={{type.value}}>{{type.label}}
+                        </label>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-3 col-xl-3">
+                <button type="submit" class="btn tpi-btn tpi-primary pull-right"
+                    [disabled]="form.invalid">{{'button.search'|translate}}</button>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="dataList" [(selection)]="selectedApis" styleClass="p-datatable-striped"
+        [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+        <ng-template pTemplate="caption">
+            <div *ngIf="canSetting" class="ui-helper-clearfix">
+                <button *ngFor="let authority of apiAuthorities" type="button" class="btn tpi-btn tpi-primary float-left mr-2"
+                    (click)="settingPublicStatus(authority.value);">
+                    {{authority.label}}
+                </button>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col *ngIf="canSetting" style="width: 2.25em">
+                <col *ngFor="let col of columns" [style.width]="col.width">
+            </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngIf="canSetting" style="width: 2.25em" scope="col">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th *ngFor="let col of columns" scope="col" pResizableColumn>
+                    {{col.header}}
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-i="rowIndex">
+            <tr>
+                <td *ngIf="canSetting">
+                    <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                </td>
+                <td *ngFor="let col of columns">
+                    <span *ngIf="col.field != 'fileName'">
+                        {{ rowData[col.field] }}
+                    </span>
+                    <span *ngIf="col.field == 'fileName'">
+                        <a href="javascript:void(0)" (click)="downloadFile(rowData['filePath'],rowData['fileName']);">
+                            {{fileNameConvert(rowData['fileName'])}}
+                        </a>
+                    </span>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+            <tr *ngIf="rowcount">
+                <td [attr.colspan]="canSetting == true ? columns.length+1 : columns.length" style="color: #b7b7b7;">
+                    <span>{{'row_count' | translate}}: {{rowcount}}</span>
+                    <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                        (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+                        <!-- 查詢更多 -->
+                        <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                        <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                        </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="canSetting == true ? columns.length+1 : columns.length">
+                    {{'no_rec' | translate}}
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

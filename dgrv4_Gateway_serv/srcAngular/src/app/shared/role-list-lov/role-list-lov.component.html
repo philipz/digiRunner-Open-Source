@@ -1,0 +1,118 @@
+<div class="container py-1">
+  <div class="row">
+    <div class="col-12 col-sm-12">
+      <div class="ui-inputgroup">
+        <input
+          class="form-control"
+          type="text"
+          [(ngModel)]="keyword"
+          placeholder="{{ 'keyword_search' | translate }}"
+          (keyup.enter)="searchRoleDetailList('search')"
+        />
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="ml-1 tpi-night"
+          (click)="searchRoleDetailList('search')"
+        ></button>
+      </div>
+    </div>
+  </div>
+  <br />
+
+  <p-table
+    *ngIf="cols"
+    [columns]="cols"
+    [value]="roleDetailList"
+    [(selection)]="selected"
+    [style]="{ 'word-break': 'break-word' }"
+    styleClass="p-datatable-striped"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="colgroup" let-columns>
+      <colgroup>
+        <col style="width: 2.25em" />
+        <col *ngFor="let col of columns" [style.width]="col.width" />
+      </colgroup>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th style="width: 2.25em" scope="col">
+          <p-tableHeaderCheckbox
+            *ngIf="config.data.selectionMode == 'multiple'"
+          ></p-tableHeaderCheckbox>
+        </th>
+        <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+          {{ col.header }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <!-- <tr [pSelectableRow]="rowData"> -->
+        <tr>
+        <td>
+          <p-tableCheckbox
+            *ngIf="config.data.selectionMode == 'multiple'"
+            [value]="rowData"
+          ></p-tableCheckbox>
+          <p-tableRadioButton
+            *ngIf="config.data.selectionMode == 'single'"
+            [value]="rowData"
+          ></p-tableRadioButton>
+        </td>
+        <td *ngFor="let col of columns" [style.width]="col.width">
+          <span>
+            {{ rowData[col.field] }}
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="footer" let-columns>
+      <tr *ngIf="roleDetailList.length>0">
+        <td [attr.colspan]="columns.length + 1" style="color: #b7b7b7;">
+          <span style="vertical-align:middle ;">{{ "row_count" | translate }}: {{ roleDetailList.length }}</span>
+          <!-- <button
+            type="button"
+            class="btn btn-warning pull-right ml-3"
+            (click)="moreData()"
+          >
+            {{ "button.more" | translate }}
+          </button> -->
+          <button  type="button" icon=""
+          class="btn tpi-header-return"
+         (click)="moreData()">
+         {{ 'button.more'| translate}}
+         <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr>
+        <td [attr.colspan]="columns.length + 1">
+          {{ "no_rec" | translate }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <br />
+  <div class="text-center">
+    <button
+      type="button"
+      class="btn tpi-btn tpi-primary mr-3"
+      (click)="chooseRole()"
+      [disabled]="roleDetailList.length == 0"
+    >
+      {{ "button.confirm" | translate }}
+    </button>
+    <button type="button" class="btn tpi-btn tpi-cancel" (click)="cancelRole()">
+      {{ "button.cancel" | translate }}
+    </button>
+  </div>
+  <!-- <div class="text-center">
+        <button type="button" class="btn btn-warning mr-3" [disabled]="rowcount == 0"
+            (click)="chooseRole()">{{'button.confirm'|translate</button>
+        <button type="button" class="btn btn-warning" (click)="cancelRole();">{{'button.cancel' |translate}</button>
+    </div> -->
+</div>

@@ -1,0 +1,913 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <div class="form-group row">
+        <div class="col-4">
+          <label class="control-label">{{'keyword_search'|translate}}</label>
+          <input type="text" formControlName="keyword" class="form-control"
+            placeholder="{{'alert_id'|translate}}、{{'alert_name'|translate}}、{{'alert_sys'|translate}}">
+        </div>
+        <div class="col-4">
+          <label for="roleAlias" class="control-label">{{'role_alias' | translate}}</label>
+          <div class="ui-inputgroup">
+            <input type="text" class="form-control" formControlName="roleAlias"
+              placeholder="{{'role_alias' | translate}}">
+            <button pButton type="button" icon="pi pi-search" class="ml-1 tpi-night"
+              (click)="changePage('query_role');"></button>
+          </div>
+        </div>
+        <div class="col-4">
+          <label class="control-label" for="alertEnabled">{{'status'|translate}}</label>
+          <div class="pl-2">
+            <!-- <div class="form-check-inline" *ngFor="let stat of queryStatus">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="alertEnabled"
+                  value={{stat.value}}>{{stat.label}}
+              </label>
+            </div> -->
+            <div class="p-form-check-line form-group">
+              <ng-container *ngFor="let stat of queryStatus">
+                <div class="p-form-check">
+                  <p-radioButton formControlName="alertEnabled" value={{stat.value}}  inputId="alertEnabled{{stat.value}}"></p-radioButton>
+                  <label for="alertEnabled{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <button type="submit" class="btn tpi-btn tpi-primary float-left mr-3">{{'button.search'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-second float-right"
+            (click)="changePage('create');">{{'button.create'|translate}}</button>
+        </div>
+      </div>
+    </form>
+    <hr>
+    <p-table *ngIf="alertSettingListCols" [columns]="alertSettingListCols" [value]="alertSettingList"
+      styleClass="p-datatable-striped" [style]="{'word-break':'break-word'}" responsiveLayout="Scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:180px;">Action</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:180px" scope="col">{{'action' | translate}}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align: center;width: 180px">
+            <!-- <div class="btn-group"> -->
+            <!-- <button type="button" class="btn btn-deta" (click)="changePage('detail',rowData);">
+                                <span class="fa fa-search">{{'button.detail'|translate}}</span>
+                            </button> -->
+            <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
+              (click)="changePage('detail', rowData)" [pTooltip]="'button.detail' | translate"
+              tooltipPosition="top"></button>
+            <!-- <button type="button" class="btn btn-deta" (click)="changePage('update',rowData);">
+                                <span class="fa fa-edit">{{'button.update'|translate}}</span>
+                            </button> -->
+            <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+            <!-- <button
+                                *ngIf="rowData.alertType != 'CPU' && rowData.alertType != 'Heap' && rowData.alertType != 'Disk' && rowData.alertType != 'ESDisk' && rowData.alertType != 'ESconn'"
+                                type="button" class="btn btn-deta" (click)="delete(rowData)">
+                                <span class="fa fa-edit">{{'button.delete'|translate}}</span>
+                            </button> -->
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+              class="p-button-rounded p-button-text p-button-plain" (click)="delete(rowData)"
+              [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+            <!-- </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="alertSettingListRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span>{{'row_count' | translate}}: {{alertSettingListRowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreAlertData();">{{'button.more'|translate}}</button> -->
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="moreAlertData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- 搜尋 > 角色選擇 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="roleForm" (ngSubmit)="queryRoleMappingList()">
+      <div class="form-group row col-12">
+        <!-- <div class="col-4">
+                    <label class="control-label">{{'keyword_search'|translate}}</label>
+                    <input type="text" formControlName="keyword" class="form-control"
+                        placeholder="{{'role_id'|translate}}、{{'role_name'|translate}}、{{'role_alias'|translate}}">
+                </div> -->
+        <span class="p-input-icon-right" style="width:40vw">
+          <i class="pi pi-search tpi-i-search" (click)="queryRoleMappingList();"></i>
+          <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+            placeholder="{{'role_id'|translate}}、{{'role_name'|translate}}、{{'role_alias'|translate}}">
+        </span>
+      </div>
+      <!-- <div class="form-group row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-warning float-left mr-3"
+                        (click)="queryRoleMappingList();">{{'button.search'|translate}}</button>
+                </div>
+            </div> -->
+    </form>
+    <hr>
+    <p-table *ngIf="roleInfoListCols" [columns]="roleInfoListCols" [value]="roleInfoList"
+      styleClass="p-datatable-striped" [(selection)]="selectedRole" [style]="{'word-break':'break-word'}"
+      responsiveLayout="Scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col style="width: 2.25em">
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th style="width: 2.25em" scope="col">
+          </th>
+          <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+            {{col.header}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>
+            <p-tableRadioButton [value]="rowData"></p-tableRadioButton>
+          </td>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="roleInfoListRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7; ">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{roleInfoListRowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <br>
+    <div class="form-group row">
+      <div class="col-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          (click)="chooseRole();">{{'button.confirm'|translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+      </div>
+    </div>
+  </div>
+  <!-- 建立 -->
+  <div [hidden]="pageNum != 3">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-sm-6">
+          <label id="alertName_label" class="control-label">{{'alert_name'|translate}}</label>
+          <input formControlName="alertName" type="text" class="form-control" placeholder="{{'alert_name'|translate}}">
+          <div *ngIf="alertName?.invalid && (alertName?.dirty || alertName?.touched)" class="text-danger">
+            <small class="form-text">{{alertName.errors.isRequired}}</small>
+            <small class="form-text">{{alertName.errors.maxlength}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <label id="alertSys_label" class="control-label">{{'alert_sys'|translate}}</label>
+          <input formControlName="alertSys" type="text" class="form-control" placeholder="{{'alert_sys'|translate}}">
+          <div *ngIf="alertSys?.invalid && (alertSys?.dirty || alertSys?.touched)" class="text-danger">
+            <small class="form-text">{{alertSys.errors.isRequired}}</small>
+            <small class="form-text">{{alertSys.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div *ngIf="alertType!.value == 'keyword'" class="col-6 col-sm-6">
+          <label class="control-label">Keyword</label>
+          <div class="input-group">
+            <input formControlName="logField" type="text" class="form-control" placeholder="{{'log_field'|translate}}">
+            &nbsp;&nbsp;
+            <span class="px-1 py-1 mt-1">-</span>
+            &nbsp;&nbsp;
+            <input formControlName="rtnValue" type="text" class="form-control" placeholder="{{'rtn_value'|translate}}">
+          </div>
+        </div>
+        <div *ngIf="alertType!.value == 'responseTime'" class="col-6 col-sm-6">
+          <label class="control-label">API</label>
+          <div class="input-group">
+            <input formControlName="moduleName" type="text" class="form-control"
+              placeholder="{{'module_name'|translate}}">
+            &nbsp;&nbsp;
+            <span class="px-1 py-1 mt-1">-</span>
+            &nbsp;&nbsp;
+            <input formControlName="txid" type="text" class="form-control" placeholder="{{'api_key'|translate}}">
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <label id="alertEnabled_label" class="control-label">{{'status'|translate}}</label>
+          <div class="p-form-check-line form-group">
+            <ng-container *ngFor="let stat of createStatus">
+              <div class="p-form-check">
+                <p-radioButton formControlName="alertEnabled" value={{stat.value}}  inputId="alertEnabled{{stat.value}}"></p-radioButton>
+                <label for="alertEnabled{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+              </div>
+            </ng-container>
+          </div>
+          <!-- <div>
+            <div class="form-check-inline" *ngFor="let stat of createStatus">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="alertEnabled"
+                  value={{stat.value}}>{{stat.label}}
+              </label>
+            </div>
+          </div> -->
+          <div *ngIf="alertEnabled?.invalid && (alertEnabled?.dirty || alertEnabled?.touched)" class="text-danger">
+            <small class="form-text">{{alertEnabled.errors.isRequired}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-4 col-sm-4">
+          <label id="alertType_label" class="control-label">{{'alert_type'|translate}}</label>
+          <div>
+            <p-dropdown formControlName="alertType" [showClear]="false" [options]="alertTypes"
+              placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%','z-index':'1000'}">
+            </p-dropdown>
+          </div>
+          <div *ngIf="alertType?.invalid && (alertType?.dirty || alertType?.touched)" class="text-danger">
+            <small class="form-text">{{alertType.errors.isRequired}}</small>
+            <small class="form-text">{{alertType.errors.maxlength}}</small>
+          </div>
+        </div>
+        <div class="col-8 col-sm-8">
+          <label id="alertMsg_label" class="control-label">{{'alert_msg'|translate}}</label>
+          <input formControlName="alertMsg" type="text" class="form-control" placeholder="{{'alert_msg'|translate}}">
+          <div *ngIf="alertMsg?.invalid && (alertMsg?.dirty || alertMsg?.touched)" class="text-danger">
+            <small class="form-text">{{alertMsg.errors.isRequired}}</small>
+            <small class="form-text">{{alertMsg.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label id="threshold_label" class="control-label">{{'threshold'|translate}}</label>
+          <div class="form-inline">
+            <input formControlName="threshold" type="number" class="form-control w-75"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'times'|translate}}</span>
+          </div>
+          <div *ngIf="threshold?.invalid && (threshold?.dirty || threshold?.touched)" class="text-danger">
+            <small class="form-text">{{threshold.errors.isRequired}}</small>
+            <small class="form-text">{{threshold.errors.max}}</small>
+            <small class="form-text">{{threshold.errors.min}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label id="duration_label" class="control-label">{{'duration'|translate}}</label>
+          <div class="form-inline">
+            <input formControlName="duration" type="number" class="form-control w-75"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'sec'|translate}}</span>
+          </div>
+          <div *ngIf="duration?.invalid && (duration?.dirty || duration?.touched)" class="text-danger">
+            <small class="form-text">{{duration.errors.isRequired}}</small>
+            <small class="form-text">{{duration.errors.max}}</small>
+            <small class="form-text">{{duration.errors.min}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label id="alertInterval_label" class="control-label">{{'alert_interval'|translate}}</label>
+          <div class="form-inline">
+            <input formControlName="alertInterval" type="number" class="form-control w-75"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'sec'|translate}}</span>
+          </div>
+          <div *ngIf="alertInterval?.invalid && (alertInterval?.dirty || alertInterval?.touched)" class="text-danger">
+            <small class="form-text">{{alertInterval.errors.isRequired}}</small>
+            <small class="form-text">{{alertInterval.errors.max}}</small>
+            <small class="form-text">{{alertInterval.errors.min}}</small>
+          </div>
+        </div>
+        <div *ngIf="alertType!.value == 'responseTime'" class="col-3 col-sm-3">
+          <label id="elapse_label" class="required control-label">{{'response_time'|translate}}</label>
+          <div class="form-inline">
+            <input type="number" class="form-control w-75" formControlName="elapse" min="0"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'milli_sec'|translate}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3 pt-2">
+          <input formControlName="cFlag" class="align-middle" type="checkbox">
+          <span id="cFlag_label" class="control-label m-1 p-1 pt-2">{{'cuz_alert'|translate}}</span>
+          <div *ngIf="cFlag?.invalid && (cFlag?.dirty || cFlag?.touched)" class="text-danger">
+            <small class="form-text">{{cFlag.errors.isRequired}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3 pt-2">
+          <input formControlName="imFlag" class="align-middle" type="checkbox">
+          <span id="imFlag_label" class="control-label m-1 p-1 pt-2">{{'line_alert'|translate}}</span>
+          <div *ngIf="imFlag?.invalid && (imFlag?.dirty || imFlag?.touched)" class="text-danger">
+            <small class="form-text">{{imFlag.errors.isRequired}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <input formControlName="imId" type="text" class="form-control" placeholder="({{'line_token'|translate}})">
+          <div *ngIf="imId?.invalid && (imId?.dirty || imId?.touched)" class="text-danger">
+            <small class="form-text">{{imId.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label id="exType_label" class="control-label">{{'alert_settings'|translate}}</label>
+          <p-dropdown formControlName="exType" (onChange)="changeControlStatus()" [showClear]="false"
+            [options]="exceptionTypes" placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}">
+          </p-dropdown>
+          <div *ngIf="exType?.invalid && (exType?.dirty || exType?.touched)" class="text-danger">
+            <small class="form-text">{{exType.errors.maxlength}}</small>
+            <small class="form-text">{{exType.errors.minlength}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label id="exDays_label" class="control-label">{{'exc_days'|translate}}</label>
+          <input formControlName="exDays" type="text" class="form-control" placeholder="6_7">
+          <div *ngIf="exDays?.invalid && (exDays?.dirty || exDays?.touched)" class="text-danger">
+            <small class="form-text">{{exDays.errors.maxlength}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <label class="control-label mr-3">{{'start_time'|translate}}</label>
+          <label class="control-label ml-5" style="font-weight: bolder;">{{'end_time'|translate}}</label>
+          <div class="input-group">
+            <app-timepicker formControlName="exTimeS"></app-timepicker>
+            <div class="input-group-append">
+              <span class="px-1 py-1 mt-1">～</span>
+              <app-timepicker formControlName="exTimeE"></app-timepicker>
+            </div>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3"></div>
+        <div class="col-9 col-sm-9">
+          <!-- <span class="mt-1">({{'exc_days_pl'|translate}})</span> -->
+          <span class="mt-1" [innerHTML]="exc_days_pl"></span>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12">
+          <label id="alertDesc_label" class="control-label">{{'alert_desc'|translate}}</label>
+          <input formControlName="alertDesc" type="text" class="form-control" placeholder="{{'alert_desc'|translate}}">
+          <div *ngIf="alertDesc?.invalid && (alertDesc?.dirty || alertDesc?.touched)" class="text-danger">
+            <small class="form-text">{{alertDesc.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12">
+          <label class="required control-label">{{'alert_role_list'|translate}}</label>
+          <button pButton type="button" icon="pi pi-search" class="tpi-night ml-2"
+            (click)="showAlerRoleList();"></button>
+          <label class="form-control border-line" style="height: unset;">
+            <div *ngIf="pageNum == 3 && roleName!.value.length > 0" class="ui-chips ui-widget">
+              <ul class="ui-inputtext ui-state-default ui-corner-all">
+                <li *ngFor="let role of roleName.value;let idx = index;"
+                  class="ui-chips-token ui-state-highlight ui-corner-all" style="margin: 0 0.286em 0.3em 0;">
+                  <span class="ui-chips-token-icon pi pi-fw pi-times" (click)="deleteRole(idx);">
+                  </span>
+                  <span class="ui-chips-token-label">
+                    {{role}}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </label>
+          <div *ngIf="roleIDList?.invalid && (roleIDList?.dirty || roleIDList?.touched)" class="text-danger">
+            <small class="form-text">{{roleIDList.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12">
+          <button type="button" class="btn tpi-btn tpi-second float-left mr-3" (click)="createAlertm();"
+            [disabled]="form.invalid || roleIDList!.value.length == 0"
+            *ngIf="currentAction == 'create'">{{'button.create'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" (click)="updateAlertm();"
+            [disabled]="form.invalid || roleIDList.value.length == 0"
+            *ngIf="currentAction == 'update'">{{'button.update'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- 建立 > 告警角色清單 -->
+  <div [hidden]="pageNum != 4">
+    <form [formGroup]="roleForm" (ngSubmit)="queryRoleMappingList()">
+      <div class="form-group row col-12">
+        <!-- <div class="col-4">
+                    <label class="control-label">{{'keyword_search'|translate}}</label>
+                    <input type="text" formControlName="keyword" class="form-control"
+                        placeholder="{{'role_id'|translate}}、{{'role_name'|translate}}、{{'role_alias'|translate}}">
+                </div> -->
+        <span class="p-input-icon-right" style="width:40vw">
+          <i class="pi pi-search tpi-i-search" (click)="queryRoleMappingList();"></i>
+          <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+            placeholder="{{'role_id'|translate}}、{{'role.name'|translate}}、{{'role.alias'|translate}}">
+        </span>
+      </div>
+      <!-- <div class="form-group row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-warning float-left mr-3"
+                        (click)="queryRoleMappingList();">{{'button.search'|translate}}</button>
+                </div>
+            </div> -->
+    </form>
+    <hr>
+    <p-table *ngIf="roleInfoListCols" [columns]="roleInfoListCols" [value]="roleInfoList"
+      styleClass="p-datatable-striped" [(selection)]="selectedAlertRole" [style]="{'word-break':'break-word'}"
+      responsiveLayout="Scroll">
+
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col style="width: 2.25em">
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th style="width: 2.25em" scope="col">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+            {{col.header}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+          </td>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span>
+              {{rowData[col.field]}}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="roleInfoListRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{roleInfoListRowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <br>
+    <div class="form-group row">
+      <div class="col-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          (click)="chooseAlertRole();">{{'button.confirm'|translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          (click)="chooseAlertRole_return();">{{'button.return_to_list'|translate}}</button>
+      </div>
+    </div>
+  </div>
+  <!-- 詳細資料 -->
+  <div *ngIf="pageNum == 5">
+    <form>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'alert_name'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.alertName}}</label>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'alert_sys'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.alertSys}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div *ngIf="currentAlertDetail.searchMapString" class="col-3 col-sm-3">
+          <label *ngIf="currentAlertDetail.alertType == 'keyword'" class="control-label">Keyword</label>
+          <label *ngIf="currentAlertDetail.alertType == 'responseTime'" class="control-label">API</label>
+          <label
+            class="form-control border-line">{{searchMapStringTransform(currentAlertDetail.alertType,currentAlertDetail.searchMapString)}}</label>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'status'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.alertEnabledName}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'alert_type'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.alertType}}</label>
+        </div>
+        <div class="col-9 col-sm-9" style="overflow: auto;">
+          <label class="control-label">{{'alert_msg'|translate}}</label>
+          <!-- <label class="form-control border-line">{{currentAlertDetail.alertMsg}}</label> -->
+          <textarea class="form-control" rows="2" style="resize: none;"
+                        [innerHtml]="currentAlertDetail.alertMsg" readonly autoResize="autoResize"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'threshold'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.threshold}}<span
+              class="ml-1">{{'times'|translate}}</span>
+          </label>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'duration'|translate}}</label>
+          <label class="form-control border-line">
+            {{currentAlertDetail.duration}}
+            <span class="ml-1">{{'sec'|translate}}</span>
+          </label>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'alert_interval'|translate}}</label>
+          <label class="form-control border-line">
+            {{currentAlertDetail.alertInterval}}
+            <span class="ml-1">{{'sec'|translate}}</span>
+          </label>
+        </div>
+        <div *ngIf="currentAlertDetail.alertType == 'responseTime'" class="col-3 col-sm-3">
+          <label class="control-label">{{'response_time'|translate}}</label>
+          <label class="form-control border-line">
+            {{responseTimeTransform(currentAlertDetail.searchMapString)}}
+            <span class="ml-1">{{'milli_sec'|translate}}</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3 pt-2">
+          <input class="align-middle" type="checkbox" disabled [checked]="currentAlertDetail.cFlag == 'true'"
+            style="cursor: default;">
+          <span class="control-label m-1 p-1 pt-2">{{'cuz_alert'|translate}}</span>
+        </div>
+        <div class="col-3 col-sm-3 pt-2">
+          <input class="align-middle" type="checkbox" disabled [checked]="currentAlertDetail.imFlag == 'true'"
+            style="cursor: default;">
+          <span class="control-label m-1 p-1 pt-2">{{'line_alert'|translate}}</span>
+        </div>
+        <div class="col-6 col-sm-6 pt-2" style="overflow: auto;">
+          <label class="control-label">{{'line_token'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.imId}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'alert_settings'|translate}}</label>
+          <label class="form-control border-line">{{exTypeTransform(currentAlertDetail.exType)}}</label>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label class="control-label">{{'exc_days'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.exDays}}</label>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label class="control-label mr-3">{{'alert_time'|translate}}</label>
+          <label class="form-control border-line">{{currentAlertDetail.exTime}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12" style="overflow: auto;">
+          <label class="control-label">{{'alert_desc'|translate}}</label>
+          <textarea class="form-control" rows="2" style="resize: none;"
+                        [innerHtml]="currentAlertDetail.alertDesc" readonly autoResize="autoResize"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6 col-sm-6">
+          <label class="control-label">{{'alert_role_list'|translate}}</label>
+          <label class="form-control border-line">{{roleInfoListTransform(currentAlertDetail.roleInfoList)}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- 更新 -->
+  <div [hidden]="pageNum != 6">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-sm-6">
+          <label id="alertName_label" class="control-label">{{'alert_name'|translate}}</label>
+          <input formControlName="alertName" type="text" class="form-control" placeholder="{{'alert_name'|translate}}">
+          <div *ngIf="alertName.invalid && (alertName.dirty || alertName.touched)" class="text-danger">
+            <small class="form-text">{{alertName.errors.isRequired}}</small>
+            <small class="form-text">{{alertName.errors.maxlength}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <label id="alertSys_label" class="control-label">{{'alert_sys'|translate}}</label>
+          <input formControlName="alertSys" type="text" class="form-control" placeholder="{{'alert_sys'|translate}}">
+          <div *ngIf="alertSys.invalid && (alertSys.dirty || alertSys.touched)" class="text-danger">
+            <small class="form-text">{{alertSys.errors.isRequired}}</small>
+            <small class="form-text">{{alertSys.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div *ngIf="alertType.value == 'keyword'" class="col-6 col-sm-6">
+          <label class="control-label">Keyword</label>
+          <div class="input-group">
+            <input formControlName="logField" type="text" class="form-control" placeholder="{{'log_field'|translate}}">
+            &nbsp;&nbsp;
+            <span class="px-1 py-1 mt-1">-</span>
+            &nbsp;&nbsp;
+            <input formControlName="rtnValue" type="text" class="form-control" placeholder="{{'rtn_value'|translate}}">
+          </div>
+        </div>
+        <div *ngIf="alertType.value == 'responseTime'" class="col-6 col-sm-6">
+          <label class="control-label">API</label>
+          <div class="input-group">
+            <input formControlName="moduleName" type="text" class="form-control"
+              placeholder="{{'module_name'|translate}}">
+            &nbsp;&nbsp;
+            <span class="px-1 py-1 mt-1">-</span>
+            &nbsp;&nbsp;
+            <input formControlName="txid" type="text" class="form-control" placeholder="{{'api_key'|translate}}">
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <label id="alertEnabled_label" class="control-label">{{'status'|translate}}</label>
+          <div class="p-form-check-line form-group">
+            <ng-container *ngFor="let stat of createStatus">
+              <div class="p-form-check">
+                <p-radioButton formControlName="alertEnabled" value={{stat.value}}  inputId="alertEnabled_{{stat.value}}"></p-radioButton>
+                <label for="alertEnabled_{{stat.value}}" class="ml-2 mb-0">{{stat.label}}</label>
+              </div>
+            </ng-container>
+          </div>
+          <div *ngIf="alertEnabled.invalid && (alertEnabled.dirty || alertEnabled.touched)" class="text-danger">
+            <small class="form-text">{{alertEnabled.errors.isRequired}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-4 col-sm-4">
+          <label id="alertType_label" class="control-label">{{'alert_type'|translate}}</label>
+          <div>
+            <p-dropdown formControlName="alertType" [showClear]="false" [options]="alertTypes"
+              placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%','z-index':'1000'}">
+            </p-dropdown>
+          </div>
+          <div *ngIf="alertType.invalid && (alertType.dirty || alertType.touched)" class="text-danger">
+            <small class="form-text">{{alertType.errors.isRequired}}</small>
+            <small class="form-text">{{alertType.errors.maxlength}}</small>
+          </div>
+        </div>
+        <div class="col-8 col-sm-8">
+          <label id="alertMsg_label" class="control-label">{{'alert_msg'|translate}}</label>
+          <input formControlName="alertMsg" type="text" class="form-control" placeholder="{{'alert_msg'|translate}}">
+          <div *ngIf="alertMsg.invalid && (alertMsg.dirty || alertMsg.touched)" class="text-danger">
+            <small class="form-text">{{alertMsg.errors.isRequired}}</small>
+            <small class="form-text">{{alertMsg.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label id="threshold_label" class="control-label">{{'threshold'|translate}}</label>
+          <div class="form-inline">
+            <input formControlName="threshold" type="number" class="form-control w-75"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'times'|translate}}</span>
+          </div>
+          <div *ngIf="threshold.invalid && (threshold.dirty || threshold.touched)" class="text-danger">
+            <small class="form-text">{{threshold.errors.isRequired}}</small>
+            <small class="form-text">{{threshold.errors.max}}</small>
+            <small class="form-text">{{threshold.errors.min}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label id="duration_label" class="control-label">{{'duration'|translate}}</label>
+          <div class="form-inline">
+            <input formControlName="duration" type="number" class="form-control w-75"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'sec'|translate}}</span>
+          </div>
+          <div *ngIf="duration.invalid && (duration.dirty || duration.touched)" class="text-danger">
+            <small class="form-text">{{duration.errors.isRequired}}</small>
+            <small class="form-text">{{duration.errors.max}}</small>
+            <small class="form-text">{{duration.errors.min}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label id="alertInterval_label" class="control-label">{{'alert_interval'|translate}}</label>
+          <div class="form-inline">
+            <input formControlName="alertInterval" type="number" class="form-control w-75"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'sec'|translate}}</span>
+          </div>
+          <div *ngIf="alertInterval.invalid && (alertInterval.dirty || alertInterval.touched)" class="text-danger">
+            <small class="form-text">{{alertInterval.errors.isRequired}}</small>
+            <small class="form-text">{{alertInterval.errors.max}}</small>
+            <small class="form-text">{{alertInterval.errors.min}}</small>
+          </div>
+        </div>
+        <div *ngIf="alertType.value == 'responseTime'" class="col-3 col-sm-3">
+          <label id="elapse_label" class="required control-label">{{'response_time'|translate}}</label>
+          <div class="form-inline">
+            <input type="number" class="form-control w-75" formControlName="elapse" min="0"
+              onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)">
+            <span class="ml-1">{{'milli_sec'|translate}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3 pt-2">
+          <input formControlName="cFlag" class="align-middle" type="checkbox">
+          <span id="cFlag_label" class="control-label m-1 p-1 pt-2">{{'cuz_alert'|translate}}</span>
+          <div *ngIf="cFlag.invalid && (cFlag.dirty || cFlag.touched)" class="text-danger">
+            <small class="form-text">{{cFlag.errors.isRequired}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3 pt-2">
+          <input formControlName="imFlag" class="align-middle" type="checkbox">
+          <span id="imFlag_label" class="control-label m-1 p-1 pt-2">{{'line_alert'|translate}}</span>
+          <div *ngIf="imFlag.invalid && (imFlag.dirty || imFlag.touched)" class="text-danger">
+            <small class="form-text">{{imFlag.errors.isRequired}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <input formControlName="imId" type="text" class="form-control" placeholder="({{'line_token'|translate}})">
+          <div *ngIf="imId.invalid && (imId.dirty || imId.touched)" class="text-danger">
+            <small class="form-text">{{imId.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3 col-sm-3">
+          <label id="exType_label" class="control-label">{{'alert_settings'|translate}}</label>
+          <p-dropdown formControlName="exType" (onChange)="changeControlStatus()" [showClear]="false"
+            [options]="exceptionTypes" placeholder="{{'plz_chs'|translate}}" [style]="{'width':'100%'}">
+          </p-dropdown>
+          <div *ngIf="exType.invalid && (exType.dirty || exType.touched)" class="text-danger">
+            <small class="form-text">{{exType.errors.maxlength}}</small>
+            <small class="form-text">{{exType.errors.minlength}}</small>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3">
+          <label id="exDays_label" class="control-label">{{'exc_days'|translate}}</label>
+          <input formControlName="exDays" type="text" class="form-control" placeholder="6_7">
+          <div *ngIf="exDays.invalid && (exDays.dirty || exDays.touched)" class="text-danger">
+            <small class="form-text">{{exDays.errors.maxlength}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-sm-6">
+          <label class="control-label mr-3">{{'start_time'|translate}}</label>
+          <label class="control-label ml-5" style="font-weight: bolder;">{{'end_time'|translate}}</label>
+          <div class="input-group">
+            <app-timepicker formControlName="exTimeS"></app-timepicker>
+            <div class="input-group-append">
+              <span class="px-1 py-1 mt-1">～</span>
+              <app-timepicker formControlName="exTimeE"></app-timepicker>
+            </div>
+          </div>
+        </div>
+        <div class="col-3 col-sm-3"></div>
+        <div class="col-9 col-sm-9">
+          <!-- <span class="mt-1">({{'exc_days_pl'|translate}})</span> -->
+          <span class="mt-1" [innerHTML]="exc_days_pl"></span>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12">
+          <label id="alertDesc_label" class="control-label">{{'alert_desc'|translate}}</label>
+          <input formControlName="alertDesc" type="text" class="form-control" placeholder="{{'alert_desc'|translate}}">
+          <div *ngIf="alertDesc.invalid && (alertDesc.dirty || alertDesc.touched)" class="text-danger">
+            <small class="form-text">{{alertDesc.errors.maxlength}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-sm-12">
+          <label class="required control-label">{{'alert_role_list'|translate}}</label>
+          <button pButton type="button" icon="pi pi-search" class="tpi-night ml-2"
+            (click)="showAlerRoleList();"></button>
+          <label class="form-control border-line" style="height: unset;">
+            <div *ngIf="pageNum == 6 && roleName.value.length > 0" class="ui-chips ui-widget">
+              <ul class="ui-inputtext ui-state-default ui-corner-all">
+                <li *ngFor="let role of roleName.value;let idx = index;"
+                  class="ui-chips-token ui-state-highlight ui-corner-all" style="margin: 0 0.286em 0.3em 0;">
+                  <span class="ui-chips-token-icon pi pi-fw pi-times" (click)="deleteRole(idx);">
+                  </span>
+                  <span class="ui-chips-token-label">
+                    {{role}}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </label>
+          <div *ngIf="roleIDList.invalid && (roleIDList.dirty || roleIDList.touched)" class="text-danger">
+            <small class="form-text">{{roleIDList.errors.required | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 ">
+          <button type="button" class="btn tpi-btn tpi-primary mr-3" (click)="updateAlertm();"
+            [disabled]="form.invalid || roleIDList.value.length == 0">{{'button.update'|translate}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<!-- <p-toast position="center" key="delete" (onClose)="onReject()" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onDeleteConfirm()" label="Yes"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="No" class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

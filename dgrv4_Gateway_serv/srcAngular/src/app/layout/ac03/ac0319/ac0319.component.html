@@ -1,0 +1,291 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum == 1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <div class="form-group row">
+      <div class="col-12 col-xl-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary mr-2"
+          (click)="queryLabelList()">{{'label_search'|translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-primary"
+          (click)="queryAllTargetSitList()">{{'target_site_search'|translate}}</button>
+      </div>
+    </div>
+
+    <p-table [value]="tableData" [(selection)]="selected" styleClass="p-datatable-striped"
+      [style]="{ 'word-break': 'break-word' }" responsiveLayout="scroll">
+      <!-- 表單工具列 -->
+      <ng-template pTemplate="caption">
+        <div class="ui-helper-clearfix">
+          <button type="button" class="btn tpi-primary tpi-btn float-left mr-1" [disabled]="selected.length == 0"
+            (click)="updateAPIStatus('enable')">
+            {{ "button.enable" | translate }}
+          </button>
+          <button type="button" class="btn tpi-primary tpi-btn float-left mr-1" [disabled]="selected.length == 0"
+            (click)="updateAPIStatus('disable')">
+            {{ "button.disable" | translate }}
+          </button>
+          <button type="button" class="btn tpi-primary tpi-btn float-left mr-1" [disabled]="selected.length == 0"
+            (click)="batchNoOauthModify(true)">
+            {{"noauth.active"|translate}}
+          </button>
+          <button type="button" class="btn tpi-primary tpi-btn float-left mr-1" [disabled]="selected.length == 0"
+            (click)="batchNoOauthModify(false)">
+            {{"noauth.inactive"|translate}}
+          </button>
+          <button type="button" class="btn tpi-primary tpi-btn float-left mr-1" [disabled]="selected.length == 0"
+            (click)="labelReset()">
+            {{ "button.label_reset" | translate }}
+          </button>
+          <button type="button" class="btn tpi-btn tpi-primary float-right" [disabled]="selected.length == 0"
+            (click)="changePage('api_url_setting')">{{'api_url_setting'|translate}}</button>
+
+            <button type="button" title="{{ 'fail_handle_policy.reset' | translate }}"
+            class="btn tpi-primary tpi-btn float-left mr-1" (click)="resetHandlePolicyProc()"
+            [disabled]="selected.length == 0">
+            {{ "fail_handle_policy.reset" | translate }}
+          </button>
+        </div>
+      </ng-template>
+      <!-- Table 表頭 -->
+      <ng-template pTemplate="header" selectionMode="multiple">
+        <tr style="text-align: center">
+          <th style="width: 2.25em">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th style="width: 70px;white-space: nowrap;">{{'status'|translate}}</th>
+          <th>API ID</th>
+          <th>{{'module_name'|translate}}</th>
+          <th>{{'api_name'|translate}}</th>
+          <th style="width: 95px;">{{'No Auth'|translate}}</th>
+          <th style="width: 30%;">{{'srcUrl'|translate}}</th>
+          <th>{{'label_tag'|translate}}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+          </td>
+          <td style="text-align: center;">
+            <img [alt]="rowData.apiStatus" style="width: 20px; height: 20px"
+              [src]="rowData.apiStatus ==='1' ? 'assets/images/icon_green.png': 'assets/images/icon_red.png'" />
+          </td>
+          <td>{{rowData.apiKey}}</td>
+          <td>{{rowData.moduleName}}</td>
+          <td>{{rowData.apiName}}</td>
+          <td style="text-align: center;">
+            <i class="fa fa-check" *ngIf="rowData.noOauth === true"></i>
+          </td>
+          <td>
+            {{rowData.srcUrl}}
+            <div *ngFor="let srcUrl of rowData.srcUrlList">
+              <span *ngIf="srcUrl.ip!=''">[{{srcUrl.ip}}]</span>
+              <div *ngFor="let srcUrlAndPercentageList of srcUrl.srcUrlAndPercentageList">
+                <span [ngClass]="{'ml-4':srcUrl.ip!=''}">[{{srcUrlAndPercentageList.percentage}}]
+                  {{srcUrlAndPercentageList.srcUrl}}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <label *ngFor="let item of rowData['labelList']; let idx = index;"
+              style="background-color: #666666;color: #fff; border-radius: 5px;" class="m-1 p-1">
+              {{item}}
+            </label>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="8">
+            {{ "no_rec" | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- api url 設定 -->
+  <div *ngIf="pageNum == 2">
+    <div class="form-group row">
+      <div class="col-12">
+        <label class="control-label">{{ "selected_api_count" | translate }}: {{this.selected.length}}</label>
+      </div>
+    </div>
+    <div class="form-group row col-12">
+      <app-api-url-setting class="col-12" [procData]="selected" (changePage)="changePage($event)"
+        [showPreview]="showPreview" (procPreviewPage)="procPreviewPage($event)"></app-api-url-setting>
+    </div>
+  </div>
+  <!-- 預覽 -->
+  <div *ngIf="pageNum == 3">
+    <div class="preview my-2" *ngFor="let previewRow of previewData">
+      <div class="form-group row">
+        <!-- 狀態 -->
+        <div class="col-6">
+          <label class="control-label">{{ "status" | translate }}</label>
+          <label class="form-control border-line">
+            <img *ngIf="previewRow.apiStatus == '1'" style="width: 20px; height: 20px" src="assets/images/icon_acg.png"
+              alt="active" />
+            <img *ngIf="previewRow.apiStatus == '2'" style="width: 20px; height: 20px" src="assets/images/icon_acr.png"
+              alt="stop" />
+          </label>
+        </div>
+        <div class="col-6">
+          <label class="control-label">{{ "attribute" | translate }}</label>
+          <label class="form-control border-line">
+            <p-checkbox [binary]="true" [readonly]="true" name="noauth" [(ngModel)]="previewRow.noAuth">
+            </p-checkbox> No Auth
+          </label>
+
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <label class="control-label">API ID</label>
+          <label class="form-control border-line">{{previewRow.apiKey}}</label>
+        </div>
+        <div class="col-6">
+          <label class="control-label">{{ "api_name" | translate }}</label>
+          <label class="form-control border-line">{{previewRow.apiName}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-3">
+          <label class="control-label">{{ "module_name" | translate }}</label>
+          <label class="form-control border-line">{{previewRow.moduleName}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <label class="control-label">{{ "label_tag" | translate }}</label>
+          <div>
+            <p-chips [(ngModel)]="previewRow.labelList" [ngModelOptions]="{standalone: true}" disabled></p-chips>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <label class="control-label">{{ "tar_url_edit.ori" | translate }}</label>
+          <p-table [value]="previewRow.oldSrcUrlList" styleClass="p-datatable-striped"
+            [style]="{ 'word-break': 'break-word' }" responsiveLayout="scroll">
+            <ng-template pTemplate="header" selectionMode="multiple">
+              <tr style="text-align: center;">
+                <th style="width: 70px;white-space: nowrap;background: #347800!important;">%</th>
+                <th style="background: #347800!important;">{{'tar_url'|translate}}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr *ngIf="rowData.ip!=''">
+                <td colspan="2">{{rowData.ip}}</td>
+              </tr>
+              <tr *ngFor="let row of rowData.srcUrlList">
+                <td style="text-align: right">{{row.percentage}}</td>
+                <td>{{row.srcUrl}}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <div class="col-6">
+          <label class="control-label">{{ "tar_url_edit.new" | translate }}</label>
+          <p-table [value]="previewRow.newSrcUrlList" styleClass="p-datatable-striped"
+            [style]="{ 'word-break': 'break-word' }" responsiveLayout="scroll">
+            <ng-template pTemplate="header" selectionMode="multiple">
+              <tr style="text-align: center">
+                <th style="width: 70px;white-space: nowrap;background: #e64c00!important;">%</th>
+                <th style="background: #e64c00!important">{{'tar_url'|translate}}</th>
+                <th style="background: #e64c00!important">{{'check_result'|translate}}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr *ngIf="rowData.ip!=''">
+                <td colspan="3">{{rowData.ip}}</td>
+              </tr>
+              <tr *ngFor="let row of rowData.srcUrlList;let i=index">
+                <td style="text-align: right">{{row.percentage}}</td>
+                <td>{{row.srcUrl}}</td>
+                <td *ngIf="i==0" [attr.rowspan]="rowData.srcUrlList.length" [style]="{ 'color': rowData.isSuccess? 'unset': '#dc3545','background': rowData.isSuccess? 'unset':'#F6D8CB'}">
+                    {{rowData.isSuccess ? ('alert.title.ok' | translate) : ('alert.title.error' | translate) }}
+                </td>
+              </tr>
+
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-12">
+        <button type="button" icon="" class="btn tpi-header-return" (click)="moreApiListData()">
+          {{ 'button.more'| translate}}
+          <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+        </button>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-12">
+        <button type="button" class="btn tpi-btn tpi-second mr-2"
+          (click)="batchModify()">{{'button.confirm'|translate}}</button>
+        <button type="button" class="btn tpi-btn tpi-primary"
+          (click)="changePage('query')">{{'button.cancel'|translate}}</button>
+      </div>
+    </div>
+  </div>
+</app-container>
+<p-toast [style]="{ marginTop: '60px' }" position="top-left"></p-toast>
+<p-confirmDialog key="cd" #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle"
+  styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>
+
+<p-dialog [header]="'error'|translate" [visible]="showErrMsg" [style]="{width: '50vw'}" [modal]="true"
+  [dismissableMask]="true" [draggable]="false" [closable]="false">
+  <span>{{errMsg}}</span>
+  <p-table [value]="errList">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{'api_key'|translate}}</th>
+        <th>{{'module_name'|translate}}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr>
+        <td>{{rowData.apiKey}}</td>
+        <td>{{rowData.moduleName}}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn tpi-btn tpi-primary" (click)="setErrListStatus(false)">{{'button.return_to_list' |
+      translate}}</button>
+  </ng-template>
+</p-dialog>
+
+<!-- <p-confirmDialog key="err" #err [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <p-table [value]="errList">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{'api_key'|translate}}</th>
+        <th>{{'module_name'|translate}}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr>
+        <td>{{rowData.apiKey}}</td>
+        <td>{{rowData.moduleName}}</td>
+        <td></td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="err.accept()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog> -->

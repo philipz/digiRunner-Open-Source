@@ -1,0 +1,13 @@
+.card-radius {
+    border-radius: 1em;
+    border: 3px solid #d1d1d1;
+}
+
+.card {
+    display: block;
+}
+
+.required:after {
+    content: "*";
+    color: red;
+}

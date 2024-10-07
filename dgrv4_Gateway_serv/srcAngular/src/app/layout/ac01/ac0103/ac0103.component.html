@@ -1,0 +1,217 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form" (ngSubmit)="queryRtnCodeList()">
+      <div class="form-group">
+        <span class="p-input-icon-right" style="width:40vw">
+          <i class="pi pi-search tpi-i-search" (click)="queryRtnCodeList();"></i>
+          <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+            placeholder="{{'rtn_code'|translate}}、{{'fun_locale'|translate}}、{{'rtn_msg'|translate}}、{{'rtn_desc'|translate}}">
+        </span>
+
+        <button type="button" class="btn tpi-btn tpi-second float-right" (click)="changePage('create');"
+          [disabled]="canCreate == false">{{'button.create'|translate}}</button>
+      </div>
+    </form>
+    <div class="col-12 px-0" style="display: flex;justify-content: space-between;">
+
+      <button type="button" class="btn tpi-btn tpi-primary mr-2"
+        (click)="exportTsmpRtnCode()">{{'button.export'|translate}}</button>
+
+      <div style="display: flex;align-items: center;">
+
+        <div class="ui-inputgroup mr-2">
+          <input type="file" id="file" style="display: none;" accept=".xlsx" (change)="fileChange($event)">
+          <input type="text" class="form-control" [value]="file?.name" readOnly
+            placeholder="{{'upload_file' | translate}}">
+          <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+            [pTooltip]="'upload_file' | translate" tooltipPosition="top" (click)="openFileBrowser();"></button>
+        </div>
+        <button type="button" class="btn tpi-btn tpi-primary mr-2" [disabled]="!file?.name"
+          (click)="importTsmpRtnCode()">{{'button.import'|translate}}</button>
+        <i class="far fa-question-circle" pTooltip='<ol style="padding-inline-start: 20px;margin-block-end: 0;"><li>{{"import_key_tip"|translate:{key:"TSMP_RTN_CODE+LOCALE"} }}</li><li>{{"use_in_multi_language"|translate }}</li></ol>'
+          [escape]="false"></i>
+      </div>
+    </div>
+    <hr>
+    <p-table *ngIf="cols.length>0" [columns]="cols" [value]="rtnCodeList" selectionMode="single"
+      styleClass="p-datatable-striped" [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field != 'tsmpRtnMsg' && col.field != 'tsmpRtnDesc'">
+              {{rowData[col.field]}}
+            </span>
+            <span *ngIf="col.field == 'tsmpRtnMsg'">
+              {{rowData.t ? rowData.oriTsmpRtnMsg : rowData.tsmpRtnMsg }}
+              <!-- <a *ngIf="rowData['isMsgTruncated']" href="javascript:void(0)"
+                                pTooltip="{{rowData['oriTsmpRtnMsg']}}">{{'show_more'|translate}}</a> -->
+              <!-- <a *ngIf="rowData.isMsgTruncated" href="javascript:void(0)" (click)="switchOri(rowData)" > -->
+              <!-- </a> -->
+              <label class="moreless" *ngIf="rowData.isMsgTruncated" (click)="switchOri(rowData)">
+                {{rowData.t ? '' : ("show_more" | translate)}}
+                <i class="fas"
+                  [ngClass]="[rowData.t ? 'fa-angle-double-left  mt-1 mr-1': 'fa-angle-double-right mt-1 ']"></i>
+                {{rowData.t ? ("show_less" | translate) : ''}}
+              </label>
+            </span>
+            <span *ngIf="col.field == 'tsmpRtnDesc'">
+              <!-- {{rowData[col.field]}}
+                            <a *ngIf="rowData['isDescTruncated']" href="javascript:void(0)"
+                                pTooltip="{{rowData['oriTsmpRtnDesc']}}">{{'show_more'|translate}}</a> -->
+              {{rowData.desc ? rowData.oriTsmpRtnDesc : rowData.tsmpRtnDesc }}
+              <label style="cursor: pointer;color:#6096E7" *ngIf="rowData.isDescTruncated"
+                (click)="switchDescOri(rowData)">
+                {{rowData.desc ? '' : ("show_more" | translate)}}
+                <i class="fas"
+                  [ngClass]="[rowData.desc ? 'fa-angle-double-left  mt-1 mr-1': 'fa-angle-double-right mt-1 ']"></i>
+                {{rowData.desc ? ("show_less" | translate) : ''}}
+              </label>
+            </span>
+          </td>
+          <td style="text-align:center;width: 150px">
+            <button pButton pRipple type="button" icon="fa fa-edit" [disabled]="canUpdate == false"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-trash-alt" [disabled]="canDelete == false"
+              class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData)"
+              [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+            <!-- <div class="btn-group">
+                            <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);"
+                                [disabled]="canUpdate == false">
+                                <span class="fa fa-edit">{{'button.update' | translate}}</span>
+                            </button>
+                            <button type="button" class="btn btn-deta" (click)="showDialog(rowData)"
+                                [disabled]="canDelete == false">
+                                <span class="fa fa-trash">{{'button.delete' | translate}}</span>
+                            </button>
+                        </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="rowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span>{{'row_count' | translate}}: {{rowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreRtnCodeList();">{{'button.more'|translate}}</button> -->
+
+            <!-- 查詢更多 -->
+            <button type="button" class="btn tpi-header-return" (click)="moreRtnCodeList()">{{ 'button.more'|
+              translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6 col-lg-6">
+          <label id="tsmpRtnCode_label" for="tsmpRtnCode" class="control-label">{{'rtn_code' | translate}}</label>
+          <input type="text" class="form-control" id="tsmpRtnCode" formControlName="tsmpRtnCode">
+          <div *ngIf="tsmpRtnCode?.invalid && (tsmpRtnCode?.dirty || tsmpRtnCode?.touched)" class="text-danger">
+            <small class="form-text">{{tsmpRtnCode.errors.isRequired}}</small>
+            <small class="form-text">{{tsmpRtnCode.errors.maxlength | translate}}</small>
+            <small class="form-text">{{tsmpRtnCode.errors.minlength | translate}}</small>
+            <small class="form-text">{{tsmpRtnCode.errors.pattern}}</small>
+          </div>
+        </div>
+        <div class="col-6 col-lg-6">
+          <label id="locale_label" for="locale" class="control-label">{{'fun_locale' | translate}}</label>
+          <p-dropdown [options]="localies" [filter]="true" placeholder="{{'plz_chs' | translate}}"
+            formControlName="locale" [style]="{'width':'100%'}">
+          </p-dropdown>
+          <div *ngIf="locale?.invalid && (locale?.dirty || locale?.touched)" class="text-danger">
+            <small class="form-text">{{locale.errors.isRequired}}</small>
+            <small class="form-text">{{locale.errors.maxlength | translate}}</small>
+            <small class="form-text">{{locale.errors.minlength | translate}}</small>
+            <small class="form-text">{{locale.errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="tsmpRtnMsg_label" for="tsmpRtnMsg" class="control-label">{{'rtn_msg'|translate}}</label>
+          <textarea rows="5" formControlName="tsmpRtnMsg" class="form-control"></textarea>
+          <div *ngIf="tsmpRtnMsg?.invalid && (tsmpRtnMsg?.dirty || tsmpRtnMsg?.touched)" class="text-danger">
+            <small class="form-text">{{tsmpRtnMsg.errors.isRequired}}</small>
+            <small class="form-text">{{tsmpRtnMsg.errors.maxlength | translate}}</small>
+            <small class="form-text">{{tsmpRtnMsg.errors.minlength | translate}}</small>
+            <small class="form-text">{{tsmpRtnMsg.errors.pattern}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label id="tsmpRtnDesc_label" for="tsmpRtnDesc" class="control-label">{{'rtn_desc'|translate}}</label>
+          <textarea rows="5" formControlName="tsmpRtnDesc" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid"
+            (click)="createOrUpdate();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-container>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<!-- <p-toast position="center" key="delete" (onClose)="onReject()" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onDeleteConfirm()" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

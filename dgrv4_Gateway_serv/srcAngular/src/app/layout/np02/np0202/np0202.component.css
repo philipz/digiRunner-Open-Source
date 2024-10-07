@@ -1,0 +1,16 @@
+.icon{
+    cursor: pointer;
+    font-size: larger;
+}
+.error_messages{
+    min-height: 150px;
+    background: #eee;
+    opacity: 1;
+    transition: opacity .1s linear;
+    padding: 0.5rem;
+    border-radius: 10px;
+}
+.error_messages.hide{
+    opacity: 0;
+    transition: opacity .1s linear;
+}

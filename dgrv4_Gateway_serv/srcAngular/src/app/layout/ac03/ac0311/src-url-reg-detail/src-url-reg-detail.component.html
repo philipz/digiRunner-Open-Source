@@ -1,0 +1,13 @@
+<div class="mb-1 col-12 px-0" [formGroup]="form" style="align-items: center;display: flex;">
+  <input type="number" class="form-control" formControlName="percent" min="0" max="100"
+         onkeyup="this.value=Math.round(this.value)" onafterpaste="this.value=Math.round(this.value)"
+         pattern="[0-9]"  style="width:80px">
+  <label class="mr-1">%</label>
+  <input type="text" class="form-control col" name="url" formControlName="url">
+  <button type="button" class="btn tpi-primary ml-1" (click)="delete($event)" style="border-radius: 50%" [hidden]="disabled">
+    <i class="fa fa-minus"></i>
+  </button>
+  <button type="button" class="btn tpi-btn tpi-primary mx-1" (click)="testApi();" [disabled]="url.value==''">
+      {{'button.validate_url'|translate}}
+  </button>
+</div>

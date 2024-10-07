@@ -1,0 +1,23 @@
+.framecontainer {
+  display: grid;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* border: 1px solid black; */
+}
+
+.mask, .frame {
+  grid-area: 1 / 1;
+}
+
+.mask {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f6f6f6;
+  z-index: 2;
+}
+
+.frame {
+  z-index: 1;
+}

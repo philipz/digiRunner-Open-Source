@@ -1,0 +1,12 @@
+<div class="container py-1">
+    <div>
+        <p-listbox *ngIf="this.data.data.roleNameList && this.data.data.roleNameList.length" [options]="roles"
+            [style]="{width:'100%'}"></p-listbox>
+        <div *ngIf="!this.data.data.roleNameList.length" class="alert alert-warning text-center" role="alert">
+            No Data Found!
+        </div>
+        <div class="mt-2 text-center">
+            <button type="submit" (click)="click()" class="btn btn-warning">{{'button.close'|translate}}</button>
+        </div>
+    </div>
+</div>

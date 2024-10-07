@@ -1,0 +1,44 @@
+<div class="login-page">
+  <div class="row col-12 h-100 p-0">
+    <div class="col-7 h-100" >
+      <!-- <div class="login_bg w-100 h-100 m-0"></div> -->
+      <img src="assets/images/login_left_base.png" alt="" class="w-100 h-100 login-base" >
+      <img src="assets/images/img_login_visual.png" alt="" class="w-100 h-100 login-visual" >
+    </div>
+    <div class="col-5 h-100 " >
+      <div class="row justify-content-md-center bg " style="padding-top: 15vh;" >
+        <!--上下置中 align-items-center -->
+        <div style="width:380px;">
+
+                <section class="login_section ">
+                    <div class="logo_top">
+                        <img src="assets/images/DigiFusion_digiRunner_logo_horizontal.png" alt="" title="v202102251030-v3">
+                    </div>
+                    <div class="line">
+                        <label style="color:#EF622D; font-weight: 600; font-size: 24px;">{{msg}}</label>
+                        <p-progressBar mode="indeterminate" *ngIf="processShow"></p-progressBar>
+                    </div>
+
+                    <div class="sign_box">
+
+
+
+                        <div class="sign_row">
+                          <button type="button" class="btn btn-login" (click)="returnToLogin()" [disabled]="btnDisabled">
+                            {{'button.confirm'|translate}}
+                          </button>
+                        </div>
+                    </div>
+                </section>
+
+        </div>
+    </div>
+    </div>
+  </div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+      <span>Copyright© TPIsoftware. All Rights Reserved. </span>
+  </div>
+</footer>

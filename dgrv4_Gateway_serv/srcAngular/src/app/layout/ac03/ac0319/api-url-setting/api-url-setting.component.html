@@ -1,0 +1,19 @@
+<div class="row" #content>
+  <div class="col-12 p-0">
+    <ng-template #apiUrlSetting></ng-template>
+    <button type="button" class="btn tpi-second" (click)="addRow()" style="border-radius: 50%;">
+      <i class="fa fa-plus"></i>
+    </button>
+  </div>
+  <div class="form-group row mt-2">
+    <div class="col-12">
+      <button type="button" class="btn tpi-btn tpi-second mr-2" (click)="proc_temporaryByModifyBatch()"
+        [disabled]="beyoungRange || srcUrlInvalid">
+        {{"button.preview" | translate }}
+      </button>
+      <button type="button" class="btn tpi-btn tpi-primary" (click)="changePage.emit('query')">
+        {{ "button.return_to_list" | translate }}
+      </button>
+    </div>
+  </div>
+</div>

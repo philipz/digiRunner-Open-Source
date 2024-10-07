@@ -1,0 +1,42 @@
+<div class="col-12 row mb-1 px-0 flex-nowrap" [formGroup]="form">
+  <div class="m-1" style="width: 8%;">
+    <label *ngIf="itemIdx == 0">{{'locale'|translate}}</label>
+    <div>
+      <span>{{locale.value}}</span>
+    </div>
+  </div>
+  <div class="m-1" style="width: 15%;">
+    <label class="control-label required" *ngIf="itemIdx == 0">{{'subitem_name'|translate}}</label>
+    <input type="text" class="form-control" formControlName="subitemName">
+    <div *ngIf="subitemName.invalid && (subitemName.dirty || subitemName.touched)" class="text-danger">
+      <small class="form-text">{{subitemName.errors.required|translate}}</small>
+    </div>
+  </div>
+
+  <div class="m-1" style="width: 15%;" *ngFor="let item of paramSizeItem;let idx = index">
+    <label *ngIf="itemIdx == 0">{{'param_name'|translate}}{{idx+1}}</label>
+    <input type="text" class="form-control" [formControlName]="'params'+idx">
+  </div>
+  <!-- </template> -->
+  <!--
+  <div class="m-1" style="width: 15%;">
+    <label *ngIf="itemIdx == 0">{{'param_name'|translate}}1</label>
+    <input type="text" class="form-control" formControlName="params_0">
+  </div>
+  <div class="m-1" style="width: 15%;">
+    <label *ngIf="itemIdx == 0">{{'param_name'|translate}}2</label>
+    <input type="text" class="form-control" formControlName="params_1">
+  </div>
+  <div class="m-1" style="width: 15%;">
+    <label *ngIf="itemIdx == 0">{{'param_name'|translate}}3</label>
+    <input type="text" class="form-control" formControlName="params_2">
+  </div>
+  <div class="m-1" style="width: 15%;">
+    <label *ngIf="itemIdx == 0">{{'param_name'|translate}}4</label>
+    <input type="text" class="form-control" formControlName="params_3">
+  </div>
+  <div class="m-1" style="width: 15%;">
+    <label *ngIf="itemIdx == 0">{{'param_name'|translate}}5</label>
+    <input type="text" class="form-control" formControlName="params_4">
+  </div> -->
+</div>

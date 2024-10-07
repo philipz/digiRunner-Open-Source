@@ -1,0 +1,277 @@
+<app-container [title]="title" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+
+
+      <div class="form-group row">
+
+        <div class="col-12 ">
+
+          <!-- <label for="keyword">{{'keyword_search'|translate}}</label> -->
+          <!-- <input type="text" class="form-control" id="keyword" formControlName="keyword"
+            placeholder="{{'role_name'|translate}}、{{'role_desc'|translate}}"> -->
+          <!-- <div class="ui-inputgroup">
+            <input type="text" class="form-control" id="keyword" formControlName="keyword"
+              placeholder="{{'role_name'|translate}}、{{'role_desc'|translate}}">
+            <button pButton type="button" icon="pi pi-search" class="p-button-text"
+              (click)="submitForm();"></button>
+          </div> -->
+
+
+          <span class="p-input-icon-right" style="width:40vw">
+            <i class="pi pi-search tpi-i-search" (click)="submitForm();"></i>
+            <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+              placeholder="{{'role_name'|translate}}、{{'role_desc'|translate}}">
+          </span>
+
+          <button type="button" class="btn tpi-btn tpi-second float-right"
+            (click)="create();">{{'button.create'|translate}}</button>
+        </div>
+      </div>
+      <!-- <div class="form-group">
+                        <button type="submit" class="btn btn-warning pull-right mr-3">{{'button.search' |
+                            translate}}</button>
+                        <button type="button" class="btn btn-primary pull-right"
+                            (click)="create();">{{'button.create'|translate}}</button>
+                    </div> -->
+
+    </form>
+    <!-- <hr> -->
+    <p-table [columns]="cols" [value]="roleDetailList" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped"
+             responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px" scope="col">{{'action'|translate}}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            {{rowData[col.field]}}
+          </td>
+          <td style="text-align: center;width: 150px">
+            <!-- <p-button label="Edit Function List" icon="fa fa-edit" class="mr-10" ></p-button> -->
+            <!-- <div class="btn-group"> -->
+              <!-- <button type="button" class="btn btn-deta mr-5" (click)="showDialog(rowData,formOperate.detail)">
+                <span class="fa fa-edit">{{'button.detail'|translate}}</span>
+              </button> -->
+
+              <button pButton pRipple type="button" icon="pi pi-eye"
+                      class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.detail)"
+                      [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+
+              <!-- <button type="button" class="btn btn-deta mr-5" (click)="showDialog(rowData,formOperate.update)">
+                <span class="fa fa-edit">{{'dialog.edit'|translate}}</span>
+              </button> -->
+
+              <button pButton pRipple type="button" icon="fa fa-edit"
+                      class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.update)"
+                      [pTooltip]="'button.edit' | translate" tooltipPosition="top"></button>
+
+              <!-- <button type="button" class="btn btn-deta mr-10" (click)="showDialog(rowData,formOperate.delete)">
+                <span class="fa fa-trash">{{'button.delete'|translate}}</span>
+              </button> -->
+
+              <button pButton pRipple type="button" icon="fa fa-trash-alt"
+                      class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.delete)"
+                      [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+            <!-- </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="rowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{rowcount}}</span>
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+              (click)="moreData();">{{'button.more'|translate}}</button> -->
+              <!-- 查詢更多 -->
+              <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+              </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- create -->
+  <div *ngIf="pageNum == 2">
+    <form [formGroup]="form_page2" (ngSubmit)="submitForm_page2(formDirective)" #formDirective="ngForm">
+      <div>
+        <div class="col-12">
+          <div class="form-group row">
+            <div class="col-12 col-xl-6 col-lg-6">
+              <label for="roleName" class="control-label required">{{'role_name' | translate}}</label>
+              <input type="text" class="form-control" id="roleName" formControlName="roleName"
+                placeholder="{{'role_name' | translate}}">
+              <div *ngIf="roleName?.invalid && (roleName?.dirty || roleName?.touched)" class="text-danger">
+                <small class="form-text">{{roleName.errors.stringname |
+                  translate:roleNameLimitChar}}</small>
+                <small class="form-text">{{roleName.errors.maxlength |
+                  translate:roleNameLimitChar}}</small>
+                <small class="form-text">{{roleName.errors.required | translate}}</small>
+              </div>
+            </div>
+            <div class="col-12 col-xl-6 col-lg-6">
+              <label for="roleAlias" class="control-label required">{{'role_desc' | translate}}</label>
+              <input type="text" class="form-control" id="roleAlias" formControlName="roleAlias"
+                placeholder="{{'role_desc' | translate}}">
+              <div *ngIf="roleAlias?.invalid && (roleAlias?.dirty || roleAlias?.touched)" class="text-danger">
+                <small class="form-text">{{roleAlias.errors.stringalias |
+                  translate:roleAliasLimitChar}}</small>
+                <small class="form-text">{{roleAlias.errors.maxlength |
+                  translate:roleAliasLimitChar}}</small>
+                <small class="form-text">{{roleAlias.errors.required | translate}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+              <label class="required control-label">{{'fun_permissions' | translate}}</label>
+              <div class="list-group">
+                <app-list-group *ngIf="menus" [menu]="menus" #listgroup [showButton]="false" height="540px"
+                  style="width:99%;display:block;" [selected]="selected" (updateHandler)="update($event)">
+                </app-list-group>
+
+              </div>
+              <div *ngIf="funcCodeList?.invalid && (funcCodeList?.dirty || funcCodeList?.touched)" class="text-danger">
+                <small class="form-text">{{funcCodeList.errors.required | translate}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row text-center">
+            <div class="col-12">
+
+              <button type="submit" class="btn tpi-btn tpi-second mr-3" [disabled]="!form_page2.valid">{{'button.create' |
+                translate}}</button>
+              <button type="button" class="btn tpi-btn tpi-primary"
+                (click)="reture_to_page1();">{{'button.return_to_list' | translate}}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+  </div>
+  <div *ngIf="pageNum == 3">
+    <div class="col-12">
+      <div class="form-group row">
+        <div class="col-12 col-xl-6 col-lg-6">
+          <label for="roleName" class=" control-label">{{'role_name' | translate}}</label>
+          <input type="text" class="form-control" placeholder="{{roleName_page3}}" readonly>
+        </div>
+        <div class="col-12 col-xl-6 col-lg-6">
+          <label for="roleAlias" class=" control-label">{{'role_desc' | translate}}</label>
+          <input type="text" class="form-control" placeholder="{{roleAlias_page3}}" readonly>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <div class="list-group">
+            <app-list-group *ngIf="this.data_page3" [height]="'10%'" [disableCheckbox]="true" [showButton]="false"
+              [menu]="menus_page3" style="width:99%;display:block;" [selected]="this.data_page3.funcCodeList">
+            </app-list-group>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row text-center">
+        <div class="col-12">
+          <button type="button" class="btn tpi-btn tpi-primary mr-3" [disabled]="!form.valid"
+            (click)="reture_to_page1();">{{'button.return_to_list' | translate}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="pageNum == 4">
+    <form [formGroup]="form_page4" (ngSubmit)="submitForm_page4()">
+      <div class="col-12">
+        <div class="form-group row">
+          <div class="col-12 col-xl-6 col-lg-6">
+            <label for="roleName_page4" class="control-label">{{'role_name' | translate}}</label>
+            <input type="text" class="form-control" placeholder="{{roleName_page4}}" readonly>
+          </div>
+
+          <div class="col-12 col-xl-6 col-lg-6">
+            <label for="newRoleAlias" class="control-label required">{{'role_desc' |
+              translate}}</label>
+            <input type="text" class="form-control" id="newRoleAlias" formControlName="newRoleAlias"
+              placeholder="{{'role_desc' | translate}}">
+            <div *ngIf="newRoleAlias.invalid && (newRoleAlias.dirty || newRoleAlias.touched)" class="text-danger">
+              <small class="form-text">{{newRoleAlias.errors.stringalias |
+                translate:newRoleAliasLimitChar}}</small>
+              <small class="form-text">{{newRoleAlias.errors.maxlength |
+                translate:newRoleAliasLimitChar}}</small>
+              <small class="form-text">{{newRoleAlias.errors.required | translate}}</small>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-12 col-xl-12 col-lg-12">
+            <label class="control-label required">{{'fun_permissions' | translate}}</label>
+            <div class="list-group">
+              <app-list-group *ngIf="this.data_page4" [height]="'100%'" [menu]="menus_page4" [showButton]="false"
+                style="width:99%;display:block;" [selected]="this.data_page4.funcCodeList"
+                (updateHandler)="update_page4($event)">
+              </app-list-group>
+            </div>
+          </div>
+        </div>
+        <div class="form-group row text-center">
+          <div class="col-12">
+            <button type="submit" class="btn tpi-btn tpi-primary mr-3" [disabled]="!form_page4.valid">{{'button.update' | translate}}</button>
+            <button type="button" class="btn tpi-btn tpi-primary mr-3"
+              (click)="reture_to_page1();">{{'button.return_to_list' | translate}}</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-container>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<!-- <p-toast position="center" key="delete" (onClose)="onReject()" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onDeleteConfirm()" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

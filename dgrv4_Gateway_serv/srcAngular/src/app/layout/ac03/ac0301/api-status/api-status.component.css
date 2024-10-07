@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.status{
+  cursor: pointer;
+}
+
+.noSchedule{
+  text-align: center;
+}

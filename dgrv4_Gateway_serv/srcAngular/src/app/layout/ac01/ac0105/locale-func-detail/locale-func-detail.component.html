@@ -1,0 +1,81 @@
+<div
+  class="form-group col ldapdetail"
+  [formGroup]="form"
+  style="align-items: center; display: flex"
+>
+  <div class="col-2">
+    <label id="locale_label" for="locale" class="control-label required">{{
+      "fun_locale" | translate
+    }}</label>
+    <p-dropdown
+      [options]="localeData"
+      placeholder="{{ 'plz_chs' | translate }}"
+      formControlName="locale"
+      optionValue="value"
+      [style]="{ width: '100%' }"
+    >
+      <ng-template let-selItem pTemplate="selectedItem">
+        <div>{{selItem.label}} ({{selItem.value}})</div>
+      </ng-template>
+      <ng-template let-locale pTemplate="item">
+          <div>{{locale.label}} ({{locale.value}})</div>
+      </ng-template>
+    </p-dropdown>
+    <div
+      *ngIf="locale?.invalid && (locale?.dirty || locale?.touched)"
+      class="text-danger"
+    >
+      <small class="form-text">{{ locale.errors.required | translate }}</small>
+    </div>
+  </div>
+  <div class="col-3">
+    <label for="funcName" class="control-label required">{{
+      "fun_name" | translate
+    }}</label>
+    <input
+      type="text"
+      class="form-control"
+      formControlName="funcName"
+      placeholder="{{ 'fun_name' | translate }}"
+    />
+    <div
+      *ngIf="funcName.invalid && (funcName.dirty || funcName.touched)"
+      class="text-danger"
+    >
+      <small class="form-text">{{
+        funcName.errors.required | translate
+      }}</small>
+       <small class="form-text">{{
+        funcName.errors.maxlength | translate:{value:50}
+      }}</small>
+    </div>
+  </div>
+  <div class="col">
+    <label for="funcDesc" class="control-label">{{
+      "fun_desc" | translate
+    }}</label>
+    <input
+      type="text"
+      class="form-control"
+      id="funcDesc"
+      formControlName="funcDesc"
+      placeholder="{{ 'fun_desc' | translate }}"
+    />
+    <div
+      *ngIf="funcDesc.invalid && (funcDesc.dirty || funcDesc.touched)"
+      class="text-danger"
+    >
+       <small class="form-text">{{
+        funcDesc.errors.maxlength | translate:{value:300}
+      }}</small>
+    </div>
+  </div>
+  <button
+    type="button"
+    class="btn tpi-primary ml-1"
+    (click)="deleteItem()"
+    style="border-radius: 50%"
+  >
+    <i class="fa fa-minus"></i>
+  </button>
+</div>

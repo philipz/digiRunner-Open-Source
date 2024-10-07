@@ -1,0 +1,9 @@
+.btn-create-postion {
+    position: absolute;
+    top: 0px;
+    right: 50px;
+}
+
+.form-group label {
+  background: #F6F6F6;
+}

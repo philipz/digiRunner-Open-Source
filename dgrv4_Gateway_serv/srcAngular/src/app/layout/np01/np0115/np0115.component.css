@@ -1,0 +1,88 @@
+.treeView {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 4px;
+}
+
+.rootItem {
+    padding: 20px;
+}
+
+.rootItem:hover {
+    background-color: aliceblue;
+}
+
+ul {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+}
+
+li {
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+.caption-text {
+    display: block;
+    background-image: linear-gradient(to right, #ff8f20, #ffae22);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1.5rem;
+    padding: 3px 24px;
+}
+
+.sitemap-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 30px;
+    height: auto;
+    margin-right: 10px;
+    line-height: 1;
+    padding-bottom: 3px;
+}
+
+.sitemap-icon img {
+    width: 100%;
+    height: auto;
+}
+
+.subItem {
+    display: block;
+}
+
+.subItem:hover {
+    background-color: aliceblue;
+}
+
+li .subItem {
+    padding: 20px 40px;
+    padding-right: 20px;
+}
+
+li li .subItem {
+    padding: 20px 60px;
+    padding-right: 20px;
+}
+
+li li li .subItem {
+    padding: 20px 80px;
+    padding-right: 20px;
+}
+
+li li li li .subItem {
+    padding: 20px 100px;
+    padding-right: 20px;
+}
+
+li li li li li .subItem {
+    padding: 20px 120px;
+    padding-right: 20px;
+}
+.sitemapText{
+    cursor: pointer;
+    transition: all 300ms;
+}
+.sitemapText:hover{
+    font-size:20px;
+    color: #27BEC5;
+}
+ 

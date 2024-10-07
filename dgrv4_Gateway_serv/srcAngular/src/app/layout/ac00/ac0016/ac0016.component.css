@@ -1,0 +1,9 @@
+.form-group label {
+    background: #F6F6F6;
+  }
+
+.border-style{
+    border: 0;
+    border-top:1px solid #ddd;
+    background: transparent
+}

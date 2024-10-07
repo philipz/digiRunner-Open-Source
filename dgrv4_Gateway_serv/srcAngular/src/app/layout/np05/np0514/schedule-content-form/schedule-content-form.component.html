@@ -1,0 +1,66 @@
+<form [formGroup]="form">
+    <div class="card item-panel p-3">
+      <div class="form-group align-items-center d-flex justify-content-end" *ngIf="action != 'detail'">
+        <button type="button" class="btn tpi-primary mx-1" (click)="deleteScheduleItems()">
+          <i class="fa fa-minus"></i>
+        </button>
+      </div>
+      <div class="row">
+        <!-- 排序 -->
+        <div class="form-group col-2">
+          <label for="sortBy" class="required control-label" id="sortBy_label">
+            {{'order'|translate}}
+        </label>
+          <input type="number" class="form-control" id="sortBy" formControlName="sortBy"
+            min="0"  onkeyup="this.value=this.value.replace(/[^\d]/,'')">
+
+            <div *ngIf="sortBy?.invalid && (sortBy?.dirty || sortBy?.touched)" class="text-danger">
+                <small class="form-text">{{sortBy.errors.isRequired | translate}}</small>
+                <small class="form-text">{{sortBy.errors.max | translate}}</small>
+                <small class="form-text">{{sortBy.errors.min | translate}}</small>
+            </div>
+        </div>
+        <!-- 類型 -->
+        <div class="form-group col-5">
+          <label for="refItemNo" class="required control-label" id="refItemNo_label">
+            {{'type'|translate}}
+          </label>
+            <p-dropdown [options]="refItemNoOption" [filter]="true" placeholder="{{'plz_chs' | translate}}"
+                formControlName="refItemNo" [style]="{'width':'100%'}">
+            </p-dropdown>
+            <div *ngIf="refItemNo?.invalid && (refItemNo?.dirty || refItemNo?.touched)" class="text-danger">
+                <small class="form-text">{{refItemNo.errors.required | translate}}</small>
+            </div>
+        </div>
+        <!-- 項目 -->
+        <div class="form-group col-5">
+          <label for="refSubitemNo" class="control-label" id="refSubitemNo_label">
+            {{'task'|translate}}
+          </label>
+          <p-dropdown [options]="refSubitemNoOption" [filter]="true" placeholder="{{'plz_chs' | translate}}"
+              formControlName="refSubitemNo" [style]="{'width':'100%'}">
+          </p-dropdown>
+        </div>
+        <!-- Params -->
+        <div class="form-group col-12">
+          <label for="inParams" class="control-label" id="inParams_label">
+            {{'params'|translate}}
+          </label>
+          <textarea type="text" class="form-control" formControlName="inParams" id="inParams"></textarea>
+          <div *ngIf="inParams?.invalid && (inParams?.dirty || inParams?.touched)" class="text-danger">
+              <small class="form-text">{{inParams.errors.maxlength | translate}}</small>
+          </div>
+        </div>
+        <!-- 	識別資料 -->
+        <div class="form-group col-12">
+          <label for="identifData" class="control-label" id="identifData_label">
+            {{'identif_data'|translate}}
+          </label>
+          <input type="text" class="form-control" formControlName="identifData" id="identifData">
+          <div *ngIf="identifData?.invalid && (identifData?.dirty || identifData?.touched)" class="text-danger">
+              <small class="form-text">{{identifData.errors.maxlength | translate}}</small>
+          </div>
+        </div>
+      </div>
+      </div>
+</form>

@@ -1,0 +1,298 @@
+<div class="mt-1">
+  <div class="form-group row px-3 " style="align-items: center;">
+    <p-selectButton class="mr-2" [(ngModel)]="timeType" [options]="timeTypeUnit" optionValue="key"
+      (onChange)="switchOption($event)"></p-selectButton>
+    <span class="mr-2" style="font-weight: bold;"> {{'data_loadtime'|translate}} </span> {{dataTime}}
+    <button pButton pRipple type="button" icon="fas fa-redo-alt" class="p-button-rounded p-button-text p-button-plain"
+      [pTooltip]="'button.refresh' | translate" tooltipPosition="top" (click)="switchOption($event)"></button>
+  </div>
+  <p-scrollPanel [style]="{width: '100%', height: '100vh'}">
+    <div class="col-12 px-0 form-group">
+      <p-card class="tpi-card-content">
+        <div class="row px-0">
+          <!-- Request -->
+          <div class="col-2" style="background-color: #fff; border-right: 2px solid #C4C4C4;">
+            <h3 style="color: #F3AE3F;font-weight: bold;"><i class="fas fa-vector-square"></i> Request</h3>
+            <div style="text-align: center;" *ngIf="request">
+              <label class="mb-0" style="font-size: 2rem;text-align: center;font-weight: bold;">{{request}}</label>
+            </div>
+            <div *ngIf="!request">
+              <hr>
+              <div class="text-center">
+                <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Success -->
+          <div class="col-3" style="background-color: #fff; border-right: 2px solid #C4C4C4">
+            <h3 style="color: #6FCAA0;font-weight: bold;"><i class="fas fa-check"></i> Success</h3>
+            <div style="text-align: center;" *ngIf="success">
+              <label class="mb-0"
+                style="font-size: 2rem;text-align: center;font-weight: bold;">{{numberComma(success?.success)}}
+                <label class="mb-0" style="font-size: 1.5rem;color:#C4C4C4">{{success ? '/'+ numberComma(success?.total)
+                  : ''}}</label></label>
+            </div>
+            <div *ngIf="success" style="color: #6FCAA0;text-align: center;font-size: 1.2rem;font-weight: bold;">
+              {{success?.percentage}}</div>
+            <div *ngIf="!success">
+              <hr>
+              <div class="text-center">
+                <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Fail -->
+          <div class="col-3" style="background-color: #fff; border-right: 2px solid #C4C4C4">
+            <h3 style="color: #DA7A53;font-weight: bold;"><i class="fas fa-times"></i> Fail</h3>
+            <div style="text-align: center;" *ngIf="fail">
+              <label class="mb-0" style="font-size: 2rem;text-align: center;font-weight: bold;">{{
+                numberComma(fail?.fail)}} <label class="mb-0" style="font-size: 1.5rem;color:#C4C4C4">{{fail ? '/' +
+                  numberComma(fail?.total) : ''}}</label></label>
+            </div>
+            <div *ngIf="fail" style="color: #DA7A53;text-align: center;font-size: 1.2rem;font-weight: bold;">
+              {{fail?.percentage}}</div>
+            <div *ngIf="!fail">
+              <hr>
+              <div class="text-center">
+                <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Bad Attempt 連線報告 -->
+          <div class="col-4">
+            <h3 style="font-weight: bold;">{{'badattempt'|translate}}</h3>
+            <div class="row" style="height: 125px;" [hidden]="!badAttempt">
+
+              <div class="col-5 px-0" style="width: 100%; height: 100%;zoom: 1.25;" id="badAttemptReport"></div>
+              <div class="col-6 row align-items-center" style="font-size: 1.25rem;">
+                <div class="col-12" style="justify-content: space-between;display: flex;">
+                  <span><i class="fas fa-circle mr-2" style="color: #F6D8CB;"></i>401 </span>
+                  <u>{{numberComma(badAttempt?.code_401)}}</u>
+                </div>
+                <div class="col-12" style="justify-content: space-between;display: flex;">
+                  <span> <i class="fas fa-circle mr-2" style="color: #DA7A53;"></i>403 </span>
+                  <u>{{numberComma(badAttempt?.code_403)}}</u>
+                </div>
+                <div class="col-12" style="justify-content: space-between;display: flex;">
+                  <span><i class="fas fa-circle mr-2"
+                      style="color: #6E79ED;"></i>Others</span><u>{{numberComma(badAttempt?.others)}}</u>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!badAttempt">
+              <hr>
+              <div class="text-center">
+                <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <div class="form-group row px-0">
+
+      <div class="col-2 pr-0">
+        <p-card class="tpi-card-content ">
+          <h5 style="font-weight: bold;">{{'resp_avg_time'|translate}}</h5>
+          <!-- 平均回應時間 -->
+          <div style="text-align: right;">
+            <label class="mb-0" style="font-size: 2rem;text-align: center;font-weight: bold;">{{avg? avg: '0'}}
+              <small>ms</small></label>
+          </div>
+          <hr>
+          <!-- 中位數 -->
+          <h5 style="font-weight: bold;">{{'median'|translate}}</h5>
+          <div style="text-align: right;">
+            <label class="mb-0" style="font-size: 2rem;text-align: center;font-weight: bold;">{{
+              numberComma(median?.median ? median?.median :"0")}}
+              <small>ms</small></label>
+          </div>
+          <div class="" style="width: 100%;height: 100%; max-height: 250px;zoom: 1.25;" id="medianReport"></div>
+        </p-card>
+      </div>
+      <div class="col-6 px-2">
+        <!-- top5 熱 門排行 -->
+        <p-card class="tpi-card-content dashbordCard">
+          <h5 style="font-weight: bold;">{{'popular_5'|translate}} ({{'data_time'|translate}}:{{'permanent'|translate}})
+          </h5>
+
+          <div [hidden]="popular.length==0" style="width: 100%; height: 100%;zoom: 1.25;" id="popularReport"></div>
+
+          <div [hidden]="popular.length>0">
+            <hr>
+            <div class="text-center">
+              <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <div class="col-4 pl-0">
+        <p-card class="tpi-card-content">
+          <!-- top5 冷 門排行 -->
+          <h5 style="font-weight: bold;">{{'unpopular_5'|translate}}
+            ({{'data_time'|translate}}:{{'permanent'|translate}})</h5>
+          <p-table *ngIf="unpopular.length>0" [value]="unpopular" [style]="{'word-break':'break-word'}"
+            styleClass="p-datatable-striped" responsiveLayout="scroll">
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th>{{'api_name'|translate}}</th>
+                <th style="text-align: end;width: 30%;">{{'count_total'|translate}}/{{'diff_rank'|translate}}</th>
+
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr>
+                <td>{{rowData.apiName}}</td>
+                <td style="text-align: end;">
+                  {{numberComma(rowData.total)}}
+                  <i style="color:crimson" *ngIf="rowData.floating === 'U'" class="ml-2 fa fa-arrow-up"></i>
+                  <i style="color:#6FCAA0" *ngIf="rowData.floating === 'D'" class="ml-2 fa fa-arrow-down"></i>
+                  <span *ngIf="rowData.floating !== 'D' && rowData.floating !== 'U' ">-</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+          <div *ngIf="unpopular.length==0">
+            <hr>
+            <div class="text-center">
+              <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+
+    <div class="form-group px-0">
+      <p-card class="tpi-card-content">
+        <h5 style="font-weight: bold;">{{'apiTrafficDistribution'|translate}}</h5>
+        <div [hidden]="apiTrafficDistribution.length==0" style="width: 100%; height: 100%;zoom: 1.25;"
+          [style]="(apiTrafficDistribution.length>0) ? 'min-height: 400px' : 'min-height:unset' "
+          id="apiTrafficDistributionReport"></div>
+        <div [hidden]="apiTrafficDistribution.length>0">
+          <hr>
+          <div class="text-center">
+            <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="form-group row ">
+      <div class="col-5 pr-2">
+        <!-- client 使用佔比 -->
+        <p-card class="tpi-card-content">
+          <h5 style="font-weight: bold;">{{'client_usage'|translate}}</h5>
+          <div class="row col-12 px-0" [hidden]="clientUsagePercentage.length==0">
+            <div class="px-0" style="width: 45%; height: 100%;min-height: 200px;zoom:1.25" id="clientReport"></div>
+            <div class="row align-items-center " style="font-size: 1.25rem;width: 55%;">
+
+              <div class="col-12 px-0" style="justify-content: space-between;display: flex;"
+                *ngFor="let item of clientUsagePercentage;let i = index">
+
+                <div class="col-7 px-0"><span style="word-wrap: break-word;display: block;"><i
+                      class="fas fa-circle mr-2" [style]="{color: getColor(i) }"></i>{{item.client}}</span></div>
+                <span class="col-2 px-0">{{item.percentage}}%</span>
+                <u>{{numberComma(item.request)}}</u>
+              </div>
+            </div>
+          </div>
+          <div [hidden]="clientUsagePercentage.length>0">
+            <hr>
+            <div class="text-center">
+              <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+      <div class="col-7 pl-0">
+        <p-card class="tpi-card-content">
+          <p-tabView [scrollable]="true" *ngIf="clientUsagePercentage.length>0">
+            <p-tabPanel [header]="item.client" *ngFor="let item of clientUsagePercentage; let i = index"
+              [selected]="i == 0">
+              <p-table [value]="item.apiUsage" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped"
+                responsiveLayout="scroll">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <!-- <th style="width: 50%;cursor: pointer;" (click)="changeSort('apiName',item.apiUsage)" pSortableColumn="apiName">{{'api_name'|translate}} <p-sortIcon field="apiName"></p-sortIcon></th>
+                    <th style="cursor: pointer;" (click)="changeSort('total',item.apiUsage)" pSortableColumn="total">{{'req_total'|translate}}<p-sortIcon field="total"></p-sortIcon></th>
+                    <th>{{'message.success'|translate}}/{{'fail'|translate}}</th>
+                    <th style="cursor: pointer;" (click)="changeSort('avg',item.apiUsage)"  pSortableColumn="avg">{{'avg_time'|translate}}(ms)<p-sortIcon field="avg"></p-sortIcon></th> -->
+                    <th style="width: 50%;cursor: pointer;" (click)="changeSort('apiName',item.apiUsage)">
+                      {{'api_name'|translate}} <p-sortIcon field="apiName"></p-sortIcon></th>
+                    <th style="cursor: pointer;" (click)="changeSort('total',item.apiUsage)">
+                      {{'req_total'|translate}}<p-sortIcon field="total"></p-sortIcon></th>
+                    <th style="cursor: pointer;" (click)="changeSort('success',item.apiUsage)">
+                      {{'alert.title.ok'|translate}}<p-sortIcon field="success"></p-sortIcon></th>
+                    <th style="cursor: pointer;" (click)="changeSort('fail',item.apiUsage)">
+                      {{'fail'|translate}}<p-sortIcon field="fail"></p-sortIcon></th>
+                    <th style="cursor: pointer;" (click)="changeSort('avg',item.apiUsage)">
+                      {{'avg_time'|translate}}(ms)<p-sortIcon field="avg"></p-sortIcon></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr>
+                    <td>{{rowData.apiName}}</td>
+                    <td>{{numberComma(rowData.total)}}</td>
+                    <td>{{numberComma(rowData.success)}} </td>
+                    <td>{{numberComma(rowData.fail)}} </td>
+                    <td>{{numberComma(rowData.avg.toString())}}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-tabPanel>
+          </p-tabView>
+          <div *ngIf="clientUsagePercentage.length==0">
+            <div class="text-center">
+              <div style="color:#C4C4C4;font-size: 1.5rem;">{{'no_data_result'|translate}}</div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+    </div>
+    <!-- 歷史登入紀錄 -->
+    <div class="form-group row ">
+      <div class="col-5 pr-2">
+        <p-card class="tpi-card-content">
+          <h5 style="font-weight: bold;">{{'last_login_log'|translate}}</h5>
+          <p-table [value]="lastLoginLog" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped"
+            responsiveLayout="scroll">
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th style="width: 45%">{{'last_logon_date'|translate}}</th>
+                <th style="width: 40%">{{'login_ip'|translate}}</th>
+                <th style="width: 15%">{{'status'|translate}}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr>
+                <td>{{rowData.loginDate}}</td>
+                <td>{{rowData.loginIp}}</td>
+                <td>
+                  <!-- {{rowData.loginStatus}} -->
+                  <div class="flex text-center" [pTooltip]="rowData.loginStatus">
+                    <i style="color: #6FCAA0" class="fas fa-check"
+                      *ngIf="rowData.loginStatus === 'SUCCESS'"></i>
+                    <i style="color: #DA7A53" class="fas fa-times" *ngIf="rowData.loginStatus === 'FAILED'"></i>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+    </div>
+
+
+  </p-scrollPanel>
+</div>
+<!-- <div class="login-page">
+  <div class="row justify-content-md-center bg">
+    <div>
+      <section style="margin-top:15%;">
+        <img src="assets/images/DigiFusion_digiRunner_logo.png" width="500px" alt="">
+      </section>
+    </div>
+  </div>
+</div> -->

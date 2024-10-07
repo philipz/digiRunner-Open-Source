@@ -1,0 +1,373 @@
+<!-- 系統組態 > 維護CUSSETTING -->
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <!-- 查詢 -->
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- <label class="control-label">{{'keyword_search'|translate}}</label> -->
+          <!-- <input type="text" class="form-control" formControlName="keyword" (keyup.enter)="queryCusSettingList()"
+            placeholder="{{'cate_name'|translate}}、{{'subitem_name'|translate}}"> -->
+
+            <span class="p-input-icon-right" style="width: 100%;">
+              <i class="pi pi-search tpi-i-search" (click)="queryCusSettingList();"></i>
+              <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+                placeholder="{{'cate_name'|translate}}、{{'subitem_name'|translate}}"
+                (keyup.enter)="queryCusSettingList()">
+            </span>
+
+        </div>
+        <div class="col-6">
+          <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create');">{{'button.create'|translate}}</button>
+        </div>
+
+      </div>
+      <!-- <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="queryCusSettingList();">{{'button.search' | translate}}</button>
+
+        </div>
+      </div> -->
+    </form>
+    <hr>
+    <p-table *ngIf="cols" [columns]="cols" [value]="tableData" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:150px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="index">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <span *ngIf="col.field != 'settingName' && col.field != 'subsettingName' ">
+              {{rowData[col.field]}}
+            </span>
+            <!-- <span *ngIf="col.field == 'settingName' || col.field == 'subsettingName'"
+              (click)="copyOriData(rowData[col.field].ori);">
+              {{rowData[col.field].val}}
+              <span *ngIf="rowData[col.field].t">
+                ...
+                <a href="javascript:void(0)" pTooltip="{{rowData[col.field].ori}}">{{'show_more'|translate}}</a>
+              </span>
+
+            </span> -->
+            <span *ngIf="col.field == 'settingName' || col.field == 'subsettingName'">
+              <!-- {{rowData[col.field].val}}
+              <span *ngIf="rowData[col.field].t">
+                ...
+                <a href="javascript:void(0)" pTooltip="{{rowData[col.field].ori}}">{{'show_more'|translate}}</a>
+              </span> -->
+              {{originStringTable(rowData[col.field])}}
+              <a *ngIf="rowData[col.field].ori" href="javascript:void(0)" (click)="switchOri(rowData[col.field])">
+                <label>{{!rowData[col.field].t ? ("show_less" | translate) : ("show_more" | translate)}}
+                  <i class="fas" [ngClass]="[!rowData[col.field].t ? 'fa-angle-double-left float-left mt-1 mr-1': 'fa-angle-double-right ']"></i></label>
+              </a>
+
+            </span>
+          </td>
+          <td style="text-align:center;width: 150px">
+
+            <button pButton pRipple type="button" icon="pi pi-eye"
+            class="p-button-rounded p-button-text p-button-plain" (click)="changePage('detail', rowData)"
+             [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+
+
+                   <button pButton pRipple type="button" icon="fa fa-edit"
+                        class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+                        [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+
+                   <button pButton pRipple type="button" icon="fa fa-trash-alt"
+                        class="p-button-rounded p-button-text p-button-plain" (click)="changePage('delete',rowData)"
+                        [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+
+            <!-- <div class="btn-group">
+              <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData);">
+                <span class="fa fa-edit">{{'button.detail' | translate}}</span>
+              </button>
+              <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);">
+                <span class="fa fa-edit">{{'button.update' | translate}}</span>
+              </button>
+              <button type="button" class="btn btn-deta" (click)="changePage('delete',rowData);">
+                <span class="fa fa-trash">{{'button.delete' | translate}}</span>
+              </button>
+            </div> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="tableDataRowcount">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableDataRowcount}}</span>
+
+              <!-- 查詢更多 -->
+              <button  type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+              </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- 建立、更新 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- 分類編號 -->
+          <label id="settingNo_label" for="settingNo" class="control-label">{{ 'cate_no' | translate}}</label>
+          <div [hidden]="currentAction!='create'">
+            <input type="text" class="form-control" id="settingNo" formControlName="settingNo">
+            <div *ngIf="settingNo.invalid && (settingNo.dirty || settingNo.touched)" class="text-danger">
+              <small class="form-text">{{settingNo.errors.isRequired}}</small>
+              <small class="form-text">{{settingNo.errors.maxlength | translate}}</small>
+            </div>
+          </div>
+          <div [hidden]="currentAction!='update'">
+            <label class="form-control border-line">{{this.settingNo.value}}</label>
+          </div>
+        </div>
+        <div class="col-6">
+          <!-- 分類名稱 -->
+          <label id="settingName_label" for="settingName" class="control-label">{{'cate_name'|translate}}</label>
+          <input type="text" class="form-control" id="settingName" formControlName="settingName">
+          <div *ngIf="settingName.invalid && (settingName.dirty || settingName.touched)" class="text-danger">
+            <small class="form-text">{{settingName.errors.isRequired}}</small>
+            <small class="form-text">{{settingName.errors.maxlength | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- 子分類編號 -->
+          <label id="subsettingNo_label" for="subsettingNo" class="control-label">{{ 'subitem_seqno'|translate}}</label>
+          <div [hidden]="currentAction!='create'">
+            <input type="text" class="form-control" id="subsettingNo" formControlName="subsettingNo">
+            <div *ngIf="subsettingNo.invalid && (subsettingNo.dirty || subsettingNo.touched)" class="text-danger">
+              <small class="form-text">{{subsettingNo.errors.isRequired}}</small>
+              <small class="form-text">{{subsettingNo.errors.maxlength | translate}}</small>
+            </div>
+          </div>
+          <div [hidden]="currentAction!='update'">
+            <label class="form-control border-line">{{this.subsettingNo.value}}</label>
+          </div>
+        </div>
+        <div class="col-6">
+          <!-- 子分類名稱 -->
+          <label id="subsettingName_label" for="subsettingName"
+            class="control-label">{{'subitem_name'|translate}}</label>
+          <input type="text" class="form-control" id="subsettingName" formControlName="subsettingName">
+          <div *ngIf="subsettingName.invalid && (subsettingName.dirty || subsettingName.touched)" class="text-danger">
+            <small class="form-text">{{subsettingName.errors.isRequired}}</small>
+            <small class="form-text">{{subsettingName.errors.maxlength | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- 排序 -->
+          <label id="sortBy_label" for="sortBy" class="control-label">{{ 'sort' | translate}}</label>
+          <input type="text" class="form-control" id="sortBy" formControlName="sortBy">
+          <div *ngIf="sortBy.invalid && (sortBy.dirty || sortBy.touched)" class="text-danger">
+            <small class="form-text">{{sortBy.errors.isRequired}}</small>
+          </div>
+        </div>
+        <div class="col-2">
+          <!-- 預設 -->
+          <label class="control-label col-12" style="border-bottom:1px solid #ddd;">{{'default_cr'|translate}}</label>
+          <div class="p-form-check col">
+            <p-checkbox [binary]="true" inputId="isDefault" formControlName="isDefault" ></p-checkbox>
+          </div>
+
+        </div>
+      </div>
+      <!-- 參數區塊 -->
+      <div class="row">
+        <div class="row col-12">
+          <div class="col-2" style="border-bottom:1px solid #ddd;">
+            <label>{{'param_no'|translate}}</label>
+          </div>
+          <div class="col-6">
+            <label>{{ 'param_value' | translate}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group col-12">
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM1</div>
+          <div class="col-6">
+            <input type="text" class="form-control" formControlName="param1">
+          </div>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM2</div>
+          <div class="col-6">
+            <input type="text" class="form-control" formControlName="param2">
+          </div>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM3</div>
+          <div class="col-6">
+            <input type="text" class="form-control" formControlName="param3">
+          </div>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM4</div>
+          <div class="col-6">
+            <input type="text" class="form-control" formControlName="param4">
+          </div>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM5</div>
+          <div class="col-6">
+            <input type="text" class="form-control" formControlName="param5">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn float-left mr-3" [disabled]="form.invalid"
+          [ngClass]="[btnName == ('button.create'|translate) ? 'tpi-second': 'tpi-primary']"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 詳細資料、刪除 -->
+  <div [hidden]="pageNum != 3">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- 分類編號 -->
+          <label>{{'cate_no' | translate}}</label>
+          <label class="form-control border-line">{{this.settingNo.value}}</label>
+        </div>
+        <div class="col-6">
+          <!-- 分類名稱 -->
+          <label>{{'cate_name'|translate}}</label>
+          <label class="form-control border-line">{{this.settingName.value}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- 子分類編號 -->
+          <label>{{ 'subitem_seqno' |translate}}</label>
+          <label class="form-control border-line">{{this.subsettingNo.value}}</label>
+        </div>
+        <div class="col-6">
+          <!-- 子分類名稱 -->
+          <label>{{'subitem_name'|translate}}</label>
+          <label class="form-control border-line">{{this.subsettingName.value}}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <!-- 排序 -->
+          <label>{{ 'sort' | translate}}</label>
+          <label class="form-control border-line">{{this.sortBy.value}}</label>
+        </div>
+        <div class="col-2">
+          <!-- 預設 -->
+          <label class="control-label col-12" style="border-bottom:1px solid #ddd;">{{'default_cr'|translate}}</label>
+          <div class="col-12">
+            <input class="align-middle checkbox" type="checkbox" formControlName="isDefault">
+          </div>
+        </div>
+      </div>
+      <!-- 參數區塊 -->
+      <div class="row">
+        <div class="row col-12">
+          <div class="col-2" style="border-bottom:1px solid #ddd;">
+            <label>{{'param_no'|translate}}</label>
+          </div>
+          <div class="col-6">
+            <label>{{ 'param_value' | translate}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group col-12">
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM1</div>
+          <label type="text" class="col-6 form-control border-line">{{this.param1.value}}</label>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM2</div>
+          <label type="text" class="col-6 form-control border-line">{{this.param2.value}}</label>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM3</div>
+          <label type="text" class="col-6 form-control border-line">{{this.param3.value}}</label>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM4</div>
+          <label type="text" class="col-6 form-control border-line">{{this.param4.value}}</label>
+        </div>
+        <div class="col-12 row mb-1 px-0">
+          <div class="col-2">PARAM5</div>
+          <label type="text" class="col-6 form-control border-line">{{this.param5.value}}</label>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3" [disabled]="form.invalid" [hidden]="currentAction=='detail'"
+            (click)="procData();">{{btnName}}</button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left" (onClose)="onToastClose($event)"></p-toast>
+<!-- <p-toast position="center" key="deleteMsg" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+  <ng-template let-message pTemplate="message">
+    <div style="text-align: center">
+      <em class="fas fa-exclamation-triangle fa-3x"></em>
+      <h4>{{message.summary}}</h4>
+      <p>{{message.detail}}</p>
+    </div>
+    <div class="ui-g ui-fluid">
+      <div class="ui-g-6">
+        <button type="button" pButton (click)="deleteConfirm()" label="{{'button.confirm'|translate}}"
+          class="ui-button-success"></button>
+      </div>
+      <div class="ui-g-6">
+        <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+          class="ui-button-secondary"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

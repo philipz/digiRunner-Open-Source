@@ -1,0 +1,22 @@
+/* footer{
+    text-align: center;
+    background-color: #5A5541;
+    width: 100%;
+    height: 30px;
+    color: #fff;
+    position: absolute;
+    padding-top: 7px;
+    bottom: 0;
+} */
+
+.footer {
+    position: fixed;
+    /* text-align: left; */
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    color: #666666;
+    /* background-color: #5A5541; */
+    background-color: #DEDEDE;
+  }

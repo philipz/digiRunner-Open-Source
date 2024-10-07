@@ -1,0 +1,222 @@
+<div class="card card-body bg-light mt-3">
+    <form [formGroup]="form">
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_date'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{createDateTime}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.createDateTime}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_user'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{userAlias}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.applyUserName}}</label>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="control-label">{{'apply_org'|translate}}</label>：
+                <label *ngIf="data.operate == formOperate.create">{{orgName}}</label>
+                <label *ngIf="data.operate != formOperate.create">{{data.data.orgName}}</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label">{{'req_sub_type'|translate}}</label>：
+                <div class="form-check-inline" *ngFor="let type of subTypes">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" formControlName="reqSubtype"
+                            value={{type.value}}>{{type.label}}
+                    </label>
+                </div>
+                <div *ngIf="reqSubtype?.invalid && (reqSubtype?.dirty || reqSubtype?.touched)" class="text-danger">
+                    <small class="form-text">{{reqSubtype.errors.required | translate}}</small>
+                </div>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label">{{'public_flag'|translate}}</label>：
+                <div class="form-check-inline" *ngFor="let flag of publicFlags">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" formControlName="encPublicFlag"
+                            value={{flag.value}}>{{flag.label}}
+                    </label>
+                </div>
+                <div *ngIf="encPublicFlag?.invalid && (encPublicFlag?.dirty || encPublicFlag?.touched)"
+                    class="text-danger">
+                    <small class="form-text">{{encPublicFlag.errors.required | translate}}</small>
+                </div>
+            </div>
+            <div class="col-4 col-xl-4 col-lg-4">
+                <label class="required control-label">{{'effective_date'|translate}}</label>：
+                <!-- calendar disabled style [inputStyle]="{'opacity':'0.5','cursor':'default','background-color':'#cccccc'}" -->
+                <p-calendar dateFormat="yy/mm/dd" [showIcon]="true" [readonlyInput]="true" [minDate]="minDateValue" appendTo="body"
+                    formControlName="effectiveDate">
+                </p-calendar>
+                <div *ngIf="effectiveDate?.invalid && (effectiveDate?.dirty || effectiveDate?.touched)"
+                    class="text-danger">
+                    <small class="form-text">{{effectiveDate.errors.required | translate}}</small>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-3">
+                        <label class="required control-label">{{'effective_date'|translate}}</label>：
+                    </div>
+                    <div class="col-9">
+                        <p-calendar dateFormat="yy/mm/dd" [showIcon]="true" formControlName="effectiveDate">
+                        </p-calendar>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-xl-12 col-lg-12">
+                <label class="required control-label">{{'apply_desc'|translate}}</label>：
+                <textarea rows="5" formControlName="reqDesc" class="form-control"></textarea>
+                <div *ngIf="reqDesc?.invalid && (reqDesc?.dirty || reqDesc?.touched)" class="text-danger">
+                    <small class="form-text">{{reqDesc.errors.required | translate}}</small>
+                </div>
+            </div>
+        </div>
+    </form>
+    <hr>
+    <div *ngIf="reqSubtype!.value == 'API_ON'">
+        <div class="form-group row">
+            <div class="col-12 col-lg-12 col-sm-12">
+                <div class="row">
+                    <div class="col-3 col-lg-3 col-sm-3">
+                        <label class="required control-label">{{'choose_api'|translate}}</label>
+                    </div>
+                    <div class="col-3 col-lg-3 col-sm-3">
+                        <label class="required control-label">{{'chs_themes'|translate}}</label>
+                    </div>
+                    <div class="col-4 col-lg-4 col-sm-4">
+                        <label class="control-label">
+                            {{'api_doc_upload'|translate}}
+                            <small style="opacity: 0.7;">
+                                {{'cfm_size'|translate}}，{{'cfm_unrestricted_format'|translate}}</small>
+                        </label>
+                    </div>
+                </div>
+                <!-- <div class="row" #content> -->
+                <div class="hosts">
+                    <ng-template #apiShelves></ng-template>
+                </div>
+                <button type="button" class="btn tpi-btn tpi-second"
+                    (click)="addApiOnOffRef()">{{'button.new' | translate}}</button>
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
+    <div *ngIf="reqSubtype!.value == 'API_OFF'" style="word-break:break-word;">
+        <div class="form-group row">
+            <div class="col-6 col-lg-6 col-xl-6 col-sm-6">
+                <div class="ui-inputgroup">
+                    <input class="form-control" type="text" placeholder="{{'keyword_search'|translate}}"
+                        [(ngModel)]='keyword'>
+                    <button pButton type="button" icon="pi pi-search" class="tpi-night"
+                        (click)="searchShelvesAPI('API_OFF');"></button>
+                </div>
+            </div>
+        </div>
+        <p-table *ngIf="cols" [columns]="cols" [value]="apiOffDataList" selectionMode="single" styleClass="p-datatable-striped"
+            [(selection)]="apiOffSelected" [style]="{'word-break':'break-word'}">
+            <ng-template pTemplate="caption">
+                <div class="ui-helper-clearfix">
+                    <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="delete()">
+                        {{ 'button.delete' | translate }}
+                    </button>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col style="width: 2.25em">
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th style="width: 2.25em" scope="col">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
+                        {{col.header}}
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                    <td>
+                        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                    </td>
+                    <td *ngFor="let col of columns" [style.width]="col.width">
+                        <span *ngIf="col.field=='apiName'">
+                            ({{rowData['apiKey']}},{{rowData['moduleName']}}) - {{rowData['apiName']}}
+                        </span>
+                        <span
+                            *ngIf="col.field != 'apiName' && col.field != 'themeDatas' && col.field != 'fileName'">{{rowData[col.field]}}</span>
+                        <div *ngIf="col.field == 'themeDatas'">
+                            <span *ngFor="let themeItem of rowData[col.field] | keyvalue;let i = index">
+                                {{themeItem.value}}
+                                <span *ngIf="checkLength(rowData[col.field], i);">，</span>
+                            </span>
+                        </div>
+                        <span *ngIf="col.field == 'fileName'">
+                            <a href="javascript:void(0)"
+                                (click)="downloadFile(rowData['filePath'],rowData['fileName']);">
+                                {{fileNameConvert(rowData['fileName'])}}
+                            </a>
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="rowcount">
+                    <td [attr.colspan]="columns.length+1">{{'row_count' | translate}}: {{rowcount}}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div *ngIf="reqSubtype!.value == 'API_ON_UPDATE'">
+        <div class="form-group row">
+            <div class="col-6 col-lg-6 col-xl-6 col-sm-6">
+                <div class="ui-inputgroup">
+                    <input class="form-control" type="text" placeholder="{{'keyword_search'|translate}}"
+                        [(ngModel)]='keyword'>
+                    <button pButton type="button" icon="pi pi-search" class="tpi-night"
+                        (click)="searchShelvesAPI('API_ON_UPDATE');"></button>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12 col-lg-12 col-sm-12">
+                <div class="row">
+                    <div class="col-3 col-lg-3 col-sm-3">
+                        <label>{{'choose_api'|translate}}</label>
+                    </div>
+                    <div class="col-3 col-lg-3 col-sm-3">
+                        <label>{{'chs_themes'|translate}}</label>
+                    </div>
+                    <div class="col-4 col-lg-4 col-sm-4">
+                        <label>
+                            {{'api_doc_upload'|translate}}
+                            <small style="opacity: 0.7;">
+                                {{'cfm_size'|translate}}{{'cfm_unrestricted_format'|translate}}</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="hosts">
+                    <ng-template #apiShelves></ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <button type="button" class="btn tpi-btn tpi-primary mt-2" (click)="submitForm();"
+            [disabled]="reqSubtype!.value != 'API_OFF' ? (isInvalid || form.invalid) : form.invalid">{{btnName}}</button>
+    </div>
+</div>
+<app-dialog [title]="dialogTitle" #dialog></app-dialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

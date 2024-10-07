@@ -1,0 +1,83 @@
+<app-container [title]="title">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <div class="form-group row">
+            <div class="col-4">
+              <label id="timeType_label" class="control-label">{{'time_unit'|translate}}</label>
+              <p-dropdown [showClear]="false" [options]="timeTypes" [filter]="false" placeholder="{{'plz_chs' | translate}}"
+                formControlName="timeType" [style]="{'width':'100%'}">
+              </p-dropdown>
+              <div *ngIf="timeType.invalid && (timeType.dirty || timeType.touched)" class="text-danger">
+                <small class="form-text">{{timeType.errors.isRequired}}</small>
+                <small class="form-text">{{timeType.errors.maxlength}}</small>
+                <small class="form-text">{{timeType.errors.minlength}}</small>
+                <small class="form-text">{{timeType.errors.max}}</small>
+                <small class="form-text">{{timeType.errors.min}}</small>
+                <small class="form-text">{{timeType.errors.pattern}}</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <label id="startDate_label" class="control-label">{{ timeType.value == 'MINUTE' ? ('query_date'|translate) :
+                ('start_date'|translate)}}</label>
+              <div style="display:block">
+                <p-calendar *ngIf="timeType.value != 'MONTH'" [style]="{'width':'100%'}" appendTo="body"
+                  [inputStyle]="{'width':'95%'}" formControlName="startDate" dateFormat="yy/mm/dd" [showIcon]="true"
+                  [readonlyInput]="true" [minDate]="minDate" [maxDate]="maxDate">
+                </p-calendar>
+                <p-calendar *ngIf="timeType.value == 'MONTH'" view="month" [style]="{'width':'100%'}" appendTo="body"
+                  [inputStyle]="{'width':'95%'}" formControlName="startDate" dateFormat="yy/mm" [showIcon]="true"
+                  [readonlyInput]="true" [minDate]="minDate" [maxDate]="maxDate">
+                </p-calendar>
+              </div>
+                <div *ngIf="startDate.invalid && (startDate.dirty || startDate.touched)" class="text-danger">
+                    <small class="form-text">{{startDate.errors.isRequired}}</small>
+                    <small class="form-text">{{startDate.errors.maxlength}}</small>
+                    <small class="form-text">{{startDate.errors.minlength}}</small>
+                    <small class="form-text">{{startDate.errors.max}}</small>
+                    <small class="form-text">{{startDate.errors.min}}</small>
+                    <small class="form-text">{{startDate.errors.pattern}}</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <label id="endDate_label" class="control-label">{{ timeType.value == 'MINUTE'? ('date_range'|translate) :
+                  ('end_date'|translate)}}</label>
+                <div style="display:block">
+                  <p-calendar *ngIf="timeType.value == 'DAY'" [style]="{'width':'100%'}" appendTo="body"
+                    [inputStyle]="{'width':'95%'}" formControlName="endDate" dateFormat="yy/mm/dd" [showIcon]="true"
+                    [readonlyInput]="true" [minDate]="minDate" [maxDate]="maxDate">
+                  </p-calendar>
+                  <p-calendar *ngIf="timeType.value == 'MONTH'" view="month" [style]="{'width':'100%'}" appendTo="body"
+                    [inputStyle]="{'width':'95%'}" formControlName="endDate" dateFormat="yy/mm" [showIcon]="true"
+                    [readonlyInput]="true" [minDate]="minDate" [maxDate]="maxDate">
+                  </p-calendar>
+                  <div *ngIf="timeType.value == 'MINUTE'">
+                    <p-dropdown [options]="hourData" formControlName="startHour"
+                      placeholder="{{'plz_chs'|translate}}"></p-dropdown>
+                    <label style="padding: 5px">H ~ </label>
+                    <p-dropdown [options]="hourData" formControlName="endHour"
+                      placeholder="{{'plz_chs'|translate}}"></p-dropdown>
+                    <label style="padding: 5px">H</label>
+                  </div>
+                </div>
+                <div *ngIf="endDate.invalid && (endDate.dirty || endDate.touched)" class="text-danger">
+                    <small class="form-text">{{endDate.errors.isRequired}}</small>
+                    <small class="form-text">{{endDate.errors.maxlength}}</small>
+                    <small class="form-text">{{endDate.errors.minlength}}</small>
+                    <small class="form-text">{{endDate.errors.max}}</small>
+                    <small class="form-text">{{endDate.errors.min}}</small>
+                    <small class="form-text">{{endDate.errors.pattern}}</small>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-12">
+                <button type="submit" class="btn tpi-btn tpi-primary float-left mr-3"
+                    [disabled]="form.invalid">{{'button.search'|translate}}</button>
+                <!-- <button type="button" class="btn btn-warning float-left mr-3" (click)="exportReport();"
+                    [disabled]="form.invalid">{{'button.export'|translate}}</button> -->
+            </div>
+        </div>
+    </form>
+    <div id="div_canvas" class="col-12 zoom">
+        <canvas id="reportChart"></canvas>
+    </div>
+</app-container>

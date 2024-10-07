@@ -1,0 +1,281 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn();">
+  <div [hidden]="pageNum !== 1">
+    <div class="form-group row">
+      <div class="col-12">
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create');">{{'button.create'|translate}}</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <p-table [columns]="cols" [value]="dataList" selectionMode="single"
+               [style]="{'word-break':'break-word'}"
+               responsiveLayout="scroll" styleClass="p-datatable-striped" >
+        <!-- scrollDirection="horizontal" scrollable="true" -->
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th rowspan="2" style="width: 5%;" scope="col">Icon</th>
+            <th rowspan="2" scope="col">Enable</th>
+            <th rowspan="2" style="min-width: 200px;" scope="col">ID</th>
+            <th rowspan="2" style="min-width: 150px;" scope="col">Page Title</th>
+            <th rowspan="2" style="min-width: 50px;" scope="col">Timeouts(ms)</th>
+            <th rowspan="2" style="width: 3%;" scope="col">Order</th>
+            <th rowspan="2" style="min-width: 250px;;" scope="col">URL</th>
+            <th rowspan="1" style="min-width: 200px;" scope="col">Base DN</th>
+            <th rowspan="1" style="min-width: 200px;" scope="col">Create User</th>
+            <th rowspan="1" style="min-width: 200px;" scope="col">Create Time</th>
+            <th rowspan="2" style="min-width:150px" scope="col">{{'action' | translate}}</th>
+          </tr>
+          <tr>
+            <th rowspan="1" scope="col">Bind DN</th>
+            <th rowspan="1" scope="col">Update User</th>
+            <th rowspan="1" scope="col">Update Time</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+
+          <tr>
+            <td [attr.rowspan]="rowData.ldapDataList.length*2">
+              <img [src]="rowData.iconFile">
+            </td>
+            <td [attr.rowspan]="rowData.ldapDataList.length*2">
+              <ng-container *ngIf="rowData.status=='Y' || rowData.status=='N'; else elseTemplate">
+                <img [src]="rowData.status =='Y'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+              </ng-container>
+              <ng-template #elseTemplate>
+                {{rowData.status}}
+              </ng-template>
+            </td>
+            <td [attr.rowspan]="rowData.ldapDataList.length*2">{{rowData.id}}</td>
+            <td [attr.rowspan]="rowData.ldapDataList.length*2">{{rowData.pageTitle}}</td>
+            <td [attr.rowspan]="rowData.ldapDataList.length*2">{{rowData.ldapTimeout}}</td>
+            <td [attr.rowspan]="2">{{rowData?.ldapDataList[0]?.orderNo}}</td>
+            <td [attr.rowspan]="2">{{rowData?.ldapDataList[0]?.ldapUrl}}</td>
+            <td [attr.rowspan]="1">{{rowData?.ldapDataList[0]?.ldapBaseDn}}</td>
+            <td [attr.rowspan]="1">{{rowData?.ldapDataList[0]?.createUser}}</td>
+            <td [attr.rowspan]="1">{{formateDate(rowData?.ldapDataList[0]?.createDateTime)}}</td>
+            <td [attr.rowspan]="rowData.ldapDataList.length*2" style="text-align: center;width: 150px">
+
+              <button pButton pRipple type="button" icon="pi pi-eye"
+                class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.detail' | translate"
+                tooltipPosition="top" (click)="changePage('detail', rowData)"></button>
+
+
+              <button pButton pRipple type="button" icon="fa fa-edit"
+                class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.update' | translate"
+                tooltipPosition="top" (click)="changePage('update', rowData)"></button>
+
+
+              <button pButton pRipple type="button" icon="fa fa-trash-alt"
+                class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.delete' | translate"
+                (click)="changePage('delete',rowData)" tooltipPosition="top"></button>
+
+
+            </td>
+          </tr>
+          <ng-container *ngFor="let ldapData of rowData.ldapDataList; let i= index;">
+            <tr [hidden]="i==0">
+              <td [attr.rowspan]="2">{{ldapData.orderNo}}</td>
+              <td [attr.rowspan]="2">{{ldapData.ldapUrl}}</td>
+              <td [attr.rowspan]="1">{{ldapData.ldapBaseDn}}</td>
+              <td [attr.rowspan]="1">{{ldapData.createUser}}</td>
+              <td [attr.rowspan]="1">{{formateDate(ldapData.createDateTime)}}</td>
+            </tr>
+            <tr>
+              <td [attr.rowspan]="1">{{ldapData.ldapDn}}</td>
+              <td [attr.rowspan]="1">{{ldapData.updateUser}}</td>
+              <td [attr.rowspan]="1">{{formateDate(ldapData.updateDateTime)}}</td>
+            </tr>
+          </ng-container>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="11">
+              {{'no_rec' | translate}}
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+  </div>
+  <!-- 建立/更新/詳細資料 -->
+  <div [hidden]="pageNum !== 2">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6" [hidden]="currentAction=='create'">
+          <label>Master ID</label>
+          <label class="form-control border-line">{{idpInfoDetail?.masterId}}</label>
+        </div>
+        <div class="col-6">
+          <label id="status_label" for="status" class="control-label">Enable</label>
+          <div class="p-form-check-line form-group">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="status" value="Y"  inputId="statusY"></p-radioButton>
+                <label for="statusY" class="ml-2 mb-0">Y</label>
+              </div>
+              <div class="p-form-check">
+                <p-radioButton formControlName="status" value="N"  inputId="statusN"></p-radioButton>
+                <label for="statusN" class="ml-2 mb-0">N</label>
+              </div>
+            </ng-container>
+          </div>
+          <!-- <div class="col-12">
+            <div class="form-check-inline col-12">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="status" value="Y"> Y
+              </label>
+              <label class="form-check-label ml-5">
+                <input type="radio" class="form-check-input" formControlName="status" value="N"> N
+              </label>
+            </div>
+
+          </div> -->
+          <div *ngIf="status?.invalid && (status?.dirty || status?.touched)" class="text-danger">
+            <small class="form-text">{{status?.errors.pattern | translate}}</small>
+            <small class="form-text">{{status?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="ldapTimeout_label" for="clientName" class="control-label">Timeout(ms)</label>
+          <input type="number" class="form-control" id="ldapTimeout" formControlName="ldapTimeout" placeholder="">
+          <div *ngIf="ldapTimeout?.invalid && (ldapTimeout?.dirty || ldapTimeout?.touched)" class="text-danger">
+            <small class="form-text">{{ldapTimeout?.errors.max | translate }}</small>
+            <small class="form-text">{{ldapTimeout?.errors.min | translate }}</small>
+            <small class="form-text">{{ldapTimeout?.errors.pattern | translate}}</small>
+            <small class="form-text">{{ldapTimeout?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <label id="policy_label" for="policy" class="control-label">Policy</label>
+          <!--
+            S: Sequentially (依順序)
+            R: Random (隨機)
+          -->
+          <div class="p-form-check-line form-group">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="policy" value="S" inputId="Sequentially"></p-radioButton>
+                <label for="Sequentially" class="ml-2 mb-0">Sequentially</label>
+              </div>
+              <div class="p-form-check">
+                <p-radioButton formControlName="policy" value="R" inputId="Random"></p-radioButton>
+                <label for="Random" class="ml-2 mb-0">Random</label>
+              </div>
+            </ng-container>
+          </div>
+          <!-- <div class="col-12">
+            <div class="form-check-inline col-12">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" formControlName="policy" value="S"> Sequentially
+              </label>
+              <label class="form-check-label ml-5">
+                <input type="radio" class="form-check-input" formControlName="policy" value="R"> Random
+              </label>
+            </div>
+
+          </div> -->
+          <div *ngIf="policy?.invalid && (policy?.dirty || policy?.touched)" class="text-danger">
+            <small class="form-text">{{policy?.errors.pattern | translate}}</small>
+            <small class="form-text">{{policy?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12">
+          <label id="approvalResultMail_label" for="approvalResultMail" class="control-label">Approval Result
+            Mail</label>
+          <div style="display:block">
+            <textarea rows="2" style="width:100%" id="approvalResultMail" formControlName="approvalResultMail"
+              pInputTextarea></textarea>
+          </div>
+          <div *ngIf="approvalResultMail?.invalid && (approvalResultMail?.dirty || approvalResultMail?.touched)"
+            class="text-danger">
+            <!-- <small class="form-text">{{approvalResultMail?.errors.maxlength | translate }}</small>
+            <small class="form-text">{{approvalResultMail?.errors.minlength | translate }}</small>
+            <small class="form-text">{{approvalResultMail?.errors.pattern | translate}}</small> -->
+            <small class="form-text">{{approvalResultMail?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12">
+          <label id="pageTitle_label" for="pageTitle" class="control-label">Page Title</label>
+          <input type="text" class="form-control" id="pageTitle" formControlName="pageTitle" placeholder="">
+          <div *ngIf="pageTitle?.invalid && (pageTitle?.dirty || pageTitle?.touched)" class="text-danger">
+            <small class="form-text">{{pageTitle?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-8">
+          <label for="iconFile" class="control-label">Icon</label>
+          <div class="row col-auto" [hidden]="currentAction=='detail'">
+            <div class="mr-2">
+              <button type="button" class="btn tpi-btn tpi-night pull-right"
+                (click)="openFileBrowser();">{{'chs_file'|translate}}</button>
+            </div>
+            <div class="">
+              <button type="button" class="btn tpi-btn tpi-night pull-right" (click)="clearFile();"
+                *ngIf="this._fileSrc">{{'remove'|translate}}</button>
+            </div>
+            <div class="col-sm-6" style="padding-right: unset;">
+              <input type="file" id="fileName" (change)="fileChange($event.target.files)" formControlName="iconFile"
+                style="display: none;">
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-auto" *ngIf="_fileSrc">
+          <img [src]="_fileSrc">
+        </div>
+        <div class="col-12 ml-3" class="noimg" *ngIf="!_fileSrc">
+
+        </div>
+      </div>
+      <div class="form-group col-12">
+        <app-ldap-data-list formControlName="ldapDataList" [action]="currentAction"></app-ldap-data-list>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <!-- form:{{form.valid }}/
+          ldapList:{{checkLdapDataListValid()}} -->
+          <button *ngIf="currentAction == 'create'" type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="!form.valid || !checkLdapDataListValid()"
+            (click)="create();">{{'button.create'|translate}}</button>
+          <button *ngIf="currentAction == 'update'" type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="!form.valid || !checkLdapDataListValid()"
+            (click)="update();">{{'button.update'|translate}}</button>
+
+          <button type="button" class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

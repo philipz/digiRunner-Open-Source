@@ -1,0 +1,121 @@
+<app-container [title]="title">
+  <div [hidden]="userDetail?.idPType == 'LDAP' || userDetail?.idPType == 'MLDAP' || userDetail?.idPType == 'API'">
+    <form [formGroup]="form" (ngSubmit)="submitForm(formDirective)" #formDirective="ngForm" *ngIf="!isidTokenForm">
+      <div class="row">
+        <div class="col-12">
+          <div class="form-group row">
+            <div class="col-6">
+              <label for="userid">{{'user_id' | translate}}</label>
+              <label class="form-control border-line">{{user_id}}</label>
+            </div>
+            <div class="col-6">
+              <label for="username">{{'user_name' | translate}}</label>
+              <label class="form-control border-line">{{user_name}}</label>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-6">
+              <label id="newUserName_label" for="newUserName" class="control-label">{{'new_user_name' |
+                translate}}</label>
+              <input type="text" class="form-control" id="newUserName" formControlName="newUserName"
+                placeholder="{{'new_user_name' | translate}}">
+              <div *ngIf="newUserName?.invalid && (newUserName?.dirty || newUserName?.touched)" class="text-danger">
+                <!-- <small
+                                class="form-text">{{newUserName.errors.stringname | translate:newUserNameLimitChar}}</small>
+                            <small
+                                class="form-text">{{newUserName.errors.maxlength | translate:newUserNameLimitChar}}</small> -->
+                <small class="form-text">{{newUserName.errors.isRequired}}</small>
+                <small class="form-text">{{newUserName.errors.maxlength}}</small>
+                <small class="form-text">{{newUserName.errors.pattern}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-6">
+              <label for="newUserAlias" id="newUserAlias_label" class="control-label">{{'new_user_alias' |
+                translate}}</label>
+              <input type="text" class="form-control" id="newUserAlias" formControlName="newUserAlias"
+                placeholder="{{'new_user_alias' | translate}}">
+              <div *ngIf="newUserAlias?.invalid && (newUserAlias?.dirty || newUserAlias?.touched)" class="text-danger">
+                <!-- <small
+                                class="form-text">{{newUserAlias.errors.stringalias | translate:newUserAliasLimitChar}}</small>
+                            <small
+                                class="form-text">{{newUserAlias.errors.maxlength | translate:newUserAliasLimitChar}}</small> -->
+                <small class="form-text">{{newUserAlias.errors.maxlength}}</small>
+                <small class="form-text">{{newUserAlias.errors.pattern}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-6">
+              <label id="newUserMail_label" for="newUserMail" class="control-label">{{'new_user_mail' |
+                translate}}</label>
+              <input type="text" class="form-control" id="newUserMail" formControlName="newUserMail"
+                placeholder="{{'new_user_mail' | translate}}">
+              <div *ngIf="newUserMail?.invalid && (newUserMail?.dirty || newUserMail?.touched)" class="text-danger">
+                <small class="form-text">{{newUserMail.errors.maxlength}}</small>
+                <small class="form-text">{{newUserMail.errors.pattern}}</small>
+                <small class="form-text">{{newUserMail.errors.isRequired}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-6">
+              <label for="userBlock">{{'org_password' | translate}}</label>
+              <input type="password" class="form-control" id="userBlock" formControlName="userBlock"
+                placeholder="{{'org_password' | translate}}">
+              <div *ngIf="userBlock?.invalid && (userBlock?.dirty || userBlock?.touched)" class="text-danger">
+                <small class="form-text">{{userBlock.errors.maxlength | translate:newUserBlockLimitChar}}</small>
+                <!-- <small class="form-text">{{userBlock.errors.confirm_password | translate}}</small> -->
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-6">
+              <label for="newUserBlock">{{'new_password' | translate}}</label>
+              <input type="password" class="form-control" id="newUserBlock" formControlName="newUserBlock"
+                placeholder="{{'new_password' | translate}}">
+              <div *ngIf="newUserBlock?.invalid && (newUserBlock?.dirty || newUserBlock?.touched)" class="text-danger">
+                <small class="form-text">{{newUserBlock.errors.maxlength | translate:newUserBlockLimitChar}}</small>
+                <small *ngIf="confirmUserBlock.value" class="form-text">{{newUserBlock.errors.confirm_password | translate}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-6">
+              <label for="confirmUserBlock">{{'cfm_new_password' | translate}}</label>
+              <input type="password" class="form-control" id="confirmUserBlock" formControlName="confirmUserBlock"
+                placeholder="{{'cfm_new_password' | translate}}">
+              <div *ngIf="confirmUserBlock?.invalid && (confirmUserBlock?.dirty || confirmUserBlock?.touched)"
+                class="text-danger">
+                <small class="form-text">{{confirmUserBlock.errors.maxlength | translate:newUserBlockLimitChar}}</small>
+                <small class="form-text">{{confirmUserBlock.errors.confirm_password | translate}}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn tpi-btn tpi-primary pull-left" [disabled]="form.invalid">{{'button.update' |
+        translate}}</button>
+    </form>
+    <div *ngIf="isidTokenForm">
+      <div class="form-group row ">
+        <div class="col-4 " *ngFor="let item of tokenData">
+          <label>{{item.label}}</label>
+          <label class="form-control border-line mb-2"
+            [style]="{ 'word-break': 'break-word','height': 'auto', 'background': '#fff' }">{{ (item.label == 'iat' ||
+            item.label == 'exp') ? formateDate(item.value) : item.value}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [hidden]="!(userDetail?.idPType == 'LDAP' || userDetail?.idPType == 'MLDAP' || userDetail?.idPType == 'API') ">
+    <div class="form-group row">
+      <div class="col-6">
+        <label for="userid">{{'User Name'}}</label>
+        <label class="form-control border-line">{{userDetail?.userName}}</label>
+      </div>
+    </div>
+  </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

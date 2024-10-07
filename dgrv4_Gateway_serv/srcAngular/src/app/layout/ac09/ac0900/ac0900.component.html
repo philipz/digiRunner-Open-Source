@@ -1,0 +1,11 @@
+<app-container [title]="title" *ngIf="status">
+    <div class="framecontainer">
+      <!-- <div class="mask" *ngIf="mask" (dblclick)="mask=false;">
+        <div class="loading">
+          <img clas="logo" id="logo_img" src="assets/images/DigiFusion_digiRunner_logo.png" width="250px" alt="dgr_logo">
+          <p-progressBar mode="indeterminate"></p-progressBar>
+        </div>
+      </div> -->
+      <app-frame [reportID]="reportID" class="frame"></app-frame>
+    </div>
+</app-container>

@@ -1,0 +1,106 @@
+package tpi.dgrv4.gateway.component.check;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import tpi.dgrv4.gateway.component.TokenHelper;
+import tpi.dgrv4.gateway.component.TokenHelper.JwtPayloadData;
+import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.service.TsmpRtnCodeService;
+import tpi.dgrv4.gateway.service.TsmpSettingService;
+import tpi.dgrv4.gateway.util.JsonNodeUtil;
+
+@Component
+public class DgrJtiCheck {
+	
+	@Autowired
+	private TokenHelper tokenHelper;
+	
+	@Autowired
+	private TsmpSettingService tsmpSettingService;
+	
+	@Autowired
+	private TsmpRtnCodeService tsmpRtnCodeService;
+	
+	public ResponseEntity<?> check(String uri, HttpServletRequest request) {
+		String reqUri = request.getRequestURI();
+		
+		boolean isEnabled = getTsmpSettingService().getVal_CHECK_JTI_ENABLE();
+		if(isEnabled) {
+			boolean isDgrUrl = (uri.length() >= 10 && (uri.substring(0, 10).equals("/dgrv4/11/")));
+			isDgrUrl = isDgrUrl || (uri.length() >= 10 && (uri.substring(0, 10).equals("/dgrv4/17/")));
+			//不驗証的API
+			if(uri.length() >= 17 && (uri.substring(0, 17).equals("/dgrv4/11/DPB0189"))) {
+				isDgrUrl = false;
+			}
+			
+			if (isDgrUrl) {
+				// 用CApiKey就不驗token
+				String cuuid = request.getHeader("cuuid");
+				if (StringUtils.hasLength(cuuid)) {
+					return null;
+				}
+ 
+				String authorization = request.getHeader("Authorization");
+				// 是否有 "Authorization"
+				ResponseEntity<?> respEntity = getTokenHelper().checkHasAuthorization(authorization, reqUri);
+				if (respEntity != null) {
+					return respEntity;
+				}
+
+				// 是否有"bearer "字樣,忽略大小寫
+				boolean hasBearer = getTokenHelper().checkHasKeyword(authorization, TokenHelper.BEARER);
+				if (hasBearer == false) {// 沒有字樣
+					String errMsg = TokenHelper.Unauthorized;
+					TPILogger.tl.debug(errMsg);
+					return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);
+				}
+			    
+			    String tokenStr = authorization.substring(TokenHelper.BEARER.length());
+
+			    // 取得 access token 的 payload,做 JWS 驗章 或 JWE 解密
+			    JwtPayloadData oauthIntrospection_jwtPayloadData = getTokenHelper().getJwtPayloadData(tokenStr);
+			    respEntity = oauthIntrospection_jwtPayloadData.errRespEntity;
+			    if (respEntity != null) {
+			        return respEntity;
+			    }
+
+			    JsonNode payloadJsonNode = oauthIntrospection_jwtPayloadData.payloadJsonNode;
+			    
+				// 檢查是否 token exp 沒有值 或 token 過期
+				Long exp = JsonNodeUtil.getNodeAsLong(payloadJsonNode, "exp");
+				respEntity = tokenHelper.checkAccessTokenExp(tokenStr, exp);
+				if (respEntity != null) {// 資料有錯誤
+					return respEntity;
+				}
+
+				// 檢查是否 token 已撤銷
+				String jti = JsonNodeUtil.getNodeAsText(payloadJsonNode, "jti");
+				respEntity = tokenHelper.checkAccessTokenRevoked(jti);
+				if (respEntity != null) {// 資料有錯誤
+					return respEntity;
+				}
+			}
+		}
+		
+		return null;
+	}
+ 
+	protected TsmpSettingService getTsmpSettingService() {
+		return tsmpSettingService;
+	}
+	
+	protected TokenHelper getTokenHelper() {
+		return tokenHelper;
+	}
+	
+	protected TsmpRtnCodeService getTsmpRtnCodeService() {
+		return tsmpRtnCodeService;
+	}
+}

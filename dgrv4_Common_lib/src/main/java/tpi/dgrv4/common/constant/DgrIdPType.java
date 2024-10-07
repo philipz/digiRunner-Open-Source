@@ -1,0 +1,22 @@
+package tpi.dgrv4.common.constant;
+
+public class DgrIdPType {
+	
+	// OAuth 2.0
+	public final static String GOOGLE = "GOOGLE";
+	
+	public final static String MS = "MS";
+ 
+	// LDAP
+	public final static String LDAP = "LDAP";
+	
+	// Multi-LDAP
+	public final static String MLDAP = "MLDAP";
+	
+	// API
+	public final static String API = "API";
+	
+	// JDBC
+	public final static String JDBC = "JDBC";
+ 
+}

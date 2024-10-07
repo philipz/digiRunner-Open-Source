@@ -1,0 +1,47 @@
+<app-container [title]="title">
+    <div class="card card-body bg-light mt-3">
+        <form [formGroup]="form">
+            <table class="w-100" style="table-layout: fixed;word-break: break-word;text-align: center;">
+                <caption></caption>
+                <!-- <colgroup>
+                  <col style="width:20%">
+                  <col style="width:20%">
+                  <col style="width:20%">
+              </colgroup> -->
+                <thead>
+                    <tr>
+                        <th scope="col">{{'layer.header.apps'|translate}}</th>
+                        <th scope="col">{{'layer.header.first'|translate}}</th>
+                        <th scope="col">{{'layer.header.second'|translate}}</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="layers.length != 0">
+                    <tr *ngFor="let item of layers">
+                        <td>
+                            <label class="text-center">{{item.label}}</label>
+                        </td>
+                        <td>
+                            <p-multiSelect [options]="roles" [filter]="true" [baseZIndex]="1000" appendTo="body"
+                                defaultLabel="{{'plz_chs' | translate}}" [style]="{'width':'100%'}" [panelStyle]="{maxWidth:'50vw'}"
+                                formControlName="{{item.value}}_1">
+                            </p-multiSelect>
+                        </td>
+                        <td>
+                            <p-multiSelect [options]="roles" [filter]="true" [baseZIndex]="1000" appendTo="body"
+                                defaultLabel="{{'plz_chs' | translate}}" [style]="{'width':'100%'}" [panelStyle]="{maxWidth:'50vw'}"
+                                formControlName="{{item.value}}_2">
+                            </p-multiSelect>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center mt-3">
+                <button type="submit" class="btn tpi-btn tpi-primary pull-right mr-2"
+                    (click)="save();">{{'button.save'|translate}}</button>
+                <button type="button" class="btn tpi-btn tpi-cancel pull-right"
+                    (click)="reset();">{{'button.restore'|translate}}</button>
+            </div>
+        </form>
+    </div>
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

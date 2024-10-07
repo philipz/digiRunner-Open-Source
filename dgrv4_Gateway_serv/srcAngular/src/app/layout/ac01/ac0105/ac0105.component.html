@@ -1,0 +1,473 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum == 1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form" (ngSubmit)="queryFuncList()">
+      <div class="form-group">
+        <span class="p-input-icon-right" style="width: 40vw">
+          <i class="pi pi-search tpi-i-search" (click)="queryFuncList()"></i>
+          <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword" placeholder="{{ 'fun_code' | translate }}、{{
+              'fun_name' | translate
+            }}、{{ 'fun_desc' | translate }}、{{ 'role_name' | translate }}、{{
+              'role_alias' | translate
+            }}" />
+        </span>
+
+        <button type="button" class="btn tpi-btn tpi-second float-right" (click)="changePage('create')">
+          {{ "button.create" | translate }}
+        </button>
+      </div>
+    </form>
+    <div class="col-12 px-0" style="display: flex;justify-content: space-between;">
+
+      <button type="button" class="btn tpi-btn tpi-primary mr-2"
+        (click)="exportTsmpFunc()">{{'button.export'|translate}}</button>
+
+      <div style="display: flex;align-items: center;">
+        <div class="ui-inputgroup mr-2">
+          <input type="file" id="file" style="display: none;" accept=".xlsx" (change)="fileChange($event)">
+          <input type="text" class="form-control" [value]="file?.name" readOnly
+            placeholder="{{'upload_file' | translate}}">
+          <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+            [pTooltip]="'upload_file' | translate" tooltipPosition="top" (click)="openFileBrowser();"></button>
+        </div>
+        <button type="button" class="btn tpi-btn tpi-primary mr-2" [disabled]="!file?.name"
+          (click)="importTsmpFunc()">{{'button.import'|translate}}</button>
+        <i class="far fa-question-circle" pTooltip='<ol style="padding-inline-start: 20px;margin-block-end: 0;"><li>{{"import_key_tip"|translate:{key:"FUNC_CODE+LOCALE"} }}</li><li>{{"use_in_multi_language"|translate }}</li></ol>'
+          [escape]="false"></i>
+      </div>
+    </div>
+    <hr>
+    <p-table [columns]="funcInfoListCols" [value]="funcInfoList" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{ 'word-break': 'break-word' }" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width" />
+        </colgroup>
+        <colgroup style="width: 150px">
+          Action
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col" [style.width]="col.width">
+            {{ col.header }}
+          </th>
+          <th style="width: 150px" scope="col">{{ "action" | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            {{ (col.field =='reportType') ? (rowData.reportType | reportType | async) :rowData[col.field] }}
+          </td>
+          <td style="text-align: center; width: 150px">
+            <button pButton pRipple type="button" icon="pi pi-eye" [disabled]="canDetail == false"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('detail', rowData)"
+              [pTooltip]="'button.roles' | translate" tooltipPosition="top"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-edit" [disabled]="canUpdate == false"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('update', rowData)"
+              [pTooltip]="'button.update' | translate" tooltipPosition="top"></button>
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+              class="p-button-rounded p-button-text p-button-plain" (click)="changePage('delete', rowData)"
+              [pTooltip]="'button.delete' | translate" tooltipPosition="top"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="funcInfoList.length > 0">
+          <td [attr.colspan]="columns.length + 1" style="color: #b7b7b7">
+            <span style="vertical-align: middle">{{ "row_count" | translate }}: {{ funcInfoList.length }}</span>
+            <button type="button" class="btn tpi-header-return" (click)="moreFuncList()">
+              {{ "button.more" | translate }}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length + 1">
+            {{ "no_rec" | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- 詳細資料 -->
+  <div [hidden]="pageNum != 2">
+    <div class="form-group row">
+      <div class="col-6 col-xl-6 col-lg-6">
+        <label>{{ "fun_code" | translate }}</label>
+        <label class="form-control border-line">{{
+          currentFuncInfo?.funcCode
+          }}</label>
+      </div>
+      <div class="col-6 col-xl-6 col-lg-6">
+        <label>{{ "fun_locale" | translate }}</label>
+        <label class="form-control border-line">{{currentFuncInfo?.localeName}} ({{
+          currentFuncInfo?.locale
+          }})</label>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-6 col-xl-6 col-lg-6">
+        <label>{{ "fun_name" | translate }}</label>
+        <label class="form-control border-line">{{
+          currentFuncInfo?.funcName
+          }}</label>
+      </div>
+      <div class="col-6 col-xl-6 col-lg-6" *ngIf="currentFuncInfo?.reportType">
+        <label>{{ "embedded_url_tip.type" | translate }}</label>
+        <label class="form-control border-line">{{currentFuncInfo?.reportType | reportType | async }}</label>
+      </div>
+    </div>
+    <div class="form-group row" *ngIf="currentFuncInfo?.reportUrl">
+      <div class="col-12">
+        <label>Embedded URL</label>
+        <pre class="pre-code-style" [innerText]="currentFuncInfo?.reportUrl"></pre>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-12">
+        <label>{{ "fun_desc" | translate }}</label>
+
+        <div style="display: block">
+          <textarea readonly rows="2" style="width: 100%" [value]="currentFuncInfo?.funcDesc" pInputTextarea></textarea>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <form [formGroup]="detailForm" (ngSubmit)="queryRoleList()">
+      <div class="form-group row">
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label id="keyword_label" class="control-label">{{
+            "keyword_search" | translate
+            }}</label>
+          <!-- <input
+            type="text"
+            class="form-control"
+            formControlName="keyword"
+            placeholder="{{ 'role_name' | translate }}、{{
+              'role_desc' | translate
+            }}"
+          /> -->
+          <span class="p-input-icon-right" style="width: 40vw">
+            <i class="pi pi-search tpi-i-search" (click)="queryRoleList()"></i>
+            <input type="search" class="form-control tpi-i-input" id="keyword" formControlName="keyword" placeholder="{{ 'role_name' | translate }}、{{
+                'role_desc' | translate
+              }}" />
+          </span>
+        </div>
+      </div>
+
+    </form>
+    <!-- <hr /> -->
+    <p-table [columns]="roleInfoListCols" [value]="roleInfoList" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{ 'word-break': 'break-word' }" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width" />
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col" [style.width]="col.width">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            {{ rowData[col.field] }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="roleInfoList.length > 0">
+          <td [attr.colspan]="columns.length" style="color: #b7b7b7">
+            <span>{{ "row_count" | translate }}: {{ roleInfoList.length }}</span>
+            <button type="button" class="btn tpi-header-return" (click)="moreRoleList()">
+              {{ "button.more" | translate }}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length">
+            {{ "no_rec" | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <br />
+    <div class="form-group row">
+      <div class="col-12 col-lg-12">
+        <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="changePage('query')">
+          {{ "button.return_to_list" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- 更新 -->
+  <div [hidden]="pageNum != 3">
+    <form *ngIf="currentFuncInfo" [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label>{{ "create_type" | translate }}</label>
+          <label class="form-control border-line">{{
+            currentFuncInfo.masterFuncName ? ('sub_func'|translate): ('main_func'|translate)
+            }}</label>
+        </div>
+        <div class="col-4 col-xl-4 col-lg-4" *ngIf="currentFuncInfo.masterFuncName">
+          <label>{{ "main_func" | translate }}</label>
+          <label class="form-control border-line">{{
+            currentFuncInfo.masterFuncName
+            }}</label>
+        </div>
+        <div class="col-4 col-xl-4 col-lg-4" *ngIf="currentFuncInfo?.reportType">
+          <label>{{ "embedded_url_tip.type" | translate }}</label>
+          <label class="form-control border-line">{{
+            currentFuncInfo?.reportType | reportType | async
+            }}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label>{{ "fun_code" | translate }}</label>
+          <label class="form-control border-line">{{
+            currentFuncInfo.funcCode
+            }}</label>
+        </div>
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label>{{ "fun_locale" | translate }}</label>
+          <label class="form-control border-line">{{currentFuncInfo.localeName}}({{
+            currentFuncInfo.locale
+            }})</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label for="newFuncName" class="control-label required">{{ "fun_name" | translate }}</label>
+          <input type="text" class="form-control" id="newFuncName" formControlName="newFuncName"
+            placeholder="{{ 'new_fun_name' | translate }}" />
+          <div *ngIf="
+              newFuncName.invalid && (newFuncName.dirty || newFuncName.touched)
+            " class="text-danger">
+            <small class="form-text">{{
+              newFuncName.errors.stringalias | translate : newFunNameLimitChar
+              }}</small>
+            <small class="form-text">{{
+              newFuncName.errors.maxlength | translate : newFunNameLimitChar
+              }}</small>
+            <small class="form-text">{{
+              newFuncName.errors.required | translate
+              }}</small>
+          </div>
+        </div>
+        <!-- 功能描述 -->
+        <div class="col-4 col-xl-4 col-lg-4">
+          <label for="newDesc">{{ "fun_desc" | translate }}</label>
+          <input type="text" class="form-control" id="newDesc" formControlName="newDesc" />
+          <div *ngIf="newDesc.invalid && (newDesc.dirty || newDesc.touched)" class="text-danger">
+            <small class="form-text">{{
+              newDesc.errors.maxlength | translate : newFunDescLimitChar
+              }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="currentFuncInfo.masterFuncName">
+        <div class="col-12 row">
+          <div class="p-form-check" >
+            <p-checkbox [binary]="true" inputId="kibanaReport" [ngModel]="currentFuncInfo?.reportType=='SYS_RPT'" [ngModelOptions]="{standalone: true}" [readonly]="true"></p-checkbox>
+            <label class="ml-2 mb-0" for="kibanaReport">Kibana
+               <small class="px-2">
+              (
+              {{
+              "funcCode_kibana_prefix" | translate
+              }}, {{"main_func_tip.2"|translate }} )</small>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row" *ngIf="currentFuncInfo.masterFuncName">
+        <div class="col-12">
+          <label for="newReportUrl">Embedded URL<i class="far fa-question-circle tip" tooltipStyleClass='tooltip-custom-w' [pTooltip]="embbededUrlTip"
+              [escape]="false"></i><span style="color: red">*</span></label>
+            <!-- <small class="pl-2">({{
+              "funcCode_kibana_prefix" | translate
+              }})
+            </small> -->
+          <input type="text" class="form-control" id="newReportUrl" formControlName="newReportUrl" />
+          <div *ngIf="
+            newReportUrl.invalid && (newReportUrl.dirty || newReportUrl.touched)
+          " class="text-danger">
+            <small class="form-text">{{
+              newReportUrl?.errors.maxlength | translate : { value: 2000 }
+              }}</small>
+            <small class="form-text">{{
+              newReportUrl.errors.required | translate
+              }}</small>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <label for="newDesc">{{ "fun_desc" | translate }}</label>
+          <div style="display: block">
+            <textarea id="newDescTextArea" class="form-control" [rows]="5" pInputTextarea formControlName="newDesc"
+              placeholder="{{ 'new_fun_desc' | translate }}"></textarea>
+          </div>
+          <div *ngIf="newDesc.invalid && (newDesc.dirty || newDesc.touched)" class="text-danger">
+            <small class="form-text">{{
+              newDesc.errors.maxlength | translate : newFunDescLimitChar
+              }}</small>
+          </div>
+        </div>
+      </div> -->
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="form.invalid" (click)="updateFunc()">
+            {{ "button.update" | translate }}
+          </button>
+          <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="changePage('query')">
+            {{ "button.return_to_list" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- 建立 -->
+  <div [hidden]="pageNum != 4">
+    <form [formGroup]="editForm">
+      <div class="form-group">
+        <div class="col-6">
+          <label id="type_label" for="type" class="control-label required">{{'type'|translate}}</label>
+          <div class="p-form-check-line form-group">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="type" [value]="0" inputId="type0"></p-radioButton>
+                <label for="type0" class="ml-2 mb-0">{{'main_func'|translate}}</label>
+              </div>
+            </ng-container>
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="type" [value]="1" inputId="type1"></p-radioButton>
+                <label for="type1" class="ml-2 mb-0">{{'sub_func'|translate}}</label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="form-group col">
+        <app-locale-func-form formControlName="funcList"></app-locale-func-form>
+      </div>
+      <!-- 判斷是否kibana表單用於是否呈現 (子選單 - 主選單項目) -->
+      <div class="form-group" *ngIf="type.value==1">
+        <div class="col-12">
+          <div class="p-form-check">
+            <p-checkbox [binary]="true" inputId="kibanaReport" formControlName="isKibana"></p-checkbox>
+            <label class="ml-2 mb-0" for="kibanaReport">Kibana
+               <small class="px-2">
+              (
+              {{
+              "funcCode_kibana_prefix" | translate
+              }}, {{"main_func_tip.2"|translate }} )</small>
+            </label>
+          </div>
+        </div>
+      </div>
+      <!-- 子選單 - 主選單項目 -->
+      <div class="form-group" *ngIf="type.value==1 && !isKibana.value">
+        <div class="col-6">
+          <label id="masterFuncCode_label" for="masterFuncCode" class="control-label required">{{'main_func'|translate}}
+            <i class="far fa-question-circle tip"
+              [pTooltip]="'main_func_tip.1'|translate"
+              [escape]="false"></i>
+          </label>
+          <p-dropdown [options]="mFuncData" placeholder="{{ 'plz_chs' | translate }}" formControlName="masterFuncCode"
+            optionLabel="funcName" optionValue="funcCode" [style]="{ width: '100%' }">
+          </p-dropdown>
+          <div *ngIf="masterFuncCode?.invalid && (masterFuncCode?.dirty || masterFuncCode?.touched)"
+            class="text-danger">
+            <small class="form-text">{{ masterFuncCode.errors.required | translate }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 子選單 - Embedded URL -->
+      <div class="form-group" *ngIf="type.value==1">
+        <div class="col-12">
+          <label id="embeddedUrl_label" for="embeddedUrl" class="control-label required">Embedded URL
+            <!-- <small class="px-2">
+              (
+              {{
+              "funcCode_kibana_prefix" | translate
+              }})</small> -->
+            <i class="far fa-question-circle tip" tooltipStyleClass='tooltip-custom-w' [pTooltip]="embbededUrlTip" [escape]="false"></i>
+          </label>
+          <input type="text" class="form-control" id="embeddedUrl" formControlName="embeddedUrl" />
+          <div *ngIf="
+              embeddedUrl?.invalid &&
+              (embeddedUrl?.dirty || embeddedUrl?.touched)
+            " class="text-danger">
+            <small class="form-text">{{
+              embeddedUrl?.errors.maxlength | translate : { value: 2000 }
+              }}</small>
+            <small class="form-text">{{
+              embeddedUrl?.errors.required | translate
+              }}</small>
+          </div>
+        </div>
+
+      </div>
+      <!-- 示意圖 -->
+      <div class="form-group" *ngIf="type.value==1">
+        <div class="col-12 row">
+        <div class="col-4" *ngIf="isKibana.value">
+          <img class="imgborder" src="assets/images/exp_kibana.png" alt="kibana" width="100%" height="300px">
+        </div>
+        <div class="col-4" *ngIf="!isKibana.value">
+          <img class="imgborder" src="assets/images/exp_frame.png" alt="frame" width="100%" height="300px">
+          <small class="text-danger ">{{'url_contains_keyword'|translate:{key:'/dgrv4/cus/'} }}</small>
+        </div>
+        <div class="col-4" *ngIf="!isKibana.value">
+          <img class="imgborder" src="assets/images/exp_openwin.png" alt="open" width="100%" height="300px">
+          <small class="text-danger">{{'url_dont_contains_keyword'|translate:{key:'/dgrv4/cus/'} }}</small>
+        </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-12">
+          <button type="button" class="btn tpi-btn tpi-second float-left mr-3" [disabled]="editForm.invalid"
+            (click)="create()">
+            {{ "button.create" | translate }}
+          </button>
+          <!-- <button *ngIf="currentAction == 'update'" type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+            [disabled]="!form.valid || !checkLdapDataListValid()"
+            (click)="update();">{{'button.update'|translate}}</button> -->
+          <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="changePage('query')">
+            {{ "button.return_to_list" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-container>
+<p-toast [style]="{ marginTop: '60px' }" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{ width: '50vw' }" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{
+          backgroundColor: 'var(--red-300)',
+          'border-color': 'var(--red-300)'
+        }" label="{{ 'button.confirm' | translate }}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{ 'button.cancel' | translate }}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

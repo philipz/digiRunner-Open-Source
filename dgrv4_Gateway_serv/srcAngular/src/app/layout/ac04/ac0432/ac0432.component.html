@@ -1,0 +1,145 @@
+<app-container [title]="title">
+    <a *ngIf="queryModuleSiteId" [routerLink]="['/ac04/ac0422/']" routerLinkActive="router-link-active"
+        class="btn btn-warning return-postion">{{ 'return_dot_net_query_view' | translate }}</a>
+    <button type="submit" class="btn btn-warning site-postion"
+        (click)="create()">{{ 'create_site' | translate }}</button>
+    <a [routerLink]="['/ac04/ac0422/']" routerLinkActive="router-link-active"
+        class="btn btn-warning binding-postion">{{ 'button.navigate_to_binding_module' | translate }}</a>
+    <p-table [columns]="cols" [value]="data" dataKey="siteId" [style]="{'word-break':'break-word'}">
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col style="width:5%">
+                <col style="width:5%">
+                <col style="width:20%">
+                <!-- <col style="width:7%"> -->
+                <col style="width:10%">
+                <col style="width:20%">
+                <!-- <col style="width:10%"> -->
+                <col style="width:40%">
+            </colgroup>
+            <colgroup>
+                <col style="width:280px">
+            </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field"
+                    [pSortableColumnDisabled]="col.field != 'siteId' && col.field != 'siteCode'" scope="col">
+                    {{col.header}}
+                    <p-sortIcon *ngIf="col.field === 'siteId' || col.field === 'siteCode'" [field]="col.field">
+                    </p-sortIcon>
+                </th>
+                <th style="width:280px" scope="col">{{'action'|translate}}</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData>
+            <tr>
+                <td>
+                    {{rowData.siteId}}
+                </td>
+                <td>
+                    <img *ngIf="rowData.status === '1'" style="width: 20px;height: 20px;"
+                        src="assets/images/icon_acg@2x.png" alt="active"/>
+                    <img *ngIf="rowData.status === '0'" style="width: 20px;height: 20px;"
+                        src="assets/images/icon_acr@2x.png" alt="stop"/>
+                </td>
+                <td>
+                    {{rowData.siteCode}}:{{rowData.bindingPort}}
+                </td>
+                <!-- <td>
+                    {{rowData.bindingPort}}
+                </td> -->
+                <td>
+                    {{rowData.clrVersion}}
+                </td>
+                <td>
+                    <a *ngIf="rowData.moduleName && rowData.moduleVersion" href="javascript:void(0)"
+                        (click)="redirect(rowData.moduleName)" routerLinkActive="router-link-active">
+                        <span>{{rowData.moduleName}} ({{rowData.moduleVersion}})</span>
+                    </a>
+                </td>
+                <!-- <td>
+                    {{rowData.moduleVersion}}
+                </td> -->
+                <td>
+                    {{rowData.siteMemo}}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-deta" (click)="update(rowData)">
+                            <span class="fa fa-edit">{{'button.update'|translate}}</span>
+                        </button>
+                        <button
+                            [disabled]="rowData.status === '1' && rowData.moduleName === 'tsmpnaa' ? true : false || rowData.moduleID === 0 && rowData.moduleName === null"
+                            type="button" class="btn btn-deta mr-5" (click)="startStop(rowData)">
+                            <span class="fa"
+                                [ngClass]="{'fa-lock': rowData.status === '1' , 'fa-lock-open': rowData.status === '0'}">
+                                {{rowData.status === '1' ? inactive : active}}
+                            </span>
+                        </button>
+                        <button [disabled]="rowData.status === '1'" type="button" class="btn btn-deta"
+                            (click)="delete(rowData)">
+                            <span class="fa fa-trash-alt">{{'button.delete'|translate}}</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+            <!-- <tr *ngIf="rowCount">
+                <td [attr.colspan]="columns.length+1">{{'row_count' | translate}}: {{rowCount}}</td>
+            </tr> -->
+            <tr>
+                <td colspan="9" *ngIf="this.rowCount!=0"> {{'row_count' | translate}}: {{this.rowCount}}</td>
+            </tr>
+            <tr>
+                <td colspan="9" *ngIf="this.rowCount==0"> {{'no_rec' | translate}}</td>
+            </tr>
+        </ng-template>
+        <!-- <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length+1">
+                    {{'no_rec' | translate}}
+                </td>
+            </tr>
+        </ng-template> -->
+    </p-table>
+
+    <app-dialog [title]="dialogTitle" [width]="dialogWidth" #dialog></app-dialog>
+    <p-toast position="center" key="confirm" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+        <ng-template let-message pTemplate="message">
+            <div style="text-align: center">
+                <em class="fas fa-exclamation-triangle fa-3x"></em>
+                <h4>{{message.summary}}</h4>
+                <p>{{message.detail}}</p>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-6">
+                    <button type="button" pButton (click)="onStartStopConfirm()" label="Yes"
+                        class="ui-button-success"></button>
+                </div>
+                <div class="ui-g-6">
+                    <button type="button" pButton (click)="onReject()" label="No" class="ui-button-secondary"></button>
+                </div>
+            </div>
+        </ng-template>
+    </p-toast>
+    <p-toast position="center" key="delete" (onClose)="onReject()" [modal]="true" [baseZIndex]="5000">
+        <ng-template let-message pTemplate="message">
+            <div style="text-align: center">
+                <em class="fas fa-exclamation-triangle fa-3x"></em>
+                <h4>{{message.summary}}</h4>
+                <p>{{message.detail}}</p>
+            </div>
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-6">
+                    <button type="button" pButton (click)="onDeleteConfirm()" label="Yes"
+                        class="ui-button-success"></button>
+                </div>
+                <div class="ui-g-6">
+                    <button type="button" pButton (click)="onReject()" label="No" class="ui-button-secondary"></button>
+                </div>
+            </div>
+        </ng-template>
+    </p-toast>
+</app-container>

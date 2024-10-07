@@ -1,0 +1,56 @@
+<app-container [title]="title">
+    <ng-container>
+        <small *ngIf="acConf.edition == 'Express'"
+            class="form-text text-info text-center">{{'default_allow_exten'|translate}}：war</small>
+        <small *ngIf="acConf.edition == 'Enterprise'"
+            class="form-text text-info text-center">{{'default_allow_exten'|translate}}：jar、war</small>
+        <div class="upload">
+            <img src="assets/images/icon_cloud@2x.png" alt="">
+            <label class="percentage">{{value}}</label>
+            <input *ngIf="acConf.edition == 'Express'" class="choose-file" accept=".war" type="file" id="choose-file"
+                (change)="openFileBrowser($event)" required style="display:none">
+            <input *ngIf="acConf.edition == 'Enterprise'" class="choose-file" accept=".jar,.war" type="file"
+                id="choose-file" (change)="openFileBrowser($event)" required style="display:none">
+            <!-- <div class="choose-file" id="choose-file"></div> -->
+            <label *ngIf="acConf.edition == 'Express'" for="choose-file" class="upload-file" data-text="choose 1 file">
+                <span>{{'chs_war_file'|translate}}</span>
+            </label>
+            <label *ngIf="acConf.edition == 'Enterprise'" for="choose-file" class="upload-file"
+                data-text="choose 1 file">
+                <span>{{'chs_jar_war_file'|translate}}</span>
+            </label>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="display == false">
+        <div class="upload">
+            <button type="button" class="btn btn-up" (click)="prev()">
+                {{'button.return_to_list'|translate}}
+            </button>
+        </div>
+    </ng-container>
+    <div *ngIf="this.file && (this.file.name != '' && this.file.size != 0)" class="container"
+        style="background:#FAFAFA;">
+        <div class="row form-group" style="display:table;padding: 20px;">
+            <div class="col-4 text-center">
+                <img *ngIf="acConf.edition == 'Express'" src="assets/images/icon_war_file@2x.png" alt="">
+                <img *ngIf="acConf.edition == 'Enterprise'" src="assets/images/icon_jar_war_file@2x.png" alt="">
+            </div>
+            <div class="col-4 text-center" style="display:table-cell">
+                <label>{{this.file.name}}</label>
+            </div>
+            <div class="col-4 text-center" style="display:table-cell">
+                <label> {{this.file.size}}KB</label>
+            </div>
+        </div>
+    </div>
+    <ng-container *ngIf="display">
+        <div class="upload text-center">
+            <button class="btn btn-up mr-3" type="button" [disabled]="disabled" (click)="uploadFiles('','')"
+                style="display: unset;">{{'button.upload'|translate}}</button>
+            <button type="button" class="btn btn-up" (click)="prev()" style="display: unset;" [disabled]="disabled">
+                {{'button.return_to_list'|translate}}
+            </button>
+        </div>
+    </ng-container>
+    <p-toast [style]="{marginTop: '60px'}" position="top-left" (onClose)="onToastClose($event)"></p-toast>
+</app-container>

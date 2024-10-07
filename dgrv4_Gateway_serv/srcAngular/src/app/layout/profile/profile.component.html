@@ -1,0 +1,23 @@
+<app-container [title]="title">
+  <div [hidden]="user?.idPType == 'LDAP' || user?.idPType == 'MLDAP' || user?.idPType == 'API'">
+    <app-user-detail *ngIf="!isidTokenForm" [data]="user" [center]="false"></app-user-detail>
+    <div *ngIf="isidTokenForm">
+      <div class="form-group row ">
+        <div class="col-4 " *ngFor="let item of tokenData">
+          <label>{{item.label}}</label>
+          <label class="form-control border-line mb-2" [style]="{ 'word-break': 'break-word','height':'auto' }">
+            {{ (item.label == 'iat' || item.label == 'exp') ? formateDate(item.value) : item.value}}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [hidden]="!(user?.idPType == 'LDAP' || user?.idPType == 'MLDAP' || user?.idPType == 'API')">
+    <div class="form-group row">
+      <div class="col-6">
+        <label for="userid">{{'User Name'}}</label>
+        <label class="form-control border-line">{{user?.userName}}</label>
+      </div>
+    </div>
+  </div>
+</app-container>

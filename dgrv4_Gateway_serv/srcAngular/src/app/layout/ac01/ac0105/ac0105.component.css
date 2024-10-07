@@ -1,0 +1,15 @@
+.form-group label {
+  background: #F6F6F6;
+}
+
+/* .tooltip-custom-w{
+  width: 600px
+ }
+ */
+
+ .imgborder{
+  border-radius: 15px;
+  /* border: #504d4d 1px solid; */
+  background-color: #eee;
+  object-fit: contain;
+ }

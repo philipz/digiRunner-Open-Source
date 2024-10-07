@@ -1,0 +1,13 @@
+/* table tbody>tr>td {
+    padding: 5px;
+    background: inherit;
+    border: 1px solid #c8c8c8;
+}
+
+table>tbody>tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+table>tbody>tr:nth-child(even) {
+    background-color: #F9F9F9;
+} */

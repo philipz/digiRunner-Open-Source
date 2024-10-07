@@ -1,0 +1,82 @@
+// $topnav-background-color: linear-gradient(to right, #f49e00 0%, #ee7800 100%);
+$topnav-background-color: #fff;
+:host {
+    .navbar {
+        background: $topnav-background-color;
+        border-bottom: 2px solid #DEDEDE;
+        padding: 6px 0;
+        height: 62px;
+        .navbar-brand {
+            color: #fff;
+        }
+        .nav-item {
+            color: #fff;
+            &:hover {
+                color: #fff;
+            }
+        }
+        .nav-item > a {
+            color: #eee;
+            &:hover {
+                color: #fff;
+            }
+        }
+        .dropdown-menu{
+          background: #FAFAFA;
+        }
+        .nav-item .dropdown-menu .dropdown-item{
+            // color: #ee7800;
+            color: #B7B7B7;
+            background: #FAFAFA;
+            border: 1px solid #F8F8F8;
+        }
+        .nav-item .dropdown-menu .dropdown-item:hover{
+          color: #EA7448;
+          background: #FFE9E1;
+          border: 1px solid #F8F8F8;
+      }
+    }
+    .messages {
+        width: 300px;
+        .media {
+            border-bottom: 1px solid #ddd;
+            padding: 5px 10px;
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+        .media-body {
+            h5 {
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .small {
+                margin: 0;
+            }
+            .last {
+                font-size: 12px;
+                margin: 0;
+            }
+        }
+    }
+    .dp-menu{
+        top:40px!important;
+        left: -70px!important;
+    }
+}
+
+.expiredtime{
+  color: #b7b7b7;
+  border: 1px solid #b7b7b7;
+  border-radius: 20px;
+  padding-left:10px ;
+  padding-right:10px ;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin: auto 0px;
+  width: 95px;
+}
+
+.iconContent{
+  position: relative;
+}

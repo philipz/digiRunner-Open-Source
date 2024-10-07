@@ -1,0 +1,298 @@
+<app-container [title]="title" [isDefault]="PageNum == EmPageBlock.QUERYPAGE " (headerReturn)="headerReturn()">
+    <ng-container *ngIf="PageNum == EmPageBlock.QUERYPAGE">
+        <form [formGroup]="form" (ngSubmit)="submitForm()" class="searchContent">
+            <div class="form-group row" >
+                <div class="col-6 col-xl-6 col-lg-6">
+                    <label class="required control-label">{{'date_range'|translate}}</label>
+                    <div class="d-flex ">
+
+                            <p-button type="button" icon="fas fa-caret-left fa-lg" styleClass="tpi-dark"
+                                (onClick)="preMonth();">
+                            </p-button>
+
+
+                            <span style="font-size: 1.25rem; padding: 4px;">{{currentDate.getMonth() + 1}}
+                                {{'calendar.month'|translate}}</span>
+
+
+                            <p-button type="button" icon="fa fa-caret-right fa-lg" styleClass="tpi-dark"
+                                (onClick)="nextMonth()">
+                            </p-button>
+
+                        <div>
+                            <p-calendar [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" appendTo="body"
+                                formControlName="startDate" dateFormat="yy/mm/dd" [showIcon]="true">
+                            </p-calendar>
+                            <div *ngIf="startDate.invalid && (startDate.dirty || startDate.touched)"
+                                class="text-danger">
+                                <small class="form-text">{{startDate.errors.required | translate}}</small>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="padding: 3px 10px;">～</label>
+                        </div>
+                        <div>
+                            <p-calendar [style]="{'width':'100%'}" formControlName="endDate" appendTo="body"
+                                [inputStyle]="{'width':'100%'}" dateFormat="yy/mm/dd" [showIcon]="true">
+                            </p-calendar>
+                            <div *ngIf="endDate.invalid && (endDate.dirty || endDate.touched)" class="text-danger">
+                                <small class="form-text">{{endDate.errors.required | translate}}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 col-xl-4 col-lg-4">
+                    <label class="control-label">{{'keyword_search'|translate}}</label>
+                    <input type="text" formControlName="keyword" class="form-control"
+                        placeholder="{{'keyword_search'|translate}}">
+                </div>
+                <div class="col-2 col-xl-2 col-lg-2">
+                    <label class="control-label">{{'status'|translate}}</label>
+                    <p-dropdown [showClear]="true" [options]="statusOption" [filter]="true"
+                        placeholder="{{'plz_chs' | translate}}" formControlName="status" [style]="{'width':'100%'}">
+                    </p-dropdown>
+                </div>
+            </div>
+            <div class="form-group row mb-0">
+                <div class="col-12">
+                    <button type="submit" class="btn tpi-btn tpi-primary float-left mr-3"
+                        [disabled]="form.invalid">{{'button.search'|translate}}</button>
+                    <button type="button" class="btn tpi-btn tpi-second float-right" (click)="create();">
+                        {{'button.create'|translate}}
+                    </button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <p-table *ngIf="cols" [columns]="cols" [value]="dataList" [style]="{'word-break':'break-word'}" styleClass="p-datatable-striped"
+        responsiveLayout="scroll">
+            <!-- <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns" [style.width]="col.width">
+                    <colgroup style="width:150px;">{{'action'|translate}}</colgroup>
+                </colgroup>
+            </ng-template> -->
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th rowspan="2" style="width: 5%;" scope="col">{{'add_job_id'|translate}}</th>
+                    <th rowspan="1" style="width: 20%;" scope="col">{{'type'|translate}}</th>
+                    <th rowspan="2" style="width: 30%;" scope="col">{{'identif_data'|translate}}</th>
+                    <th rowspan="2" style="width: 5%;" scope="col">{{'status'|translate}}</th>
+                    <th rowspan="2" style="width: 10%;" scope="col">{{'job_start_date'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'job_step'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'init_time'|translate}}</th>
+                    <th rowspan="2" style="width:150px;" scope="col">{{'action'|translate}}</th>
+                </tr>
+                <tr>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'task'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'exec_result'|translate}}</th>
+                    <th rowspan="1" style="width: 10%;" scope="col">{{'update_time'|translate}}</th>
+                </tr>
+                <!-- <tr>
+                    <th *ngFor="let col of columns" pResizableColumn [style.width]="col.width">
+                        {{col.header}}
+                    </th>
+                    <th style="width:150px;">
+                        {{'action'|translate}}
+                    </th>
+                </tr> -->
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-i="rowIndex">
+                <tr>
+                    <td rowspan="2" style="width: 5%;">{{rowData.apptJobId}}</td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.refItemNo == ''">&nbsp;</span>
+                        <span *ngIf="rowData.refItemNo != ''">{{rowData.refItemNo}}</span>
+                    </td>
+                    <td rowspan="2" style="width: 30%;">
+                      <span>{{!rowData.t? (rowData.identifData | string_length:100) : rowData.identifData }}</span>
+                        <!-- <span>{{rowData.identifData | string_length:100}}</span>-->
+                            <!-- <a *ngIf="rowData.identifData.length>100" href="javascript:void(0)" (click)="switchOri(rowData)">
+                              <label>{{rowData.t ? ("show_less" | translate) : ("show_more" | translate)}}
+                                <i class="fas" [ngClass]="[rowData.t ? 'fa-angle-double-left float-left mt-1 mr-1': 'fa-angle-double-right ']"></i></label>
+                            </a> -->
+                            <label class="moreless" *ngIf="rowData.identifData.length>100" (click)="switchOri(rowData)">
+                              {{rowData.t ? '' : ("show_more" | translate)}}
+                              <i  class="fas" [ngClass]="[rowData.t ? 'fa-angle-double-left  mt-1 mr-1': 'fa-angle-double-right mt-1 ']"></i>
+                              {{rowData.t ? ("show_less" | translate) : ''}}
+                            </label>
+
+                    </td>
+                    <td rowspan="2" style="width: 5%;">{{rowData.status}}</td>
+                    <td rowspan="2" style="width: 10%;">{{rowData.startDateTime}}</td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.jobStep == ''">&nbsp;</span>
+                        <span *ngIf="rowData.jobStep != ''">{{rowData.jobStep}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.createDateTime == ''">&nbsp;</span>
+                        <span *ngIf="rowData.createDateTime != ''">{{rowData.createDateTime}}</span>
+                    </td>
+                    <td rowspan="2" style="text-align:center;width: 150px;">
+                        <!-- <div class="btn-group"> -->
+                            <!-- <button type="button" class="btn btn-deta mr-5"
+                                (click)="showDialog(rowData,formOperate.detail)">
+                                <span class="fa fa-search">{{'detail'|translate}}</span>
+                            </button> -->
+                            <button pButton pRipple type="button" icon="pi pi-eye"
+                              class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.detail)"
+                             [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
+
+                            <!-- <button *ngIf="rowData['status'].includes('W') || rowData['status'].includes('C')"
+                                type="button" class="btn btn-deta mr-5" (click)="showDialog(rowData,formOperate.run)">
+                                <span class="fa fa-tasks">{{'button.run'|translate}}</span>
+                            </button> -->
+
+                            <button pButton pRipple type="button" icon="fa fa-tasks" *ngIf="rowData['status'].includes('W') || rowData['status'].includes('C')"
+                              class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.run)"
+                             [pTooltip]="'button.run' | translate" tooltipPosition="top"></button>
+
+                            <!-- <button *ngIf="rowData['status'].includes('W')" type="button" class="btn btn-deta"
+                                (click)="showDialog(rowData,formOperate.cancel)">
+                                <span class="fa fa-ban">{{'button.cancel'|translate}}</span>
+                            </button> -->
+
+                            <button pButton pRipple type="button" icon="fa fa-ban" *ngIf="rowData['status'].includes('W')"
+                            class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.cancel)"
+                           [pTooltip]="'button.cancel' | translate" tooltipPosition="top"></button>
+                            <!-- <button *ngIf="!rowData['status'].includes('W') && !rowData['status'].includes('C')"
+                                type="button" class="btn btn-deta" (click)="showDialog(rowData,formOperate.redo)">
+                                <span class="fa fa-retweet">{{'button.redo'|translate}}</span>
+                            </button> -->
+
+                            <button pButton pRipple type="button" icon="fa fa-retweet" *ngIf="!rowData['status'].includes('W') && !rowData['status'].includes('C')"
+                            class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData,formOperate.redo)"
+                           [pTooltip]="'button.redo' | translate" tooltipPosition="top"></button>
+                        <!-- </div> -->
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.refSubitemNo == ''">&nbsp;</span>
+                        <span *ngIf="rowData.refSubitemNo != ''">{{rowData.refSubitemNo}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.execResult == ''">&nbsp;</span>
+                        <span *ngIf="rowData.execResult != ''">{{rowData.execResult}}</span>
+                    </td>
+                    <td rowspan="1" style="width: 10%;">
+                        <span *ngIf="rowData.updateDateTime == ''">&nbsp;</span>
+                        <span *ngIf="rowData.updateDateTime != ''">{{rowData.updateDateTime}}</span>
+                    </td>
+                </tr>
+                <!-- <tr>
+                    <td *ngFor="let col of columns" [style.width]="col.width">
+                        <span *ngIf="col.field != 'identifData' && col.field != 'status'"
+                            [ngClass]="{'text-danger': col.field == 'startDateTime' && rowData['canExec'] == 'Y'}">
+                            {{ rowData[col.field] }}
+                        </span>
+                        <span *ngIf="col.field == 'identifData'" (click)="copyIdentifData(rowData[col.field]);">
+                            {{ col.type.transform(rowData[col.field], 100) }}
+                            <a *ngIf="rowData[col.field].length > 100" href="javascript:void(0)"
+                                pTooltip="{{rowData[col.field]}}">{{'show_more'|translate}}</a>
+                        </span>
+                        <span *ngIf="col.field == 'status'" [ngClass]="{'text-danger': rowData[col.field].includes('R')}">
+                            {{ rowData[col.field] }}
+                        </span>
+                    </td>
+                    <td style="text-align:center;width: 150px;">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-deta mr-5"
+                                (click)="showDialog(rowData,formOperate.detail)">
+                                <span class="fa fa-search">{{'button.query'|translate}}</span>
+                            </button>
+                            <button *ngIf="rowData['status'].includes('W') || rowData['status'].includes('C')" type="button"
+                                class="btn btn-deta mr-5" (click)="showDialog(rowData,formOperate.run)">
+                                <span class="fa fa-tasks">{{'button.run'|translate}}</span>
+                            </button>
+                            <button *ngIf="rowData['status'].includes('W')" type="button" class="btn btn-deta"
+                                (click)="showDialog(rowData,formOperate.cancel)">
+                                <span class="fa fa-ban">{{'button.cancel'|translate}}</span>
+                            </button>
+                            <button *ngIf="!rowData['status'].includes('W') && !rowData['status'].includes('C')"
+                                type="button" class="btn btn-deta" (click)="showDialog(rowData,formOperate.redo)">
+                                <span class="fa fa-retweet">{{'button.redo'|translate}}</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr> -->
+            </ng-template>
+            <ng-template pTemplate="footer" let-columns>
+                <tr *ngIf="rowcount">
+                    <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+                        <span style="vertical-align:middle ;">{{'row_count' | translate}}: {{rowcount}}</span>
+                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            (click)="moreData();">{{'button.more'|translate}}</button> -->
+
+                            <!-- 查詢更多 -->
+                            <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                            <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                            </button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage" let-columns>
+                <tr>
+                    <td [attr.colspan]="columns.length+1">
+                        {{'no_rec' | translate}}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+    <ng-container *ngIf="PageNum == EmPageBlock.CREATE">
+        <app-job-form [data]="createData" (changePage)="changePage($event)"></app-job-form>
+    </ng-container>
+    <ng-container *ngIf="PageNum == EmPageBlock.DETAIL">
+        <app-job-detail [data]="detailData" (changePage)="changePage($event)"></app-job-detail>
+    </ng-container>
+
+</app-container>
+<app-dialog #dialog [title]="dialogTitle"></app-dialog>
+<!-- <p-toast position="center" key="confirm" (onClose)="onReject()" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onConfirm('do')" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<!-- <p-toast position="center" key="delete" (onClose)="onReject()" [baseZIndex]="5000">
+    <ng-template let-message pTemplate="message">
+        <div style="text-align: center">
+            <em class="fas fa-exclamation-triangle fa-3x"></em>
+            <h4>{{message.summary}}</h4>
+            <p>{{message.detail}}</p>
+        </div>
+        <div class="ui-g ui-fluid">
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onConfirm('cancel')" label="{{'button.confirm'|translate}}"
+                    class="ui-button-success"></button>
+            </div>
+            <div class="ui-g-6">
+                <button type="button" pButton (click)="onReject()" label="{{'button.cancel'|translate}}"
+                    class="ui-button-secondary"></button>
+            </div>
+        </div>
+    </ng-template>
+</p-toast> -->
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>

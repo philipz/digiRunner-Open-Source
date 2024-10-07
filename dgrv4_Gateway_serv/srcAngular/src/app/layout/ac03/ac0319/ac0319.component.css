@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+/* .form-group label {
+  background: #F6F6F6;
+} */
+
+.preview {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 5px;
+  border: solid 1px #eeeeee;
+}

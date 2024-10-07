@@ -1,0 +1,402 @@
+<form [formGroup]="form">
+  <!-- <div>・{{ "token" | translate }}</div> -->
+  <!-- <div class="form-row align-items-center">
+
+    <div class="card card-body" style="width: 100%">
+      <div [style]="{
+          display: 'flex',
+          width: '100%',
+          marginBottom: '27px'
+        }">
+        <div [style]="{
+            display: 'flex',
+            'align-items': 'center',
+            width: '100%'
+          }">
+          <div class="form-check" style="margin-top: 8px">
+            <input type="checkbox" class="form-check-input" formControlName="enableClientAuth"
+              (change)="enableClientAuthHandler()" />
+          </div>
+          <div [style]="{
+              display: 'flex',
+              width: '100%',
+              'flex-direction': 'column',
+              'align-items': 'start',
+              'flex-grow': '1',
+              marginLeft: '12px'
+            }">
+            <label for="clientId" class="col-form-label mr-2 required">
+              {{"client_id" | translate }}<span style="color:red">*</span>
+            </label>
+            <input class="form-control mr-2" id="clientId" formControlName="clientId" style="width: 100%"
+              autocomplete="off" />
+          </div>
+          <div [style]="{
+              display: 'flex',
+              width: '100%',
+              'flex-direction': 'column',
+              'align-items': 'start',
+              'flex-grow': '1',
+              marginLeft: '20px'
+            }">
+            <label for="clientPwd" class="col-form-label mr-2 required">{{
+              "client_password" | translate
+              }} <span style="color:red">*</span></label>
+            <input type="password" class="form-control" id="clientPwd" formControlName="clientPasswd"
+              style="width: 100%" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+      <div [style]="{
+          display: 'flex',
+          width: '100%'
+        }">
+        <div [style]="{
+            display: 'flex',
+            'align-items': 'center',
+            width: '100%'
+          }">
+          <div class="form-check" style="margin-top: 8px">
+            <input type="checkbox" class="form-check-input" formControlName="enableUserAuth"
+              (change)="enableUserAuthHandler()" />
+          </div>
+          <div [style]="{
+              display: 'flex',
+              width: '100%',
+              'flex-direction': 'column',
+              'align-items': 'start',
+              'flex-grow': '1',
+              marginLeft: '12px'
+            }">
+            <label for="userName" class="col-form-label mr-2 required">{{
+              "user_name" | translate
+              }}</label>
+            <input class="form-control mr-2" id="userName" formControlName="userName" style="width: 100%"
+              autocomplete="off" />
+          </div>
+          <div [style]="{
+              display: 'flex',
+              width: '100%',
+              'flex-direction': 'column',
+              'align-items': 'start',
+              'flex-grow': '1',
+              marginLeft: '20px'
+            }">
+            <label for="passwd" class="col-form-label mr-2 required">{{
+              "password" | translate
+              }}</label>
+            <input type="password" class="form-control" id="passwd" formControlName="passwd" style="width: 100%"
+              autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- 請求 -->
+  <label class="panel-title">{{ "request" | translate }}</label>
+
+  <div class="form-row align-items-center">
+    <div class="card card-body">
+      <div *ngIf="dcs.length > 0 || sites.length > 0" class="col-12 mt-3">
+        <div class="row">
+          <div class="col text-center pt-2">
+            <label *ngIf="dcs" class="required">{{
+              "dc_code" | translate
+              }}</label>
+            <label *ngIf="sites" class="required">{{
+              "site_code" | translate
+              }}</label>
+          </div>
+          <div class="col-10">
+            <p-dropdown *ngIf="dcs" [options]="dcs" formControlName="dc" [style]="{ 'z-index': '1000' }">
+            </p-dropdown>
+            <p-dropdown *ngIf="sites" [options]="sites" formControlName="siteCode" [style]="{ 'z-index': '1000' }">
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+
+
+        <!-- 新表頭區塊 -->
+        <label class="area-title required mr-2">{{ "digirunner_url" | translate }}<span style="color:red;">*</span></label>
+        <div class="col-12" class="d-flex align-items-center" style="gap:1rem">
+          <!-- {{ protocol }}// -->
+          <p-dropdown [options]="methods" formControlName="method"></p-dropdown>
+          <input class="form-control" id="testUrl" formControlName="testUrl" />
+        </div>
+
+
+      <!-- <div [style]="{
+          display: 'flex',
+          width: '100%',
+          'flex-direction': 'column',
+          'align-items': 'start'
+        }">
+        <div>
+          <label class="required" style="padding: 0; margin: 0; font-weight: 500">
+            {{ "digirunner_url" | translate }}<span style="color:red">*</span></label>
+        </div>
+        <div [style]="{
+            display: 'flex',
+            width: '100%',
+            'align-items': 'center'
+          }">
+          {{ protocol }}//
+          <input class="form-control" formControlName="baseUrl" style="margin-left: 3px; margin-right: 3px" />
+          &nbsp; / &nbsp;
+          <input class="form-control" id="tsmpUrl" formControlName="tsmpUrl" />
+        </div>
+      </div> -->
+
+      <hr />
+      <!-- Authorization -->
+      <!-- <div [style]="{
+          display: 'flex',
+          width: '100%',
+          'flex-direction': 'column',
+          'align-items': 'start'
+        }"> -->
+      <label class="area-title">Authorization</label>
+        <div class="form-group row">
+            <div class="col-3">
+              <p-dropdown [options]="authTypeList" [filter]="true" formControlName="authType" [style]="{'width':'100%'}"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="row" [hidden]="authType.value != 'pwd' && authType.value != 'cc'  && authType.value != 'ba'" >
+          <div class="col-3">
+            <label for="clientId" class="col-form-label mr-2   required">
+              {{"client_id" | translate }}<span style="color:red;">*</span>
+            </label>
+            <input class="form-control mr-2" id="clientId" formControlName="clientId" style="width: 100%"
+              autocomplete="off" />
+          </div>
+          <div class="col-3">
+            <label for="clientPwd" class="col-form-label mr-2 required">{{
+              "client_password" | translate
+              }}<span style="color:red;">*</span></label>
+            <input type="password" class="form-control" id="clientPwd" formControlName="clientPasswd"
+              style="width: 100%" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-group" [hidden]="authType.value != 'pwd'">
+          <div class="row">
+            <div class="col-3">
+              <label for="user_name" class="col-form-label mr-2 required">
+                {{"user_name" | translate }}<span style="color:red;">*</span>
+              </label>
+              <input class="form-control mr-2" id="userName" formControlName="userName" style="width: 100%"
+                autocomplete="off" />
+            </div>
+
+            <div class="col-3">
+              <label for="clientPwd" class="col-form-label mr-2 required">{{
+                "password" | translate
+                }}<span style="color:red;">*</span></label>
+              <input type="password" class="form-control" id="passwd" formControlName="passwd"
+                style="width: 100%" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+
+        <div  [hidden]="authType.value != 'dgrk'">
+          <div class="row">
+            <div class="col-12">
+              <label for="user_name" class="col-form-label mr-2 required">API Key
+                <span style="color:red;">*</span></label>
+              <input class="form-control mr-2" id="apiKey" formControlName="apiKey" style="width: 100%"
+                autocomplete="off" />
+            </div>
+
+            <div class="col-12">
+              <label for="clientPwd" class="col-form-label mr-2 required">Secret Key<span style="color:red;">*</span></label>
+              <input type="password" class="form-control" id="secretKey" formControlName="secretKey"style="width: 100%" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+
+
+      <hr />
+
+      <!-- <div [style]="{
+          display: 'flex',
+          width: '100%',
+          'flex-direction': 'column',
+          'align-items': 'start'
+        }">
+        <div style="font-weight: 500">
+          {{ "http_method" | translate }}
+        </div>
+        <div style="width: 50%">
+          <p-dropdown [options]="methods" formControlName="method" [style]="{
+              'z-index': '999',
+              'margin-top': '12px',
+              width: '100%',
+              'margin-bottom': '12px'
+            }">
+          </p-dropdown>
+        </div>
+      </div>
+
+      <hr /> -->
+
+      <!-- 請求表頭 -->
+      <label class="area-title">{{ "req_header" | translate }}</label>
+      <div class="key-value-row align-has-checkbox align-has-btn-2">
+        <label class="col-form-label">{{
+          "key" | translate
+          }}</label>
+        <input type="text" class="form-control" name="key"
+          value="Content-Type" disabled />
+          <label class="col-form-label">{{
+            "value" | translate
+            }}</label>
+          <input type="text" class="form-control" name="value" formControlName="ContentType" />
+      </div>
+      <div class="key-value-row-has-add-btn">
+          <app-key-value name="keyvalue" keyLabel="{{ 'key' | translate }}" valueLabel="{{ 'value' | translate }}"
+            #keyValueRequest formControlName="keyValueRequest"></app-key-value>
+
+        <!-- <button type="button" style="
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            justify-content: center;
+            margin-left: 20px;
+            margin-bottom: 29px;
+            padding: 5px;
+          " (click)="add('request')">
+          <div>
+            <i class="fa fa-plus"></i>
+          </div>
+        </button> -->
+        <!-- <button pButton pRipple type="button" icon="fa fa-plus"
+                style=" border-radius: 50%; margin-bottom: 20px;border: 1px solid;"
+                class="p-button-rounded p-button-text p-button-plain"
+                (click)="add('request')" [pTooltip]="'button.new' | translate" tooltipPosition="top"></button> -->
+        <!-- 增加"列"按鈕 -->
+        <button type="button" class="btn-icon tpi-second" (click)="add('request')">
+          <i class="fa fa-plus"></i>
+        </button>
+      </div>
+      <hr />
+
+      <div [style]="{
+          display: 'flex',
+          width: '100%',
+          'flex-direction': 'column',
+          'align-items': 'start'
+        }">
+        <label class="area-title">{{ "req_body" | translate }}</label>
+
+        <div class="p-form-check-line form-group">
+          <ng-container>
+            <div class="p-form-check">
+              <p-radioButton formControlName="requestBody" value="none"  inputId="requestBody_none"></p-radioButton>
+              <label for="requestBody_none" class="ml-2 mb-0">{{"none" | translate}}</label>
+            </div>
+            <div class="p-form-check">
+              <p-radioButton formControlName="requestBody" value="form"  inputId="requestBody_form"></p-radioButton>
+              <label for="requestBody_form" class="ml-2 mb-0">form-data</label>
+            </div>
+            <div class="p-form-check">
+              <p-radioButton formControlName="requestBody" value="formurl"  inputId="requestBody_formurl"></p-radioButton>
+              <label for="requestBody_formurl" class="ml-2 mb-0">x-www-form-urlencoded</label>
+            </div>
+            <div class="p-form-check">
+              <p-radioButton formControlName="requestBody" value="body"  inputId="requestBody_body"></p-radioButton>
+              <label for="requestBody_body" class="ml-2 mb-0">raw</label>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="row col-12 mb-2" *ngIf="
+            this.form.get('requestBody')!.value == 'body' || this.form.get('requestBody')!.value == 'xml'"
+          style="width: 100%;">
+          <textarea rows="5" class="form-control" formControlName="bodyText" style="resize: none;width:100%"></textarea>
+        </div>
+
+        <div class="row col-12 px-0" *ngIf="this.form.get('requestBody')!.value == 'form'">
+          <div class="col-10">
+            <app-key-value-grid name="keyvalue" #keyValueForm formControlName="keyValueForm"></app-key-value-grid>
+          </div>
+          <div class="col-auto px-0" style="display: flex;
+          align-items: end;">
+            <!-- <button type="button" class="btn btn-warning mt-3" (click)="add('form')">
+              {{ "button.add" | translate }}
+            </button> -->
+            <button type="button" class="btn btn-icon tpi-second" (click)="add('form')"
+              style="margin-bottom: 22px">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- x-www-form-urlencode -->
+        <div class="row" *ngIf=" this.form.get('requestBody')!.value == 'formurl'">
+          <div class="col-auto">
+            <app-key-value name="keyvalue" #keyValueForm formControlName="keyValueForm"></app-key-value>
+          </div>
+          <div class="col-auto px-0" style="display: flex;align-items: end;">
+            <button type="button" class="btn tpi-second" (click)="add('form')"
+              style="border-radius: 50%;  margin-bottom: 22px">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" class="btn tpi-btn tpi-night mr-2 " (click)="send()">
+          {{ "test" | translate }}
+        </button>
+
+        <button type="button" class="btn tpi-btn tpi-night mr-2 " (click)="send(true)">
+          Mock {{ "test" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <label class="panel-title">{{ "response" | translate }}</label>
+  <div class="form-row align-items-center">
+    <div class="card card-body" style="width: 100%">
+      <div [style]="{
+          display: 'flex',
+          width: '100%',
+          'flex-direction': 'column',
+          'align-items': 'start'
+        }">
+        <div style="width: 100%">
+          <div style="margin-bottom: 4px" [ngStyle]="{color: (this.form.get('resStatus')!.value.toString().length>0 && this.form.get('resStatus')!.value.toString().charAt(0)!='2')?'#dc3545':'#5A5541'}">{{ "status" | translate }}</div>
+          <div class="form-inline">
+            <input type="text" readonly class="form-input form-control" formControlName="resStatus"
+              style="width: 100%" />
+            <span class="ml-2 text-danger">{{ resTime }}</span>
+          </div>
+        </div>
+        <div style="width: 100%">
+          <div style="margin-bottom: 4px; margin-top: 20px">
+            {{ "headers" | translate }}
+          </div>
+          <div>
+            <textarea rows="3" class="form-control" formControlName="headerList" readonly
+              style="resize: none"></textarea>
+          </div>
+        </div>
+        <div style="width: 100%">
+          <div style="margin-bottom: 4px; margin-top: 20px">
+            {{ "body" | translate }}
+          </div>
+          <div>
+            <textarea rows="5" class="form-control" formControlName="resBody" readonly style="resize: none"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

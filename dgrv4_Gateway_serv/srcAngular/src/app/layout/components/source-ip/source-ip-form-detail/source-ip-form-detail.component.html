@@ -1,0 +1,20 @@
+<div class="form-group row" [formGroup]="form">
+  <div class="col-12 pl-0" style="align-items: center;display: flex;">
+    <div class="col">
+      <label class="form-label control-label required">Source IP</label>
+
+      <input type="text" class="form-control" formControlName="ipForRedirect"
+        placeholder="{{'input_example.text' | translate}}">
+      <!-- <hr> -->
+      <div class="p-3 mt-1" style="background-color: #eaeaea;border-radius: 15px;">
+        <!-- <app-src-url-reg formControlName="ipSrcUrl"></app-src-url-reg> -->
+        <app-src-url-input formControlName="ipSrcUrl"></app-src-url-input>
+      </div>
+    </div>
+
+    <button type="button" class="btn tpi-primary ml-1" (click)="deleteItem()" style="border-radius: 50%"
+      [disabled]="disabled">
+      <i class="fa fa-minus"></i>
+    </button>
+  </div>
+</div>

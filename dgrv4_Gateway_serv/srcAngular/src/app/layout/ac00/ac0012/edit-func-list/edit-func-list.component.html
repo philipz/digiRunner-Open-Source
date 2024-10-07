@@ -1,0 +1,41 @@
+<div class="container py-1 px-0">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <div [ngClass]="{'row': this.data?.displayInDialog == false}">
+            <div class="col-12" [ngClass]="{'col-lg-3':this.data?.displayInDialog == false}">
+                <div class="form-group row">
+                    <div class="col-12 col-xl-12 col-lg-12">
+                        <label for="newRoleAlias" class="control-label">{{'new_role_alias' | translate}}</label>
+                        <input type="text" class="form-control" id="newRoleAlias" formControlName="newRoleAlias"
+                            placeholder="{{'new_role_alias' | translate}}">
+                        <div *ngIf="newRoleAlias?.invalid && (newRoleAlias?.dirty || newRoleAlias?.touched)"
+                            class="text-danger">
+                            <small
+                                class="form-text">{{newRoleAlias.errors.stringalias | translate:newRoleAliasLimitChar}}</small>
+                            <small
+                                class="form-text">{{newRoleAlias.errors.maxlength | translate:newRoleAliasLimitChar}}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-12 col-xl-12 col-lg-12">
+                        <label class="control-label">{{'new_fun_list' | translate}}</label>
+                        <div class="list-group">
+                            <!-- <app-list-group [height]="'500px'" [menu]="menus" style="width:99%;display:block;"
+                                [selected]="this.data.data.funcCodeList" (updateHandler)="update($event)">
+                            </app-list-group> -->
+                            <app-list-group [height]="'100%'" [menu]="menus" [showButton]="false"
+                                style="width:99%;display:block;" [selected]="data?.data.funcCodeList"
+                                (updateHandler)="update($event)">
+                            </app-list-group>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row text-center">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-warning">{{'button.update' | translate}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
