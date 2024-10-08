@@ -20,10 +20,11 @@ bootJar {
 }
 
 import com.github.jk1.license.render.*
-
 licenseReport {
-	renderers = [new SimpleHtmlReportRenderer('license-report.html')]
+
+	renderers = [new InventoryHtmlReportRenderer('license-report.html')]
 	allowedLicensesFile = project.layout.projectDirectory.file("allowed-licenses.json").asFile
+
 }
 
 
