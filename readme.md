@@ -36,8 +36,26 @@ OpenDGR-->Backend-B;
 ## Pre-requisites
 
 - OpenJDK 17+
+   ```shell
+   java --version
+   openjdk 17.0.12 2024-07-16 LTS
+   ...
+   ```
 
 ## Quick Start
+
+### 1. Using Docker
+
+```shell
+docker run -it -d -p 18080:18080 ghcr.io/tpisoftwareospo/opendgr:latest
+```
+
+- Open your browser and navigate to: http://localhost:18080/dgrv4/login
+- Use the default credentials to login: 
+  - username: `manager`
+  - password: `manager123`
+
+### 2. Run Your Own Build
 
 1. Clone the repository: 
     ```sh
@@ -82,7 +100,9 @@ OpenDGR-->Backend-B;
    ```
 
 5. Open your browser and navigate to: http://localhost:18080/dgrv4/login
-6. Use the default credentials to login: username: `manager`, password: `manager123`
+6. Use the default credentials to login: 
+   - username: `manager`
+   - password: `manager123`
 
 ## Create a Simple API Proxy
 
