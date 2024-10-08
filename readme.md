@@ -47,7 +47,7 @@ OpenDGR-->Backend-B;
 ### 1. Using Docker
 
 ```shell
-docker run -it -d -p 18080:18080 ghcr.io/tpisoftwareospo/opendgr:latest
+docker run -it -d -p 18080:18080 ghcr.io/tpisoftwareospo/opendgr
 ```
 
 - Open your browser and navigate to: http://localhost:18080/dgrv4/login
@@ -150,6 +150,3 @@ docker run -p 18080:18080 opendgr
 ```
 
 Open your browser and navigate to: http://localhost:18080/dgrv4/login
-
-
-## License
