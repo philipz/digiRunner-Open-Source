@@ -1,0 +1,14 @@
+name: opendgr
+services:
+    dgr:
+        image: tpisoftwareopensource/opendgr
+        ports:
+            - "31080:18080"
+        environment:
+            - TZ=Asia/Taipei
+        networks:
+          - opendgr
+
+networks:
+  opendgr:
+    driver: bridge

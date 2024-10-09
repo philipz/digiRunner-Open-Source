@@ -44,13 +44,124 @@ OpenDGR-->Backend-B;
 
 ## Quick Start
 
-### 1. Using Docker
+### 1. Using Container
+
+choose one of the following options to launch service by container
+
+#### Option 1: Docker
 
 ```shell
-docker run -it -d -p 18080:18080 tpisoftwareopensource/opendgr
+docker run -it -d -p 31080:18080 tpisoftwareopensource/opendgr
 ```
 
-- Open your browser and navigate to: http://localhost:18080/dgrv4/login
+#### Option 2: Docker-Compose
+
+```yml
+name: opendgr
+services:
+    dgr:
+        image: tpisoftwareopensource/opendgr
+        ports:
+            - "31080:18080"
+        environment:
+            - TZ=Asia/Taipei
+        networks:
+          - opendgr
+
+networks:
+  opendgr:
+    driver: bridge
+```
+
+- save above configuration to `docker-compose.yml`
+- run `docker-compose up -d` at the same directory with `docker-compose.yml`
+
+#### Option 3: Kubernetes
+
+```yml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: open-dgr
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-dgr-svc
+  namespace: open-dgr
+spec:
+  ports:
+    - name: tcp
+      nodePort: 31080
+      port: 18080
+      protocol: TCP
+      targetPort: 18080
+  selector:
+    app: dgr
+  sessionAffinity: None
+  type: NodePort
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dgr
+  name: open-dgr
+  namespace: open-dgr
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: dgr
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: dgr
+      namespace: open-dgr
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: Asia/Taipei
+          image: tpisoftwareopensource/opendgr
+          imagePullPolicy: Always
+          name: open-dgr
+          ports:
+            - containerPort: 18080
+              name: tcp
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '1'
+              memory: 2Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          workingDir: /opt/open-dgr
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+```
+
+- save above configuration to `opendgr.yml`
+- run `kubectl apply -f opendgr.yml`
+
+#### Connect to service
+
+- Open your browser and navigate to: http://localhost:31080/dgrv4/login
 - Use the default credentials to login: 
   - username: `manager`
   - password: `manager123`
