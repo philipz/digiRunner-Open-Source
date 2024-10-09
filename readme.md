@@ -113,20 +113,12 @@ metadata:
   name: open-dgr
   namespace: open-dgr
 spec:
-  progressDeadlineSeconds: 600
   replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: dgr
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: dgr
       namespace: open-dgr
@@ -142,18 +134,7 @@ spec:
             - containerPort: 18080
               name: tcp
               protocol: TCP
-          resources:
-            limits:
-              cpu: '1'
-              memory: 2Gi
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
           workingDir: /opt/open-dgr
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
 ```
 
 - save above configuration to `opendgr.yml`
