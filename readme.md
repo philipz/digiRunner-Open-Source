@@ -33,15 +33,6 @@ OpenDGR-->Backend-A;
 OpenDGR-->Backend-B;
 ```
 
-## Pre-requisites
-
-- OpenJDK 17+
-   ```shell
-   java --version
-   openjdk 17.0.12 2024-07-16 LTS
-   ...
-   ```
-
 ## Quick Start
 
 ### 1. Using Container
@@ -148,6 +139,12 @@ spec:
   - password: `manager123`
 
 ### 2. Run Your Own Build
+
+### Pre-requisites
+
+- OpenJDK 17+
+
+---
 
 1. Clone the repository: 
     ```sh
