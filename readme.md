@@ -73,8 +73,8 @@ networks:
     driver: bridge
 ```
 
-- save above configuration to `docker-compose.yml`
-- run `docker-compose up -d` at the same directory with `docker-compose.yml`
+- save above configuration to `opendgr-compose.yml`
+- run `docker-compose -f opendgr-compose.yml up -d` at the same directory with `opendgr-compose.yml`
 
 #### Option 3: Kubernetes
 
