@@ -28,7 +28,7 @@ OpenDGR is an application-layer API gateway that acts as a central hub for commu
 
 ```mermaid
 graph LR;
-browser-->OpenDGR;
+Browser-->OpenDGR;
 OpenDGR-->Backend-A;
 OpenDGR-->Backend-B;
 ```
