@@ -1,6 +1,8 @@
 {
   "scanSettings": {
-    "baseBranches": []
+    "configMode": "AUTO",
+    "baseBranches": [],
+    "enableLicenseViolations": true,
   },
   "checkRunSettings": {
     "vulnerableCheckRunConclusionLevel": "failure",
