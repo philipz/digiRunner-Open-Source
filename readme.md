@@ -9,7 +9,7 @@ digiRunner is an application-layer API gateway that acts as a central hub for co
 - Real-time Monitoring: Monitors API performance with detailed data for proactive issue identification and resolution.
 - Traffic Management: Ensures system stability by setting limits on API access frequency and quotas.
 
-## Benefits of OpenDGR:
+## Benefits of digiRunner:
 
 - Simplified Frontend Development: Provides a single API entry point, reducing development complexity.
 - Enhanced System Stability: Ensures reliability through traffic control and error handling.
@@ -159,7 +159,7 @@ spec:
     ./gradlew :dgrv4_Gateway_serv:bootRun
     ```
 
-4. Wait for the OpenDGR banner to appear.
+4. Wait for the digiRunner banner to appear.
 
    ```
             _______                   _____                    _____                    _____                    _____                    _____                    _____          
@@ -217,7 +217,7 @@ spec:
     java -jar dgrv4_Gateway_serv/build/libs/opendgr-*.jar
     ```
 
-## Run OpenDGR in a Local Container Registry
+## Run digiRunner in a Local Container Registry
 
 ### 1. Build the Image
 
