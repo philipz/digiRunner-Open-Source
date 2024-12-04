@@ -42,7 +42,7 @@ choose one of the following options to launch service by container
 #### Option 1: Docker
 
 ```shell
-docker run -it -d -p 31080:18080 tpisoftwareopensource/opendgr
+docker run -it -d -p 31080:18080 tpisoftwareopensource/digirunner-open-source
 ```
 
 #### Option 2: Docker-Compose
@@ -51,17 +51,11 @@ docker run -it -d -p 31080:18080 tpisoftwareopensource/opendgr
 name: opendgr
 services:
     dgr:
-        image: tpisoftwareopensource/opendgr
+        image: tpisoftwareopensource/digirunner-open-source
         ports:
             - "31080:18080"
         environment:
             - TZ=Asia/Taipei
-        networks:
-          - opendgr
-
-networks:
-  opendgr:
-    driver: bridge
 ```
 
 - save above configuration to `opendgr-compose.yml`
@@ -73,15 +67,15 @@ networks:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: open-dgr
+  name: digirunner-open-source-ns
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: open-dgr-svc
-  namespace: open-dgr
+  name: digirunner-open-source-svc
+  namespace: digirunner-open-source-ns
 spec:
   ports:
     - name: tcp
@@ -90,7 +84,7 @@ spec:
       protocol: TCP
       targetPort: 18080
   selector:
-    app: dgr
+    app: digirunner
   sessionAffinity: None
   type: NodePort
 
@@ -100,36 +94,36 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: dgr
-  name: open-dgr
-  namespace: open-dgr
+    app: digirunner
+  name: digirunner-open-source-deploy
+  namespace: digirunner-open-source-ns
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dgr
+      app: digirunner
   template:
     metadata:
       labels:
-        app: dgr
-      namespace: open-dgr
+        app: digirunner
+      namespace: digirunner-open-source-ns
     spec:
       containers:
         - env:
             - name: TZ
               value: Asia/Taipei
-          image: tpisoftwareopensource/opendgr
+          image: tpisoftwareopensource/digirunner-open-source
           imagePullPolicy: Always
-          name: open-dgr
+          name: digirunner
           ports:
             - containerPort: 18080
               name: tcp
               protocol: TCP
-          workingDir: /opt/open-dgr
+          workingDir: /opt/digirunner
 ```
 
-- save above configuration to `opendgr.yml`
-- run `kubectl apply -f opendgr.yml`
+- save above configuration to `digirunner-open-source.yml`
+- run `kubectl apply -f digirunner-open-source.yml`
 
 #### Connect to service
 
