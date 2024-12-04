@@ -96,7 +96,7 @@ public class DPB0143Service {
 	protected void checkTime(long jwtTime) {
 		long currentMillis = getCurrentMillis();
 		if (jwtTime > currentMillis || currentMillis - jwtTime > 15000) {
-			this.logger.error(String.format("Time is invalid or expired: %s", DateTimeUtil.dateTimeToString(new Date(jwtTime), DateTimeFormatEnum.西元年月日時分秒毫秒).get()));
+			this.logger.error(String.format("Time is invalid or expired: %s", DateTimeUtil.dateTimeToString(new Date(jwtTime), DateTimeFormatEnum.西元年月日時分秒毫秒).orElse(null)));
 			throw TsmpDpAaRtnCode._1520.throwing();
 		}
 	}

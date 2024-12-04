@@ -1,15 +1,9 @@
 package tpi.dgrv4.entity.component.cache.proxy;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
+import com.esotericsoftware.kryo.Kryo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
-import com.esotericsoftware.kryo.Kryo;
-
 import tpi.dgrv4.common.component.cache.proxy.DaoCacheProxy;
 import tpi.dgrv4.common.component.cache.proxy.ITsmpDpItemsCacheProxy;
 import tpi.dgrv4.common.constant.LocaleType;
@@ -17,6 +11,10 @@ import tpi.dgrv4.entity.entity.ITsmpDpItems;
 import tpi.dgrv4.entity.entity.TsmpDpItems;
 import tpi.dgrv4.entity.entity.TsmpDpItemsId;
 import tpi.dgrv4.entity.repository.TsmpDpItemsDao;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Component
 public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItemsCacheProxy{
@@ -27,7 +25,7 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 	public List<ITsmpDpItems> queryBcryptParam(String itemNo, String locale) {
 		Supplier<List<ITsmpDpItems>> supplier = () -> {			
 			List<ITsmpDpItems> itemsList = getTsmpDpItemsDao().queryBcryptParam(itemNo, locale);
-			if((itemsList == null || itemsList.size() == 0) && !LocaleType.EN_US.equals(locale)) {
+			if((itemsList == null || itemsList.isEmpty()) && !LocaleType.EN_US.equals(locale)) {
 				return getTsmpDpItemsDao().queryBcryptParam(itemNo, LocaleType.EN_US);
 			}			
 			return itemsList;
@@ -64,7 +62,7 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 		
 		Supplier<List<TsmpDpItems>> supplier = () -> {
 			List<TsmpDpItems> list = getTsmpDpItemsDao().queryLike(lastId, keyword, itemNo, isDefault, pageSize, locale);
-			if(list.size() == 0 && !LocaleType.EN_US.equals(locale)) {
+			if(list.isEmpty() && !LocaleType.EN_US.equals(locale)) {
 				list = getTsmpDpItemsDao().queryLike(lastId, keyword, itemNo, isDefault, pageSize, LocaleType.EN_US);
 			}
 			return list;
@@ -76,7 +74,7 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 	public List<TsmpDpItems> findByLocale(String locale) {
 		Supplier<List<TsmpDpItems>> supplier = () -> {
 			List<TsmpDpItems> list = getTsmpDpItemsDao().findByLocale(locale);
-			if(list.size() == 0 && !LocaleType.EN_US.equals(locale)) {
+			if(list.isEmpty() && !LocaleType.EN_US.equals(locale)) {
 				list = getTsmpDpItemsDao().findByLocale(LocaleType.EN_US);
 			}
 			return list;
@@ -87,7 +85,7 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 	public List<TsmpDpItems> findByLocale(String locale, Sort sort) {
 		Supplier<List<TsmpDpItems>> supplier = () -> {
 			List<TsmpDpItems> list = getTsmpDpItemsDao().findByLocale(locale, sort);
-			if(list.size() == 0 && !LocaleType.EN_US.equals(locale)) {
+			if(list.isEmpty() && !LocaleType.EN_US.equals(locale)) {
 				list = getTsmpDpItemsDao().findByLocale(LocaleType.EN_US, sort);
 			}
 			return list;
@@ -99,7 +97,7 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 	public List<TsmpDpItems> findByItemNoAndLocale(String itemNo, String locale) {
 		Supplier<List<TsmpDpItems>> supplier = () -> {
 			List<TsmpDpItems> list = getTsmpDpItemsDao().findByItemNoAndLocale(itemNo, locale);
-			if(list.size() == 0 && !LocaleType.EN_US.equals(locale)) {
+			if(list.isEmpty() && !LocaleType.EN_US.equals(locale)) {
 				list = getTsmpDpItemsDao().findByItemNoAndLocale(itemNo, LocaleType.EN_US);
 			}
 			return list;
@@ -111,7 +109,7 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 	public List<TsmpDpItems> findByItemNoAndLocaleOrderBySortByAsc(String itemNo, String locale) {
 		Supplier<List<TsmpDpItems>> supplier = () -> {
 			List<TsmpDpItems> list = getTsmpDpItemsDao().findByItemNoAndLocaleOrderBySortByAsc(itemNo, locale);
-			if(list.size() == 0 && !LocaleType.EN_US.equals(locale)) {
+			if(list.isEmpty() && !LocaleType.EN_US.equals(locale)) {
 				list = getTsmpDpItemsDao().findByItemNoAndLocaleOrderBySortByAsc(itemNo, LocaleType.EN_US);
 			}
 			return list;
@@ -159,7 +157,6 @@ public class TsmpDpItemsCacheProxy extends DaoCacheProxy implements ITsmpDpItems
 
 	@Override
 	protected Consumer<String> getTraceLogger() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

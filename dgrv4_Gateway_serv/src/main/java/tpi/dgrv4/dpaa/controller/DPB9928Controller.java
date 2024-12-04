@@ -39,7 +39,7 @@ public class DPB9928Controller {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/17/DPB9928", params = { "before" }, //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

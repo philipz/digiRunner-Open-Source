@@ -2,10 +2,9 @@
   <div [hidden]="pageNum != 1">
     <div class="form-group">
       <p-tabView class="tab" (onChange)="tabChange($event)">
-        <p-tabPanel header="{{'keyword_search'|translate}}" >
-          <form [formGroup]="queryForm" (ngSubmit)="submitForm()"
-        >
-          <!-- [style]="{
+        <p-tabPanel header="{{'keyword_search'|translate}}">
+          <form [formGroup]="queryForm" (ngSubmit)="submitForm()">
+            <!-- [style]="{
           border: '1px solid #E0E0E0',
           'border-radius': '5px',
           paddingTop: '20px',
@@ -14,7 +13,7 @@
           marginTop: '20px',
           marginBottom: '20px'
         }" [ngStyle]="{ 'box-shadow': '0 2px 3px -1px rgba(0, 0, 0, 0.1)' }" -->
-            <div class="form-group row" >
+            <div class="form-group row">
               <div class="col-8">
                 <label for="keyword">{{ "keyword_search" | translate }}</label>
                 <input type="text" class="form-control" id="keyword" formControlName="keyword" placeholder="{{ 'api_key' | translate }}、{{
@@ -117,8 +116,9 @@
             <div class="col-12">
               <label class="control-label">{{'labelList'|translate}}</label>
               <div style="display:block">
-                <p-multiSelect #labelFilter [options]="lblList" [(ngModel)]="selLabelList" appendTo="body" [emptyFilterMessage]="'no_data_result'|translate"
-                  defaultLabel="{{'plz_chs' | translate}}" showClear="true" display="chip" [emptyMessage]="'no_data_result'|translate"
+                <p-multiSelect #labelFilter [options]="lblList" [(ngModel)]="selLabelList" appendTo="body"
+                  [emptyFilterMessage]="'no_data_result'|translate" defaultLabel="{{'plz_chs' | translate}}"
+                  showClear="true" display="chip" [emptyMessage]="'no_data_result'|translate"
                   [style]="{'width':'100%'}">
                 </p-multiSelect>
               </div>
@@ -226,20 +226,24 @@
           </button>
 
           <button type="button" *ngIf="canImport" title="{{ 'button.export_apiList_tooltip' | translate }}"
-          class="btn tpi-primary tpi-btn float-left mr-1" (click)="updateApiStatus('c')"
-          [disabled]="selected.length == 0">
-          {{ "apiStatus.cancelScheduledDate" | translate }}
-        </button>
+            class="btn tpi-primary tpi-btn float-left mr-1" (click)="updateApiStatus('c')"
+            [disabled]="selected.length == 0">
+            {{ "apiStatus.cancelScheduledDate" | translate }}
+          </button>
 
 
+          <button type="button" *ngIf="canImport" title="{{ 'upload_reg_comp_api_file' | translate }}"
+            class="btn tpi-primary tpi-btn float-right mr-1" (click)="changePage('import')">
+            {{ "upload_reg_comp_api_file" | translate }}
+          </button>
 
           <!-- {{ "upload_reg_comp_api_file" | translate }}             -->
           <!-- <button type="button" class="btn tpi-second  float-right"> -->
           <!-- </button> -->
-          <a [routerLink]="['/ac03/ac0318/']" routerLinkActive="router-link-active"
+          <!-- <a [routerLink]="['/ac03/ac0318/']" routerLinkActive="router-link-active"
             style="background:#EA7448;color:#fff" class="btn float-right tpi-btn">
             <i class="fas fa-download"></i>
-            {{'upload_reg_comp_api_file' | translate}}</a>
+            {{'upload_reg_comp_api_file' | translate}}</a> -->
         </div>
       </ng-template>
       <ng-template pTemplate="colgroup" let-columns>
@@ -345,7 +349,8 @@
             </span>
             <!-- API啟用停用日期狀態 -->
             <span *ngIf="col.field == 'enableScheduledDate' || col.field == 'disableScheduledDate'">
-              <app-api-status [type]="col.field" [rowData]="rowData" (click)="modifyApiStatus(rowData,col.field)"></app-api-status>
+              <app-api-status [type]="col.field" [rowData]="rowData"
+                (click)="modifyApiStatus(rowData,col.field)"></app-api-status>
             </span>
           </td>
           <td style="text-align: center; width: 110px">
@@ -599,7 +604,7 @@
         <div class="col-12" *ngIf="apiDetail.apiSrc.v == 'R' || apiDetail.apiSrc.v == 'C'"
           [hidden]="apiDetail.isRedirectByIp">
           <label class="control-label" style="font-weight: bolder">{{"tar_url" | translate}}</label>
-          <table class="w-100" style="table-layout: fixed;word-break: break-word">
+          <table class="w-100" style="table-layout: fixed;word-break: break-word;font-size: 0.8rem;">
             <!-- <caption></caption> -->
             <thead>
               <tr>
@@ -1494,8 +1499,8 @@
       </div>
 
 
-      <div class="form-group row text-center">
-        <div class="col-sm-12">
+      <div class="form-group row ">
+        <div class="col-12">
           <button type="button" class="btn tpi-btn tpi-primary mr-3" (click)="updateApi()"
             [disabled]="updateForm.invalid">
             {{ "button.update" | translate }}
@@ -1520,6 +1525,155 @@
         </button>
       </div>
     </div>
+  </div>
+  <!-- 匯入註冊/組合api檔案 (原ac0318) -->
+  <div *ngIf="pageNum == 5">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6">
+          <div class="ui-inputgroup">
+            <input type="file" id="file" accept=".json" (change)="changeFile($event)" formControlName="file"
+              style="display: none;">
+            <input type="text" class="form-control" formControlName="fileName"
+              placeholder="{{'chs_json_file' | translate}}">
+            <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+              (click)="openFileBrowser();"></button>
+          </div>
+        </div>
+        <div class="col-6">
+          <button type="button" class="btn tpi-btn tpi-primary float-left" (click)="uploadFile()"
+            [disabled]="!file.value">
+            {{'button.upload'|translate}}
+          </button>
+        </div>
+      </div>
+      <div *ngIf="file.value" class="form-group row">
+        <div class="col-3" style="display:table-cell">
+          <label class="control-label">{{fileName.value}}</label>
+        </div>
+        <div class="col-3" style="display:table-cell">
+          <label class="control-label">{{fileSize.value}}KB</label>
+        </div>
+      </div>
+    </form>
+    <p-table *ngIf="import_cols" [columns]="import_cols" [value]="import_apiList" [(selection)]="import_selected" styleClass="p-datatable-striped"
+        [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+        <ng-template pTemplate="caption">
+            <div class="ui-helper-clearfix">
+                <button [disabled]="!import_apiList || import_selected.length == 0" type="button"
+                    class="btn tpi-btn tpi-primary float-left mr-1" (click)="import()">
+                    {{ 'button.import' | translate }}
+                </button>
+
+            </div>
+        </ng-template>
+        <ng-template pTemplate="colgroup" let-columns>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns selectionMode="multiple">
+            <tr style="text-align: center">
+                <th rowspan="2" style="width: 2.25em" scope="col">
+                    <p-tableHeaderCheckbox (click)="selectAll($event)"></p-tableHeaderCheckbox>
+                </th>
+                <th rowspan="1" (click)="changeSort('apiKey');" scope="col">
+                    {{'api_key'|translate}}
+                    <p-sortIcon [field]="apiKey"></p-sortIcon>
+                </th>
+                <th rowspan="2" (click)="changeSort('apiName');" scope="col">
+                    {{'tar_url'|translate}}
+                    <p-sortIcon [field]="srcURL"></p-sortIcon>
+                </th>
+                <th rowspan="2" (click)="changeSort('apiSrc');" scope="col">
+                    {{'api_src'|translate}}
+                    <p-sortIcon [field]="apiSrc"></p-sortIcon>
+                </th>
+                <th rowspan="2" (click)="changeSort('endpoint');" scope="col">
+                    {{'end_point'|translate}}
+                    <p-sortIcon [field]="endpoint"></p-sortIcon>
+                </th>
+                <th rowspan="1" scope="col">{{'check_action'|translate}}</th>
+                <th rowspan="1" scope="col">{{'import_result'|translate}}</th>
+            </tr>
+            <tr style="text-align: center">
+                <th rowspan="1" colspan="1" scope="col">{{'api_name'|translate}}</th>
+                <th rowspan="1" colspan="2" scope="col">{{'desc'|translate}}</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr style="text-align: center">
+                <td rowspan="2" style="width: 2.25em">
+                    <p-tableCheckbox [value]="rowData" [disabled]="rowData.checkAct.v === 'N'">
+                    </p-tableCheckbox>
+                </td>
+                <td rowspan="1" style="width: auto;" >
+                  {{originStringTable(rowData.apiKey)}}
+                  <label class="moreless" *ngIf="rowData.apiKey.ori" (click)="switchOri(rowData.apiKey)">
+                    {{rowData.apiKey.t ? ("show_more" | translate) :'' }}
+                    <i class="fas"
+                      [ngClass]="[rowData.apiKey.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                    {{rowData.apiKey.t ? '' : ("show_less" | translate) }}
+                  </label>
+
+                </td>
+                <td rowspan="2" style="width: auto;">
+                  <span [innerHTML]="decodeSrcUrl( rowData.srcURL)"></span>
+                  <div *ngFor="let srcUrlItem of rowData?.srcURLByIpRedirectMap">
+                    <div>
+                      <span *ngIf="srcUrlItem.ip!=''">[{{srcUrlItem.ip}}]</span>
+                    </div>
+                    <span [innerHTML]="decodeSrcUrl( srcUrlItem.srcURL)"></span>
+                  </div>
+                </td>
+                <td rowspan="2" style="width: auto;">
+                    {{ rowData.apiSrc.n }}
+                </td>
+                <td rowspan="2" style="width: auto;">
+                    {{ rowData.endpoint }}
+                </td>
+                <td rowspan="1" style="width: auto;">
+                    {{ rowData.checkAct.n }}
+                </td>
+                <td rowspan="1"
+                    [ngStyle]="{'width': 'auto', 'background-color': (rowData.result &&rowData.result.v === 'F') ? '#FAEBD7' : ''}">
+                    <span *ngIf="rowData.result">
+                        {{ rowData.result.n }}
+                    </span>
+                </td>
+            </tr>
+            <tr style="text-align: center">
+                <td rowspan="1" colspan="1">
+                  {{originStringTable(rowData.apiName)}}
+                  <label class="moreless" *ngIf="rowData.apiName.ori" (click)="switchOri(rowData.apiName)">
+                    {{rowData.apiName.t ? ("show_more" | translate) :'' }}
+                    <i class="fas"
+                      [ngClass]="[rowData.apiName.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                    {{rowData.apiName.t ? '' : ("show_less" | translate) }}
+                  </label>
+                </td>
+                <td rowspan="1" colspan="2"
+                    [ngStyle]="{'width': 'auto', 'background-color': (rowData.result &&rowData.result.v === 'F') ? '#FAEBD7' : ''}">
+                    {{originStringTable(rowData.memo)}}
+                  <label class="moreless" *ngIf="rowData.memo.ori" (click)="switchOri(rowData.memo)">
+                    {{rowData.memo.t ? ("show_more" | translate) :'' }}
+                    <i class="fas"
+                      [ngClass]="[rowData.memo.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+                    {{rowData.memo.t ? '' : ("show_less" | translate) }}
+                  </label>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+            <tr *ngIf="import_apiList.length>0" style="color: #b7b7b7;">
+                <td [attr.colspan]="columns.length+1">{{'row_count' | translate}}: {{import_apiList.length}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns.length+1">
+                    {{'no_rec' | translate}}
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
   </div>
 </app-container>
 <!-- <app-dialog [title]="dialogTitle" #dialog></app-dialog> -->

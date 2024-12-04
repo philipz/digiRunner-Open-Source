@@ -15,19 +15,19 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String DGR_PATHS_COMPATIBILITY = "DGR_PATHS_COMPATIBILITY";
 		public static final String CUS_CLIENT_ID = "CUS_CLIENT_ID";
 		public static final String CUS_CLIENT_OPEN_API_KEY = "CUS_CLIENT_OPEN_API_KEY";
-		
-		//LDAP
-		public static final String LDAP_URL = "LDAP_URL"; 
-		public static final String LDAP_DN = "LDAP_DN"; 
-		public static final String LDAP_TIMEOUT = "LDAP_TIMEOUT"; 
+
+		// LDAP
+		public static final String LDAP_URL = "LDAP_URL";
+		public static final String LDAP_DN = "LDAP_DN";
+		public static final String LDAP_TIMEOUT = "LDAP_TIMEOUT";
 		public static final String LDAP_CHECK_ACCT_ENABLE = "LDAP_CHECK_ACCT_ENABLE";
-		
+
 		public static final String SSO_DOUBLE_CHECK = "SSO_DOUBLE_CHECK";
-		
-		//Audit Log
+
+		// Audit Log
 		public static final String AUDIT_LOG_ENABLE = "AUDIT_LOG_ENABLE";
-		
-		//檢查器
+
+		// 檢查器
 		public static final String CHECK_XSS_ENABLE = "CHECK_XSS_ENABLE";
 		public static final String CHECK_XXE_ENABLE = "CHECK_XXE_ENABLE";
 		public static final String CHECK_SQL_INJECTION_ENABLE = "CHECK_SQL_INJECTION_ENABLE";
@@ -35,18 +35,18 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String CHECK_API_STATUS_ENABLE = "CHECK_API_STATUS_ENABLE";
 		public static final String CHECK_TRAFFIC_ENABLE = "CHECK_TRAFFIC_ENABLE";
 		public static final String CHECK_JTI_ENABLE = "CHECK_JTI_ENABLE";
-		
+
 		public static final String IGNORE_API_PATH = "IGNORE_API_PATH";
-		
+
 		public static final String DGRKEEPER_IP = "DGRKEEPER_IP";
 		public static final String DGRKEEPER_PORT = "DGRKEEPER_PORT";
-		
+
 		public static final String DPKEEPER_IP = "DPKEEPER_IP";
 		public static final String DPKEEPER_PORT = "DPKEEPER_PORT";
-		
+
 		public static final String LOGGER_LEVEL = "LOGGER_LEVEL";
-		
-		//ES
+
+		// ES
 		public static final String ES_URL = "ES_URL";
 		public static final String ES_ID_PWD = "ES_ID_PWD";
 		public static final String ES_TEST_TIMEOUT = "ES_TEST_TIMEOUT";
@@ -61,16 +61,16 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String ES_SYS_TYPE = "ES_SYS_TYPE";
 		public static final String ES_MONITOR_DISABLE = "ES_MONITOR_DISABLE";
 
-		//COMPOSER_ADDRESS
+		// COMPOSER_ADDRESS
 		public static final String TSMP_COMPOSER_ADDRESS = "TSMP_COMPOSER_ADDRESS";
-		
-		//Token
+
+		// Token
 		public static final String DGR_TOKEN_JWE_ENABLE = "DGR_TOKEN_JWE_ENABLE";
 		public static final String DGR_TOKEN_WHITELIST_ENABLE = "DGR_TOKEN_WHITELIST_ENABLE";
-		
-		//API
+
+		// API
 		public static final String DGR_TW_FAPI_ENABLE = "DGR_TW_FAPI_ENABLE";
-		
+
 		public static final String TSMP_SYS_TYPE = "TSMP_SYS_TYPE";
 		public static final String TSMP_NODE_TPS = "TSMP_NODE_TPS";
 		public static final String TSMP_MONITOR_HEARTBEAT = "TSMP_MONITOR_HEARTBEAT";
@@ -119,52 +119,53 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String RESET_CLIENT_BLOCK_SUBJECT = "RESET_CLIENT_BLOCK_SUBJECT";
 		public static final String CREATE_USER__SUBJECT = "CREATE_USER_SUBJECT";
 		public static final String CREATE_CLIENT_SUBJECT = "CREATE_CLIENT_SUBJECT";
-		
+
 		public static final String TSMP_APILOG_FORCE_WRITE_RDB = "TSMP_APILOG_FORCE_WRITE_RDB";
-		
+
 		public static final String TSMP_CORE_V3_MODULE_FILE_UPLOAD_PATH = "TSMP_CORE_V3_MODULE_FILE_UPLOAD_PATH";
 		public static final String TSMP_CORE_V2_MODULE_FILE_UPLOAD_PATH = "TSMP_CORE_V2_MODULE_FILE_UPLOAD_PATH";
-		
+
 		public static final String CUS_MODULE_EXIST = "CUS_MODULE_EXIST";
 		public static final String CUS_MODULE_NAME = "CUS_MODULE_NAME";
 		public static final String CUS_FUNC_ENABLE = "CUS_FUNC_ENABLE";
 		public static final String CUS_MODULE_NAME1 = "CUS_MODULE_NAME1";
-		
-		//SSO
+
+		// SSO
 		public static final String SSO_PKCE = "SSO_PKCE";
 		public static final String SSO_AUTO_CREATE_USER = "SSO_AUTO_CREATE_USER";
 		public static final String SSO_TIMEOUT = "SSO_TIMEOUT";
-		
-		//UDPSSO
+
+		// UDPSSO
 		public static final String UDPSSO_LOGIN_NETWORK = "UDPSSO_LOGIN_NETWORK";
-		
-		//SSO AC IdP
+
+		// SSO AC IdP
 		public static final String AC_IDP_REVIEWER_MAILLIST = "AC_IDP_REVIEWER_MAILLIST";
 		public static final String AC_IDP_REVIEW_URL = "AC_IDP_REVIEW_URL";
 		public static final String AC_IDP_MSG_URL = "AC_IDP_MSG_URL";
 		public static final String AC_IDP_ACCALLBACK_URL = "AC_IDP_ACCALLBACK_URL";
 		public static final String AC_IDP_LDAP_REVIEW_ENABLE = "AC_IDP_LDAP_REVIEW_ENABLE";
 		public static final String AC_IDP_API_REVIEW_ENABLE = "AC_IDP_API_REVIEW_ENABLE";
-		
-		//Gateway IdP
+		public static final String AC_IDP_CUS_REVIEW_ENABLE = "AC_IDP_CUS_REVIEW_ENABLE";
+
+		// Gateway IdP
 		public static final String GTW_IDP_JWK1 = "GTW_IDP_JWK1";
 		public static final String GTW_IDP_JWK2 = "GTW_IDP_JWK2";
 		public static final String GTW_IDP_MSG_URL = "GTW_IDP_MSG_URL";
 		public static final String GTW_IDP_LOGIN_URL = "GTW_IDP_LOGIN_URL";
 		public static final String GTW_IDP_CONSENT_URL = "GTW_IDP_CONSENT_URL";
-		
+
 		public static final String DGR_PUBLIC_DOMAIN = "DGR_PUBLIC_DOMAIN";
 		public static final String DGR_PUBLIC_PORT = "DGR_PUBLIC_PORT";
-		
+
 		public static final String DGR_COOKIE_TOKEN_ENABLE = "DGR_COOKIE_TOKEN_ENABLE";
-		
+
 		public static final String DELETEMODULE_ALERT = "TSMP_DELETEMODULE_ALERT";
-		
+
 		public static final String TSMP_DPAA_RUNLOOP_INTERVAL = "TSMP_DPAA_RUNLOOP_INTERVAL";
-		
+
 		public static final String TSMP_FAIL_THRESHOLD = "TSMP_FAIL_THRESHOLD";
-		
-		//MAIL SERVER
+
+		// MAIL SERVER
 		public static final String SERVICE_MAIL_ENABLE = "SERVICE_MAIL_ENABLE";
 		public static final String SERVICE_MAIL_HOST = "SERVICE_MAIL_HOST";
 		public static final String SERVICE_MAIL_PORT = "SERVICE_MAIL_PORT";
@@ -174,8 +175,8 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String SERVICE_MAIL_PASSWORD = "SERVICE_MAIL_PASSWORD";
 		public static final String SERVICE_MAIL_FROM = "SERVICE_MAIL_FROM";
 		public static final String SERVICE_MAIL_X_MAILER = "SERVICE_MAIL_X_MAILER";
-		
-		//SECONDARY MAIL SERVER
+
+		// SECONDARY MAIL SERVER
 		public static final String SERVICE_SECONDARY_MAIL_ENABLE = "SERVICE_SECONDARY_MAIL_ENABLE";
 		public static final String SERVICE_SECONDARY_MAIL_HOST = "SERVICE_SECONDARY_MAIL_HOST";
 		public static final String SERVICE_SECONDARY_MAIL_PORT = "SERVICE_SECONDARY_MAIL_PORT";
@@ -185,31 +186,31 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String SERVICE_SECONDARY_MAIL_PASSWORD = "SERVICE_SECONDARY_MAIL_PASSWORD";
 		public static final String SERVICE_SECONDARY_MAIL_FROM = "SERVICE_SECONDARY_MAIL_FROM";
 		public static final String SERVICE_SECONDARY_MAIL_X_MAILER = "SERVICE_SECONDARY_MAIL_X_MAILER";
-		
+
 		public static final String CLIENT_CREDENTIALS_DEFAULT_USERNAME = "CLIENT_CREDENTIALS_DEFAULT_USERNAME";
-		
+
 		public static final String DGR_LOGOUT_URL = "DGR_LOGOUT_URL";
 		public static final String LOGOUT_API = "LOGOUT_API";
-		
+
 		public static final String FIXED_CACHE_TIME = "FIXED_CACHE_TIME";
-		
+
 		public static final String DGR_QUERY_MONITOR_DAY = "DGR_QUERY_MONITOR_DAY";
-		
+
 		public static final String DEFAULT_PAGE_SIZE = "DEFAULT_PAGE_SIZE";
 		public static final String MAIL_BODY_API_FAIL_SERVICE_MAIL = "MAIL_BODY_API_FAIL_SERVICE_MAIL";
 		public static final String MAIL_BODY_API_FAIL_SERVICE_TEL = "MAIL_BODY_API_FAIL_SERVICE_TEL";
-		
+
 		public static final String ERRORLOG_KEYWORD = "ERRORLOG_KEYWORD";
 		public static final String FILE_TEMP_EXP_TIME = "FILE_TEMP_EXP_TIME";
 		public static final String AUTH_CODE_EXP_TIME = "AUTH_CODE_EXP_TIME";
 		public static final String QUERY_DURATION = "QUERY_DURATION";
 		public static final String SHUTDOWN_ENDPOINT_ALLOWED_IPS = "SHUTDOWN_ENDPOINT_ALLOWED_IPS";
 		public static final String MAIL_SEND_TIME = "MAIL_SEND_TIME";
-		
+
 		public static final String DGR_CORS_VAL = "DGR_CORS_VAL";
 		public static final String DGR_HOST_HEADER = "DGR_HOST_HEADER";
 		public static final String DGR_CSP_VAL = "DGR_CSP_VAL";
-		
+
 		// Kibana
 		public static final String KIBANA_VERSION = "KIBANA_VERSION";
 		public static final String KIBANA_USER = "KIBANA_USER";
@@ -217,9 +218,12 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String KIBANA_TRANSFER_PROTOCOL = "KIBANA_TRANSFER_PROTOCOL";
 		public static final String KIBANA_HOST = "KIBANA_HOST";
 		public static final String KIBANA_PORT = "KIBANA_PORT";
-		
+		public static final String KIBANA_AUTH = "KIBANA_AUTH";
+		public static final String KIBANA_LOGIN_URL = "KIBANA_LOGIN_URL";
+		public static final String KIBANA_LOGIN_REQUESTBODY = "KIBANA_LOGIN_REQUESTBODY";
+
 		public static final String DGR_AC_LOGIN_PAGE = "DGR_AC_LOGIN_PAGE";
-				
+
 		// DP
 		public static final String DP_ADMIN = "DP_ADMIN";
 		public static final String JWKS_URI = "JWKS_URI";
@@ -233,42 +237,45 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String DP_LOGIN_TYPES = "DP_LOGIN_TYPES";
 
 		public static final String OAK_EXPI_URL = "OAK_EXPI_URL";
-		
+
 		public static final String PROFILEUPDATE_INVALIDATE_TOKEN = "PROFILEUPDATE_INVALIDATE_TOKEN";
 
-		public static final String COMPOSER_LOG_INTERVAL = "COMPOSER_LOG_INTERVAL";		
+		public static final String COMPOSER_LOG_INTERVAL = "COMPOSER_LOG_INTERVAL";
 		public static final String COMPOSER_LOG_SIZE = "COMPOSER_LOG_SIZE";
 		public static final String COMPOSER_LOG_SWICTH = "COMPOSER_LOG_SWICTH";
 		public static final String COMPOSER_LOG_MAX_FILES = "COMPOSER_LOG_MAX_FILES";
 		public static final String COMPOSER_REQUEST_TIMEOUT = "COMPOSER_REQUEST_TIMEOUT";
-		
+
 		public static final String USER_UPDATE_BY_SELF = "USER_UPDATE_BY_SELF";
-		
+
 		public static final String AUTO_INITSQL_FLAG = "AUTO_INITSQL_FLAG";
-		
+
 		public static final String API_DASHBOARD_BATCH_QUANTITY = "API_DASHBOARD_BATCH_QUANTITY";
-		
+
 		public static final String X_API_KEY_PLAIN_ENABLE = "X_API_KEY_PLAIN_ENABLE";
-		
-		public static final String	DGR_ON_AWS = "DGR_ON_AWS";
-		
-		public  static final String AWS_PUBLIC_KEY = "AWS_PUBLIC_KEY";
+
+		public static final String DGR_ON_AWS = "DGR_ON_AWS";
+
+		public static final String AWS_PUBLIC_KEY = "AWS_PUBLIC_KEY";
 		public static final String KIBANA_REPORTURL_PREFIX = "KIBANA_REPORTURL_PREFIX";
 		public static final String DEFAULT_DATA_CHANGE_ENABLED = "DEFAULT_DATA_CHANGE_ENABLED";
-		
+
 		public static final String CUS_NAME_SETTING = "CUS_NAME_SETTING";
 		public static final String CUS_PWD_SETTING = "CUS_PWD_SETTING";
-		
-		//CUS
+
+		public static final String CHECK_BOT_DETECTION = "CHECK_BOT_DETECTION";
+		public static final String BOT_DETECTION_LOG = "BOT_DETECTION_LOG";
+
+		// CUS
 		public static final String CUS_LOGIN_URL = "CUS_LOGIN_URL";
 	}
 
 	public List<TsmpSetting> findByIdLike(String id);
-	
+
 	public List<TsmpSetting> query_DPB9900Service_01(String lastId, String[] keywords, Integer pageSize);
 
 	public TsmpSetting findByIdAndValue(String id, String value);
-	
+
 	public List<TsmpSetting> findAllByOrderByIdAsc();
 
 }

@@ -44,6 +44,7 @@ export class Ac0016Component extends BaseComponent implements OnInit {
     {label:'MLDAP', value:'MLDAP'},
     {label:'MS', value:'MS'},
     {label:'API', value:'API'},
+    {label:'CUS', value:'CUS'},
   ];
 
   idpStatusList:{ label: string; value: string; }[] = [
@@ -346,7 +347,7 @@ export class Ac0016Component extends BaseComponent implements OnInit {
         orgList: this.orgList,
         showFooterBtn: true,
       },
-      width: '100vw',
+      width: '90vw',
       height: '100vh'
     })
 

@@ -35,7 +35,7 @@ import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.ResHeader;
 
-@ControllerAdvice(basePackages = {"tpi.dgrv4.dpaa.controller"})
+@ControllerAdvice(basePackages = {"tpi.dgrv4.dpaa.controller","tpi.dgrv4.enterprise"})
 public class DpaaControllerExceptionHandler {
 
 	private TPILogger logger = TPILogger.tl;

@@ -13,6 +13,8 @@ public class ComposerInfoData implements java.io.Serializable {
 	private String tsToString;
 	private String upTime;
 	private String webLocalIP;
+	private String cpuUsage;
+	private String memoryUsage; 
 
 	public String getRemoteIP() {
 		return remoteIP;
@@ -101,5 +103,22 @@ public class ComposerInfoData implements java.io.Serializable {
 	public void setWebLocalIP(String webLocalIP) {
 		this.webLocalIP = webLocalIP;
 	}
+
+	public String getCpuUsage() {
+		return cpuUsage;
+	}
+
+	public void setCpuUsage(String cpuUsage) {
+		this.cpuUsage = cpuUsage;
+	}
+
+	public String getMemoryUsage() {
+		return memoryUsage;
+	}
+
+	public void setMemoryUsage(String memoryUsage) {
+		this.memoryUsage = memoryUsage;
+	}
+	
 
 }

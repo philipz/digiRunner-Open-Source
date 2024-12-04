@@ -47,6 +47,7 @@ import tpi.dgrv4.entity.repository.TsmpGroupApiDao;
 import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesMapDao;
 import tpi.dgrv4.entity.repository.TsmpGroupDao;
 import tpi.dgrv4.entity.repository.TsmpOrganizationDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -105,6 +106,9 @@ public class AA0214Service {
 			checkAndUpdateTsmpGroup(auth, req, group, allowDays, iip);
 			updateGroupAuthoritiesMap(req, group, iip);
 			checkApiKeyIsExistedAndUpdateRelatedTable(auth, group, req, allowDays, iip);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException e) {
 			throw e;

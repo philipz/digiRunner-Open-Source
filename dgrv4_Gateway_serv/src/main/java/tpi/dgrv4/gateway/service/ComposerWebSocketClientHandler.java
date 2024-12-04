@@ -18,12 +18,11 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 @Component
 public class ComposerWebSocketClientHandler extends Endpoint{
 	
-	private TPILogger logger = TPILogger.tl;
 	
 	@Override
 	public  void onOpen(Session session, EndpointConfig config) {
 		ComposerWebSocketClientConn.session = session;
-		logger.debug("composer ws client create success");
+		TPILogger.tl.debug("composer ws client create success");
 		
 		session.addMessageHandler(new MessageHandler.Whole<String>() {
 			@Override
@@ -34,11 +33,11 @@ public class ComposerWebSocketClientHandler extends Endpoint{
 		    			try {
 		    				item.sendMessage(message);
 		    			} catch (IOException e) {
-		    				logger.error(StackTraceUtil.logStackTrace(e));
+		    				TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 		    			}
 		    		}
 		        }catch(Exception e) {
-		        	logger.error(StackTraceUtil.logStackTrace(e));
+		        	TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 		        }
 				
 			}
@@ -47,12 +46,12 @@ public class ComposerWebSocketClientHandler extends Endpoint{
 	
 	@Override
     public void onError(Session session, Throwable t) {
-		logger.error(StackTraceUtil.logStackTrace(t));
+		TPILogger.tl.error(StackTraceUtil.logStackTrace(t));
     }
 
 	@Override
     public void onClose(Session session, CloseReason closeReason) {
-		logger.debug("composer ws client, close=" + session.getId() + ", " +closeReason.toString());
+		TPILogger.tl.debug("composer ws client, close=" + session.getId() + ", " +closeReason.toString());
     }
 
 }

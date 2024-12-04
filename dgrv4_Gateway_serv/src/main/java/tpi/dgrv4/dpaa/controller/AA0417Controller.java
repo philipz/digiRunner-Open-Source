@@ -37,7 +37,7 @@ public class AA0417Controller {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/11/AA0417", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

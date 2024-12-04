@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.transaction.Transactional;
-
-import org.apache.commons.collections4.list.SetUniqueList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -21,9 +19,7 @@ import tpi.dgrv4.entity.entity.DgrWebsite;
 import tpi.dgrv4.entity.entity.DgrWebsiteDetail;
 import tpi.dgrv4.entity.repository.DgrWebsiteDao;
 import tpi.dgrv4.entity.repository.DgrWebsiteDetailDao;
-import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.keeper.TPILogger;
-import tpi.dgrv4.gateway.service.TsmpSettingService;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
 @Service
@@ -51,7 +47,7 @@ public class DPB0158Service {
 				throw TsmpDpAaRtnCode._1532.throwing();
 			}
 
-			DgrWebsite website = websiteOptional.orElseGet(null);
+			DgrWebsite website = websiteOptional.orElse(null);
 
 			String name = website.getWebsiteName();
 			String status = website.getWebsiteStatus();

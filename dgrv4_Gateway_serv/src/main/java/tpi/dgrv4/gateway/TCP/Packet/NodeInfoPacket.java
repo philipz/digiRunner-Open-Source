@@ -67,6 +67,11 @@ public class NodeInfoPacket implements Packet_i {
 	public static final String API_ReqThroughput = "API_ReqThroughput";
 	public static final String API_RespThroughput = "API_RespThroughput";
 
+	public static final String lastUpdateTimeClientInfo = "lastUpdateTimeClient";
+	public static final String lastUpdateTimeAPIInfo = "lastUpdateTimeAPI";
+	public static final String lastUpdateTimeSettingInfo = "lastUpdateTimeSetting";
+	public static final String lastUpdateTimeTokenInfo = "lastUpdateTimeToken";
+	
 	public static final String DBINFO = "dbInfo";
 	public static final String DBCONNECT = "dbConnect";
 
@@ -124,6 +129,15 @@ public class NodeInfoPacket implements Packet_i {
 
 	public String api_RespThroughputSize;
 
+	// 儲存客戶端資料最後更新的時間戳
+	public String lastUpdateTimeClient;
+	// 儲存 API 資料最後更新的時間戳
+	public String lastUpdateTimeAPI;
+	// 儲存設定資料最後更新的時間戳
+	public String lastUpdateTimeSetting;
+	// 儲存 Token 最後更新的時間戳
+	public String lastUpdateTimeToken;
+	
 	public boolean http;
 
 	public String username;
@@ -156,7 +170,7 @@ public class NodeInfoPacket implements Packet_i {
 		try {
 			if (http) {
 				// 客製包訊息 online console 對應 update time
-				this.updateTime = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒).get();
+				this.updateTime = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒).orElse(null);				
 				CommunicationServer.cs.httpNodeInfo.put(username, this);
 			} else {
 				if (ls.paramObj.containsKey(nodeInfo) == false) {
@@ -197,42 +211,12 @@ public class NodeInfoPacket implements Packet_i {
 				// API轉發吞吐量資訊
 				nodeInfoData.put(API_ReqThroughput, api_ReqThroughputSize);
 				nodeInfoData.put(API_RespThroughput, api_RespThroughputSize);
-			}
-
-			HashMap<String, String> nodeInfoData = (HashMap<String, String>) ls.paramObj.get(nodeInfo);
-			nodeInfoData.put(mainInfo, main);
-			nodeInfoData.put(deferrableInfo, deferrable);
-			nodeInfoData.put(refreshInfo, refresh);
-			nodeInfoData.put(versionInfo, version);
-			nodeInfoData.put(updateTimeInfo, updateTime);
-			nodeInfoData.put(upTimeInfo, upTime);
-			nodeInfoData.put(startTimeInfo, startTime);
-			nodeInfoData.put(serverPortInfo, serverPort);
-			nodeInfoData.put(serverServletContextPathInfo, serverServletContextPath);
-			nodeInfoData.put(serverSslEnalbedInfo, serverSslEnalbed);
-			nodeInfoData.put(springProfilesActiveInfo, springProfilesActive);
-			nodeInfoData.put(keeperServerIpInfo, keeperServerIp);
-			nodeInfoData.put(keeperServerPortInfo, keeperServerPort);
-			nodeInfoData.put(rcdCacheSizeInfo, rcdCacheSize);
-			nodeInfoData.put(daoCacheSizeInfo, daoCacheSize);
-			nodeInfoData.put(fixedCacheSizeInfo, fixedCacheSize);
-			nodeInfoData.put(webLocalIPInfo, webLocalIP);
-			nodeInfoData.put(fqdnInfo, fqdn);
-			nodeInfoData.put(esQueue, ES_Queue);
-			nodeInfoData.put(rdbQueue, RDB_Queue);
-
-			nodeInfoData.put(CPU, cpu);
-			nodeInfoData.put(MEM, mem);
-			nodeInfoData.put(H_USED, h_used);
-			nodeInfoData.put(H_FREE, h_free);
-			nodeInfoData.put(H_TOTAL, h_total);
-			nodeInfoData.put(DBCONNECT, dbConnect);
-			if (TPILogger.dbConnByApi) {
-				nodeInfoData.put(DBINFO, dbInfo);
-			}
-			// API轉發吞吐量資訊
-			nodeInfoData.put(API_ReqThroughput, api_ReqThroughputSize);
-			nodeInfoData.put(API_RespThroughput, api_RespThroughputSize);
+				
+				nodeInfoData.put(lastUpdateTimeClientInfo, lastUpdateTimeClient);
+				nodeInfoData.put(lastUpdateTimeAPIInfo, lastUpdateTimeAPI);
+				nodeInfoData.put(lastUpdateTimeSettingInfo, lastUpdateTimeSetting);
+				nodeInfoData.put(lastUpdateTimeTokenInfo, lastUpdateTimeToken);
+			}			
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 		}

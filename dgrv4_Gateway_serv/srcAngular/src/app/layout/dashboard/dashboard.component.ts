@@ -8,17 +8,26 @@ import { TranslateService } from '@ngx-translate/core';
 import * as dayjs from 'dayjs';
 import * as echarts from 'echarts';
 import { ServerService } from 'src/app/shared/services/api-server.service';
-import { AA1211ApiTrafficDistributionResp, AA1211BadAttemptResp, AA1211ClientUsagePercentageResp, AA1211FailResp, AA1211LastLoginLog, AA1211MedianResp, AA1211PopularResp, AA1211Req, AA1211SuccessResp, AA1211UnpopularResp } from 'src/app/models/api/ReportService/aa1211.interface';
+import {
+  AA1211ApiTrafficDistributionResp,
+  AA1211BadAttemptResp,
+  AA1211ClientUsagePercentageResp,
+  AA1211FailResp,
+  AA1211LastLoginLog,
+  AA1211MedianResp,
+  AA1211PopularResp,
+  AA1211Req,
+  AA1211SuccessResp,
+  AA1211UnpopularResp,
+} from 'src/app/models/api/ReportService/aa1211.interface';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-
   versionInfo?: DPB0118Resp;
   title: string = '';
   edition: string = '';
@@ -26,7 +35,7 @@ export class DashboardComponent implements OnInit {
   nearWarnDays: number = 0;
   overBufferDays: number = 0;
 
-  today: string = "";
+  today: string = '';
   diffDates: number = 0;
   dataTime: string = ' - '; // 資料取回時間
   request?: string;
@@ -34,13 +43,13 @@ export class DashboardComponent implements OnInit {
   fail?: AA1211FailResp;
   badAttempt?: AA1211BadAttemptResp;
   avg?: string;
-  median?: AA1211MedianResp
+  median?: AA1211MedianResp;
   popular: Array<AA1211PopularResp> = [];
   unpopular: Array<AA1211UnpopularResp> = [];
   apiTrafficDistribution: Array<AA1211ApiTrafficDistributionResp> = [];
   clientUsagePercentage: Array<AA1211ClientUsagePercentageResp> = [];
 
-  timeTypeUnit: { label: string, key: number }[] = [];
+  timeTypeUnit: { label: string; key: number }[] = [];
   timeType: any = 2;
 
   isAsc: boolean = true;
@@ -63,12 +72,11 @@ export class DashboardComponent implements OnInit {
 
   reloadDataRef: any;
 
-  lastLoginLog:Array<AA1211LastLoginLog> = [
-    {loginDate:'2024-01-01 00:00:00(test)', loginIP:'10.20.30.88'},
-    {loginDate:'2024-01-01 00:00:00(test)', loginIP:'10.20.30.88'},
-    {loginDate:'2024-01-01 00:00:00(test)', loginIP:'10.20.30.88'},
-  ]
-
+  lastLoginLog: Array<AA1211LastLoginLog> = [
+    { loginDate: '2024-01-01 00:00:00(test)', loginIP: '10.20.30.88' },
+    { loginDate: '2024-01-01 00:00:00(test)', loginIP: '10.20.30.88' },
+    { loginDate: '2024-01-01 00:00:00(test)', loginIP: '10.20.30.88' },
+  ];
 
   // clientDetail: { [key: string]: any }[] = [
   //   {
@@ -136,8 +144,8 @@ export class DashboardComponent implements OnInit {
     private aboutService: AboutService,
     private translate: TranslateService,
     private serverService: ServerService,
-    private ngxService: NgxUiLoaderService,
-  ) { }
+    private ngxService: NgxUiLoaderService
+  ) {}
 
   resizeReport() {
     // console.log('first')
@@ -147,13 +155,11 @@ export class DashboardComponent implements OnInit {
       if (this.hotChart) this.hotChart.resize();
       if (this.apiCountChart) this.apiCountChart.resize();
       if (this.clientChart) this.clientChart.resize();
-
     }, 0);
-
   }
 
   ngOnDestroy() {
-    if (this.reloadDataRef) clearInterval(this.reloadDataRef)
+    if (this.reloadDataRef) clearInterval(this.reloadDataRef);
   }
 
   @HostListener('window:resize')
@@ -166,15 +172,15 @@ export class DashboardComponent implements OnInit {
   }
 
   getDataReload() {
-
     if (this.reloadDataRef) clearInterval(this.reloadDataRef);
     this.getDashboardData();
     this.reloadDataRef = setInterval(() => {
       this.getDashboardData();
-    }, 1000 * 60 * 10)
+    }, 1000 * 60 * 10);
   }
 
   async ngOnInit() {
+
     this.getDataReload();
 
     const code = ['minute', 'calendar.day', 'calendar.month', 'calendar.year'];
@@ -184,42 +190,76 @@ export class DashboardComponent implements OnInit {
       { label: dict['calendar.day'], key: 2 },
       { label: dict['calendar.month'], key: 3 },
       { label: dict['calendar.year'], key: 4 },
-    ]
+    ];
 
-    this.aboutService.queryModuleVersion().subscribe(res => {
-      if (this.toolService.checkDpSuccess(res.ResHeader)) {
+    // this.aboutService.queryModuleVersion().subscribe(res => {
+    //   if (this.toolService.checkDpSuccess(res.ResHeader)) {
+    this.aboutService.getModuleVersionData().subscribe((res) => {
+      this.versionInfo = res;
+      this.edition = this.toolService.getAcConfEdition();
+      this.editionDate = this.toolService.getAcConfExpiryDate();
+      this.nearWarnDays = this.versionInfo.nearWarnDays;
+      this.overBufferDays = this.versionInfo.overBufferDays;
 
-        this.versionInfo = res.RespBody;
-        this.edition = this.toolService.getAcConfEdition();
-        this.editionDate = this.toolService.getAcConfExpiryDate();
-        this.nearWarnDays = this.versionInfo.nearWarnDays;
-        this.overBufferDays = this.versionInfo.overBufferDays;
+      this.today = dayjs(new Date()).format('YYYY-MM-DD');
+      const endDate = dayjs(this.editionDate).format('YYYY-MM-DD');
 
-        this.today = dayjs(new Date).format('YYYY-MM-DD');
-        const endDate = dayjs(this.editionDate).format('YYYY-MM-DD');
+      this.diffDates = this.getDiffDays(this.today, endDate);
 
-        this.diffDates = this.getDiffDays(this.today, endDate);
-
-        // 還剩n天即將到期
-        if ((this.diffDates == this.nearWarnDays) || (this.diffDates > 0 && this.diffDates < this.nearWarnDays)) {
-          this.translate.get(["dashBoard.title1", "dashBoard.desc1"], { edition: this.edition, expiryDate: this.versionInfo.expiryDate }).subscribe(res => {
-            this.alert.ok(res["dashBoard.title1"], '', AlertType.info, res["dashBoard.desc1"]);
+      // 還剩n天即將到期
+      if (
+        this.diffDates == this.nearWarnDays ||
+        (this.diffDates > 0 && this.diffDates < this.nearWarnDays)
+      ) {
+        this.translate
+          .get(['dashBoard.title1', 'dashBoard.desc1'], {
+            edition: this.edition,
+            expiryDate: this.versionInfo.expiryDate,
+          })
+          .subscribe((res) => {
+            this.alert.ok(
+              res['dashBoard.title1'],
+              '',
+              AlertType.info,
+              res['dashBoard.desc1']
+            );
           });
-
-        } else if ((this.diffDates < 0) && ((Math.abs(this.diffDates)) >= this.overBufferDays)) {
-          this.translate.get(["dashBoard.title2", "dashBoard.desc2"], { edition: this.edition }).subscribe(res => {
-            this.alert.ok(res["dashBoard.title2"], '', AlertType.info, res["dashBoard.desc2"]);
+      } else if (
+        this.diffDates < 0 &&
+        Math.abs(this.diffDates) >= this.overBufferDays
+      ) {
+        this.translate
+          .get(['dashBoard.title2', 'dashBoard.desc2'], {
+            edition: this.edition,
+          })
+          .subscribe((res) => {
+            this.alert.ok(
+              res['dashBoard.title2'],
+              '',
+              AlertType.info,
+              res['dashBoard.desc2']
+            );
           });
-
-        }
-        else if ((this.diffDates <= 0) || (this.diffDates <= (-1 * this.nearWarnDays)) && (this.diffDates <= (-1 * this.overBufferDays))) {
-          this.translate.get(["dashBoard.title2", "dashBoard.desc2"], { edition: this.edition }).subscribe(res => {
-            this.alert.ok(res["dashBoard.title2"], '', AlertType.info, res["dashBoard.desc2"]);
+      } else if (
+        this.diffDates <= 0 ||
+        (this.diffDates <= -1 * this.nearWarnDays &&
+          this.diffDates <= -1 * this.overBufferDays)
+      ) {
+        this.translate
+          .get(['dashBoard.title2', 'dashBoard.desc2'], {
+            edition: this.edition,
+          })
+          .subscribe((res) => {
+            this.alert.ok(
+              res['dashBoard.title2'],
+              '',
+              AlertType.info,
+              res['dashBoard.desc2']
+            );
           });
-        }
       }
+      // }
     });
-
   }
 
   clearDashboardData() {
@@ -248,19 +288,19 @@ export class DashboardComponent implements OnInit {
   }
 
   getDiffDays(sDate: string, eDate: string) {
-
     let startDate = new Date(sDate);
     let endDate = new Date(eDate);
 
     let time = endDate.getTime() - startDate.getTime();
     return Math.ceil(time / (1000 * 3600 * 24));
-
   }
 
   formateDate(date: Date) {
     if (!date) return '';
     const procDate = Number(date);
-    return dayjs(procDate).format('YYYY-MM-DD HH:mm:ss') != 'Invalid Date' ? dayjs(procDate).format('YYYY-MM-DD HH:mm:ss') : '';
+    return dayjs(procDate).format('YYYY-MM-DD HH:mm:ss') != 'Invalid Date'
+      ? dayjs(procDate).format('YYYY-MM-DD HH:mm:ss')
+      : '';
   }
 
   // 產生BadAttempt圖表
@@ -268,17 +308,16 @@ export class DashboardComponent implements OnInit {
     this.badAttempt = badAttempt;
     const badattempEle = document.getElementById('badAttemptReport');
     if (badattempEle) {
-
       this.badattempChart = echarts.init(badattempEle);
       let option = {
         color: ['#F6D8CB', '#DA7A53', '#6E79ED'],
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
         },
         title: {
           text: this.numberComma(badAttempt.total),
           left: 'center',
-          top: 'center'
+          top: 'center',
         },
         // legend: {
         //   top: '0%',
@@ -293,36 +332,35 @@ export class DashboardComponent implements OnInit {
             itemStyle: {
               borderRadius: 10,
               borderColor: '#fff',
-              borderWidth: 1
+              borderWidth: 1,
             },
             label: {
               show: false,
-              position: 'center'
+              position: 'center',
             },
             emphasis: {
               label: {
                 show: false,
                 fontSize: 24,
                 // fontWeight: 'bold'
-              }
+              },
             },
             labelLine: {
-              show: false
+              show: false,
             },
             data: [
               { value: badAttempt.code_401, name: '401' },
               { value: badAttempt.code_403, name: '403' },
               { value: badAttempt.others, name: 'Others' },
-            ]
-          }
-        ]
+            ],
+          },
+        ],
       };
       this.badattempChart.setOption(option);
     }
   }
   // 中位數圖表
   async generateMadianReport(median: AA1211MedianResp) {
-
     this.median = median;
     if (median.max == median.min) {
       return;
@@ -346,7 +384,6 @@ export class DashboardComponent implements OnInit {
             splitNumber: median.gap,
             axisLine: {
               lineStyle: {
-
                 width: 15,
                 color: [
                   [0.1, '#6DEA38'],
@@ -359,11 +396,9 @@ export class DashboardComponent implements OnInit {
                   [0.7, '#EFA526'],
                   [0.8, '#F28232'],
                   [0.9, '#f7630e'],
-                  [1, '#f73d0e']
-                ]
-
-
-              }
+                  [1, '#f73d0e'],
+                ],
+              },
             },
             pointer: {
               icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
@@ -371,8 +406,8 @@ export class DashboardComponent implements OnInit {
               width: 3,
               offsetCenter: [0, '-10%'],
               itemStyle: {
-                color: 'auto'
-              }
+                color: 'auto',
+              },
             },
             axisTick: {
               show: false,
@@ -397,8 +432,6 @@ export class DashboardComponent implements OnInit {
               distance: -30,
               // rotate: 'tangential',
               formatter: function (value) {
-
-
                 if (value === median.max) {
                   return dict['aberrant'];
                 } else if (value === (median.min + median.max) / 2) {
@@ -408,7 +441,7 @@ export class DashboardComponent implements OnInit {
                 }
 
                 return '';
-              }
+              },
             },
             // title: {
             //   offsetCenter: [0, '-10%'],
@@ -421,16 +454,15 @@ export class DashboardComponent implements OnInit {
               // formatter: function (value) {
               //   return Math.round(value * 100) + '';
               // },
-              color: 'inherit'
+              color: 'inherit',
             },
             data: [
               {
                 value: median.median,
-
-              }
-            ]
-          }
-        ]
+              },
+            ],
+          },
+        ],
       };
       this.medianChart.setOption(option);
     }
@@ -455,16 +487,19 @@ export class DashboardComponent implements OnInit {
     //   return item.apiName
     // })
     // console.log(yData)
-    const popularRefactor = popular.sort((a: AA1211PopularResp, b: AA1211PopularResp) => { return b.rank - a.rank }).map(item => {
-      return {
-        apiName: item.apiName,
-        success: item.success.replace(',', ''),
-        fail: item.fail.replace(',', ''),
-        showFlag: 0,
-        avg: item.avg
-      }
-    })
-
+    const popularRefactor = popular
+      .sort((a: AA1211PopularResp, b: AA1211PopularResp) => {
+        return b.rank - a.rank;
+      })
+      .map((item) => {
+        return {
+          apiName: item.apiName,
+          success: item.success.replace(',', ''),
+          fail: item.fail.replace(',', ''),
+          showFlag: 0,
+          avg: item.avg,
+        };
+      });
 
     const popularEle = document.getElementById('popularReport');
 
@@ -474,22 +509,31 @@ export class DashboardComponent implements OnInit {
 
       let option = {
         dataset: {
-          source: popularRefactor
+          source: popularRefactor,
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
             // Use axis to trigger tooltip
-            type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+            type: 'shadow', // 'shadow' as default; can also be 'line' or 'shadow'
           },
           formatter: (params) => {
             // console.log(params)
-            let failTarIdx = params.length > 1 ? params.length - 2 : params.length - 1;
+            let failTarIdx =
+              params.length > 1 ? params.length - 2 : params.length - 1;
             return `
                       ${params[0].name}<br />
-                      ${params[0].marker} ${params[0].seriesName}: ${this.toolService.numberComma(params[0].value.success)}<br />
-                      ${params[failTarIdx].marker} ${params[failTarIdx].seriesName}: ${this.toolService.numberComma(params[failTarIdx].value.fail)}<br />
-                      ${dict['resp_avg_time']}: ${this.toolService.numberComma(params[0].value.avg)}ms
+                      ${params[0].marker} ${
+              params[0].seriesName
+            }: ${this.toolService.numberComma(params[0].value.success)}<br />
+                      ${params[failTarIdx].marker} ${
+              params[failTarIdx].seriesName
+            }: ${this.toolService.numberComma(
+              params[failTarIdx].value.fail
+            )}<br />
+                      ${dict['resp_avg_time']}: ${this.toolService.numberComma(
+              params[0].value.avg
+            )}ms
                       `;
           },
         },
@@ -500,21 +544,20 @@ export class DashboardComponent implements OnInit {
           left: '3%',
           right: '4%',
           bottom: '3%',
-          containLabel: true
+          containLabel: true,
         },
 
         xAxis: {
-          type: 'value'
+          type: 'value',
         },
         yAxis: {
           type: 'category',
           // data: popular.map(item=>{ return item.apiName })
         },
         label: {
-
           fontWeight: 'bold',
           fontSize: 14,
-          color: '#000'
+          color: '#000',
         },
         itemStyle: {
           // borderRadius:[0,15,15,0]
@@ -525,10 +568,10 @@ export class DashboardComponent implements OnInit {
             type: 'bar',
             stack: 'total',
             label: {
-              show: false
+              show: false,
             },
             emphasis: {
-              focus: 'series'
+              focus: 'series',
             },
             // data: popular.map(item=>{return item.success}),
             // color: '#F3B142',
@@ -538,14 +581,18 @@ export class DashboardComponent implements OnInit {
               y: 0,
               x2: 1,
               y2: 0,
-              colorStops: [{
-                offset: 0, color: '#FCEDCC' // 0% 的颜色
-              }, {
-                offset: 1, color: '#F3B041' // 100% 的颜色
-              }],
-              global: false
-            }
-
+              colorStops: [
+                {
+                  offset: 0,
+                  color: '#FCEDCC', // 0% 的颜色
+                },
+                {
+                  offset: 1,
+                  color: '#F3B041', // 100% 的颜色
+                },
+              ],
+              global: false,
+            },
           },
           {
             name: 'Fail',
@@ -556,7 +603,7 @@ export class DashboardComponent implements OnInit {
             },
 
             emphasis: {
-              focus: 'series'
+              focus: 'series',
             },
             color: '#DFDFDF',
             // data: popular.map(item=>{return item.fail}),
@@ -569,22 +616,24 @@ export class DashboardComponent implements OnInit {
               show: true,
 
               formatter: function (params) {
-
-                const total = (Number(params.value.success.replace(',')) + Number(params.value.fail.replace(',')))
+                const total =
+                  Number(params.value.success.replace(',')) +
+                  Number(params.value.fail.replace(','));
                 return _this.toolService.numberComma(total);
               },
-              position: 'inside'
+              position: 'inside',
             },
-          }
-
-        ]
+          },
+        ],
       };
       this.hotChart.setOption(option);
     }
   }
 
   //api流量分佈
-  generateApiTrafficDistributionReport(apiTrafficDistribution: Array<AA1211ApiTrafficDistributionResp>) {
+  generateApiTrafficDistributionReport(
+    apiTrafficDistribution: Array<AA1211ApiTrafficDistributionResp>
+  ) {
     if (apiTrafficDistribution.length == 0) return;
     this.apiTrafficDistribution = apiTrafficDistribution;
     // console.log(apiTrafficDistribution)
@@ -597,9 +646,9 @@ export class DashboardComponent implements OnInit {
     //   return prev.concat(curr);
     // });
 
-    let hhmmPool = apiTrafficDistribution.map(item => item.xLable)
-    let successPool = apiTrafficDistribution.map(item => item.success)
-    let failPool = apiTrafficDistribution.map(item => item.fail)
+    let hhmmPool = apiTrafficDistribution.map((item) => item.xLable);
+    let successPool = apiTrafficDistribution.map((item) => item.success);
+    let failPool = apiTrafficDistribution.map((item) => item.fail);
     // for (let index = 0; index < 150; index++) {
     //   successPool.push(Math.floor(Math.random() * 100) + 1);
     //   failPool.push(Math.floor(Math.random() * 10));
@@ -611,8 +660,8 @@ export class DashboardComponent implements OnInit {
     let dataset = [
       ['time', ...hhmmPool],
       ['success', ...successPool],
-      ['fail', ...failPool]
-    ]
+      ['fail', ...failPool],
+    ];
     // console.log('dataset',dataset)
 
     const targetEle = document.getElementById('apiTrafficDistributionReport');
@@ -628,22 +677,26 @@ export class DashboardComponent implements OnInit {
           formatter: (params) => {
             return `
                       ${params[0].name} <br />
-                      ${params[0].marker} ${params[0].seriesName}: ${this.toolService.numberComma(params[0].value[1])}<br />
-                      ${params[1].marker} ${params[1].seriesName}: ${this.toolService.numberComma(params[1].value[2])}
+                      ${params[0].marker} ${
+              params[0].seriesName
+            }: ${this.toolService.numberComma(params[0].value[1])}<br />
+                      ${params[1].marker} ${
+              params[1].seriesName
+            }: ${this.toolService.numberComma(params[1].value[2])}
                       `;
           },
         },
         legend: {
-          data: ['Success', 'Fail']
+          data: ['Success', 'Fail'],
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
-          containLabel: true
+          containLabel: true,
         },
         dataset: {
-          source: dataset
+          source: dataset,
         },
         xAxis: {
           type: 'category',
@@ -651,7 +704,7 @@ export class DashboardComponent implements OnInit {
           // data: hhmmPool
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
         },
 
         series: [
@@ -661,7 +714,7 @@ export class DashboardComponent implements OnInit {
             name: 'Success',
             type: 'line',
             lineStyle: {
-              width: 3
+              width: 3,
             },
             areaStyle: {
               color: {
@@ -670,13 +723,18 @@ export class DashboardComponent implements OnInit {
                 y: 1,
                 x2: 0,
                 y2: 0,
-                colorStops: [{
-                  offset: 1, color: 'rgba(135, 204, 14, 0.67)' // 0% 的颜色
-                }, {
-                  offset: 0, color: 'rgba(135, 204, 14, 0.03)' // 100% 的颜色
-                }],
-                global: false
-              }
+                colorStops: [
+                  {
+                    offset: 1,
+                    color: 'rgba(135, 204, 14, 0.67)', // 0% 的颜色
+                  },
+                  {
+                    offset: 0,
+                    color: 'rgba(135, 204, 14, 0.03)', // 100% 的颜色
+                  },
+                ],
+                global: false,
+              },
             },
             // stack: 'Total',
             showSymbol: false,
@@ -688,16 +746,15 @@ export class DashboardComponent implements OnInit {
             name: 'Fail',
             type: 'line',
             lineStyle: {
-              width: 3
+              width: 3,
             },
             // stack: 'Total',
             showSymbol: false,
             // data: failPool
           },
-        ]
-      }
+        ],
+      };
       this.apiCountChart.setOption(option);
-
     }
   }
 
@@ -719,7 +776,9 @@ export class DashboardComponent implements OnInit {
     return color;
   }
 
-  generateClientReport(clientUsagePercentage: Array<AA1211ClientUsagePercentageResp>) {
+  generateClientReport(
+    clientUsagePercentage: Array<AA1211ClientUsagePercentageResp>
+  ) {
     if (clientUsagePercentage.length == 0) return;
     this.clientUsagePercentage = clientUsagePercentage;
     // this.clientData.forEach(item=>{
@@ -727,13 +786,13 @@ export class DashboardComponent implements OnInit {
     // })
     // console.log(this.clientData.map(item=>item['color']))
 
-    let clientData = clientUsagePercentage.map(item => {
+    let clientData = clientUsagePercentage.map((item) => {
       return {
         value: item.request,
         name: item.client,
-        percentage: item.percentage
-      }
-    })
+        percentage: item.percentage,
+      };
+    });
     // console.log('clientUsagePercentage', clientUsagePercentage)
 
     const targetEle = document.getElementById('clientReport');
@@ -743,16 +802,17 @@ export class DashboardComponent implements OnInit {
         title: {
           text: this.toolService.numberComma(clientUsagePercentage[0].total),
           left: 'center',
-          top: 'center'
+          top: 'center',
         },
         // color: this.clientData.map(item=>item['color']),
         tooltip: {
           trigger: 'item',
           position: 'right',
           formatter: (params) => {
-
             return `
-                    <span style="font-weight:bold">${params.marker} ${params.name}</span> <br />
+                    <span style="font-weight:bold">${params.marker} ${
+              params.name
+            }</span> <br />
                     Percentage:  ${params.data.percentage}%<br />
                     Request: ${this.toolService.numberComma(params.value)}
                       `;
@@ -771,12 +831,12 @@ export class DashboardComponent implements OnInit {
             itemStyle: {
               borderRadius: 10,
               borderColor: '#fff',
-              borderWidth: 1
+              borderWidth: 1,
             },
 
             label: {
               show: false,
-              position: 'center'
+              position: 'center',
             },
             // emphasis: {
             //   label: {
@@ -786,7 +846,7 @@ export class DashboardComponent implements OnInit {
             //   }
             // },
             labelLine: {
-              show: false
+              show: false,
             },
             data: clientData,
             // data: [
@@ -797,8 +857,8 @@ export class DashboardComponent implements OnInit {
             //   { value: 681, name: 'clientE' },
             //   { value: 511, name: 'Others' },
             // ]
-          }
-        ]
+          },
+        ],
       };
       this.clientChart.setOption(option);
       // console.log(this.clientChart.getOption().color)
@@ -820,7 +880,6 @@ export class DashboardComponent implements OnInit {
   getColor(idx) {
     return this.clientChart?.getOption().color[idx];
   }
-
 
   // const badattempEle = document.getElementById('charts-container');
   //   if(badattempEle){
@@ -851,24 +910,37 @@ export class DashboardComponent implements OnInit {
     } as AA1211Req;
     // console.log(reqBody)
     // this.ngxService.start();
-    this.serverService.getDashboardData(reqBody).subscribe(res => {
+    this.serverService.getDashboardData(reqBody).subscribe((res) => {
       // console.log(res)
       if (this.toolService.checkDpSuccess(res.ResHeader)) {
         this.dataTime = res.RespBody.data.dataTime; //資料取回時間
         this.request = res.RespBody.data.request;
         this.success = res.RespBody.data.success;
         this.fail = res.RespBody.data.fail;
-        if (res.RespBody.data.badAttempt) this.generateBadAttemptReport(res.RespBody.data.badAttempt);
+        if (res.RespBody.data.badAttempt)
+          this.generateBadAttemptReport(res.RespBody.data.badAttempt);
         this.avg = this.numberComma(res.RespBody.data.avg.toString());
-        if (res.RespBody.data.median) this.generateMadianReport(res.RespBody.data.median);
-        if (res.RespBody.data.popular) this.generatePopularReport(res.RespBody.data.popular);
+        if (res.RespBody.data.median)
+          this.generateMadianReport(res.RespBody.data.median);
+        if (res.RespBody.data.popular)
+          this.generatePopularReport(res.RespBody.data.popular);
 
-        this.unpopular = res.RespBody.data.unpopular ? res.RespBody.data.unpopular.sort((a: AA1211UnpopularResp, b: AA1211UnpopularResp) => { return a.rank - b.rank }) : [];
-        if (res.RespBody.data.apiTrafficDistribution) this.generateApiTrafficDistributionReport(res.RespBody.data.apiTrafficDistribution)
+        this.unpopular = res.RespBody.data.unpopular
+          ? res.RespBody.data.unpopular.sort(
+              (a: AA1211UnpopularResp, b: AA1211UnpopularResp) => {
+                return a.rank - b.rank;
+              }
+            )
+          : [];
+        if (res.RespBody.data.apiTrafficDistribution)
+          this.generateApiTrafficDistributionReport(
+            res.RespBody.data.apiTrafficDistribution
+          );
 
-        if (res.RespBody.data.clientUsagePercentage) this.generateClientReport(res.RespBody.data.clientUsagePercentage);
-        if (res.RespBody.data.lastLoginLog) this.lastLoginLog = res.RespBody.data.lastLoginLog;
-
+        if (res.RespBody.data.clientUsagePercentage)
+          this.generateClientReport(res.RespBody.data.clientUsagePercentage);
+        if (res.RespBody.data.lastLoginLog)
+          this.lastLoginLog = res.RespBody.data.lastLoginLog;
       }
       // else { //測試用
 
@@ -889,8 +961,7 @@ export class DashboardComponent implements OnInit {
       // }
       this.ngxService.stopAll();
       this.resizeReport();
-    })
-
+    });
   }
 
   numberComma(tar?: string) {
@@ -908,12 +979,11 @@ export class DashboardComponent implements OnInit {
       }
       // console.log( typeof a[field])
       return this.compare(a[field], b[field], this.isAsc);
-    })
+    });
     this.isAsc = !this.isAsc;
   }
 
   public compare(a: number | string, b: number | string, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
-
 }

@@ -39,7 +39,7 @@ public class AA1121Controller {
 	@Autowired
 	private ObjectMapper objectMapper;
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA1121", //
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

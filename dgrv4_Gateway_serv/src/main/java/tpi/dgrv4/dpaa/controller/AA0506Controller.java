@@ -1,9 +1,7 @@
 package tpi.dgrv4.dpaa.controller;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 import static tpi.dgrv4.gateway.controller.DgrCusController.KEY_OF_RID_COOKIE;
 import static tpi.dgrv4.gateway.controller.DgrCusController.KEY_OF_TOKEN_COOKIE;
@@ -44,7 +42,7 @@ public class AA0506Controller {
 	@Autowired
 	private AA0506Service service;
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0506", params = {"before"}, //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,7 +58,7 @@ public class AA0506Controller {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0506", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,7 +95,12 @@ public class AA0506Controller {
 	}
 
 	private String getTokenCookie(HttpHeaders headers, String rootPath) {
-		String authorization = new String(Base64.getEncoder().encode(headers.getFirst("authorization").getBytes()), StandardCharsets.UTF_8);
+
+		var authHeader = Optional.ofNullable(headers.get("authorization"));
+
+		if (authHeader.isEmpty() || authHeader.get().isEmpty()) return "";
+
+		String authorization = new String(Base64.getEncoder().encode(authHeader.get().get(0).getBytes()), StandardCharsets.UTF_8);
 
 		ResponseCookie cookie = ResponseCookie.from(KEY_OF_TOKEN_COOKIE, authorization) // key & value
 			// 2024.05.24; Kim; Keep cookie until logout or close browser

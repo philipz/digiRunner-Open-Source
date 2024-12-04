@@ -45,7 +45,7 @@ public class AA0314Controller {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/udpssotoken/11/AA0314", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

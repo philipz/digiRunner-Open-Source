@@ -8,6 +8,7 @@ import { ToolService } from 'src/app/shared/services/tool.service';
 
 export interface _AA0311RedirectByIpData extends AA0311RedirectByIpData {
   listNum: number;
+  allowAll?:boolean;
 }
 
 @Component({
@@ -29,6 +30,7 @@ export class SourceIpFormComponent implements OnInit {
   @ViewChild('ipDataList', { read: ViewContainerRef, static: true }) ipDataListRef!: ViewContainerRef;
 
   listNum: number = 0;
+  isAllowAll:boolean = false;
 
   /**
    *  ipForRedirect: string;
@@ -48,6 +50,7 @@ export class SourceIpFormComponent implements OnInit {
   }
 
   writeValue(redirectByIpDataList?: []): void {
+    // console.log(redirectByIpDataList)
 
     this.initFormDetail(redirectByIpDataList);
   }
@@ -61,7 +64,7 @@ export class SourceIpFormComponent implements OnInit {
       redirectByIpDataList.forEach(rowData=>{
         this.addIdData(rowData);
       })
-
+      this.isAllowAll = this.redirectByIpDataList.some(res=> res.ipForRedirect.includes('0.0.0.0/0')||res.ipForRedirect.includes('::/0') )
     }
     else{
       this.addIdData();
@@ -69,7 +72,7 @@ export class SourceIpFormComponent implements OnInit {
 
   }
 
-  async addIdData(rowData?:AA0311RedirectByIpData) {
+  async addIdData(rowData?:AA0311RedirectByIpData,allowAll:boolean = false) {
 
     if (this.redirectByIpDataList.length == 5) {
       // 上限不可超過5
@@ -80,10 +83,24 @@ export class SourceIpFormComponent implements OnInit {
     }
     let componentRef = this.ipDataListRef.createComponent(SourceIpFormDetailComponent);
     if(rowData){
-      this.redirectByIpDataList.push({ ipForRedirect: rowData.ipForRedirect, ipSrcUrl: rowData.ipSrcUrl, listNum: this.listNum })
+      this.redirectByIpDataList.push({ ipForRedirect: rowData.ipForRedirect, ipSrcUrl: rowData.ipSrcUrl, listNum: this.listNum, allowAll:rowData.ipForRedirect.includes('0.0.0.0/0')||rowData.ipForRedirect.includes('::/0') })
     }
     else{
-      this.redirectByIpDataList.push({ ipForRedirect: '', ipSrcUrl: '', listNum: this.listNum })
+      if (allowAll) {
+        this.redirectByIpDataList.push({
+          ipForRedirect: '0.0.0.0/0',
+          ipSrcUrl: '',
+          listNum: this.listNum,
+          allowAll: true,
+        });
+        this.isAllowAll = true;
+      } else {
+        this.redirectByIpDataList.push({
+          ipForRedirect: '',
+          ipSrcUrl: '',
+          listNum: this.listNum,
+        });
+      }
     }
 
     componentRef.instance.ref = componentRef;
@@ -101,6 +118,7 @@ export class SourceIpFormComponent implements OnInit {
       this.redirectByIpDataList[idx].listNum = res.no;
 
       // console.log(this.redirectByIpDataList)
+      this.isAllowAll = this.redirectByIpDataList.some(res=> res.ipForRedirect.includes('0.0.0.0/0')||res.ipForRedirect.includes('::/0') )
       this.onChange(this.redirectByIpDataList.map(res=> {return {ipForRedirect:res.ipForRedirect, ipSrcUrl:res.ipSrcUrl }}))
 
     })
@@ -108,7 +126,7 @@ export class SourceIpFormComponent implements OnInit {
     componentRef.instance.remove.subscribe(no => {
       let idx = this.redirectByIpDataList.findIndex(host => host.listNum === no);
       this.redirectByIpDataList.splice(idx, 1);
-
+      this.listNum = this.redirectByIpDataList.length;
       if (this.redirectByIpDataList.length == 0) {
         this.listNum = 0;
         this.onChange([]);
@@ -117,8 +135,11 @@ export class SourceIpFormComponent implements OnInit {
       else{
         this.onChange(this.redirectByIpDataList.map(res=> {return {ipForRedirect:res.ipForRedirect, ipSrcUrl:res.ipSrcUrl }}))
       }
+      this.isAllowAll = this.redirectByIpDataList.some(res=> res.ipForRedirect.includes('0.0.0.0/0')||res.ipForRedirect.includes('::/0') )
 
     })
+
+
   }
 
 
@@ -131,7 +152,7 @@ export class SourceIpFormComponent implements OnInit {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    console.log('HostnameConfigComponent 接收disabled狀態', isDisabled)
+    // console.log('HostnameConfigComponent 接收disabled狀態', isDisabled)
     this.disabled = isDisabled;
   }
 }

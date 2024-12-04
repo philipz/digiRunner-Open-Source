@@ -37,7 +37,7 @@ public class DPB0020Controller {
 	 * @param jsonStr
 	 * @return
 	 */
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/11/DPB0020", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

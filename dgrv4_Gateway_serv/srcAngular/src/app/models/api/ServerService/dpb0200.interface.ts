@@ -9,6 +9,7 @@ export interface DPB0200Req {
   jdbcUrl: string;
   userName: string;
   mima?: string;
+  connName?: string;
 }
 
 export interface RespDPB0200 extends BaseRes {

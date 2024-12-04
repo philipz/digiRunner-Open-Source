@@ -3,9 +3,13 @@ package tpi.dgrv4.common.utils;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
+/***
+ *  需要Autowired 此class 的必須掛 @Scope("prototype") 因為是多例
+ */
 @Component
+@Scope("prototype")
 public class LicenseUtilBase {
 	public String getEdition(String key){
 		return "Express";

@@ -67,9 +67,9 @@ export class Np0504Component extends BaseComponent implements OnInit {
         this.openApiKeyDetailCols = [
             { field: 'apiName', header: dict['api_name'], width: '15%' },
             { field: 'apiDesc', header: dict['api_desc'], width: '15%' },
-            { field: 'themeDatas', header: dict['theme_name'], width: '15%' },
+            // { field: 'themeDatas', header: dict['theme_name'], width: '15%' },
             { field: 'orgName', header: dict['dept'], width: '15%' },
-            { field: 'fileName', header: dict['api_doc'], width: '15%' }
+            // { field: 'fileName', header: dict['api_doc'], width: '15%' }
         ];
         this.openApiService.queryOpenApiKeyByDateAndLike_before().subscribe(res => {
             if (this.tool.checkDpSuccess(res.ResHeader)) {

@@ -263,7 +263,7 @@ public class DPB0058Service {
 	}
 	
 	private String printDt(Date dpb0058_dt) {
-		return DateTimeUtil.dateTimeToString(dpb0058_dt, DateTimeFormatEnum.西元年月日時分秒_2).get();
+		return DateTimeUtil.dateTimeToString(dpb0058_dt, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 	}
 
 	private String nvl(Object dpb0058_input) {

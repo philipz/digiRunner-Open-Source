@@ -105,7 +105,7 @@ public class DGRCServicePostRaw implements IApiCacheService{
 			// print log
 			String uuid = UUID.randomUUID().toString();
 			
-			// 判斷是否需要cAikey
+			// 判斷是否需要cApikey
 			boolean cApiKeySwitch = getCommForwardProcService().getcApiKeySwitch(dgrcPostRaw_moduleName, apiId);
 			String aType = "R";
 			if(cApiKeySwitch) {
@@ -461,10 +461,13 @@ public class DGRCServicePostRaw implements IApiCacheService{
 		while (headerKeys.hasMoreElements()) {
 			String key = headerKeys.nextElement();
 			List<String> valueList = httpHeaders.get(key);
-			String tmpValue = valueList.toString();
-			//[ ] 符號總是位於 String 的第一個和最後一個字符，則可以使用 substring() 方法更有效地去除它們。
-			tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
-			String value = getCommForwardProcService().convertAuth(key, tmpValue, maskInfo);
+			String value = null;
+			if (!CollectionUtils.isEmpty(valueList)) {
+				String tmpValue = valueList.toString();
+				// [ ] 符號總是位於 String 的第一個和最後一個字符，則可以使用 substring() 方法更有效地去除它們。
+				tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
+				value = getCommForwardProcService().convertAuth(key, tmpValue, maskInfo);
+			}
 			writeLogger(dgrcPostRaw_log, "\tKey: " + key + ", Value: " + value);
 		}
 		writeLogger(dgrcPostRaw_log, "--【End】 " + StackTraceUtil.getLineNumber() + " --\r\n");

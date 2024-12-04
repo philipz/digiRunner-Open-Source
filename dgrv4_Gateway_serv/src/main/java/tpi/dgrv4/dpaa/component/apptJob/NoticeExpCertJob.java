@@ -1,28 +1,16 @@
 package tpi.dgrv4.dpaa.component.apptJob;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import jakarta.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
+import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpRegStatus;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.dpaa.component.TsmpMailEventBuilder;
 import tpi.dgrv4.dpaa.component.cache.proxy.TsmpDpMailTpltCacheProxy;
-import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.dpaa.constant.TsmpDpCertType;
 import tpi.dgrv4.dpaa.constant.TsmpDpMailType;
 import tpi.dgrv4.dpaa.constant.TsmpNoticeSrc;
@@ -30,19 +18,17 @@ import tpi.dgrv4.dpaa.service.PrepareMailService;
 import tpi.dgrv4.dpaa.vo.TsmpMailEvent;
 import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
-import tpi.dgrv4.entity.entity.jpql.TsmpClientCert;
-import tpi.dgrv4.entity.entity.jpql.TsmpClientCert2;
-import tpi.dgrv4.entity.entity.jpql.TsmpClientCertBasic;
-import tpi.dgrv4.entity.entity.jpql.TsmpDpMailTplt;
-import tpi.dgrv4.entity.entity.jpql.TsmpNoticeLog;
-import tpi.dgrv4.entity.repository.TsmpClientCert2Dao;
-import tpi.dgrv4.entity.repository.TsmpClientCertDao;
-import tpi.dgrv4.entity.repository.TsmpClientDao;
-import tpi.dgrv4.entity.repository.TsmpDpClientextDao;
-import tpi.dgrv4.entity.repository.TsmpNoticeLogDao;
+import tpi.dgrv4.entity.entity.jpql.*;
+import tpi.dgrv4.entity.repository.*;
 import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * JWE/TLS加密憑證到期提醒<br>
@@ -302,18 +288,18 @@ public class NoticeExpCertJob extends ApptJob {
 		// 確認憑證是否存在
 		if (TsmpDpCertType.JWE.equals(certType)) {
 			Optional<TsmpClientCert> opt = getTsmpClientCertDao().findById(Long.valueOf(clientCertId));
-			if (!opt.isPresent()) {
+			if (opt.isEmpty()) {
 				throw new Exception("JWE憑證不存在, 無法寄出到期通知信");
 			}
 		} else if (TsmpDpCertType.TLS.equals(certType)) {
 			Optional<TsmpClientCert2> opt = getTsmpClientCert2Dao().findById(Long.valueOf(clientCertId));
-			if (!opt.isPresent()) {
+			if (opt.isEmpty()) {
 				throw new Exception("TLS憑證不存在, 無法寄出到期通知信");
 			}
 		}
 		// 收件者
 		Optional<TsmpClient> opt_client = getTsmpClientDao().findById(certBasic.getClientId());
-		if (!opt_client.isPresent()) {
+		if (opt_client.isEmpty()) {
 			throw new Exception("憑證用戶端(" + certBasic.getClientId() + ")不存在，無法寄出通知信");
 		}
 		String recipients = Optional.ofNullable(opt_client.get().getEmails()) //
@@ -376,7 +362,7 @@ public class NoticeExpCertJob extends ApptJob {
 			return "";
 		}
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).get();// yyyy/MM/dd
+		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295));// yyyy/MM/dd
 		return dtStr;
 	}
 

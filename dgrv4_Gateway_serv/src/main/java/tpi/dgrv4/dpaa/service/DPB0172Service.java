@@ -15,6 +15,7 @@ import tpi.dgrv4.entity.entity.DgrGtwIdpInfoO;
 import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.repository.DgrGtwIdpInfoODao;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -58,6 +59,10 @@ public class DPB0172Service {
 			dgrGtwIdpInfoO.setUpdateDateTime(DateTimeUtil.now());
 			dgrGtwIdpInfoO.setUpdateUser(authorization.getUserName());
 			dgrGtwIdpInfoO = getDgrGtwIdpInfoODao().saveAndFlush(dgrGtwIdpInfoO);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
+
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {

@@ -388,11 +388,21 @@
                     Token.picture</label>
                   <input type="text" class="form-control" id="idtPicture" formControlName="idtPicture">
                 </div>
+                <div class="col-12 px-0 form-group">
+                  <label id="idtLightId_label" for="idtLightId" class="control-label" style="font-weight: bolder;">ID
+                    Token.lightId</label>
+                  <input type="text" class="form-control" id="idtLightId" formControlName="idtLightId">
+                </div>
+                <div class="col-12 px-0 form-group">
+                  <label id="idtRoleName_label" for="idtRoleName" class="control-label" style="font-weight: bolder;">ID
+                    Token.roleName</label>
+                  <input type="text" class="form-control" id="idtRoleName" formControlName="idtRoleName">
+                </div>
               </div>
               <div class="col-6">
                 <label class="control-label">ID Token Example</label>
                 <div style="display:block">
-                  <textarea rows="8" style="width:100%" class="form-control" [readOnly]="true" pInputTextarea
+                  <textarea rows="15" style="width:100%" class="form-control" [readOnly]="true" pInputTextarea
                     [value]="idTokenExp"></textarea>
                 </div>
               </div>

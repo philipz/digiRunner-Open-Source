@@ -30,6 +30,8 @@ import { TranslateService } from '@ngx-translate/core';
 // import { AA0510Resp } from 'src/app/models/api/UtilService/aa0510.interface';
 import * as bcrypt from 'bcryptjs';
 import { G } from 'chart.js/dist/chunks/helpers.core';
+import { Router } from '@angular/router';
+import { Menu } from 'src/app/models/menu.model';
 // import { AA0101func } from 'src/app/models/api/FuncService/aa0101.interface';
 // import { LdapEnvItem } from 'src/app/models/api/LoginService/ldaplogin.interface';
 
@@ -60,7 +62,8 @@ export class ToolService {
     private http: HttpClient,
     private jwtHelper: JwtHelperService,
     private tokenService: TokenService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    public router: Router,
   ) {
     dayjs.extend(utc);
     dayjs.extend(timezone)
@@ -604,7 +607,7 @@ export class ToolService {
   }
 
   getEnvListData(): [] {
-    return sessionStorage.getItem('envList') ? JSON.parse(sessionStorage.getItem('envList')!) : '';
+    return sessionStorage.getItem('envList') ? JSON.parse(sessionStorage.getItem('envList')!) : [];
   }
 
   //點選api，更新標記
@@ -765,5 +768,43 @@ export class ToolService {
 
   //   })
   // }
+
+  /**
+     * 20220113新增
+     * 把menu(由Tsmp_func取回)的資料跟前端routes source(layout.routing.ts)的id做比對
+     * 若menu.func_code無法對應到routes的id，則移除
+     */
+  validateMenusNFuncCode(menu: any) {
+    let layoutRouteData = new Array; // 用來記錄有在layout.routing.ts內註冊的頁面id
+    const config = this.router.config;
+
+    for (let i = 0; i < config.length; i++) {
+        if ('_loadedConfig' in config[i]) {
+            if (config[i]['_loadedConfig'].routes[0].children) {
+                config[i]['_loadedConfig'].routes[0].children.forEach(childRoute => {
+                    if ('data' in childRoute) {
+                        layoutRouteData.push(childRoute.data.id.toUpperCase())
+                    }
+                });
+            }
+        }
+    }
+    // console.log(layoutRouteData);
+    // console.log(menu);
+
+    menu.forEach((item:Menu) => {
+        item.subs = item.subs?.filter(subitem => layoutRouteData.find(id =>{
+          return subitem.name.startsWith('ZA') || subitem.name.startsWith('AC09') || id === subitem.name
+        }))
+    });
+    // console.log('menu:',menu)
+
+   menu = menu.filter((item:Menu) =>{
+      return (item.subs && item.subs.length>0) ? true: false;
+    })
+    // console.log('menu:',menu)
+    return menu;
+}
+
 
 }

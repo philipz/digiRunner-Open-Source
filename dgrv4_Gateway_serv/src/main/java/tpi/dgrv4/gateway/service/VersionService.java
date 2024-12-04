@@ -1,7 +1,5 @@
 package tpi.dgrv4.gateway.service;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;

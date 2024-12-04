@@ -1,0 +1,40 @@
+.area-title{
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.panel-title{
+  font-weight: 500;
+  font-size: 1.2rem;
+}
+.panel-title:not(:first-child){
+  margin-top: 0.5rem;
+}
+
+.key-value-row{
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  &.align-has-checkbox{
+    padding-left: calc(0.5rem + 20px);
+  }
+  /* 後面一顆按鈕 */
+  &.align-has-btn{
+    padding-right: calc(0.5rem + 30px);
+  }
+  /* 後面兩顆按鈕 */
+  &.align-has-btn-2{
+    padding-right: calc(0.5rem + (30px * 2));
+  }
+}
+/* .key-value-row label.col-form-label{
+  font-weight: bolder;
+} */
+.key-value-row-has-add-btn{
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}

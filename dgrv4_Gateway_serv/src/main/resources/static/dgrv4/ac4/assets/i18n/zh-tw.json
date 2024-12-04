@@ -968,7 +968,14 @@
     "thursday": "星期四",
     "friday": "星期五",
     "saturday": "星期六",
-    "sunday": "星期日"
+    "sunday": "星期日",
+    "mon": "一",
+    "tue": "二",
+    "wed": "三",
+    "thu": "四",
+    "fri": "五",
+    "sat": "六",
+    "sun": "日"
   },
   "weekly": "每週",
   "import_exn_spec": "匯入外部系統介接規格(json, yaml)",
@@ -1090,7 +1097,7 @@
   "ldap_login": "使用LDAP帳號登入",
   "adldap_login": "使用AD/LDAP帳號登入",
   "m_adldap_login": "使用Multi-AD/LDAP帳號登入",
-  "continue_proc": "繼續使用",
+  "continue_proc": "繼續使用 digiRunner",
   "gtwidp_alert": "確認後 digiRunner 會將您的姓名、電子郵件地址提供給「{{title}}」",
   "site_name": "站點名稱",
   "target_ws": "目標WebSocket",
@@ -1130,6 +1137,7 @@
   "diversionSrcIP": "Source IP分流",
   "sourceIpRequired": "Source IP 不可為空",
   "ipSrcUrlRequired": "來源URL 不可為空",
+  "ipSrcUrl": "來源URL",
   "mask": {
     "none": "無遮罩",
     "before_after": "留前後 {{num}} 碼，遮罩以 {{mask}} 顯示",
@@ -1257,7 +1265,7 @@
   "create_type": "建立類型",
   "main_func_tip" : {
     "1": "確認主選單是否已設置語系",
-    "2": "kibana報表設定設置於報表管理"
+    "2": "kibana報表設置於報表管理"
   },
   "embedded_url_tip": {
       "type": "功能類型",
@@ -1268,16 +1276,39 @@
       "2": "kibana報表是由ip:port或domain之後開始填寫，固定位於主選單的報表管理內",
       "2_1": "例如: URL是/kibana/1234/5678",
       "3": "嵌入頁面是完整URL裡有/dgrv4/cus/，位置由主選單決定",
-      "3_1": "例如: URL是:127.0.0.1:8080/dgrv4/cus/za0001",
+      "3_1": "例如: URL是https://127.0.0.1:8080/dgrv4/cus/za0001",
       "4": "另開頁面是完整URL裡沒有/dgrv4/cus/，位置由主選單決定",
-      "4_1": "例如: URL是:127.0.0.1:8080/xxxx/xxxx/za0001",
+      "4_1": "例如: URL是https://127.0.0.1:8080/xxxx/xxxx/za0001",
       "5": "kibana報表型態請勿變成嵌入頁面或另開頁面型態",
       "6": "嵌入頁面或另開頁面型態請勿變成kibana報表型態"
   },
   "include_locale": "包含其他語系",
   "include_locale_sub_func": "包含其他語系和子選單",
   "use_in_multi_language": "主要用於多國語系",
-  "url_contains_keyword": "Url含有關鍵字: {{key}}",
-  "url_dont_contains_keyword": "Url不含有關鍵字: {{key}}"
-
+  "url_contains_keyword": "URL含有關鍵字({{key}})為嵌入頁面",
+  "url_dont_contains_keyword": "URL不含有關鍵字({{key}})為另開頁面",
+  "masterFuncCode": "主選單",
+  "noCusInfo": "沒有設定可以使用的CUS資訊",
+  "cusId": "第三方 ID",
+  "cusName": "CUS 登入 DGR AC 按鈕名稱",
+  "cusName_tip": "在 DGR AC 登入畫面建立 CUS 登入按鈕，本欄位設定按鈕名稱，預設 CUS",
+  "cusStatus":"Cus 狀態",
+  "cusLoginUrl":"CUS 登入畫面 URL",
+  "cusLoginUrl_tip":"點下 DGR AC 登入畫面的 CUS 登入按鈕時，將跳轉的位置。應該把 CUS 登入畫面的 URL 填入此欄位",
+  "cusBackendLoginUrl":"CUS 登入 API URL",
+  "cusBackendLoginUrl_tip": "觸發 CUS 登入的 URL，應該把 CUS 進行登入時的 URL 填入",
+  "cusUserDataUrl":" CUS 使用者資訊 URL",
+  "cusUserDataUrl_tip": "提供 DGR 獲取使用者資料的 API URL，CUS 必須提供一支 API，讓 DGR 可以獲取對應的使用者資料",
+  "cusUrlExp": "請在輸入 URL 時遵守以下規則：\n\n1. URL 必須以 `http://` 或 `https://` 開頭\n2. URL 必須是合法且完整的網址格式\n\n## 正確範例：\n- https://www.example.com\n- http://subdomain.example.com/page\n- https://www.example.com/path/to/resource?param=value\n\n## 錯誤範例：\n- www.example.com（缺少協議）\n- ftp://example.com（不允許的協議）\n- https://（不完整的 URL）",
+  "clientKeyMima": "客戶端金鑰密碼",
+  "cfm_mtls_enable": "您即將啟用本站台mTLS連線！",
+  "cfm_mtls_disable": "您即將停用本站台mTLS連線！",
+  "allow_all": "允許所有",
+  "xapikey_search": "X-API-Key 搜尋",
+  "xapikey_name": "X-API-Key 名稱",
+  "auth_client": "授權用戶端",
+  "redirectURItip":"請在輸入 URI 時遵守以下規則：\n\n1. URI 必須以協議開頭\n2. 若是 `http://` 或 `https://` 開頭,必須是合法且完整的網址格式,不能包含 * \n   e.g. https://www.example.com\n3. 若為其他協議開頭,必須包含 *\n   e.g. myapp://example/*\n\n## 錯誤範例：\n- www.example.com（缺少協議）\n- https://www.example.com/*（不允許 *）\n- https://（不完整的）\n- myapp://example/ (缺少 *）",
+  "rule":"規則",
+  "whitelist_rule_tip": "輸入正則表達式,將檢查 User-Agent header",
+  "api_count": "API 總數"
 }

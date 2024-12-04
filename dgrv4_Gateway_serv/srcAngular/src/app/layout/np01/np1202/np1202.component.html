@@ -1,0 +1,225 @@
+<app-container [title]="currentTitle">
+  <div>
+    <form [formGroup]="form" (ngSubmit)="axios_queryApiStatusByGroup()">
+
+      <div class="form-group">
+        <p-tabView class="tab" (onChange)="tabChange($event)">
+          <p-tabPanel header="{{'keyword_search'|translate}}" key="keyWords">
+            <div class="form-group">
+              <label class="control-label required">{{'keyword_search'|translate}}</label>
+              <input #keyWords type="search" formControlName="keyWords" class="form-control"
+                placeholder="{{'group_id'|translate}}、{{'group_alias'|translate}}、{{'group_name'|translate}}">
+              <div *ngIf="keyWords?.invalid && (keyWords?.dirty || keyWords?.touched)" class="text-danger">
+                <small class="form-text">{{keyWords.errors.required | translate}}</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 col-xl-12 col-lg-12">
+                <div style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+              ">
+                  <button type="submit" class="btn tpi-btn tpi-primary"
+                    [disabled]="form.invalid">{{'button.search'|translate}}</button>
+                </div>
+              </div>
+            </div>
+          </p-tabPanel>
+          <p-tabPanel header="{{'xapikey_search'|translate}}" key="xApiKey">
+            <div class="form-group">
+              <label class="control-label required">{{'xapikey_search'|translate}}</label>
+              <input #xApiKey type="search" formControlName="xApiKey" class="form-control" placeholder="X-API-Key">
+              <div *ngIf="xApiKey?.invalid && (xApiKey?.dirty || xApiKey?.touched)" class="text-danger">
+                <small class="form-text">{{xApiKey.errors.required | translate}}</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 col-xl-12 col-lg-12">
+                <div style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+              ">
+                  <button type="submit" class="btn tpi-btn tpi-primary"
+                    [disabled]="form.invalid">{{'button.search'|translate}}</button>
+                </div>
+              </div>
+            </div>
+          </p-tabPanel>
+        </p-tabView>
+
+      </div>
+
+    </form>
+    <div *ngIf="flag.value=='keyWords'">
+      <div class="form-group row" *ngIf="apiCount && apiCount!=''">
+        <div class="col-12 felid-flex-start">
+          <label class="control-label">{{'api_count' | translate}}</label>
+          <label class="control-label">{{apiCount}}</label>
+        </div>
+      </div>
+
+
+      <div *ngFor="let item of dataList" class="groupCard form-group">
+        <div class="form-group row">
+          <div class="col-4 felid-flex-start">
+            <label class="control-label">{{'group_id'|translate}}</label>
+            <label class="control-label">{{item.groupId}} </label>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-4 felid-flex-start">
+            <label class="control-label">{{'group_alias'|translate}}</label>
+            <label class="control-label">{{item.groupAlias}} </label>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-4 felid-flex-start">
+            <label class="control-label">{{'group_name'|translate}}</label>
+            <label class="control-label">{{item.groupName}} </label>
+          </div>
+        </div>
+
+
+
+        <p-table [value]="item.clientDataList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
+          styleClass="p-datatable-striped">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 20%;" scope="col">{{"auth_client"|translate}}</th>
+              <th style="width: 30%;" scope="col">{{"api_name"|translate}}</th>
+              <th style="width: 35%;" scope="col">API Path</th>
+              <th style="width: 5%;" scope="col">{{"api_status"|translate}}</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.clientName}}</td>
+              <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiName}}</td>
+              <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiPath}}</td>
+              <td [attr.rowspan]="1">
+                <img
+                  [src]="rowData.apiDataList[0]?.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+              </td>
+
+            </tr>
+            <ng-container *ngFor="let apiDataItem of rowData.apiDataList; let i= index;">
+              <tr *ngIf="i>0">
+                <td [attr.rowspan]="1">{{apiDataItem.apiName}}</td>
+                <td [attr.rowspan]="1">{{apiDataItem.apiPath}}</td>
+                <td [attr.rowspan]="1">
+                  <img
+                    [src]="apiDataItem.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+                </td>
+              </tr>
+            </ng-container>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="8">
+                {{'no_rec' | translate}}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+    </div>
+    <div *ngIf="flag.value!='keyWords'">
+      <div class="form-group row" *ngIf="apiCount && apiCount!=''">
+        <div class="col-12 felid-flex-start">
+          <label class="control-label">{{'api_count' | translate}}</label>
+          <label class="control-label">{{apiCount}}</label>
+        </div>
+      </div>
+      <div *ngFor="let item of dataListFromXapiKey" class="groupCard form-group">
+        <div class="form-group row">
+          <div class="col-4 felid-flex-start">
+            <label class="control-label">X-API-Key</label>
+            <label class="control-label">{{item.apiKeyMask}} </label>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-4 felid-flex-start">
+            <label class="control-label">{{'effective_date'|translate}}</label>
+            <label class="control-label">{{formateDate(item.effectiveAt,'YYYY/MM/DD')}} </label>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-4 felid-flex-start">
+            <label class="control-label">{{'expired_date'|translate}}</label>
+            <label class="control-label">{{formateDate(item.expiredAt,'YYYY/MM/DD')}} </label>
+          </div>
+        </div>
+
+
+
+        <p-table [value]="item.clientDataList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
+          styleClass="p-datatable-striped">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th style="width: 15%;" scope="col">X-API-Key ID</th>
+              <th style="width: 15%;" scope="col">{{"xapikey_name"|translate}}</th>
+              <th style="width: 20%;" scope="col">{{"auth_client"|translate}}</th>
+              <th style="width: 30%;" scope="col">{{"api_name"|translate}}</th>
+              <th style="width: 35%;" scope="col">API Path</th>
+              <th style="width: 5%;" scope="col">{{"api_status"|translate}}</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.apiKeyId}}</td>
+              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.apiKeyAlias}}</td>
+              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.clientName}}</td>
+              <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiName}}</td>
+              <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiPath}}</td>
+              <td [attr.rowspan]="1">
+                <img
+                  [src]="rowData.apiDataList[0]?.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+              </td>
+
+            </tr>
+            <ng-container *ngFor="let apiDataItem of rowData.apiDataList; let i= index;">
+              <tr *ngIf="i>0">
+                <td [attr.rowspan]="1">{{apiDataItem.apiName}}</td>
+                <td [attr.rowspan]="1">{{apiDataItem.apiPath}}</td>
+                <td [attr.rowspan]="1">
+                  <img
+                    [src]="apiDataItem.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+                </td>
+              </tr>
+            </ng-container>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+              <td [attr.colspan]="8">
+                {{'no_rec' | translate}}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </div>
+    </div>
+
+
+  </div>
+
+</app-container>
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

@@ -14,7 +14,7 @@ public class AcIdPIconController {
 	@Autowired
 	private AcIdPIconService service;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/acidp/{idPType}/getIcon")
 	public ResponseEntity<String> getIcon(@PathVariable(value = "idPType", required = true) String idPType) {
 

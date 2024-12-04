@@ -25,7 +25,9 @@ public class DPB0185Resp {
 	private String updateUser;
 	private String iconFile;
 	private String pageTitle;
-	
+	private String idtLightId;
+	private String idtRoleName;
+
 	public String getId() {
 		return id;
 	}
@@ -202,4 +204,19 @@ public class DPB0185Resp {
 		this.pageTitle = pageTitle;
 	}
 
+	public String getIdtLightId() {
+		return idtLightId;
+	}
+
+	public void setIdtLightId(String idtLightId) {
+		this.idtLightId = idtLightId;
+	}
+
+	public String getIdtRoleName() {
+		return idtRoleName;
+	}
+
+	public void setIdtRoleName(String idtRoleName) {
+		this.idtRoleName = idtRoleName;
+	}
 }

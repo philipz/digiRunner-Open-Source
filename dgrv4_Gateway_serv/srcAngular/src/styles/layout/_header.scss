@@ -1,0 +1,67 @@
+.layout-header-wrapper {
+  background-color: white;
+  position: sticky;
+  border-bottom: var(--layout-border);
+  height: var(--header-h);
+  width: 100%;
+  top: 0;
+  z-index: 3;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  .img-header-logo {
+    // width: 14.5vw;
+    // min-width: 160px !important;
+    // max-height: 48px;
+    height: calc(var(--header-h) - 10px);
+  }
+  .header-last-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .header-toggler-btn {
+    // display: block;
+    @media (min-width: 992px) {
+      display: none;
+    }
+  }
+  .header-toggler-btn,
+  .header-info-btn {
+    --font-size: 0.8rem;
+    &.p-button-secondary {
+      color: var(--text-color);
+    }
+  }
+  .header-info-btn {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.3rem;
+    padding: 0 0.5rem;
+    margin-left: 0.3rem;
+
+    .p-button-icon-left {
+      margin-right: 0;
+    }
+  }
+  .expired-time {
+    color: #b7b7b7;
+    border: 1px solid #b7b7b7;
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin: 0px;
+    width: 76px;
+    font-size: 0.8rem;
+  }
+  .user-info {
+    display: flex;
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}

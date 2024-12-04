@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import tpi.dgrv4.gateway.filter.GatewayFilter;
 import tpi.dgrv4.gateway.service.DGRCServicePostRaw;
@@ -22,7 +19,7 @@ public class DGRCControllerPostRaw {
 	
 	@Autowired
 	private DGRCServicePostRaw service;
- 
+	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
 	@RequestMapping(value = "/dgrc/**", 
 			produces = MediaType.ALL_VALUE)
 	public Callable dispatch(HttpServletRequest httpReq, 

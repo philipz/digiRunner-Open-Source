@@ -46,7 +46,7 @@ public class GtwIdPMockJSCallbackController {
 	@Autowired
 	private OAuthTokenService oAuthTokenService;
 	
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/mocktenancy/gtwcallback",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getToken(@RequestHeader HttpHeaders httpHeaders, 
@@ -96,7 +96,10 @@ public class GtwIdPMockJSCallbackController {
 		// 對外公開的Port
 		String dgrPublicPort = getTsmpSettingService().getVal_DGR_PUBLIC_PORT();
 
-		String tokenEndpoint = GtwIdPWellKnownService.getTokenEndpoint(dgrPublicDomain, dgrPublicPort);
+		String schemeAndDomainAndPort = GtwIdPWellKnownService.getSchemeAndDomainAndPort(dgrPublicDomain,
+				dgrPublicPort);
+
+		String tokenEndpoint = GtwIdPWellKnownService.getTokenEndpoint(schemeAndDomainAndPort);
 
 		String clientRedirectUrl = "https://localhost:8080/dgrv4/mocktenancy/gtwcallback";
 		

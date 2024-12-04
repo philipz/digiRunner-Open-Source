@@ -45,14 +45,14 @@
                 <colgroup>
                     <col *ngFor="let col of columns" [style.width]="col.width">
                 </colgroup>
-                <colgroup style="width:320px;">Action</colgroup>
+                <colgroup style="width:180px;">Action</colgroup>
             </ng-template>
             <ng-template pTemplate="header" let-columns>
                 <tr>
                     <th *ngFor="let col of columns" [style.width]="col.width" scope="col">
                         {{col.header}}
                     </th>
-                    <th style="width:320px" scope="col">{{'action' | translate}}</th>
+                    <th style="width:180px" scope="col">{{'action' | translate}}</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-rowData let-columns="columns">
@@ -62,7 +62,7 @@
                             {{rowData[col.field]}}
                         </span>
                     </td>
-                    <td style="text-align: center;width: 320px">
+                    <td style="text-align: center;width: 180px">
                         <!-- <div class="btn-group"> -->
                             <!-- <button type="button" class="btn btn-deta" (click)="changePage('detail',rowData);">
                                 <span class="fa fa-search">{{'button.detail'|translate}}</span>

@@ -37,7 +37,7 @@ public class DPB0046Controller {
 	 * [delete]前 Pop 一個確認窗, 帶入標題確定要刪除?				
 	 * 全部都無法刪除才會throws 1200							
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0046", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

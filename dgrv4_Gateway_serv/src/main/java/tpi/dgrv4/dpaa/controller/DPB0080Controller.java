@@ -40,7 +40,7 @@ public class DPB0080Controller {
 	private FileHelper fileHelper;
 
 	/* tsmp-v3 暫不支持 MULTIPART_FORM_DATA 類型
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0080", //
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)
@@ -101,7 +101,7 @@ public class DPB0080Controller {
 	}
 	*/
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0080", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

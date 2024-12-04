@@ -85,6 +85,12 @@ export class Np0514Component extends BaseComponent implements OnInit {
       });
     }
 
+    logDay(){
+      // console.log(this.dayRange?.value)
+      console.log('week',this.weekRange?.value);
+      console.log('day',this.dayRange?.value);
+    }
+
     ngOnInit() {
 
     //   this.items = [{
@@ -416,10 +422,9 @@ export class Np0514Component extends BaseComponent implements OnInit {
                 this.status!.setValue('all');
                 break;
             case 'create':
-                this.currentTitle = `${this.title} > ${dict['button.create']}`;
-                this.btnName = dict['button.create'];
-                this.pageNum = 2;
+
                 this.scheduleDetailData = {} as DPB0103Resp;
+
 
                 // 檢核欄位 任務名稱
                 this.scheduleService.createRjob_before().subscribe(res => {
@@ -439,6 +444,13 @@ export class Np0514Component extends BaseComponent implements OnInit {
                 });
 
                 this.frequency!.setValue('0');
+                this.dayRange?.reset([]);
+                this.weekRange?.reset([]);
+
+                this.currentTitle = `${this.title} > ${dict['button.create']}`;
+                this.btnName = dict['button.create'];
+                this.pageNum = 2;
+
                 break;
             case 'update':
                 let updateReqBody = {
@@ -585,17 +597,21 @@ export class Np0514Component extends BaseComponent implements OnInit {
 
     setScheduleValue(RespBody: DPB0103Resp, isDisabled: boolean) {
         if (isDisabled) {
-            this.form.disable();
+          this.form.disable();
+        } else {
+          this.form.enable();
         }
-        else {
-            this.form.enable();
-        }
+
         this.scheduleDetailData = RespBody;
+        this.frequency!.setValue(RespBody.cronJson.frequency.toString());
         this.rjobName!.setValue(RespBody.rjobName);
         this.remark!.setValue(RespBody.remark);
-        this.frequency!.setValue(RespBody.cronJson.frequency.toString());
-        this.dayRange!.setValue(RespBody.cronJson.dayRange);
-        this.weekRange!.setValue(RespBody.cronJson.weekRange);
+
+          this.dayRange!.setValue(RespBody.cronJson.dayRange);
+          isDisabled ? this.dayRange?.disable() : this.dayRange?.enable();
+          this.weekRange!.setValue(RespBody.cronJson.weekRange);
+          isDisabled ? this.weekRange?.disable() : this.weekRange?.enable();
+
         this.hour!.setValue(RespBody.cronJson.hour);
         this.minute!.setValue(RespBody.cronJson.minute);
         this.effDateTime!.setValue(RespBody.effDateTime != '' ? new Date(RespBody.effDateTime!) : '');
@@ -606,6 +622,7 @@ export class Np0514Component extends BaseComponent implements OnInit {
             _rjobItems.push({ refItemNo: item.refItemNo, refSubitemNo: item.refSubitemNo, inParams: item.inParams, identifData: item.identifData, sortBy: item.sortBy });
         });
         this.rjobItems!.setValue(_rjobItems);
+
     }
 
      async toggleBtnMenu(evt, rowData: DPB0102Items) {

@@ -1,6 +1,7 @@
 import { TranslateModule } from '@ngx-translate/core';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PrimengModule } from 'src/app/shared/primeng.module';
 
 
 
@@ -8,7 +9,7 @@ import { CommonModule } from '@angular/common';
   declarations: [],
   imports: [
     CommonModule,
-    TranslateModule
+    TranslateModule,PrimengModule
   ]
 })
 export class HeaderModule { }

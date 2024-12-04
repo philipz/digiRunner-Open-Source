@@ -29,7 +29,7 @@ public class DPB0084Controller {
 	 *1. 以CLIENT _ID 作為搜尋條件查找TSMP_CLIENT_CERT, TSMP_DP_FILE, TSMP_DP_FILE_CATEGORY
 	 *2. 列出CLIENT持有憑證
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0084", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

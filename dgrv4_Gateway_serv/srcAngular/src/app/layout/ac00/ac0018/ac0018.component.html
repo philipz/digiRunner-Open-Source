@@ -19,7 +19,7 @@
 
           <th rowspan="1" style="width: 10%;" scope="col">Create User</th>
           <th rowspan="1" style="width: 10%;" scope="col">Create Time</th>
-          <th rowspan="2" style="width:100px" scope="col">{{'action' | translate}}</th>
+          <th rowspan="2" style="width: 10%" scope="col">{{'action' | translate}}</th>
         </tr>
         <tr>
           <th rowspan="1" scope="col">Enable</th>
@@ -120,7 +120,7 @@
       <div class="form-group row">
         <div class="col-6">
           <label id="ldapTimeout_label" for="clientName" class="control-label">Timeout(ms)</label>
-          <input type="text" class="form-control" id="ldapTimeout" formControlName="ldapTimeout" placeholder="">
+          <input type="text" class="form-control" id="ldapTimeout" formControlName="ldapTimeout" placeholder="" type="number">
           <div *ngIf="ldapTimeout?.invalid && (ldapTimeout?.dirty || ldapTimeout?.touched)" class="text-danger">
             <small class="form-text">{{ldapTimeout?.errors.max | translate }}</small>
             <small class="form-text">{{ldapTimeout?.errors.min | translate }}</small>

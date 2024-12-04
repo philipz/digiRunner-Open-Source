@@ -40,8 +40,8 @@ export class ApiListComponent implements OnInit {
             { field: 'apiName', header: dict['api_name'] },
             { field: 'apiDesc', header: dict['api_desc'] },
             { field: 'orgName', header: dict['org_name'] },
-            { field: 'themeDatas', header: dict['theme_name'] },
-            { field: 'fileName', header: dict['api_doc'] }
+            // { field: 'themeDatas', header: dict['theme_name'] },
+            // { field: 'fileName', header: dict['api_doc'] }
         ];
         this.searchAPI();
     }

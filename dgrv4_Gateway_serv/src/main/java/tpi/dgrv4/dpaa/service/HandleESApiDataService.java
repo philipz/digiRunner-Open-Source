@@ -94,9 +94,11 @@ public class HandleESApiDataService {
 		// 因為有可能無index或 index太多，所以要改成使用通配符，但又不能直接範圍太大，所以 每10天一個
 		while (!startDate.after(execDate)) {
 			c.setTime(startDate);
-			String index = DateTimeUtil.dateTimeToString(startDate, DateTimeFormatEnum.西元年月日_4).get();
-			String subIndex = index.substring(0, 7);
-			set.add(indexPrefix + subIndex + "*");
+
+			DateTimeUtil.dateTimeToString(startDate, DateTimeFormatEnum.西元年月日_4).ifPresent(index -> {
+				String subIndex = index.substring(0, 7);
+				set.add(indexPrefix + subIndex + "*");
+			});
 
 			c.add(Calendar.DATE, 1);
 			startDate = c.getTime();
@@ -359,7 +361,7 @@ public class HandleESApiDataService {
 				vo.setRtime(ts);
 				vo.setTxid(req.getTxid());
 				vo.setHttpStatus(status);
-				vo.setRtimeYearMonth(DateTimeUtil.dateTimeToString(ts, DateTimeFormatEnum.西元年月_2).get());
+				vo.setRtimeYearMonth(DateTimeUtil.dateTimeToString(ts, DateTimeFormatEnum.西元年月_2).orElse(null));
 				list.add(vo);
 			}
 		}

@@ -553,7 +553,7 @@ public abstract class DpReqServiceAbstract implements DpReqServiceIfs {
 		if (StringUtils.isEmpty(reqOrderNo_type)) {
 			throw TsmpDpAaRtnCode._1213.throwing();
 		}
-		final String reqOrderNo_date = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日_3).get();
+		final String reqOrderNo_date = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日_3).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 		final String seqName = reqOrderNo_type.concat("-").concat(reqOrderNo_date);
 		final Long seq = getSeqStoreService().nextSequence(seqName);
 		if (seq == null) {
@@ -647,8 +647,7 @@ public abstract class DpReqServiceAbstract implements DpReqServiceIfs {
 		
 		List<Long> dpFileIds = r.getFileIds() == null ? new ArrayList<>() : r.getFileIds();
 		List<String> failToUploads = r.getFailToUploads() == null ? new ArrayList<>() : r.getFailToUploads();
-		
-		String tsmpDpFilePath = FileHelper.getTsmpDpFilePath(TsmpDpFileType.M_ATTACHMENT, m.getReqOrdermId());
+
 		String oldFileName = null;
 		String newFileName = null;
 		for(Map.Entry<String, String> entry : oldFileMapping.entrySet()) {

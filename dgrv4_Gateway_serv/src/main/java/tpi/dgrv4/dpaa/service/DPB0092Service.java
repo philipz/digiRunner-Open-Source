@@ -287,7 +287,7 @@ public class DPB0092Service {
 			return "";
 		}
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).get();// yyyy/MM/dd
+		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).orElse(null);// yyyy/MM/dd
 		return dtStr;
 	}
 	

@@ -9,6 +9,7 @@ import { AA0311RedirectByIpData } from 'src/app/models/api/ApiService/aa0311_v3.
 
 export interface _AA0311RedirectByIpData extends AA0311RedirectByIpData {
   listNum: number;
+  allowAll?:boolean;
 }
 
 @Component({
@@ -32,6 +33,7 @@ export class HostnameConfigComponent implements OnInit {
   listNum: number = 0;
   redirectByIpDataList: Array<_AA0311RedirectByIpData> = [];
   @Output() testApiEvt: EventEmitter<string> = new EventEmitter;
+  isAllowAll:boolean = false;
 
   constructor(
     private alertService: AlertService,
@@ -44,11 +46,10 @@ export class HostnameConfigComponent implements OnInit {
   }
 
   writeValue(redirectByIpDataList?: []): void {
-
     this.generateHostNameForm(redirectByIpDataList);
   }
 
-  async addIdData(rowData?:AA0311RedirectByIpData) {
+  async addIdData(rowData?:AA0311RedirectByIpData, allowAll:boolean = false) {
 
     if (this.redirectByIpDataList.length == 5) {
       // 上限不可超過5
@@ -59,13 +60,29 @@ export class HostnameConfigComponent implements OnInit {
     }
 
     let componentRef = this.ipDataListRef.createComponent(HostnameConfigFormComponent);
-    if(rowData){
-      this.redirectByIpDataList.push({ ipForRedirect: rowData.ipForRedirect, ipSrcUrl: rowData.ipSrcUrl, listNum: this.listNum })
+    if (rowData) {
+      this.redirectByIpDataList.push({
+        ipForRedirect: rowData.ipForRedirect,
+        ipSrcUrl: rowData.ipSrcUrl,
+        listNum: this.listNum,
+      });
+    } else {
+      if (allowAll) {
+        this.redirectByIpDataList.push({
+          ipForRedirect: '0.0.0.0/0',
+          ipSrcUrl: '',
+          listNum: this.listNum,
+          allowAll: true,
+        });
+        this.isAllowAll = true;
+      } else {
+        this.redirectByIpDataList.push({
+          ipForRedirect: '',
+          ipSrcUrl: '',
+          listNum: this.listNum,
+        });
+      }
     }
-    else{
-      this.redirectByIpDataList.push({ ipForRedirect: '', ipSrcUrl: '', listNum: this.listNum })
-    }
-
 
     componentRef.instance.ref = componentRef;
     componentRef.instance.no = this.listNum;
@@ -82,14 +99,16 @@ export class HostnameConfigComponent implements OnInit {
       this.redirectByIpDataList[idx].listNum = res.no;
 
       // console.log(this.redirectByIpDataList)
+      this.isAllowAll = this.redirectByIpDataList.some(res=> res.ipForRedirect.includes('0.0.0.0/0')||res.ipForRedirect.includes('::/0') )
       this.onChange(this.redirectByIpDataList.map(res=> {return {ipForRedirect:res.ipForRedirect, ipSrcUrl:res.ipSrcUrl }}))
 
     })
 
     componentRef.instance.remove.subscribe(no => {
+
       let idx = this.redirectByIpDataList.findIndex(host => host.listNum === no);
       this.redirectByIpDataList.splice(idx, 1);
-
+      this.listNum = this.redirectByIpDataList.length;
       if (this.redirectByIpDataList.length == 0) {
         this.listNum = 0;
         this.onChange([]);
@@ -98,6 +117,7 @@ export class HostnameConfigComponent implements OnInit {
       else{
         this.onChange(this.redirectByIpDataList.map(res=> {return {ipForRedirect:res.ipForRedirect, ipSrcUrl:res.ipSrcUrl }}))
       }
+      this.isAllowAll = this.redirectByIpDataList.some(res=> res.ipForRedirect.includes('0.0.0.0/0')||res.ipForRedirect.includes('::/0') )
 
     })
     componentRef.instance.testApiEvt.subscribe(evt => {

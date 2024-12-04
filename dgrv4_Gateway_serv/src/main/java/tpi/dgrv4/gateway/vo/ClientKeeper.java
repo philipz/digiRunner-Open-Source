@@ -35,6 +35,12 @@ public class ClientKeeper implements Serializable {
 
 	private String api_ReqThroughputSize;
 	private String api_RespThroughputSize;
+
+	private String lastUpdateTimeClient;
+	private String lastUpdateTimeAPI;
+	private String lastUpdateTimeSetting;
+	private String lastUpdateTimeToken;
+
 	private String dbConnect;
 	private Object cusInfo;
 
@@ -284,6 +290,38 @@ public class ClientKeeper implements Serializable {
 		this.daoCacheSize = daoCacheSize;
 	}
 
+	public String getLastUpdateTimeClient() {
+		return lastUpdateTimeClient;
+	}
+
+	public void setLastUpdateTimeClient(String lastUpdateTimeClient) {
+		this.lastUpdateTimeClient = lastUpdateTimeClient;
+	}
+
+	public String getLastUpdateTimeAPI() {
+		return lastUpdateTimeAPI;
+	}
+
+	public void setLastUpdateTimeAPI(String lastUpdateTimeAPI) {
+		this.lastUpdateTimeAPI = lastUpdateTimeAPI;
+	}
+
+	public String getLastUpdateTimeSetting() {
+		return lastUpdateTimeSetting;
+	}
+
+	public void setLastUpdateTimeSetting(String lastUpdateTimeSetting) {
+		this.lastUpdateTimeSetting = lastUpdateTimeSetting;
+	}
+
+	public String getLastUpdateTimeToken() {
+		return lastUpdateTimeToken;
+	}
+
+	public void setLastUpdateTimeToken(String lastUpdateTimeToken) {
+		this.lastUpdateTimeToken = lastUpdateTimeToken;
+		
+	}
 	public String getProjectType() {
 		return projectType;
 	}
@@ -319,7 +357,9 @@ public class ClientKeeper implements Serializable {
 				+ daoCacheSize + ", fixedCacheSize=" + fixedCacheSize + ", webLocalIP=" + webLocalIP + ", fqdn=" + fqdn
 				+ ", esQueue=" + esQueue + ", rdbQueue=" + rdbQueue + ", cpu=" + cpu + ", mem=" + mem + ", h_used="
 				+ h_used + ", h_free=" + h_free + ", h_total=" + h_total + ", api_ReqThroughputSize="
-				+ api_ReqThroughputSize + ", api_RespThroughputSize=" + api_RespThroughputSize + "]";
+				+ api_ReqThroughputSize + ", api_RespThroughputSize=" + api_RespThroughputSize + ", lastUpdateTimeAPI="
+				+ lastUpdateTimeAPI + ", lastUpdateTimeClient=" + lastUpdateTimeClient + ", lastUpdateTimeSetting="
+				+ lastUpdateTimeSetting + ", lastUpdateTimeToken=" + lastUpdateTimeToken + "]";
 	}
 
 	/**

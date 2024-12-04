@@ -29,7 +29,7 @@ public class DPB0143Controller {
 	@Autowired
 	private DPB0143Service service;
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/ssotoken/DPB0143", params = {"before"}, //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,7 +44,7 @@ public class DPB0143Controller {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/ssotoken/DPB0143", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

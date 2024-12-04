@@ -38,7 +38,7 @@ public class DPB0078Controller {
 	 * @param jsonStr
 	 * @return
 	 */
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/11/DPB0078")
 	public ResponseEntity<byte[]> downloadFile(@RequestHeader HttpHeaders headers, @RequestParam String filePath) {
 

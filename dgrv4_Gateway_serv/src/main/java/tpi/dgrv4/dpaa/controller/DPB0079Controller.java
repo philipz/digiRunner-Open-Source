@@ -26,7 +26,7 @@ public class DPB0079Controller {
 	 * @param jsonStr
 	 * @return
 	 */
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/11/DPB0079")
 	public ResponseEntity<byte[]> getImage(@RequestParam String filePath) {
 		return service.getImage(filePath);

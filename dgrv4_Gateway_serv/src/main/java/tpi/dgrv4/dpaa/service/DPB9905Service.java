@@ -109,7 +109,7 @@ public class DPB9905Service {
 						dpb9905Item_1.setItemOrder(itemOrder);
 						dpb9905Item_1.setItemNo(firstItemOfSubitems.getItemNo());
 						dpb9905Item_1.setItemName(firstItemOfSubitems.getItemName());
-						dpb9905Item_1.setUpdateDateTime(DateTimeUtil.dateTimeToString(maxDateTime, DateTimeFormatEnum.西元年月日時分秒).get());
+						dpb9905Item_1.setUpdateDateTime(DateTimeUtil.dateTimeToString(maxDateTime, DateTimeFormatEnum.西元年月日時分秒).orElse(null));
 						dpb9905Item_1.setUpdateUser(maxUser);
 						dpb9905Item_1.setSubitemCount(avail + " / " + used + " / " + all);
 						if (StringUtils.hasLength(itemNo)) {
@@ -167,7 +167,7 @@ public class DPB9905Service {
 				dpb9905Subitem.setSortBy(lastSortbyOfSubitems);
 				dpb9905Subitem.setSubitemNo(tsmpDpItems.getSubitemNo());
 				dpb9905Subitem.setSubitemName(tsmpDpItems.getSubitemName());
-				dpb9905Subitem.setUpdateDateTime(DateTimeUtil.dateTimeToString(dateTime, DateTimeFormatEnum.西元年月日時分秒).get());
+				dpb9905Subitem.setUpdateDateTime(DateTimeUtil.dateTimeToString(dateTime, DateTimeFormatEnum.西元年月日時分秒).orElse(null));
 				dpb9905Subitem.setUpdateUser(user);
 				dpb9905Subitem.setIsDefault(tsmpDpItems.getIsDefault());
 				dpb9905SubitemList.add(dpb9905Subitem);
@@ -203,7 +203,7 @@ public class DPB9905Service {
 			dpb9905Item_2.setItemOrder(itemOrder);
 			dpb9905Item_2.setItemNo(firstItemOfSubitems.getItemNo());
 			dpb9905Item_2.setItemName(firstItemOfSubitems.getItemName());
-			dpb9905Item_2.setUpdateDateTime(DateTimeUtil.dateTimeToString(maxDateTime, DateTimeFormatEnum.西元年月日時分秒).get());
+			dpb9905Item_2.setUpdateDateTime(DateTimeUtil.dateTimeToString(maxDateTime, DateTimeFormatEnum.西元年月日時分秒).orElse(null));
 			dpb9905Item_2.setUpdateUser(maxUser);
 			dpb9905Item_2.setSubitemCount(avail + " / " + used + " / " + all);
 			if (StringUtils.hasLength(itemNo)) {

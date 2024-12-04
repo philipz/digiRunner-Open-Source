@@ -33,6 +33,7 @@ public class KibanaController2 {
 
 	}
 
+	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
 	@RequestMapping(value = "/kibana/**")
 	public void resource2(@RequestHeader HttpHeaders httpHeaders, HttpServletRequest request,
 			HttpServletResponse response, @RequestBody(required = false) String payload) throws Throwable {

@@ -24,6 +24,7 @@ import tpi.dgrv4.entity.repository.TsmpClientGroupDao;
 import tpi.dgrv4.entity.repository.TsmpClientHostDao;
 import tpi.dgrv4.entity.repository.TsmpClientVgroupDao;
 import tpi.dgrv4.entity.repository.TsmpDpClientextDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -140,6 +141,9 @@ public class AA0205Service {
 
 			// 刪除Client與虛擬Group關係
 			getTsmpClientVgroupDao().deleteByClientId(opt_tsmpClient.get().getClientId());
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 
 		} catch (TsmpDpAaException e) {
 			throw e;

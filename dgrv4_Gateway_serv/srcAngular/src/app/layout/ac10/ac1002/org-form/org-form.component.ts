@@ -197,7 +197,7 @@ export class OrgFormComponent implements OnInit {
         showFooterBtn: true,
         // dyRef:this.openDynamicDialogRefs,
       },
-      width: '100vw',
+      width: '90vw',
       height: '100vh'
     })
 

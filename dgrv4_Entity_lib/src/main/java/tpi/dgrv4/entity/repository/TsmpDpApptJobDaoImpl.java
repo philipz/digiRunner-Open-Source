@@ -1,22 +1,17 @@
 package tpi.dgrv4.entity.repository;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.ApptJobEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpApptJobStatus;
 import tpi.dgrv4.common.constant.TsmpDpFileType;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 public class TsmpDpApptJobDaoImpl extends BaseDao {
 	// add custom methods here
@@ -99,7 +94,7 @@ public class TsmpDpApptJobDaoImpl extends BaseDao {
 				Long keywordId = null;
 				try {
 					keywordId = Long.valueOf(words[i]);
-					sql.append(" 	or UPPER(J.apptJobId) = :keywordId" + i);//Long
+					sql.append(" 	or J.apptJobId = :keywordId" + i);//Long
 					params.put(("keywordId" + i), keywordId);//Long
 				}catch (Exception e) {
 				}

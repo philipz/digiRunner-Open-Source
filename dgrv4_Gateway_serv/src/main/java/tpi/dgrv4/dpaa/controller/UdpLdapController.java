@@ -33,7 +33,7 @@ public class UdpLdapController {
 	@Autowired
 	private UdpLdapService service;
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/udpssotoken/udpLdap", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

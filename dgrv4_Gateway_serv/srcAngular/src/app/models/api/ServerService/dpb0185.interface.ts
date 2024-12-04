@@ -36,5 +36,6 @@ export interface DPB0185Resp {
   createUser: string;
   updateDateTime?: string;
   updateUser?: string;
+  idtLightId?: string;
+  idtRoleName?: string;
 }
-

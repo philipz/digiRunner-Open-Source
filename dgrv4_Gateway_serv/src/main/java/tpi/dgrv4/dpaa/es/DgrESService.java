@@ -109,7 +109,8 @@ public class DgrESService {
 		try (Socket socket = new Socket()) {
 			int timeout = getTsmpSettingService().getVal_ES_TEST_TIMEOUT();
 			URL url = new URL(strUrl);
-			socket.connect(new InetSocketAddress(url.getHost(), url.getPort()), timeout);
+			int port = url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
+			socket.connect(new InetSocketAddress(url.getHost(), port), timeout);
 			return true;
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));

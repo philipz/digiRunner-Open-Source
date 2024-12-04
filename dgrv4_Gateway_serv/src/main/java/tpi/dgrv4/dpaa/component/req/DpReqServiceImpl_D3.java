@@ -1,19 +1,11 @@
 package tpi.dgrv4.dpaa.component.req;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import tpi.dgrv4.common.constant.AuditLogEvent;
-import tpi.dgrv4.common.constant.TableAct;
-import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
-import tpi.dgrv4.common.constant.TsmpDpRegStatus;
-import tpi.dgrv4.common.constant.TsmpDpSeqStoreKey;
+import tpi.dgrv4.common.constant.*;
 import tpi.dgrv4.common.exceptions.BcryptParamDecodeException;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -25,27 +17,16 @@ import tpi.dgrv4.dpaa.util.OAuthUtil;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.entity.constant.TsmpSequenceName;
 import tpi.dgrv4.entity.daoService.BcryptParamHelper;
-import tpi.dgrv4.entity.entity.OauthClientDetails;
-import tpi.dgrv4.entity.entity.TsmpApi;
-import tpi.dgrv4.entity.entity.TsmpClient;
-import tpi.dgrv4.entity.entity.TsmpClientGroup;
-import tpi.dgrv4.entity.entity.TsmpClientGroupId;
-import tpi.dgrv4.entity.entity.TsmpDpClientext;
-import tpi.dgrv4.entity.entity.TsmpGroup;
-import tpi.dgrv4.entity.entity.TsmpGroupApi;
+import tpi.dgrv4.entity.entity.*;
 import tpi.dgrv4.entity.entity.jpql.TsmpDpReqOrderd3;
 import tpi.dgrv4.entity.entity.jpql.TsmpDpReqOrderm;
-import tpi.dgrv4.entity.repository.OauthClientDetailsDao;
-import tpi.dgrv4.entity.repository.TsmpApiDao;
-import tpi.dgrv4.entity.repository.TsmpClientDao;
-import tpi.dgrv4.entity.repository.TsmpClientGroupDao;
-import tpi.dgrv4.entity.repository.TsmpDpClientextDao;
-import tpi.dgrv4.entity.repository.TsmpDpReqOrderd3Dao;
-import tpi.dgrv4.entity.repository.TsmpGroupApiDao;
-import tpi.dgrv4.entity.repository.TsmpGroupDao;
+import tpi.dgrv4.entity.repository.*;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 處理"用戶註冊"簽核流程
@@ -816,7 +797,7 @@ public class DpReqServiceImpl_D3 extends DpReqServiceAbstract implements DpReqSe
 		getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
 				TsmpDpClientext.class.getSimpleName(), TableAct.U.value(), oldRowStr, ext);
 
-		TsmpClient client = getTsmpClientDao().findById(clientId).get();
+		TsmpClient client = getTsmpClientDao().findById(clientId).orElseThrow();
 		sb.append(", clientId=" + clientId);
 		sb.append(", clientName=" + client.getClientName());
 		sb.append(", emails=" + client.getEmails());
@@ -891,9 +872,8 @@ public class DpReqServiceImpl_D3 extends DpReqServiceAbstract implements DpReqSe
 		
 			Optional<TsmpDpClientext> opt = getTsmpDpClientextDao().findById(d3.getClientId());
 			if (opt.isPresent()) {
-				
 				// 寄發審核通過Mail通知
-				getSendClientRegMailService().sendEmail(opt.get(), regStatus, auth, vo.getM().getReqOrdermId());	
+				getSendClientRegMailService().sendEmail(opt.get(), regStatus, auth, vo.getM().getReqOrdermId());
 			}
 		}
 	}

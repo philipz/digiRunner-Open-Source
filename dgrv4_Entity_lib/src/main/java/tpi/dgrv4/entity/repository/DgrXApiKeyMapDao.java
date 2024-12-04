@@ -1,11 +1,10 @@
 package tpi.dgrv4.entity.repository;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import tpi.dgrv4.entity.entity.DgrXApiKeyMap;
+
+import java.util.List;
 
 @Repository
 public interface DgrXApiKeyMapDao extends JpaRepository<DgrXApiKeyMap, Long>, DgrXApiKeyMapSuperDao {
@@ -17,4 +16,6 @@ public interface DgrXApiKeyMapDao extends JpaRepository<DgrXApiKeyMap, Long>, Dg
 	public List<DgrXApiKeyMap> deleteByRefApiKeyId(Long refApiKeyId);
 	
 	public DgrXApiKeyMap findFirstByRefApiKeyIdAndGroupId(Long refApiKeyId, String groupId);
+
+	public List<DgrXApiKeyMap> findByGroupId(String groupId);
 }

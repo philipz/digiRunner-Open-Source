@@ -2952,3 +2952,61 @@ ALTER TABLE dp_app CHANGE user_name dp_user_name NVARCHAR(400);
 -- end DP的dp_app TABLE --
 -- 20231228, 移除 open_apikey_id 欄位, jhmin
 ALTER TABLE dp_app DROP COLUMN open_apikey_id;
+
+-- 20240718 , 第三方 AC IDP INFO , Kevin Cheng
+CREATE TABLE IF NOT EXISTS dgr_ac_idp_info_cus (
+    ac_idp_info_cus_id     BIGINT          NOT NULL,                -- ID
+    ac_idp_info_cus_name   NVARCHAR(200),                           -- 第三方可識別名稱  
+    cus_status             VARCHAR(1)      NOT NULL DEFAULT 'Y',    -- Cus 狀態
+    cus_login_url          VARCHAR(4000)   NOT NULL,                -- 第三方前端頁面 URL
+    cus_backend_login_url  VARCHAR(4000)   NOT NULL,                -- 第三方後端 URL
+    cus_user_data_url      VARCHAR(4000)   NOT NULL,                -- 第三方使用者資料 URL
+    create_date_time       DATETIME        DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user            NVARCHAR(1000)   DEFAULT 'SYSTEM',        -- 建立人員
+    update_date_time       DATETIME,                                -- 更新日期
+    update_user            NVARCHAR(1000),                           -- 更新人員
+    version                INT             DEFAULT 1,               -- 版號
+    CONSTRAINT DGR_AC_IDP_INFO_CUS_PK PRIMARY KEY (ac_idp_info_cus_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 20240911 , DGR_GTW_IDP_INFO_A  ADD COLUMN , Zoe Lee
+ALTER TABLE dgr_gtw_idp_info_a ADD  idt_light_id VARCHAR(200);
+ALTER TABLE dgr_gtw_idp_info_a ADD  idt_role_name NVARCHAR(200);
+-- 20240911 , DGR_GTW_IDP_AUTH_CODE  ADD COLUMN , Zoe Lee
+ALTER TABLE dgr_gtw_idp_auth_code ADD  user_light_id VARCHAR(200);
+ALTER TABLE dgr_gtw_idp_auth_code ADD  user_role_name NVARCHAR(200);
+
+-- 20240902 , CUS GATE IDP INFO , Kevin Cheng
+CREATE TABLE IF NOT EXISTS dgr_gtw_idp_info_cus
+(
+    gtw_idp_info_cus_id BIGINT        NOT NULL,                           -- ID
+    client_id           VARCHAR(40)   NOT NULL,                           -- digiRunner 的 client_id
+    status              VARCHAR(1)    NOT NULL DEFAULT 'Y',               -- 狀態
+    cus_login_url       VARCHAR(4000) NOT NULL,                           -- CUS 登入 URL
+    cus_user_data_url   VARCHAR(4000) NOT NULL,                           -- CUS 使用者資料 URL
+    icon_file           VARCHAR(4000),                                    -- 登入頁圖示檔案
+    page_title          NVARCHAR(400),                                    -- 登入頁標題
+    create_date_time    DATETIME               DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user         NVARCHAR(1000)         DEFAULT 'SYSTEM',          -- 建立人員
+    update_date_time    DATETIME,                                         -- 更新日期
+    update_user         NVARCHAR(1000),                                   -- 更新人員
+    version             INT                    DEFAULT 1,                 -- 版號
+    CONSTRAINT GTW_IDP_INFO_CUS_PK PRIMARY KEY (gtw_idp_info_cus_id)
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 20241007, AC IdP授權碼記錄檔, 增加欄位, Mini Lee
+Alter TABLE dgr_ac_idp_auth_code ADD api_resp NVARCHAR(4000);
+
+-- 20241022 , DGR_BOT_DETECTION , Kevin Cheng
+CREATE TABLE IF NOT EXISTS dgr_bot_detection
+(
+    bot_detection_id   BIGINT        NOT NULL,                           -- ID
+    bot_detection_rule VARCHAR(4000) NOT NULL,                           -- 規則
+    type               VARCHAR(1)    NOT NULL DEFAULT 'W',               -- 名單種類
+    create_date_time   DATETIME               DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user        NVARCHAR(1000)         DEFAULT 'SYSTEM',          -- 建立人員
+    update_date_time   DATETIME,                                         -- 更新日期
+    update_user        NVARCHAR(1000),                                   -- 更新人員
+    version            INT                    DEFAULT 1,                 -- 版號
+    CONSTRAINT BOT_DETECTION_PK PRIMARY KEY (bot_detection_id)
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

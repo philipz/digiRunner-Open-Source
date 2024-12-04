@@ -371,7 +371,7 @@ public class AA0006Service {
 			Optional<Users> user = getUsersDao().findById(userName);
 			Users users = new Users();
 			users.setUserName(newUserName);
-			users.setPassword(user.get().getPassword());
+			users.setPassword(user.map(Users::getPassword).orElse(null));
 
 			users = getUsersDao().saveAndFlush(users);
 			//寫入 Audit Log D

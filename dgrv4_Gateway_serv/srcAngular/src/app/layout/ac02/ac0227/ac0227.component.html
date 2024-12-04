@@ -383,7 +383,7 @@
         <!-- ldapTimeout -->
         <div class="col-4">
           <label id="ldapTimeout_label" for="ldapTimeout" class="control-label">Timeout(ms)</label>
-          <input type="text" class="form-control" id="ldapTimeout" formControlName="ldapTimeout">
+          <input type="text" class="form-control" id="ldapTimeout" formControlName="ldapTimeout" type="number">
           <div *ngIf="ldapTimeout?.invalid && (ldapTimeout?.dirty || ldapTimeout?.touched)" class="text-danger">
             <small class="form-text">{{ldapTimeout?.errors.isRequired | translate}}</small>
             <small class="form-text">{{ldapTimeout?.errors.min | translate}}</small>

@@ -1,4 +1,10 @@
-OpenDGR
 
-:: Spring Boot :: ${spring-boot.formatted-version}  starting...
-:: Please comfirm your 'logback.xml' setting and 'DB connection string'...
+ ______       ______    _______         
+|_   _ `.   .' ___  |  |_   __ \        
+  | | `. \ / .'   \_|    | |__) |       
+  | |  | | | |   ____    |  __ /        
+ _| |_.' / \ `.___]  |  _| |  \ \_   _  
+|______.'   `._____.'  |____| |___| (_) 
+                                        
+  :: Spring Boot :: ${spring-boot.formatted-version}  starting...
+  :: Please comfirm your 'logback.xml' setting and 'DB connection string'...

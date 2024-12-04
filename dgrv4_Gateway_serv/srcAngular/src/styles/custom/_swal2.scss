@@ -1,0 +1,29 @@
+body .ui-button.ui-state-default.ui-button-warning, body .ui-buttonset.ui-button-warning>.ui-button.ui-state-default {
+  color: #fff !important;
+  background-color: #F49E00 !important;
+  border: 1px solid #F49E00 !important;
+}
+
+body .ui-button.ui-calendar-button, body .ui-button.ui-state-active, .swal2-popup .swal2-styled.swal2-confirm {
+  /* background-color: #F49E00 !important;
+  border: #F49E00 !important; */
+  border-radius: 50px;
+  min-width: 84px;
+  font-size: 16px ;
+  font-weight: 600;
+  color: #FF6E38!important;
+  background: #FFE1D6!important;
+  border: #FFE1D6!important;
+}
+
+body .ui-button:enabled:hover, .swal2-popup .swal2-styled.swal2-confirm:hover {
+  /* background-color: #d98600 !important;
+  border-color: #d98600 !important; */
+  color: #FFFFFF!important;
+  background: #FF6E38!important;
+  outline: none;
+}
+
+body .ui-button.ui-calendar-button, body .ui-button.ui-state-active, .swal2-popup .swal2-styled.swal2-confirm:focus {
+  box-shadow: 0 0 0 0.1rem #fe9974;
+}

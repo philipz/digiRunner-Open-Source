@@ -24,7 +24,7 @@ public class AcIdPAuthController {
 	@Autowired
 	private AcIdPAuthService service;
 
-	@CrossOrigin
+	
 	@GetMapping(value = "/dgrv4/ssotoken/acidp/{idPType}/acIdPAuth")
 	public void acIdPAuth(@RequestHeader HttpHeaders headers, 
 			HttpServletRequest req, 

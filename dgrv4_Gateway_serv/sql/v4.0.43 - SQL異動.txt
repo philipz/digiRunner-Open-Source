@@ -1,4 +1,0 @@
-【dgRv4.0.43 - SQL 異動】
-(1) 移除 tsmp_dp_mail_tplt 
-DELETE FROM tsmp_dp_mail_tplt
-WHERE mailtplt_id IN (20000002,20000003,20000004,20000005,20000006,20000007);

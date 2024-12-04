@@ -28,6 +28,18 @@ public class BeepUtil {
 	}
 
 	public static void beep() {
+		String key = System.getenv("TAEASK");
+		if (!StringUtils.hasText(key)) {
+			String errMsg = "\n\t...Could not find TAEASK Key\n";
+			errMsg += "\t...Please add Eclipse 'Run as / Configurations... / Enviroment / Variable:TAEASK'\n";
+			errMsg += "\t...or Make a *.bat file to exec eclipse.exe, bat file content sample as follow:\n";
+			errMsg += "\tset TAEASK=TsmpxxxxxxxxxxxxKey\r\n"
+					+ "\teclipse\n"
+					+ "\t...";
+			System.err.println("=============================================");
+			System.err.println(errMsg);
+			System.err.println("=============================================");
+		}
 		System.err.println("beep OK !! ");
 		t.beep();
 	}

@@ -1,18 +1,8 @@
 package tpi.dgrv4.dpaa.service;
 
-import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import jakarta.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -32,10 +22,14 @@ import tpi.dgrv4.entity.repository.TsmpVgroupDao;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 
+import java.util.*;
+
+import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
+
 @Service
 public class AA0222Service {
 
-	private TPILogger logger = TPILogger.tl;
+//	private TPILogger logger = TPILogger.tl;
 	
 	private Integer pageSize;
 	
@@ -76,7 +70,7 @@ public class AA0222Service {
 										vgroupAuthoritiesIds, words, getPageSize());
 			
 			// 1298:查無資料
-			if(vgroupList == null || vgroupList.size() == 0) {
+			if(vgroupList == null || vgroupList.isEmpty()) {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
 			
@@ -88,7 +82,7 @@ public class AA0222Service {
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
-			this.logger.error(StackTraceUtil.logStackTrace(e));
+			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 		return resp;
@@ -195,9 +189,15 @@ public class AA0222Service {
 			// securityLevelName
 			String securityLVName = "";
 			String lvId = nvl(group.getSecurityLevelId());
-			if(!StringUtils.isEmpty(lvId)) {
+			if (!lvId.isBlank()) {
 				TsmpSecurityLevel securityLV = getSecurityLVById(lvId);
-				securityLVName = securityLV.getSecurityLevelName();
+				if (securityLV != null) {
+					securityLVName = securityLV.getSecurityLevelName();
+				} else {
+					securityLVName = "Unknown";
+					//logger.warn("Security level not found for ID: " + lvId);
+					TPILogger.tl.warn("Security level not found for ID: " + lvId);
+				}
 			}
 			
 			// createTime
@@ -246,7 +246,7 @@ public class AA0222Service {
 				}
 			});
 			
-			if(sb.toString().length() > 0) {
+			if(!sb.toString().isEmpty()) {
 				gorupAuthorities = sb.toString().substring(0, sb.toString().length()-1);
 			}
 		}

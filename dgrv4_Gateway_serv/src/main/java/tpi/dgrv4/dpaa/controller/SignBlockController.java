@@ -34,7 +34,7 @@ public class SignBlockController {
 	/**
 	 * 依cliendId,取得SignBlock
 	 */
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/getSignBlock", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

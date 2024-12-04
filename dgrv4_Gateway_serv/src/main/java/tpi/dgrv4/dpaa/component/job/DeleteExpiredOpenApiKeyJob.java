@@ -14,6 +14,7 @@ import tpi.dgrv4.entity.repository.TsmpOpenApiKeyMapDao;
 import tpi.dgrv4.gateway.component.job.DeferrableJob;
 import tpi.dgrv4.gateway.component.job.JobHelperImpl;
 import tpi.dgrv4.gateway.component.job.JobManager;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 
 import java.time.LocalDate;
@@ -85,6 +86,9 @@ public class DeleteExpiredOpenApiKeyJob extends DeferrableJob {
 			
 			// 刪除對應的API
 			getTsmpOpenApiKeyMapDao().deleteByRefOpenApiKeyId(oak.getOpenApiKeyId());
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 		}
 	}
 	

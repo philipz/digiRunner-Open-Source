@@ -19,6 +19,7 @@ import tpi.dgrv4.dpaa.vo.DPB0193Resp;
 import tpi.dgrv4.entity.component.cipher.TsmpCoreTokenEntityHelper;
 import tpi.dgrv4.entity.entity.DgrRdbConnection;
 import tpi.dgrv4.entity.repository.DgrRdbConnectionDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -38,6 +39,11 @@ public class DPB0193Service {
 			DgrRdbConnection drc = getDgrRdbConnectionDao().findById(req.getConnectionName()).orElse(null);
 			if (drc == null) {
 				throw TsmpDpAaRtnCode._1298.throwing();
+			}
+			
+			//預設資料不可刪除
+			if("APIM-default-DB".equalsIgnoreCase(req.getConnectionName())) {
+				throw TsmpDpAaRtnCode._1286.throwing();
 			}
 
 			drc.setConnectionTimeout(req.getConnectionTimeout());
@@ -66,6 +72,9 @@ public class DPB0193Service {
 			drc.setMima(encMima);
 			drc.setUserName(req.getUserName());
 			getDgrRdbConnectionDao().saveAndFlush(drc);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 
 		} catch (TsmpDpAaException e) {
 			throw e;

@@ -1,14 +1,14 @@
 package tpi.dgrv4.dpaa.component.apptJob;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
+import tpi.dgrv4.common.utils.DateTimeUtil;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import tpi.dgrv4.common.constant.DateTimeFormatEnum;
-import tpi.dgrv4.common.utils.DateTimeUtil;
 
 public class DpaaAlertDetectorJobSystemBasicParams extends DpaaAlertDetectorJobParams {
 
@@ -52,7 +52,7 @@ public class DpaaAlertDetectorJobSystemBasicParams extends DpaaAlertDetectorJobP
 	@JsonIgnore
 	public void setDetectResult(boolean isAlert, Date detectDt) {
 		this.recentAlert = isAlert;
-		this.recentDetectDt = DateTimeUtil.dateTimeToString(detectDt, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		this.recentDetectDt = DateTimeUtil.dateTimeToString(detectDt, DateTimeFormatEnum.西元年月日時分秒毫秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 	}
 
 	@JsonIgnore

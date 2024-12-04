@@ -1,19 +1,8 @@
 package tpi.dgrv4.gateway.component.job;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.util.Date;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
-
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpApptJobStatus;
 import tpi.dgrv4.common.constant.TsmpDpFileType;
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -22,6 +11,12 @@ import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.gateway.component.FileHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.component.job.appt.ApptJobDispatcher;
+import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.time.*;
+import java.time.temporal.ChronoField;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 此工作會讓排程狀態將永遠不會變成"D"(完成)，除非預約時間遞延到隔日，或是將設定值改為"隔日不建立新工作"，
@@ -32,7 +27,6 @@ import tpi.dgrv4.gateway.component.job.appt.ApptJobDispatcher;
 @SuppressWarnings("serial")
 public class RunLoopJob extends DeferrableJob {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private ApptJob targetJob;
 
@@ -64,7 +58,7 @@ public class RunLoopJob extends DeferrableJob {
 		TsmpDpApptJob currentJob = getTargetJob().getTsmpDpApptJob();
 		String status = currentJob.getStatus();
 		if (!TsmpDpApptJobStatus.DONE.isValueEquals(status)) {
-			this.logger.trace("Break job loop for illegal job status '{}', id={}", status, currentJob.getApptJobId());
+			TPILogger.tl.trace("Break job loop for illegal job status '"+status+"', id="+currentJob.getApptJobId());
 			return;
 		}
 		
@@ -93,9 +87,8 @@ public class RunLoopJob extends DeferrableJob {
 				// 刷新本地工作
 				getApptJobDispatcher().resetRefreshSchedule();
 
-				this.logger.trace("Create new appt job loop: {} and will start at {}", //
-					newJob.getApptJobId(), //
-					DateTimeUtil.dateTimeToString(newJob.getStartDateTime(), DateTimeFormatEnum.西元年月日時分秒毫秒).get());
+				TPILogger.tl.trace("Create new appt job loop: "+newJob.getApptJobId()+" and will start at {}"+
+					DateTimeUtil.dateTimeToString(newJob.getStartDateTime(), DateTimeFormatEnum.西元年月日時分秒毫秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 
 				return;
 			}
@@ -114,9 +107,8 @@ public class RunLoopJob extends DeferrableJob {
 		// 刷新本地工作
 		getApptJobDispatcher().resetRefreshSchedule();
 		
-		this.logger.trace("Appt job (id: {}) enters next loop and will start at {}", //
-			currentJob.getApptJobId(),
-			DateTimeUtil.dateTimeToString(currentJob.getStartDateTime(), DateTimeFormatEnum.西元年月日時分秒毫秒).get());
+		TPILogger.tl.trace("Appt job (id: "+currentJob.getApptJobId()+") enters next loop and will start at {}"+
+			DateTimeUtil.dateTimeToString(currentJob.getStartDateTime(), DateTimeFormatEnum.西元年月日時分秒毫秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 	}
 
 	@Override
@@ -137,7 +129,7 @@ public class RunLoopJob extends DeferrableJob {
 					return fileNames.contains(tsmpDpFile.getFileName());
 				}, isOverride);
 		} catch (Exception e) {
-			this.logger.error(StackTraceUtil.logStackTrace(e));
+			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 		}
 	}
 

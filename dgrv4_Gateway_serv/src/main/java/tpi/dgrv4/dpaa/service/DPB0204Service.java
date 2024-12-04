@@ -16,6 +16,7 @@ import tpi.dgrv4.entity.repository.DgrGtwIdpInfoJdbcDao;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.gateway.component.IdPApiHelper;
 import tpi.dgrv4.gateway.component.IdPHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -55,6 +56,9 @@ public class DPB0204Service {
 			infoJdbc.setCreateDateTime(DateTimeUtil.now());
 
 			getDgrGtwIdpInfoJdbcDao().save(infoJdbc);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 
 		} catch (TsmpDpAaException e) {
 			throw e;

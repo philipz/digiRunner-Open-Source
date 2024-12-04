@@ -1,9 +1,6 @@
 package tpi.dgrv4.dpaa.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +46,7 @@ public class AA0213Service {
 	@Autowired
 	private TsmpSecurityLevelDao tsmpSecurityLevelDao;
 
+
 	public AA0213Resp queryGroupDetail(TsmpAuthorization authorization, AA0213Req req, ReqHeader reqHeader) {
 		AA0213Resp resp = new AA0213Resp();
 		try {
@@ -71,6 +69,11 @@ public class AA0213Service {
 	}
 
 	private void parsingTsmpGroup(AA0213Resp resp, Optional<TsmpGroup> opt_tsmpGroup, String locale) {
+		if (opt_tsmpGroup.isEmpty()) {
+			var log = Map.of("resp", resp, "locale", locale, "opt_tsmpGroup", opt_tsmpGroup).toString();
+			logger.warn(log);
+			return;
+		}
 		TsmpGroup tsmpGroup = opt_tsmpGroup.get();
 		
 		Integer time = tsmpGroup.getAllowDays();

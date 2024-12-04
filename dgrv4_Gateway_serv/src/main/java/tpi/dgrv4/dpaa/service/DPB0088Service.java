@@ -259,7 +259,7 @@ public class DPB0088Service {
 	}
 
 	private String getCreateDateTime(Date createDateTime) {
-		return DateTimeUtil.dateTimeToString(createDateTime, DateTimeFormatEnum.西元年月日時分_2).get();
+		return DateTimeUtil.dateTimeToString(createDateTime, DateTimeFormatEnum.西元年月日時分_2).orElse(null);
 	}
 
 	private String getUpdateDateTime(Date updateDateTime) {
@@ -268,7 +268,7 @@ public class DPB0088Service {
 
 	private String getCertDateTime(Long timeInMillis) {
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).get();
+		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).orElse(null);
 		this.logger.debug(String.format("certDt: %d -> %s", timeInMillis, dtStr));
 		return dtStr;
 	}
@@ -280,7 +280,7 @@ public class DPB0088Service {
 	}
 
 	private String debugDate(Date dt) {
-		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).get();
+		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 	}
 
 	private String nvl(Object obj) {

@@ -23,6 +23,8 @@ export interface DPB0187Req {
   idtPicture?: string;
   iconFile?: string;
   pageTitle: string;
+  idtLightId?: string;
+  idtRoleName?: string;
 }
 
 export interface RespDPB0187 extends BaseRes {

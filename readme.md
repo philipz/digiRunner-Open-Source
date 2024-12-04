@@ -161,32 +161,16 @@ spec:
 
 4. Wait for the digiRunner banner to appear.
 
-   ```
-            _______                   _____                    _____                    _____                    _____                    _____                    _____          
-           /::\    \                 /\    \                  /\    \                  /\    \                  /\    \                  /\    \                  /\    \         
-          /::::\    \               /::\    \                /::\    \                /::\____\                /::\    \                /::\    \                /::\    \        
-         /::::::\    \             /::::\    \              /::::\    \              /::::|   |               /::::\    \              /::::\    \              /::::\    \       
-        /::::::::\    \           /::::::\    \            /::::::\    \            /:::::|   |              /::::::\    \            /::::::\    \            /::::::\    \      
-       /:::/~~\:::\    \         /:::/\:::\    \          /:::/\:::\    \          /::::::|   |             /:::/\:::\    \          /:::/\:::\    \          /:::/\:::\    \     
-      /:::/    \:::\    \       /:::/__\:::\    \        /:::/__\:::\    \        /:::/|::|   |            /:::/  \:::\    \        /:::/  \:::\    \        /:::/__\:::\    \    
-     /:::/    / \:::\    \     /::::\   \:::\    \      /::::\   \:::\    \      /:::/ |::|   |           /:::/    \:::\    \      /:::/    \:::\    \      /::::\   \:::\    \   
-    /:::/____/   \:::\____\   /::::::\   \:::\    \    /::::::\   \:::\    \    /:::/  |::|   | _____    /:::/    / \:::\    \    /:::/    / \:::\    \    /::::::\   \:::\    \  
-   |:::|    |     |:::|    | /:::/\:::\   \:::\____\  /:::/\:::\   \:::\    \  /:::/   |::|   |/\    \  /:::/    /   \:::\ ___\  /:::/    /   \:::\ ___\  /:::/\:::\   \:::\____\ 
-   |:::|____|     |:::|    |/:::/  \:::\   \:::|    |/:::/__\:::\   \:::\____\/:: /    |::|   /::\____\/:::/____/     \:::|    |/:::/____/  ___\:::|    |/:::/  \:::\   \:::|    |
-    \:::\    \   /:::/    / \::/    \:::\  /:::|____|\:::\   \:::\   \::/    /\::/    /|::|  /:::/    /\:::\    \     /:::|____|\:::\    \ /\  /:::|____|\::/   |::::\  /:::|____|
-     \:::\    \ /:::/    /   \/_____/\:::\/:::/    /  \:::\   \:::\   \/____/  \/____/ |::| /:::/    /  \:::\    \   /:::/    /  \:::\    /::\ \::/    /  \/____|:::::\/:::/    / 
-      \:::\    /:::/    /             \::::::/    /    \:::\   \:::\    \              |::|/:::/    /    \:::\    \ /:::/    /    \:::\   \:::\ \/____/         |:::::::::/    /  
-       \:::\__/:::/    /               \::::/    /      \:::\   \:::\____\             |::::::/    /      \:::\    /:::/    /      \:::\   \:::\____\           |::|\::::/    /   
-        \::::::::/    /                 \::/____/        \:::\   \::/    /             |:::::/    /        \:::\  /:::/    /        \:::\  /:::/    /           |::| \::/____/    
-         \::::::/    /                   ~~               \:::\   \/____/              |::::/    /          \:::\/:::/    /          \:::\/:::/    /            |::|  ~|          
-          \::::/    /                                      \:::\    \                  /:::/    /            \::::::/    /            \::::::/    /             |::|   |          
-           \::/____/                                        \:::\____\                /:::/    /              \::::/    /              \::::/    /              \::|   |          
-            ~~                                               \::/    /                \::/    /                \::/____/                \::/____/                \:|   |          
-                                                              \/____/                  \/____/                  ~~                                                \|___|          
-                                                                                                                                                                                  
-   ========== dgRv4 web server info ============
-   ...
-   ```
+ ```
+      _       ____                                      _  _   
+   __| | __ _|  _ \ _   _ _ __  _ __   ___ _ __  __   __ || |  
+  / _` |/ _` | |_) | | | | '_ \| '_ \ / _ \ '__| \ \ / / || |_ 
+ | (_| | (_| |  _ <| |_| | | | | | | |  __/ |     \ V /|__   _|
+  \__,_|\__, |_| \_\\__,_|_| |_|_| |_|\___|_|      \_/    |_|  
+        |___/                                                  
+========== dgRv4 web server info ============
+...
+```
 
 5. Open your browser and navigate to: http://localhost:18080/dgrv4/login
 6. Use the default credentials to login: 
@@ -209,12 +193,13 @@ spec:
     ```
 2. Build the JAR: 
     ```sh
-    ./gradlew clean :dgrv4_Gateway_serv:bootJar
+    ./gradlew :dgrv4_Gateway_serv:clean :dgrv4_Gateway_serv:bootJar
     ```
-3. Locate the JAR file: `dgrv4_Gateway_serv/build/libs/opendgr-{version}.jar`
+   
+3. Locate the JAR file: `dgrv4_Gateway_serv/build/libs/digiRunner-{version}.jar`
 4. Run the JAR:
     ```sh
-    java -jar dgrv4_Gateway_serv/build/libs/opendgr-*.jar
+    java -jar dgrv4_Gateway_serv/build/libs/digiRunner-{version}.jar --digiRunner.token.key-store.path=$PWD/dgrv4_Gateway_serv/keys
     ```
 
 ## Run digiRunner in a Local Container Registry
@@ -229,13 +214,30 @@ cd digiRunner/
 #### Build the Docker image:
 
 ```sh
-docker build -t opendgr .
+docker build -t digiRunner .
 ```
 
 ### 2. Run the container
 
 ```sh
-docker run -p 18080:18080 opendgr
+docker run -p 18080:18080 digiRunner
 ```
 
 Open your browser and navigate to: http://localhost:18080/dgrv4/login
+
+
+## Makefile
+
+You can also build your own jar using the `make` command
+
+### Usage
+
+`make [task]`
+
+tasks:
+- `license-report`: generate dependencies license report to license-report.html
+- `build-jar`: execute gradlew clean and than build, result in dgrv4_Gateway_serv/build/libs/digiRunner-v4.2.25.jar
+- `java-run`: run digiRunner-v4.2.25.jar using java -jar command
+- `build-image`: build docker image
+- `run-container`: run docker container
+

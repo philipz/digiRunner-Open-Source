@@ -1,0 +1,194 @@
+<app-container [title]="currentTitle" [isDefault]="pageNum==1" (headerReturn)="headerReturn()">
+  <div [hidden]="pageNum != 1">
+    <div class="form-group row">
+      <div class="col-12 col-xl-12 col-lg-12">
+
+        <button type="button" class="btn tpi-btn tpi-second float-right"
+          (click)="changePage('create')">{{'button.create'|translate}}</button>
+      </div>
+    </div>
+    <p-table *ngIf="cols" [columns]="cols" [value]="dataList" selectionMode="single" styleClass="p-datatable-striped"
+      [style]="{'word-break':'break-word'}" responsiveLayout="scroll">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width">
+        </colgroup>
+        <colgroup style="width:80px;">{{'action'|translate}}</colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{col.header}}
+          </th>
+          <th style="width:180px;" scope="col">{{'action'|translate}}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            <div style="text-align: center;">
+              <img [alt]="rowData.enable == 1" style="width: 20px; height: 20px" *ngIf="col.field == 'enable'"
+                [src]="rowData.enable ? 'assets/images/icon_green.png': 'assets/images/icon_red.png'" />
+            </div>
+            <span *ngIf="col.field != 'enable'">
+              {{rowData[col.field]}}
+            </span>
+          </td>
+          <td style="text-align:center;width: 180px">
+            <!-- <div class="btn-group">
+                            <button type="button" class="btn btn-deta mr-5"
+                                (click)="showDialog(rowData,formOperate.detail)">
+                                <span
+                                    class="fa fa-search">{{'button.detail'|translate}}</span>
+                            </button>
+                        </div> -->
+            <button pButton pRipple type="button" icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.update' | translate"
+              tooltipPosition="top" (click)="changePage('update', rowData)"></button>
+
+            <button pButton pRipple type="button" icon="fa fa-trash-alt"
+              class="p-button-rounded p-button-text p-button-plain" [pTooltip]="'button.delete' | translate"
+              tooltipPosition="top" (click)="changePage('delete', rowData)"></button>
+
+            <button pButton pRipple type="button" icon="pi pi-ellipsis-v"
+              class="p-button-rounded p-button-text p-button-plain" (click)="toggleBtnMenu($event, rowData)"></button>
+
+            <p-overlayPanel #op styleClass="tpi-op">
+              <ng-template pTemplate>
+                <p-menu [popup]="false" [model]="btnData"></p-menu>
+              </ng-template>
+            </p-overlayPanel>
+
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="this.dataList.length>0">
+          <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
+            <span style="vertical-align:middle;">{{'row_count' | translate}}: {{this.dataList.length}}</span>
+            <!-- <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
+                              <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+                              </button> -->
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length+1">
+            {{'no_rec' | translate}}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- 建立/更新 -->
+  <div [hidden]="pageNum != 2">
+    <form [formGroup]="form">
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="siteUrl_label" class="control-label">{{'site'|translate}}</label>
+          <input formControlName="siteUrl" type="text" class="form-control">
+          <div *ngIf="siteUrl?.invalid && (siteUrl?.dirty || siteUrl?.touched)" class="text-danger">
+            <small class="form-text">{{cusName.errors.isRequired}}</small>
+            <small class="form-text">{{cusName.errors.pattern}}</small>
+          </div>
+        </div>
+        <div class="col-3 form-group">
+          <label id="cusStatus_label" class="control-label">{{"status"|translate}}</label>
+          <div class="p-form-check-line">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="enable" value="1" inputId="enableY"></p-radioButton>
+                <label for="cusStatusY" class="ml-2 mb-0">{{"button.enable"|translate}}</label>
+              </div>
+              <div class="p-form-check">
+                <p-radioButton formControlName="enable" value="0" inputId="enableN"></p-radioButton>
+                <label for="cusStatusN" class="ml-2 mb-0">{{"button.disable"|translate}}</label>
+              </div>
+            </ng-container>
+          </div>
+          <div *ngIf="enable?.invalid && (enable?.dirty || enable?.touched)" class="text-danger">
+            <small class="form-text">{{status?.errors.isRequired | translate}}</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <label id="rootCa_label" class="control-label">Root CA</label>
+          <div style="display:block">
+            <textarea rows="5" style="width:100%" id="rootCa" formControlName="rootCa" class="form-control"
+              pInputTextarea></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <label id="clientCert_label" class="control-label">Client Cert</label>
+          <div style="display:block">
+            <textarea rows="5" style="width:100%" id="clientCert" formControlName="clientCert" class="form-control"
+              pInputTextarea></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <label id="clientKey_label" class="control-label">Client Key</label>
+          <div style="display:block">
+            <textarea rows="5" style="width:100%" id="clientKey" formControlName="clientKey" class="form-control"
+              pInputTextarea></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="keyPassword_label" class="control-label">{{'clientKeyMima'|translate}}</label>
+          <input formControlName="keyPassword" type="password" class="form-control">
+        </div>
+        <div *ngIf="keyPassword?.invalid && (keyPassword?.dirty || keyPassword?.touched)" class="text-danger">
+          <small class="form-text">{{status?.errors.minlength | translate}}</small>
+          <small class="form-text">{{status?.errors.maxlength | translate}}</small>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-6">
+          <label id="tag" class="control-label">{{ "label_tag" | translate }}</label>
+          <div>
+            <p-chips id="tag" formControlName="tag" [allowDuplicate]="false"></p-chips>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <button type="button" class="btn tpi-btn tpi-night float-left mr-2" [disabled]="!form.valid"
+            (click)="connectionTest();">{{'button.connect_test'|translate}}</button>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12">
+          <button *ngIf="currentAction == 'create'" type="button" class="btn tpi-btn tpi-second float-left mr-2"
+            [disabled]="!form.valid" (click)="create();">{{'button.create'|translate}}</button>
+          <button *ngIf="currentAction == 'update'" type="button" class="btn tpi-btn tpi-primary float-left mr-2"
+            [disabled]="!form.valid" (click)="update();">{{'button.update'|translate}}</button>
+
+          <button type="button" class="btn tpi-btn tpi-primary" (click)="changePage('default')">
+            {{ "button.return_to_list" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-container>
+
+<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+  <ng-template pTemplate="footer">
+    <div class="row" style="justify-content: center;">
+      <button type="button" pButton icon="pi pi-check"
+        [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}"
+        label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary"
+        label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    </div>
+  </ng-template>
+</p-confirmDialog>

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpFileType;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -255,7 +256,7 @@ public class PrepareMailService {
 		this.logger.debug(String.format("\n排程已建立:\n\t名稱:%s\n\t參數:%s\n\t預定時間:%s" //
 			, job.getRefItemNo().concat("_").concat(refSubitemNo) //
 			, job.getInParams() //
-			, DateTimeUtil.dateTimeToString(job.getStartDateTime(), DateTimeFormatEnum.西元年月日時分秒_2).get()));
+			, DateTimeUtil.dateTimeToString(job.getStartDateTime(), DateTimeFormatEnum.西元年月日時分秒_2).orElseThrow(TsmpDpAaRtnCode._1295::throwing)));
 	}
 	
 	protected ApplicationContext getCtx() {

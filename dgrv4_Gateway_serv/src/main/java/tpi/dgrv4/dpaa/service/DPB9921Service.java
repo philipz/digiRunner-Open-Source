@@ -31,79 +31,83 @@ public class DPB9921Service {
 	private TsmpSettingDao tsmpSettingDao;
 
 	public void exportTsmpSetting(TsmpAuthorization tsmpAuthorization, DPB9921Req req, OutputStream outputStream) {
+		exportTsmpSetting(outputStream);
+	}
 
-		try (XSSFWorkbook workbook = new XSSFWorkbook();outputStream;){
+	/**
+	 * In-Memory, <br> 
+	 * Landing 端匯出資料,由此進入
+	 */
+	public void exportTsmpSetting(OutputStream outputStream) {
+		try (XSSFWorkbook workbook = new XSSFWorkbook(); outputStream;) {
 
-			
 			XSSFSheet sheet = workbook.createSheet();
 
-			//抬頭
+			// 抬頭
 			this.writeHeader(workbook, sheet);
-			
-			//資料
-			this.writeData(sheet);
-			
-			sheet.setColumnWidth(0, 12800); //50*256
-		    sheet.setColumnWidth(1, 20480); //80*256
-		    sheet.setColumnWidth(2, 25600); //100*256
 
-			
-			//寫入串流
+			// 資料
+			this.writeData(sheet);
+
+			sheet.setColumnWidth(0, 12800); // 50*256
+			sheet.setColumnWidth(1, 20480); // 80*256
+			sheet.setColumnWidth(2, 25600); // 100*256
+
+			// 寫入串流
 			workbook.write(outputStream);
 			workbook.close();
-		    outputStream.close();
-		    
+			outputStream.close();
+
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
 			logger.error(StackTraceUtil.logStackTrace(e));
 			throw TsmpDpAaRtnCode._1297.throwing();
-		} 
-
+		}
 	}
-	
+
 	private void writeHeader(XSSFWorkbook wb, XSSFSheet sheet) {
-		
-		//粗體字
+
+		// 粗體字
 		XSSFCellStyle cellStyle = wb.createCellStyle();
 		XSSFFont font = wb.createFont();
 		font.setBold(true);
 		cellStyle.setFont(font);
-		//置中
+		// 置中
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
-		
-        Row row = sheet.createRow(0);
-        Cell cell = row.createCell(0);
-        cell.setCellValue("id");
-        cell.setCellStyle(cellStyle);
-        
-        cell = row.createCell(1);
-        cell.setCellValue("value");
-        cell.setCellStyle(cellStyle);
-        
-        cell = row.createCell(2);
-        cell.setCellValue("memo");
-        cell.setCellStyle(cellStyle);
+
+		Row row = sheet.createRow(0);
+		Cell cell = row.createCell(0);
+		cell.setCellValue("id");
+		cell.setCellStyle(cellStyle);
+
+		cell = row.createCell(1);
+		cell.setCellValue("value");
+		cell.setCellStyle(cellStyle);
+
+		cell = row.createCell(2);
+		cell.setCellValue("memo");
+		cell.setCellStyle(cellStyle);
 	}
-	
+
 	private void writeData(XSSFSheet sheet) {
 		List<TsmpSetting> list = getTsmpSettingDao().findAllByOrderByIdAsc();
-		if(CollectionUtils.isEmpty(list)) {
+		if (CollectionUtils.isEmpty(list)) {
 			throw TsmpDpAaRtnCode._1298.throwing();
 		}
-		
+
 		int rowIndex = 1;
-		for(TsmpSetting vo : list) {
+		for (TsmpSetting vo : list) {
 			Row row = sheet.createRow(rowIndex++);
 			Cell cell = row.createCell(0);
-	        cell.setCellValue(vo.getId());
-	        
-	        cell = row.createCell(1);
-	        cell.setCellValue(vo.getValue());
-	        
-	        cell = row.createCell(2);
-	        cell.setCellValue(vo.getMemo());
-		
+			cell.setCellValue(vo.getId());
+
+			cell = row.createCell(1);
+			cell.setCellValue(vo.getValue());
+
+			cell = row.createCell(2);
+			cell.setCellValue(vo.getMemo());
+
 		}
 	}
 

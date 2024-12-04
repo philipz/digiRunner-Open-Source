@@ -80,6 +80,12 @@ public class DgrGtwIdpInfoA implements DgrSequenced {
 	@Column(name = "update_user")
 	private String updateUser;
 
+	@Column(name = "idt_light_id")
+	private String idtLightId;
+
+	@Column(name = "idt_role_name")
+	private String idtRoleName;
+
 	@Version
 	@Column(name = "version")
 	private Long version = 1L;
@@ -97,7 +103,8 @@ public class DgrGtwIdpInfoA implements DgrSequenced {
 				+ sucByField + ", sucByValue=" + sucByValue + ", idtName=" + idtName + ", idtEmail=" + idtEmail
 				+ ", idtPicture=" + idtPicture + ", iconFile=" + iconFile + ", pageTitle=" + pageTitle
 				+ ", createDateTime=" + createDateTime + ", createUser=" + createUser + ", updateDateTime="
-				+ updateDateTime + ", updateUser=" + updateUser + ", version=" + version + "]";
+				+ updateDateTime + ", updateUser=" + updateUser + ", version=" + version + ", idtLightId=" + idtLightId
+				+ ", idtRoleName" + idtRoleName + "]";
 	}
 
 	public Long getGtwIdpInfoAId() {
@@ -274,5 +281,21 @@ public class DgrGtwIdpInfoA implements DgrSequenced {
 
 	public void setVersion(Long version) {
 		this.version = version;
+	}
+
+	public String getIdtLightId() {
+		return idtLightId;
+	}
+
+	public void setIdtLightId(String idtLightId) {
+		this.idtLightId = idtLightId;
+	}
+
+	public String getIdtRoleName() {
+		return idtRoleName;
+	}
+
+	public void setIdtRoleName(String idtRoleName) {
+		this.idtRoleName = idtRoleName;
 	}
 }

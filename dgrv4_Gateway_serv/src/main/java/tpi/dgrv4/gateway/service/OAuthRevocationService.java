@@ -45,7 +45,15 @@ public class OAuthRevocationService {
 	public ResponseEntity<?> revocation(HttpServletRequest httpReq, HttpServletResponse httpRes) {
 		String reqUri = httpReq.getRequestURI();
 		try {
-			return revocation(httpReq, httpRes, reqUri);
+			
+			Map<String, String> parameters = new HashMap<>();
+			httpReq.getParameterMap().forEach((k, vs) -> {
+				if (vs.length != 0) {
+					parameters.put(k, vs[0]);
+				}
+			});
+			
+			return revocation(parameters, reqUri);
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
@@ -56,10 +64,7 @@ public class OAuthRevocationService {
 		}
 	}
 
-	protected ResponseEntity<?> getResp(String tokenTypeHint, JsonNode payloadJsonNode) {
-
-		String jti = JsonNodeUtil.getNodeAsText(payloadJsonNode, "jti");
-
+	protected ResponseEntity<?> doRevocation(String tokenTypeHint, String jti) {
 		String message = "";
 		if (DgrTokenType.ACCESS_TOKEN.equalsIgnoreCase(tokenTypeHint)) {
 			message = "access token ";
@@ -105,20 +110,18 @@ public class OAuthRevocationService {
 					message += "revoke success";
 				}
 			}
+			
+			// TODO, In-Memory, revocation
+			// 若角色為 Memory, 則用非同步,調用 Master/Slave(Landing)的 RevocationLanding API,
+			// 將 撤銷 token 的資料寫入 Landing DB (TSMP_TOKEN_HISTORY)
+			// sendrevocationLandingRequestToDgr();
 		}
 
+		TPILogger.tl.debug("code: " + code + ", message: " + message);
 		return getResp(code, message, jti);
 	}
 
-	private ResponseEntity<?> revocation(HttpServletRequest httpReq, HttpServletResponse httpRes, String apiUrl) {
-
-		Map<String, String> parameters = new HashMap<>();
-		httpReq.getParameterMap().forEach((k, vs) -> {
-			if (vs.length != 0) {
-				parameters.put(k, vs[0]);
-			}
-		});
-
+	private ResponseEntity<?> revocation(Map<String, String> parameters, String apiUrl) {
 		ResponseEntity<?> respEntity = oauthIntrospectionService.checkData(parameters, apiUrl);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
@@ -143,8 +146,9 @@ public class OAuthRevocationService {
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
 		}
-
-		return getResp(tokenTypeHint, payloadJsonNode);
+		
+		String jti = JsonNodeUtil.getNodeAsText(payloadJsonNode, "jti");
+		return doRevocation(tokenTypeHint, jti);
 	}
 
 	private ResponseEntity<?> getResp(String code, String message, String jti) {

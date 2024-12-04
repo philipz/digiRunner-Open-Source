@@ -1,5 +1,5 @@
-<ng-container *ngIf="status">
+<ng-container>
   <app-container [title]="title">
-    <app-frame [reportID]="reportID"></app-frame>
+      <ng-component #frameRef></ng-component>
   </app-container>
 </ng-container>

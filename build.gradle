@@ -1,42 +1,47 @@
 buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
+	repositories {
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.5.0.2730"
+	}
 }
 
 plugins {
-	id 'org.springframework.boot' version '3.3.1'
-    id 'io.spring.dependency-management' version '1.1.4'
-
-	id 'java'
-
+	id 'org.springframework.boot' version '3.3.4'
+	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.github.jk1.dependency-license-report' version '2.9'
+
+	id "org.sonarqube" version "5.1.0.4882"
+
+	id "jacoco"
+	id 'java'
 }
 
-bootJar {
+jar {
 	enabled false
 }
 
 import com.github.jk1.license.render.*
 licenseReport {
-
-	renderers = [new InventoryHtmlReportRenderer('license-report.html')]
-	allowedLicensesFile = project.layout.projectDirectory.file("license-check/allowed-licenses.json").asFile
-
+	renderers = [new InventoryHtmlReportRenderer()]
+	outputDir = "$projectDir/build/licenses"
+	allowedLicensesFile = project.layout.projectDirectory.file("${rootDir}/.tmp/allowed-licenses.json").asFile
 }
+
 
 
 allprojects {
 	group = 'tpi.dgrv4'
-	version = 'v4.2.0' //build version: a90fa34
+	version = 'v4.2.25'
 	apply plugin:  'io.spring.dependency-management'
-	
+
 	repositories {
 		mavenCentral()
 	}
-	
+
 	// 指定編碼 UTF-8
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
@@ -51,23 +56,31 @@ subprojects {
 	apply plugin:  'java'
 	apply plugin:  'java-library'
 	apply plugin:  'eclipse'
-	
+
 	sourceCompatibility = '17'
 	targetCompatibility = '17'
 
-	
+
 	dependencies {
-		implementation files('../libsext/dgrv4_CodecUtil_lib-g675b2a3.jar') 
-		implementation files('../libsext/dgrv4_HttpUtil_lib-g675b2a3.jar') 
-		implementation files('../libsext/onlineConsole-v1.0-55-gdc3e362.jar') 
+		implementation files("${rootDir}/libsext/dgrv4_CodecUtil-lib-ga95b4c20e.jar")
+		implementation files("${rootDir}/libsext/dgrv4_HttpUtil-lib-ga95b4c20e.jar")
+		implementation files("${rootDir}/libsext/onlineConsole-v1.0-55-gdc3e362.jar")
 		
 		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 		implementation ('org.springframework.boot:spring-boot-starter-web'){
 			exclude group:'org.springframework.boot', module:'spring-boot-starter-tomcat'
 		}
-		implementation ('org.springframework.boot:spring-boot-starter-undertow:3.3.1'){
-			exclude group: 'org.jboss.xnio', module: 'xnio-xnio'
-			because 'Avoid CVE-2023-5685'
+		implementation ('org.springframework.boot:spring-boot-starter-undertow:3.3.4'){
+			// Exclude xnio-nio to avoid CVE-2023-5685
+			exclude group: 'org.jboss.xnio', module: 'xnio-nio'
+
+			// Exclude undertow-core to avoid CVE-2024-6162 and CVE-2024-5971
+			exclude group: 'io.undertow', module: 'undertow-core'
+			exclude group: 'io.undertow', module: 'undertow-websockets-jsr'
+		}
+		implementation ('io.undertow:undertow-servlet:2.3.17.Final'){
+			// Exclude undertow-core to avoid CVE-2024-6162 and CVE-2024-5971
+			exclude group: 'io.undertow', module: 'undertow-core'
 		}
 		implementation 'org.jboss.xnio:xnio-nio:3.8.16.Final'
 		implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
@@ -76,8 +89,9 @@ subprojects {
 		compileOnly 'org.projectlombok:lombok:1.18.32'
 		annotationProcessor 'org.projectlombok:lombok:1.18.32'
 		implementation 'commons-io:commons-io:2.16.1'
+		implementation 'org.bouncycastle:bc-fips:2.0.0'
 	}
-	
+
 	// clear lib
 	task myClearLib(type: Delete) {
 		delete "$buildDir/libs/lib"
@@ -86,7 +100,7 @@ subprojects {
 
 	// copy lib
 	task myCopyLib(dependsOn:resolveMainClassName, type: Copy) {
-	//task myCopyLib(type: Copy) {
+		//task myCopyLib(type: Copy) {
 		from(configurations.runtimeClasspath){
 			include '**/*.jar'
 			exclude '**/dgrv4*.jar'
@@ -97,11 +111,11 @@ subprojects {
 			exclude '**/ojdbc11-*.jar'
 			exclude '**/postgresql-*.jar'
 			into 'libs/lib'
-		} 
+		}
 		from(configurations.runtimeClasspath){
 			include '**/dgrv4*.jar'
 			into 'libs/libsext'
-		} 
+		}
 		from(configurations.runtimeClasspath){
 			include '**/google-cloud-logging-logback*.jar'
 			include '**/bcprov-jdk15on*.jar'
@@ -118,20 +132,17 @@ subprojects {
 }
 
 def getDate() {
-    return new Date().format('yyyyMMdd_HHmm')
+	return new Date().format('yyyyMMdd_HHmm')
 }
 
 // Gateway jar runnable
 project(':dgrv4_Gateway_serv'){
-
-
 
 	// 引用其它 project
 	dependencies{
 
 		implementation project(':dgrv4_Common_lib')
 		implementation project(':dgrv4_KeeperServer_lib')
-		implementation project(':dgrv4_KeeperClient_lib')
 		implementation project(':dgrv4_Entity_lib')
 		
 		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -140,7 +151,7 @@ project(':dgrv4_Gateway_serv'){
 		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
 		testImplementation 'org.junit.platform:junit-platform-runner'
 		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
-		
+
 		// jasypt
 		implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
@@ -150,45 +161,44 @@ project(':dgrv4_Gateway_serv'){
 		//implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.12'
 
 		// https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
-		implementation 'com.nimbusds:nimbus-jose-jwt:9.23'
-		
-		// https://mvnrepository.com/artifact/commons-lang/commons-lang 
+		implementation 'com.nimbusds:nimbus-jose-jwt:9.40'
+
+		// https://mvnrepository.com/artifact/commons-lang/commons-lang
 		implementation group: 'commons-lang', name: 'commons-lang', version: '2.6'
-		
+
 		// https://mvnrepository.com/artifact/org.codehaus.janino/janino
 		implementation 'org.codehaus.janino:janino:3.0.7'
-		//implementation 'org.codehaus.janino:commons-compiler:3.0.8'
-		
-		// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
-		//implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '5.3.1'
+
+
 		implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 		implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 		implementation 'org.apache.httpcomponents:httpmime:4.5.14'
-		
+
 		implementation 'javax.activation:javax.activation-api:1.2.0'
 
 		// for tsmpdpaa
 		implementation 'com.sun.mail:javax.mail:1.6.2'
-		//implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.15.2'
-		//implementation 'org.elasticsearch.client:elasticsearch-rest-client:7.15.2'
-	    //implementation 'org.elasticsearch:elasticsearch:7.15.2'
-       	implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
+
+		implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
 		implementation 'org.yaml:snakeyaml:2.2'
-		
-		//xlsx
-		implementation 'org.apache.poi:poi-ooxml:5.2.3'
-		
+
+
+		implementation ('org.apache.poi:poi-ooxml:5.3.0'){
+			// 'Avoid CVE-2024-26308'
+			exclude group: 'org.apache.commons', module: 'commons-compress'
+		}
+		implementation 'org.apache.commons:commons-compress:1.27.0'
+
 		// Kryo Serialization
 		implementation 'com.esotericsoftware:kryo:5.4.0'
-		
+
 		// websocket
 		implementation 'org.springframework.boot:spring-boot-starter-websocket'
-		implementation 'io.undertow:undertow-websockets-jsr:2.3.13.Final'
-		implementation 'io.undertow:undertow-core:2.3.13.Final'
+		implementation 'io.undertow:undertow-core:2.3.17.Final'
+		implementation 'io.undertow:undertow-websockets-jsr:2.3.17.Final'
 
-	    // 因為 org.mariadb.jdbc:mariadb-java-client:3.1.2 子相依使用了 jna 5.x 的版本, 與程式不相
-	    implementation 'com.github.oshi:oshi-core:6.4.5'
-    	implementation 'net.java.dev.jna:jna:5.13.0'
+		implementation 'com.github.oshi:oshi-core:6.4.5'
+		implementation 'net.java.dev.jna:jna:5.13.0'
 
 
 		//  compileOnly:  JDBC Driver 5 種
@@ -199,11 +209,11 @@ project(':dgrv4_Gateway_serv'){
 		implementation 'com.oracle.database.jdbc:ojdbc11'
 		implementation 'org.postgresql:postgresql'
 		implementation('org.mariadb.jdbc:mariadb-java-client:3.1.2', {
-	        exclude group: 'net.java.dev.jna', module: 'jna-platform'  //使用其它版本的相依
-	    })
+			exclude group: 'net.java.dev.jna', module: 'jna-platform'  //使用其它版本的相依
+		})
 
 		//  compileOnly: Google
-    	// https://mvnrepository.com/artifact/com.google.cloud/google-cloud-logging-logback
+		// https://mvnrepository.com/artifact/com.google.cloud/google-cloud-logging-logback
 		compileOnly 'com.google.cloud:google-cloud-logging-logback:0.130.17-alpha'
 
 		//  compileOnly: AWS
@@ -217,23 +227,13 @@ project(':dgrv4_Gateway_serv'){
 		//https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on/1.70
 		compileOnly 'org.bouncycastle:bcprov-jdk15on:1.70'
 		//  compileOnly: AWS Customized
-	
-	}
-	
-	//def ent = "-ENT"; //ENT or OS
 
-	def getGitVersion = {
-		def sdOut = new ByteArrayOutputStream()
-		exec {
-			commandLine 'git', 'describe', '--tags'
-			standardOutput = sdOut
-		}
-		return sdOut.toString().trim()
+		implementation 'org.springframework.boot:spring-boot-starter-freemarker:3.3.4'
 	}
 
 	task createVersionTxt() {
 		doFirst {
-			file("src/main/resources/version.txt").text = getGitVersion()
+			file("src/main/resources/version.txt").text = version
 		}
 	}
 
@@ -249,18 +249,29 @@ project(':dgrv4_Gateway_serv'){
 		dependsOn createVersionTxt
 
 		archivesBaseName = "${rootProject.name}"
-		archiveVersion = getGitVersion()
+
+		dependsOn myClearLib
+		dependsOn (myCopyLib)
 	}
-	
+
 	jar {
 		//不產生JAR檔
 		enabled false
 	}
 
+	task executeGitDescribe(type: Exec) {
+		commandLine 'git', 'describe', '--tags'
+		workingDir project.projectDir
+		//workingDir projectDir
+		standardOutput = new ByteArrayOutputStream()
+		doLast {
+			println "Git describe result: ${standardOutput.toString().trim()}"
+		}
+	}
 }
 
 project(':dgrv4_Common_lib'){
-	// 引用其它 project 
+	// 引用其它 project
 	dependencies{
 		testImplementation 'org.junit.jupiter:junit-jupiter-api' // JUnit 5 API 介面
 		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 測試框架的實作
@@ -268,13 +279,13 @@ project(':dgrv4_Common_lib'){
 		testImplementation 'org.junit.platform:junit-platform-runner'
 		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
 		// Kryo Serialization
-    	implementation 'com.esotericsoftware:kryo:5.4.0'
-    	
-	    // 因為 org.mariadb.jdbc:mariadb-java-client:3.1.2 子相依使用了 jna 5.x 的版本, 與程式不相
-	    implementation 'com.github.oshi:oshi-core:6.4.5'
-    	implementation 'net.java.dev.jna:jna:5.13.0'	
+		implementation 'com.esotericsoftware:kryo:5.4.0'
+
+		// 因為 org.mariadb.jdbc:mariadb-java-client:3.1.2 子相依使用了 jna 5.x 的版本, 與程式不相
+		implementation 'com.github.oshi:oshi-core:6.4.5'
+		implementation 'net.java.dev.jna:jna:5.13.0'
 	}
-	
+
 	bootJar {
 		//不產生JAR檔
 		enabled false
@@ -285,34 +296,34 @@ project(':dgrv4_Common_lib'){
 		exclude "**/*.sql"
 		exclude "**/*.jar"
 		exclude "**/*.xml"
-		
+
 		archiveClassifier = 'lib' // 去除 postfix = plain 字樣
 		archivesBaseName = "dgrv4-common"
 		if (project.hasProperty("version")) {
 			archiveVersion = version + '-' + getDate() //換版時修改
-		} 
+		}
 		dependsOn myClearLib
 	}
 }
 
 project(':dgrv4_Entity_lib'){
 
-	// 引用其它 project 
+	// 引用其它 project
 	dependencies{
 		implementation project(':dgrv4_Common_lib')
 		compileOnly 'org.apache.commons:commons-lang3:3.12.0'
 		compileOnly 'com.oracle.database.jdbc:ojdbc11'
-		// https://nipafx.dev/static/b862798a258987401978b6731416a360/f11bc/junit-5-architecture-diagram.webp	
+		// https://nipafx.dev/static/b862798a258987401978b6731416a360/f11bc/junit-5-architecture-diagram.webp
 		testImplementation 'org.junit.jupiter:junit-jupiter-api' // JUnit 5 API 介面
 		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 測試框架的實作
 		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
 		testImplementation 'org.junit.platform:junit-platform-runner'
 		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
-		
+
 		// Kryo Serialization
-    	compileOnly 'com.esotericsoftware:kryo:5.4.0'
+		compileOnly 'com.esotericsoftware:kryo:5.4.0'
 	}
-	
+
 	bootJar {
 		//不產生JAR檔
 		enabled false
@@ -323,12 +334,12 @@ project(':dgrv4_Entity_lib'){
 		exclude "**/*.sql"
 		exclude "**/*.jar"
 		exclude "**/*.xml"
-		
+
 		archiveClassifier = 'lib' // 去除 postfix = plain 字樣
 		archivesBaseName = "dgrv4_Entity"
 		if (project.hasProperty("version")) {
 			archiveVersion = version + '-' + getDate() //換版時修改
-		} 
+		}
 		dependsOn myClearLib
 	}
 }
@@ -370,42 +381,16 @@ project(':dgrv4_H2Config_lib'){
 	}
 }
 
-project(':dgrv4_KeeperClient_lib'){
-
-	// 引用其它 project 
-	dependencies{
-	}
-	
-	bootJar {
-		//不產生JAR檔
-		enabled false
-	}
-
-	jar {
-		exclude "**/*.properties"
-		exclude "**/*.sql"
-		exclude "**/*.jar"
-		exclude "**/*.xml"
-		
-		archiveClassifier = 'lib' // 去除 postfix = plain 字樣
-		archivesBaseName = "dgrv4_KeeperClient"
-		if (project.hasProperty("version")) {
-			archiveVersion = version + '-' + getDate() //換版時修改
-		} 
-		dependsOn myClearLib
-	}
-}
-
 project(':dgrv4_KeeperServer_lib'){
 
 	// 引用其它 project 
 	dependencies{
 		compileOnly group: 'commons-lang', name: 'commons-lang', version: '2.6'
-		
-		 // Kryo Serialization
-        implementation 'com.esotericsoftware:kryo:5.4.0'
+
+		// Kryo Serialization
+		implementation 'com.esotericsoftware:kryo:5.4.0'
 	}
-	
+
 	bootJar {
 		//不產生JAR檔
 		enabled false
@@ -416,26 +401,26 @@ project(':dgrv4_KeeperServer_lib'){
 		exclude "**/*.sql"
 		exclude "**/*.jar"
 		exclude "**/*.xml"
-		
+
 		archiveClassifier = 'lib' // 去除 postfix = plain 字樣
 		archivesBaseName = "dgrv4_KeeperServer"
 		if (project.hasProperty("version")) {
 			archiveVersion = version + '-' + getDate() //換版時修改
-		} 
+		}
 		dependsOn myClearLib
 	}
 }
 
 
 gradle.taskGraph.whenReady {taskGraph ->
-    if (project.hasProperty('excludeProject')) {
-        println "Excluding $excludeProject"
-        taskGraph.getAllTasks().each { task ->
-            if (task.getPath().contains(excludeProject)) {
-                task.enabled = false
-            }
-        }
-    }
+	if (project.hasProperty('excludeProject')) {
+		println "Excluding $excludeProject"
+		taskGraph.getAllTasks().each { task ->
+			if (task.getPath().contains(excludeProject)) {
+				task.enabled = false
+			}
+		}
+	}
 }
 
 def env = System.getProperty("env") ?: "eclipse"  // eclipse or win10cmd

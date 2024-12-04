@@ -16,6 +16,7 @@ import tpi.dgrv4.dpaa.vo.DPB0194Resp;
 import tpi.dgrv4.dpaa.vo.DataSourceInfoVo;
 import tpi.dgrv4.entity.entity.DgrRdbConnection;
 import tpi.dgrv4.entity.repository.DgrRdbConnectionDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -38,6 +39,11 @@ public class DPB0194Service {
 			if (!StringUtils.hasLength(req.getConnectionName())) {
 				throw TsmpDpAaRtnCode._2025.throwing("{{ConnectionName}}");
 			}
+			
+			//預設資料不可刪除
+			if("APIM-default-DB".equalsIgnoreCase(cN)) {
+				throw TsmpDpAaRtnCode._1287.throwing();
+			}
 
 			DgrRdbConnection info = getDgrRdbConnectionDao().findById(cN).orElse(null);
 			if (info == null) {
@@ -46,6 +52,7 @@ public class DPB0194Service {
 
 			getDgrRdbConnectionDao().delete(info);
 			
+			
 			//釋放connection pool
 			Map<String, DataSourceInfoVo> dataSourceMap = getDPB0189Service().getDataSourceMap();
 			DataSourceInfoVo vo = dataSourceMap.get(info.getConnectionName());
@@ -53,6 +60,9 @@ public class DPB0194Service {
 				vo.getHikariDataSource().close();
 				dataSourceMap.remove(info.getConnectionName());
 			}
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 
 		} catch (TsmpDpAaException e) {
 			throw e;

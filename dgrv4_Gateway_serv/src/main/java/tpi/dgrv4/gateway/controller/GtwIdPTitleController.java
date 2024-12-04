@@ -25,7 +25,7 @@ public class GtwIdPTitleController {
 	@Autowired
 	private GtwIdPTitleService service;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/gtwidp/{idPType}/getTitle")
 	public ResponseEntity<String> getTitle(@RequestHeader HttpHeaders headers, HttpServletRequest req,
 			HttpServletResponse resp, @PathVariable(value = "idPType", required = true) String idPType) {

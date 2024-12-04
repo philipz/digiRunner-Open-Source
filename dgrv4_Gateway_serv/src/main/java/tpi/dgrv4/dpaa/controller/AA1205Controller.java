@@ -33,7 +33,7 @@ public class AA1205Controller {
 	@Autowired
 	private AA1205Service service;
 			
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA1205", params = {"before"}, //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,7 +51,7 @@ public class AA1205Controller {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA1205", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

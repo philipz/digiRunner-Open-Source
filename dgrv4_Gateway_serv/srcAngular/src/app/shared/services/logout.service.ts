@@ -17,7 +17,7 @@ export class LogoutService {
     if (re) {
       this.options = {
         queryParams: {
-          re: '',
+          re: Date.now(),
         }
       };
     }

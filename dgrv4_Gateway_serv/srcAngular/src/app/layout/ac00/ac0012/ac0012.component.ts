@@ -48,7 +48,7 @@ export class Ac0012Component extends BaseComponent implements OnInit {
     selected: any = [];
     menus?: Menu[];
     roleNameLimitChar = { value: 30 };
-    roleAliasLimitChar = { value: 30 };
+    roleAliasLimitChar = { value: 255 };
 
     selectedCities: string[] = [];
     selecteds: { name: string; code: string; }[] = [];
@@ -61,7 +61,7 @@ export class Ac0012Component extends BaseComponent implements OnInit {
     form_page4: FormGroup;
     data_page4?: AA0020List;
     selectedFuncList: any = [];
-    newRoleAliasLimitChar = { value: 30 };
+    newRoleAliasLimitChar = { value: 255 };
     menus_page4: Menu[] = [];
     roleName_page4: string = '';
 

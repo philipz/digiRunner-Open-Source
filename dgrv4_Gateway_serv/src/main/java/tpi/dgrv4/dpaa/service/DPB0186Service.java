@@ -20,6 +20,7 @@ import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.repository.DgrGtwIdpInfoADao;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.gateway.component.IdPHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.constant.DgrIdPReqBodyType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -55,7 +56,13 @@ public class DPB0186Service {
 			a.setSucByField(req.getSucByField());
 			a.setSucByType(req.getSucByType());
 			a.setSucByValue(req.getSucByValue());
+			a.setIdtLightId(req.getIdtLightId());
+			a.setIdtRoleName(req.getIdtRoleName());
 			getDgrGtwIdpInfoADao().save(a);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
+
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {

@@ -68,6 +68,7 @@ import tpi.dgrv4.entity.repository.TsmpVgroupGroupDao;
 import tpi.dgrv4.entity.repository.TsmpnApiDetailDao;
 import tpi.dgrv4.gateway.TCP.Packet.UpdateComposerTSPacket;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -176,6 +177,8 @@ public class AA0303Service {
 			}
 			// 清除快取
 			clearAPICache();
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.API.value());
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {

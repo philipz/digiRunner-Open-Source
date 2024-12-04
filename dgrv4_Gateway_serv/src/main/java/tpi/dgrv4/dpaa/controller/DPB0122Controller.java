@@ -28,7 +28,7 @@ public class DPB0122Controller {
 	@Autowired
 	private DPB0122Service service;
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/ssotoken/DPB0122", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

@@ -28,7 +28,7 @@ public class AcIdPCallbackController {
     @Autowired
     AcIdPCallbackService acIdpCallbackService;
 
-    @CrossOrigin
+
     @GetMapping(value = "/dgrv4/ssotoken/acidp/{idPType}/acIdPCallback")
     public void acIdPCallback(@RequestHeader HttpHeaders headers, 
     		@PathVariable("idPType") String idPType, 

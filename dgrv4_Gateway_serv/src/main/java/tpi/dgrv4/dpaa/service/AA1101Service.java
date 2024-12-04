@@ -11,6 +11,7 @@ import tpi.dgrv4.dpaa.vo.AA1101Req;
 import tpi.dgrv4.dpaa.vo.AA1101Resp;
 import tpi.dgrv4.entity.entity.jpql.TsmpSecurityLevel;
 import tpi.dgrv4.entity.repository.TsmpSecurityLevelDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -40,7 +41,9 @@ public class AA1101Service {
 			getTsmpSecurityLevelDao().saveAndFlush(aa1101_vo);
 			
 			resp.setSecurityLevelId(aa1101_securityLevelId);
-			
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException aa1101_e) {
 			throw aa1101_e;

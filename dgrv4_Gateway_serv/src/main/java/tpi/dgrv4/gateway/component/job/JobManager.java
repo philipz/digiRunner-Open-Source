@@ -1,26 +1,20 @@
 package tpi.dgrv4.gateway.component.job;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import jakarta.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.exceptions.DgrException;
 import tpi.dgrv4.entity.exceptions.DgrRtnCode;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class JobManager implements Runnable {
 
@@ -48,11 +42,6 @@ public class JobManager implements Runnable {
 		this.logger = logger;
 		this.capacity = capacity;
 		this.queue = new LinkedBlockingQueue<>(this.capacity);
-		
-//		if (this instanceof DeferrableJobManager) {
-//		}else {
-//			watchQueue = this.queue;
-//		}
 		
 		this.jobLogs = new ConcurrentHashMap<String, Long>();
 		this.logger.debugDelay2sec("JobManager(" + this.getClass().getCanonicalName() +") is initialized with capacity (" + this.capacity + ")");
@@ -83,8 +72,8 @@ public class JobManager implements Runnable {
 			
 			this.jobLogs.put(job.getGroupId(), System.currentTimeMillis());
 			String traceMsg = "[#JOB#][BEGIN]Job: " + job.getGroupId();
-			if (job instanceof ApptJob) {
-				traceMsg += ", appt_id: " + ((ApptJob)job).getTsmpDpApptJob().getApptJobId();
+			if (job instanceof ApptJob apptJob) {
+				traceMsg += ", appt_id: " + apptJob.getTsmpDpApptJob().getApptJobId();
 			}
 			this.logger.trace(traceMsg);
 			
@@ -93,8 +82,8 @@ public class JobManager implements Runnable {
 			
 			long start = this.jobLogs.remove(job.getGroupId());
 			traceMsg = "[#JOB#][END]Job: " + job.getGroupId();
-			if (job instanceof ApptJob) {
-				traceMsg += ", appt_id: " + ((ApptJob)job).getTsmpDpApptJob().getApptJobId();
+			if (job instanceof ApptJob apptJob) {
+				traceMsg += ", appt_id: " + apptJob.getTsmpDpApptJob().getApptJobId();
 			}
 			traceMsg += ", cost: " + (System.currentTimeMillis() - start) + "ms";
 			this.logger.trace(traceMsg);
@@ -127,14 +116,25 @@ public class JobManager implements Runnable {
 		Iterator<Job> iterator = iterator();
 		Job job = null;
 		int i = 0;
+		int removedCount = 0;
 		//從一級拿出來之後
 		while(iterator.hasNext()) {
-			if (i++ == 200) {break;} // 為了不要讓 單一 cpu 跑太多迴圈
-			job = (Job) iterator.next();
+			if (i++ == 200) {
+				break; // 為了不要讓 單一 cpu 跑太多迴圈
+			}
+			job = iterator.next();
 			if (groupId.equals(job.getGroupId())) {
-				this.queue.remove(job);
+				boolean removed = this.queue.remove(job);
+				if (removed) {
+					removedCount++;
+					logger.debug("Job removed: " + job.getId());
+				} else {
+					// 元素未能被移除，可能需要進行錯誤處理或日誌記錄
+					logger.warn("Failed to remove job: " + job.getId());
+				}
 			}
 		}
+		logger.info("Removed " + removedCount + " jobs for group: " + groupId);
 	}
 
 	public void put(Job job) throws InterruptedException, DgrException {
@@ -193,7 +193,7 @@ public class JobManager implements Runnable {
 		while (it2.hasNext()) {
 			Map.Entry<String, Long> entry = it2.next();
 			String groupId = entry.getKey();
-			String processTime = DateTimeUtil.dateTimeToString(new Date(entry.getValue()), DateTimeFormatEnum.西元年月日時分秒毫秒_2).get();
+			String processTime = DateTimeUtil.dateTimeToString(new Date(entry.getValue()), DateTimeFormatEnum.西元年月日時分秒毫秒_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 			detail.add(String.format("%s; process_time: %s", groupId, processTime));
 		}
 		return detail;
@@ -213,15 +213,15 @@ public class JobManager implements Runnable {
 		if (entry==null) {return;}
 		
 		Job valJob = entry.getValue();
-		if (valJob instanceof RefreshCacheJob) {
+		if (valJob instanceof RefreshCacheJob refreshCacheJob) {
 			// 放入 2nd 前, 給予 timestamp
-			((RefreshCacheJob)valJob).putIn2ndTime = System.currentTimeMillis();
+			refreshCacheJob.putIn2ndTime = System.currentTimeMillis();
 		}
 		
 		// put 2nd Queue
 		synchronized (buff2nd) {
 			buff2nd.put(valJob.getGroupId(), valJob);
-			buff2nd.notify();
+			buff2nd.notifyAll();
 		}
 	}
 

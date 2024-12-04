@@ -13,6 +13,10 @@ import { DPB0192Req } from 'src/app/models/api/ServerService/dpb0192.interface';
 import { DPB0200Req } from 'src/app/models/api/ServerService/dpb0200.interface';
 import { AlertType } from 'src/app/models/common.enum';
 
+export enum RDBinit {
+  connectName = 'APIM-default-DB'
+}
+
 @Component({
   selector: 'app-rdb-connection',
   templateUrl: './rdb-connection.component.html',
@@ -80,6 +84,10 @@ jdbc:sqlserver://{{hostname}}:{{port}};databaseName={{databaseName}}; trustServe
         this.tableData = [];
       }
     })
+  }
+
+  checkIsRDBInitConnectName (name:string){
+    return (name == RDBinit.connectName);
   }
 
   headerReturn() {
@@ -157,6 +165,10 @@ jdbc:sqlserver://{{hostname}}:{{port}};databaseName={{databaseName}}; trustServe
               this.idleTimeout.setValue(res.RespBody.idleTimeout);
               this.maxLifetime.setValue(res.RespBody.maxLifetime);
               this.dataSourceProperty.setValue(res.RespBody.dataSourceProperty);
+
+              if(this.connectionName.value == RDBinit.connectName){
+                this.formEdit.disable();
+              }
             })
           }
         })
@@ -288,7 +300,8 @@ jdbc:sqlserver://{{hostname}}:{{port}};databaseName={{databaseName}}; trustServe
     let req = {
       jdbcUrl: this.jdbcUrl.value,
       userName: this.userName.value,
-      mima: this.mima.value
+      mima: this.mima.value,
+      connName: this.connectionName.value,
     } as DPB0200Req
     this.serverService.testRdbConnection(req).subscribe( res=> {
       if(this.toolService.checkDpSuccess(res.ResHeader)){

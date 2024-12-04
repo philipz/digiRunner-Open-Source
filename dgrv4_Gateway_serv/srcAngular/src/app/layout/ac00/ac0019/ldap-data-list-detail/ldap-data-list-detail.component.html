@@ -7,7 +7,7 @@
         <label class="form-control border-line" [hidden]="!data?.detailId">{{data?.detailId}}</label>
       </div>
       <div class="col-6">
-        <label id="orderNo_label" for="orderNo" class="control-label required">Order</label>
+        <label id="orderNo_label" for="orderNo" class="control-label" [class]="{'required': !_disabled}">Order</label>
         <input type="number" class="form-control" id="orderNo" formControlName="orderNo" placeholder="">
         <div *ngIf="orderNo?.invalid && (orderNo?.dirty || orderNo?.touched)" class="text-danger">
           <!-- <small class="form-text">{{orderNo?.errors.pattern | translate}}</small> -->
@@ -18,7 +18,7 @@
 
     <div class="form-group row">
       <div class="col-12">
-        <label id="ldapUrl_label" for="ldapUrl" class="control-label required">URL</label>
+        <label id="ldapUrl_label" for="ldapUrl" class="control-label" [class]="{'required': !_disabled}">URL</label>
         <input type="text" class="form-control" id="ldapUrl" formControlName="ldapUrl" placeholder="">
         <div *ngIf="ldapUrl?.invalid && (ldapUrl?.dirty || ldapUrl?.touched)" class="text-danger">
           <small class="form-text">{{ldapUrl?.errors.pattern | translate}}</small>
@@ -29,7 +29,7 @@
 
     <div class="form-group row">
       <div class="col-6">
-        <label id="ldapBaseDn_label" for="ldapBaseDn" class="control-label required">Base DN</label>
+        <label id="ldapBaseDn_label" for="ldapBaseDn" class="control-label" [class]="{'required': !_disabled}">Base DN</label>
         <input type="text" class="form-control" id="ldapBaseDn" formControlName="ldapBaseDn" placeholder="">
         <div *ngIf="ldapBaseDn?.invalid && (ldapBaseDn?.dirty || ldapBaseDn?.touched)" class="text-danger">
           <!-- <small class="form-text">{{ldapBaseDn?.errors.pattern | translate}}</small> -->
@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="col-6">
-        <label id="ldapDn_label" for="ldapDn" class="control-label required">Bind DN</label>
+        <label id="ldapDn_label" for="ldapDn" class="control-label" [class]="{'required': !_disabled}">Bind DN</label>
         <input type="text" class="form-control" id="ldapDn" formControlName="ldapDn" placeholder="">
         <div *ngIf="ldapDn?.invalid && (ldapDn?.dirty || ldapDn?.touched)" class="text-danger">
           <!-- <small class="form-text">{{ldapDn?.errors.pattern | translate}}</small> -->

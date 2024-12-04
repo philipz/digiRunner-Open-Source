@@ -125,7 +125,7 @@ public class DPB0067Service {
 		}
 		
 		if (mList == null || mList.isEmpty()) {
-			throw TsmpDpAaRtnCode._1215.throwing();
+			throw TsmpDpAaRtnCode._1298.throwing();
 		}
 
 		DPB0067Resp resp = new DPB0067Resp();

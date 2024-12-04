@@ -3,9 +3,9 @@ package tpi.dgrv4.dpaa.component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import tpi.dgrv4.common.constant.SafeHttpMethod;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.AA0315Item;
@@ -134,7 +134,7 @@ public class DpOpenApiDocServiceImpl_OAS3_DGRC implements DpOpenApiDocServiceIfs
 			while (methodIter.hasNext()) {//多個method
 				String method = methodIter.next();
 				String upperMethod = method.toUpperCase();	// 20210113; 需轉成大寫
-				if (HttpMethod.valueOf(upperMethod) == null) {
+				if (SafeHttpMethod.resolve(upperMethod) == null) {
 					continue;
 				}
 				if (httpMethodType.contains(method.toUpperCase())) {

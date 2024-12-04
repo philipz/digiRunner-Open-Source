@@ -25,7 +25,7 @@ public class DPB0123UdpController {
 	@Autowired
 	private DPB0123UdpService service;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/udpssotoken/DPB0123Udp", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

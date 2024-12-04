@@ -22,7 +22,6 @@ import tpi.dgrv4.dpaa.service.DPB0118Service;
 import tpi.dgrv4.dpaa.service.DPB9921Service;
 import tpi.dgrv4.dpaa.util.ControllerUtil;
 import tpi.dgrv4.dpaa.vo.DPB0118Resp;
-import tpi.dgrv4.dpaa.vo.DPB9920Resp;
 import tpi.dgrv4.dpaa.vo.DPB9921Req;
 import tpi.dgrv4.gateway.vo.TsmpBaseReq;
 import tpi.dgrv4.gateway.vo.TsmpBaseResp;
@@ -37,7 +36,7 @@ public class DPB9921Controller {
 	@Autowired
 	private DPB0118Service dpb0118Service;
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/17/DPB9921", params = { "before" }, //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,7 +49,7 @@ public class DPB9921Controller {
 		}
 	}
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/17/DPB9921", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

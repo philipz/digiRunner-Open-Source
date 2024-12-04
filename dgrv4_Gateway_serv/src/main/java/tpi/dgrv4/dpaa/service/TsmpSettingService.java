@@ -47,7 +47,7 @@ public class TsmpSettingService {
 	// =========================================================
 	// ==================== COMMON METHODS =====================
 	// =========================================================
- 
+
 	/**
 	 * 判斷若值為"ENC()"括起來,則解密 <br>
 	 * 
@@ -55,14 +55,17 @@ public class TsmpSettingService {
 	 */
 	public String getENCPlainVal(String val) {
 		Pattern pattern = Pattern.compile("^ENC\\((\\S+)\\)$");
-		Matcher matcher = pattern.matcher(val);
+		if (val == null) {
+			val = "";
+		} // Oracle 取值會是 null
+		Matcher matcher = pattern.matcher(val);// 不接受 null
 		if (matcher.matches()) {
 			val = matcher.group(1);
 			return getTsmpCoreTokenHelperCacheProxy().decrypt(val);
 		}
 		return val;
 	}
-	
+
 	public String getTokenVal(String key) {
 		String val = getStringVal(key);
 		return getTsmpCoreTokenHelperCacheProxy().decrypt(val);
@@ -157,20 +160,25 @@ public class TsmpSettingService {
 	 * 使相關邏輯都能取到明文,不用自己解密 <br>
 	 * 
 	 * @return 若有做ENC加密,傳回明文; 否則,傳回DB中的原值
-	 */	
+	 */
 	private <R> R getVal(String id, Function<String, R> func) {
-		TsmpSetting entity = findById(id, true);
+		TsmpSetting entity = findById(id);
 		String val = entity.getValue();
-		val = getENCPlainVal(val);
+		if (val == null) {
+			val = "";
+		} // Oracle 取值會是 null
+		val = getENCPlainVal(val);// 不接受 null
 		return func.apply(val);
 	}
 
-	private TsmpSetting findById(String id, boolean errorWhenNotExists) {
+	private TsmpSetting findById(String id) {
 		Optional<TsmpSetting> opt = getTsmpSettingCacheProxy().findById(id);
-		if (errorWhenNotExists && !opt.isPresent()) {
+
+		if (opt.isEmpty()) {
 			logger.debug("id=" + id);
 			throw TsmpDpAaRtnCode.NO_ITEMS_DATA.throwing();
 		}
+
 		return opt.get();
 	}
 
@@ -224,12 +232,12 @@ public class TsmpSettingService {
 	public String getKey_OAK_EXPI_URL() {
 		return TsmpSettingDao.Key.OAK_EXPI_URL;
 	}
-		
+
 	public String getVal_OAK_EXPI_URL() {
 		String gateway_key = getKey_OAK_EXPI_URL();
 		return getStringVal(gateway_key);
 	}
-	
+
 	public String getKey_TSMP_SIGNBLOCK_EXPIRED() {
 		return TsmpSettingDao.Key.TSMP_SIGNBLOCK_EXPIRED;
 	}
@@ -527,7 +535,7 @@ public class TsmpSettingService {
 		String key = getKey_TSMP_COMPOSER_ADDRESS();
 		return getListVal(key, ",", Function.identity());
 	}
-	
+
 	public String getKey_TSMP_CORE_V2_MODULE_FILE_UPLOAD_PATH() {
 		return TsmpSettingDao.Key.TSMP_CORE_V2_MODULE_FILE_UPLOAD_PATH;
 	}
@@ -536,7 +544,7 @@ public class TsmpSettingService {
 		String key = getKey_TSMP_CORE_V2_MODULE_FILE_UPLOAD_PATH();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_TSMP_CORE_V3_MODULE_FILE_UPLOAD_PATH() {
 		return TsmpSettingDao.Key.TSMP_CORE_V3_MODULE_FILE_UPLOAD_PATH;
 	}
@@ -545,7 +553,7 @@ public class TsmpSettingService {
 		String key = getKey_TSMP_CORE_V3_MODULE_FILE_UPLOAD_PATH();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_DELETEMODULE_ALERT() {
 		return TsmpSettingDao.Key.DELETEMODULE_ALERT;
 	}
@@ -567,14 +575,15 @@ public class TsmpSettingService {
 			args.put("net", false);
 			try {
 				args = getObjectMapper().readValue(val, //
-						new TypeReference<Map<String, Object>>(){}); // converts JSON to Map
+						new TypeReference<Map<String, Object>>() {
+						}); // converts JSON to Map
 			} catch (Exception e) {
 				this.logger.error(StackTraceUtil.logStackTrace(e));
 			}
 			return args;
 		});
 	}
-	
+
 	public String getKey_TSMP_APILOG_FORCE_WRITE_RDB() {
 		return TsmpSettingDao.Key.TSMP_APILOG_FORCE_WRITE_RDB;
 	}
@@ -593,12 +602,22 @@ public class TsmpSettingService {
 		return getStringVal(key);
 	}
 	
+	public String getKey_BOT_DETECTION_LOG() {
+		return TsmpSettingDao.Key.BOT_DETECTION_LOG;
+	}
+
+	public String getVal_BOT_DETECTION_LOG() {
+		String key = getKey_BOT_DETECTION_LOG();
+		return getStringVal(key);
+	}
+
 	public String getKey_TSMP_COMPOSER_PORT() {
 		return TsmpSettingDao.Key.TSMP_COMPOSER_PORT;
 	}
 
 	/**
 	 * 給前端頁面使用用的路徑，主要是給AC使用
+	 * 
 	 * @return
 	 */
 	public int getVal_TSMP_COMPOSER_PORT() {
@@ -612,6 +631,7 @@ public class TsmpSettingService {
 
 	/**
 	 * 給前端頁面使用用的路徑，主要是給AC使用
+	 * 
 	 * @return
 	 */
 	public String getVal_TSMP_COMPOSER_PATH() {
@@ -630,6 +650,7 @@ public class TsmpSettingService {
 
 	/**
 	 * 目前無使用，保留，當初功能性與 TSMP_REPORT_ADDRESS 相同
+	 * 
 	 * @return
 	 */
 	public int getVal_TSMP_PROXY_PORT() {
@@ -675,26 +696,26 @@ public class TsmpSettingService {
 		key = (index < 0 ? key : (key + index));
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_UDPSSO_LOGIN_NETWORK() {
 		return TsmpSettingDao.Key.UDPSSO_LOGIN_NETWORK;
 	}
-	
+
 	public String getVal_UDPSSO_LOGIN_NETWORK() {
 		String key = getKey_UDPSSO_LOGIN_NETWORK();
 		return getStringVal(key);
 	}
-	
-    public boolean getVal_TSMP_ONLINE_CONSOLE() {
-    	String key = getKey_TSMP_ONLINE_CONSOLE();
-    	return getBooleanVal(key, Boolean.TRUE);
-    }
-    
-    public String getKey_TSMP_ONLINE_CONSOLE() {
-    	return TsmpSettingDao.Key.TSMP_ONLINE_CONSOLE;
-    }
-    
-    public String getKey_DGR_QUERY_MONITOR_DAY() {
+
+	public boolean getVal_TSMP_ONLINE_CONSOLE() {
+		String key = getKey_TSMP_ONLINE_CONSOLE();
+		return getBooleanVal(key, Boolean.TRUE);
+	}
+
+	public String getKey_TSMP_ONLINE_CONSOLE() {
+		return TsmpSettingDao.Key.TSMP_ONLINE_CONSOLE;
+	}
+
+	public String getKey_DGR_QUERY_MONITOR_DAY() {
 		return TsmpSettingDao.Key.DGR_QUERY_MONITOR_DAY;
 	}
 
@@ -702,25 +723,25 @@ public class TsmpSettingService {
 		String key = getKey_DGR_QUERY_MONITOR_DAY();
 		return getIntVal(key, 7);
 	}
-	
+
 	public String getKey_DEFAULT_PAGE_SIZE() {
 		return TsmpSettingDao.Key.DEFAULT_PAGE_SIZE;
 	}
-	
+
 	public Integer getVal_DEFAULT_PAGE_SIZE() {
 		String key = getKey_DEFAULT_PAGE_SIZE();
 		return getIntegerVal(key, 20);
 	}
-	
+
 	public String getKey_FILE_TEMP_EXP_TIME() {
 		return TsmpSettingDao.Key.FILE_TEMP_EXP_TIME;
 	}
-	
+
 	public Long getVal_FILE_TEMP_EXP_TIME() {
 		String key = getKey_FILE_TEMP_EXP_TIME();
 		return getBasicLongVal(key, 3600000L);
 	}
-	
+
 	public String getKey_MAIL_BODY_API_FAIL_SERVICE_MAIL() {
 		return TsmpSettingDao.Key.MAIL_BODY_API_FAIL_SERVICE_MAIL;
 	}
@@ -729,7 +750,7 @@ public class TsmpSettingService {
 		String key = getKey_MAIL_BODY_API_FAIL_SERVICE_MAIL();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_MAIL_BODY_API_FAIL_SERVICE_TEL() {
 		return TsmpSettingDao.Key.MAIL_BODY_API_FAIL_SERVICE_TEL;
 	}
@@ -738,7 +759,7 @@ public class TsmpSettingService {
 		String key = getKey_MAIL_BODY_API_FAIL_SERVICE_TEL();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_ERRORLOG_KEYWORD() {
 		return TsmpSettingDao.Key.ERRORLOG_KEYWORD;
 	}
@@ -747,7 +768,7 @@ public class TsmpSettingService {
 		String key = getKey_ERRORLOG_KEYWORD();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_AUTH_CODE_EXP_TIME() {
 		return TsmpSettingDao.Key.AUTH_CODE_EXP_TIME;
 	}
@@ -756,7 +777,7 @@ public class TsmpSettingService {
 		String key = getKey_AUTH_CODE_EXP_TIME();
 		return getStringVal(key);
 	}
-		
+
 	public String getKey_JWKS_URI() {
 		return TsmpSettingDao.Key.JWKS_URI;
 	}
@@ -765,7 +786,7 @@ public class TsmpSettingService {
 		String key = getKey_JWKS_URI();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_DP_ADMIN() {
 		return TsmpSettingDao.Key.DP_ADMIN;
 	}
@@ -774,7 +795,7 @@ public class TsmpSettingService {
 		String key = getKey_DP_ADMIN();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_QUERY_DURATION() {
 		return TsmpSettingDao.Key.QUERY_DURATION;
 	}
@@ -783,7 +804,7 @@ public class TsmpSettingService {
 		String key = getKey_QUERY_DURATION();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_MAIL_SEND_TIME() {
 		return TsmpSettingDao.Key.MAIL_SEND_TIME;
 	}
@@ -792,25 +813,25 @@ public class TsmpSettingService {
 		String key = getKey_MAIL_SEND_TIME();
 		return getStringVal(key);
 	}
-	
+
 	public String getKey_DGR_PATHS_COMPATIBILITY() {
 		return TsmpSettingDao.Key.DGR_PATHS_COMPATIBILITY;
 	}
 
 	public int getVal_DGR_PATHS_COMPATIBILITY() {
 		String key = getKey_DGR_PATHS_COMPATIBILITY();
-		return getIntVal(key,2);
+		return getIntVal(key, 2);
 	}
-	
+
 	public String getKey_PROFILEUPDATE_INVALIDATE_TOKEN() {
 		return TsmpSettingDao.Key.PROFILEUPDATE_INVALIDATE_TOKEN;
 	}
-	
+
 	public boolean getVal_PROFILEUPDATE_INVALIDATE_TOKEN() {
 		String key = getKey_PROFILEUPDATE_INVALIDATE_TOKEN();
 		return getBooleanVal(key, false);
 	}
-	
+
 	public String getKey_USER_UPDATE_BY_SELF() {
 		return TsmpSettingDao.Key.USER_UPDATE_BY_SELF;
 	}
@@ -819,26 +840,35 @@ public class TsmpSettingService {
 		String key = getKey_USER_UPDATE_BY_SELF();
 		return getBooleanVal(key, false);
 	}
-	
+
 	public String getKey_API_DASHBOARD_BATCH_QUANTITY() {
 		return TsmpSettingDao.Key.API_DASHBOARD_BATCH_QUANTITY;
 	}
 
 	public int getVal_API_DASHBOARD_BATCH_QUANTITY() {
 		String key = getKey_API_DASHBOARD_BATCH_QUANTITY();
-		return getIntVal(key,500000);
+		return getIntVal(key, 500000);
 	}
-	
-	// X_API_KEY_PLAIN_ENABLE 
+
+	public String getKey_CHECK_BOT_DETECTION() {
+		return TsmpSettingDao.Key.CHECK_BOT_DETECTION;
+	}
+
+	public String getVal_CHECK_BOT_DETECTION() {
+		String key = getKey_CHECK_BOT_DETECTION();
+		return getStringVal(key);
+	}
+
+	// X_API_KEY_PLAIN_ENABLE
 	public String getKey_X_API_KEY_PLAIN_ENABLE() {
 		return TsmpSettingDao.Key.X_API_KEY_PLAIN_ENABLE;
 	}
-		
+
 	public boolean getVal_X_API_KEY_PLAIN_ENABLE() {
 		String key = getKey_X_API_KEY_PLAIN_ENABLE();
 		return getBooleanVal(key, false);
 	}
- 
+
 	public String getKey_DEFAULT_DATA_CHANGE_ENABLED() {
 		return TsmpSettingDao.Key.DEFAULT_DATA_CHANGE_ENABLED;
 	}

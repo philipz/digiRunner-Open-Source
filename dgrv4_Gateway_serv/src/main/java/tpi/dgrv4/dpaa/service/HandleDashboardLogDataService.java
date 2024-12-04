@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.entity.entity.jpql.TsmpReqLog;
 import tpi.dgrv4.entity.entity.jpql.TsmpReqResLogHistory;
@@ -41,12 +42,12 @@ public class HandleDashboardLogDataService {
 		// 現在區間的日期
 		Date nowIntervalDate = this.getNowIntervalDate(execDate);
 		this.logger.debug("nowIntervalDate = "
-				+ DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).get());
+				+ DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing));
 
 		// 先找出要刪除的 一年前的紀錄
 		Date oneYearAgo = this.getOneYearAgo(execDate);
 		this.logger
-				.debug("oneYearAgo = " + DateTimeUtil.dateTimeToString(oneYearAgo, DateTimeFormatEnum.西元年月日時分秒).get());
+				.debug("oneYearAgo = " + DateTimeUtil.dateTimeToString(oneYearAgo, DateTimeFormatEnum.西元年月日時分秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing));
 
 		List<TsmpReqResLogHistory> deleteList = getTsmpReqResLogHistoryDao().findByRtimeLessThan(oneYearAgo);
 		if (deleteList.size() > 0) {
@@ -162,10 +163,10 @@ public class HandleDashboardLogDataService {
 	}
 
 	private Date getNowIntervalDate(Date nowDate) {
-		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		strDate = strDate.substring(0, 15);
 		strDate = strDate + "0:00.000";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 
@@ -176,10 +177,10 @@ public class HandleDashboardLogDataService {
 		nowTime.setTime(nowDate);
 		nowTime.add(Calendar.YEAR, -1);
 		nowDate = nowTime.getTime();
-		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		strDate = strDate.substring(0, 15);
 		strDate = strDate + "0";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 

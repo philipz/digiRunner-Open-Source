@@ -1,89 +1,121 @@
 <div class="login-page" [hidden]="!isReady">
-  <div class="row col-12 h-100 p-0">
-    <div class="col-7 h-100">
-      <!-- <div class="login_bg w-100 h-100 m-0"></div> -->
-      <img src="assets/images/login_left_base.png" alt="" class="w-100 h-100 login-base">
-      <img src="assets/images/img_login_visual.png" alt="" class="w-100 h-100 login-visual">
-    </div>
-    <div class="col-5 h-100 ">
-      <div class="row justify-content-md-center bg " style="padding-top: 15vh;">
-        <!--上下置中 align-items-center -->
-        <div style="width:380px;">
-          <form [formGroup]="form" (ngSubmit)="submitForm()">
-            <section class="login_section ">
-              <div class="logo_top">
-                <img src="assets/images/DigiFusion_digiRunner_logo_horizontal.png" alt="" title="v202102251030-v3">
-              </div>
-              <div class="line" [hidden]="!relogin">
-                <label style="color:#EF622D; font-weight: 600; font-size: 24px;">Welcome Back!</label>
-              </div>
-              <div class="line" [hidden]="relogin">
-                <div>
-                  <label style="color:#EF622D; font-weight: 600; font-size: 24px;">{{
-                    'logoutBySystem'|translate}}</label>
-                </div>
-                <div>
-                  <label style="color:#EF622D; font-weight: 600; font-size: 24px;">{{
-                    'plz_login_again'|translate}}</label>
-                </div>
-              </div>
+  <!-- <div class="row col-12 h-100 p-0"> -->
+  <div class="image-panel">
+    <!-- <img class="img-bg"
+      src="assets/images/login_left_base.png"
+    /> -->
+    <img class="img-building" src="assets/images/img_login_visual.png" />
+  </div>
+  <div class="form-panel">
+    <!-- <div class="row justify-content-md-center bg" style="padding-top: 15vh"> -->
+    <!--上下置中 align-items-center -->
+    <!-- <div style="width: 380px"> -->
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <section class="login_section">
+        <img
+          class="img-logo"
+          src="assets/images/DigiFusion_digiRunner_logo_horizontal.png"
+          alt=""
+          title="v202102251030-v3"
+        />
 
-              <div class="sign_box">
-                <label for="uname" class="control-label float-left">{{'user_name'|translate}}</label>
-                <div class="sign_row" style="position: relative">
-                  <span style="position: absolute;left:7px;">
-                    <img src="assets/images/i_user.png" alt="number">
-                  </span>
-                  <input type="text" #username class="form-control" formControlName="uname"
-                    [placeholder]=" 'user_name'|translate" />
-                </div>
-                <label for="uname" class="control-label float-left">{{'user_password'|translate}}</label>
-                <div class="sign_row" style="position: relative">
-                  <span style="margin-left: 8px;position: absolute;left:7px;">
-
-                    <img src="assets/images/i_pwd.png" alt="pass" style="width: 25px; height: 30px;">
-                  </span>
-                  <input type="password" class="form-control" formControlName="pwd"
-                    [placeholder]=" 'user_password'|translate" />
-                </div>
-                <div class="sign_row">
-                  <button type="submit" class="btn btn-login" style="width: 250px;">{{'login' | translate}}</button>
-                </div>
-                <div class="row" style="justify-content: center;">
-                  <div class="sign_row mr-2">
-                    <button type="button" class="btn btn-login" (click)="ssologin('GOOGLE')">
-                      <i class="pi pi-google"></i></button>
-                  </div>
-                  <div class="sign_row">
-                    <button type="button" class="btn btn-login" (click)="ssologin('MS')">
-                      <i class="pi pi-microsoft"></i></button>
-                  </div>
-                </div>
-                <div class="row" style="justify-content: center;">
-                  <div class="sign_row mr-2">
-                    <button type="button" class="btn btn-login" (click)="goLdapPage()">
-                      LDAP</button>
-                  </div>
-                  <div class="sign_row">
-                    <button type="button" class="btn btn-login" (click)="goMLdapPage()">
-                      MLDAP</button>
-                  </div>
-                </div>
-                <div class="sign_row">
-                  <button type="button" class="btn btn-login" style="width: 250px;" (click)="goAPIPage()">API</button>
-                </div>
-
-              </div>
-            </section>
-          </form>
+        <!-- 請重新登入 -->
+        <div class="line">
+          <p [hidden]="!relogin">Welcome Back!</p>
+          <div [hidden]="relogin">
+            <span>{{ "logoutBySystem" | translate }}</span>
+            <span>{{ "plz_login_again" | translate }}</span>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-</div>
-<footer class="footer">
-  <div class="container">
-    <span>Copyright© TPIsoftware. All Rights Reserved. </span>
+        <div class="form-wrapper">
+          <div class="form-area">
+            <div class="input-line">
+              <label for="uname">{{ "user_name" | translate }}</label>
+              <div class="input-sign-wrapper">
+                <span class="sign">
+                  <img src="assets/images/login/i_user.png" alt="number" />
+                </span>
+                <input
+                  type="text"
+                  #username
+                  class="form-control"
+                  formControlName="uname"
+                  [placeholder]="'user_name' | translate"
+                />
+              </div>
+            </div>
+            <div class="input-line">
+              <label for="uname">{{ "user_password" | translate }}</label>
+              <div class="input-sign-wrapper">
+                <span class="sign">
+                  <img src="assets/images/login/i_pwd.png" alt="pass" />
+                </span>
+                <input
+                  type="password"
+                  class="form-control"
+                  formControlName="pwd"
+                  [placeholder]="'user_password' | translate"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="sign-btn-grid">
+            <button type="submit" class="btn btn-login">
+              {{ "login" | translate }}
+            </button>
+          </div>
+          <div class="sign-btn-grid" style="--grid-columns: 1fr 1fr">
+            <button
+              type="button"
+              class="btn btn-login"
+              (click)="ssologin('GOOGLE')"
+            >
+              <i class="pi pi-google"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-login"
+              (click)="ssologin('MS')"
+            >
+              <i class="pi pi-microsoft"></i>
+            </button>
+            <button type="button" class="btn btn-login" (click)="goLdapPage()">
+              LDAP
+            </button>
+            <button type="button" class="btn btn-login" (click)="goMLdapPage()">
+              MLDAP
+            </button>
+          </div>
+          <div class="sign-btn-grid">
+            <button type="button" class="btn btn-login" (click)="goAPIPage()">
+              API
+            </button>
+            <ng-container *ngFor="let cus of cusIdpLoginList">
+              <button
+                *ngIf="cusIdpLoginList.length > 0"
+                type="button"
+                class="btn btn-login"
+                (click)="goCusPage(cus.cusLoginUrl)"
+              >
+                {{ cus.acIdpInfoCusName }}
+              </button>
+            </ng-container>
+
+            <ng-container class="sign_row" *ngIf="cusIdpLoginList.length == 0">
+              <button type="button" class="btn btn-login" (click)="goCusPage()">
+                CUS
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </section>
+    </form>
+    <!-- </div> -->
+    <!-- </div> -->
   </div>
-</footer>
+  <!-- </div> -->
+  <footer class="login-footer">
+    <span>Copyright© TPIsoftware. All Rights Reserved.</span>
+  </footer>
+</div>

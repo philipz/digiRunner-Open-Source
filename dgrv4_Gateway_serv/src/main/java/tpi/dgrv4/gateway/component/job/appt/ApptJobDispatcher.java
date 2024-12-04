@@ -1,25 +1,14 @@
 package tpi.dgrv4.gateway.component.job.appt;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-
 import jakarta.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.ApptJobEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpApptJobStatus;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.ServiceUtil;
@@ -35,6 +24,9 @@ import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.component.job.RunLoopJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.TsmpSettingService;
+
+import java.util.*;
+import java.util.function.Function;
 
 @Component
 public class ApptJobDispatcher implements Runnable {
@@ -154,7 +146,7 @@ public class ApptJobDispatcher implements Runnable {
 			if (StringUtils.hasText(job.getPeriodUid()) && job.getPeriodItemsId() != null) {
 				this.logger.debugDelay2sec("已寫入相同的週期排程工作: " + //
 					job.getPeriodUid() + "::" + job.getPeriodItemsId() + "::" + 
-					DateTimeUtil.dateTimeToString(new Date(job.getPeriodNexttime()), DateTimeFormatEnum.西元年月日時分秒_2).orElse(new String()));
+					DateTimeUtil.dateTimeToString(new Date(job.getPeriodNexttime()), DateTimeFormatEnum.西元年月日時分秒_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 			} else {
 				this.logger.error("排程儲存失敗\n" + StackTraceUtil.logStackTrace(e));
 			}
@@ -213,7 +205,7 @@ public class ApptJobDispatcher implements Runnable {
 			if (StringUtils.hasText(job.getPeriodUid()) && job.getPeriodItemsId() != null) {
 				this.logger.debugDelay2sec("已寫入相同的週期排程工作: " +
 					job.getPeriodUid() + "::" + job.getPeriodItemsId() + "::" + 
-					DateTimeUtil.dateTimeToString(new Date(job.getPeriodNexttime()), DateTimeFormatEnum.西元年月日時分秒_2).orElse(new String()));
+					DateTimeUtil.dateTimeToString(new Date(job.getPeriodNexttime()), DateTimeFormatEnum.西元年月日時分秒_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 			} else {
 				this.logger.error("排程儲存失敗\n" + StackTraceUtil.logStackTrace(e));
 			}
@@ -330,10 +322,10 @@ public class ApptJobDispatcher implements Runnable {
 			} else {
 				this.logger.trace("[#JOB#][" + tsmpDpApptJob.getApptJobId()
 					+ "]現在("
-					+ DateTimeUtil.dateTimeToString(new Date(), DateTimeFormatEnum.西元年月日時分秒_2).get()
+					+ DateTimeUtil.dateTimeToString(new Date(), DateTimeFormatEnum.西元年月日時分秒_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295))
 					+ ")未到開始執行時間: "
-					+ DateTimeUtil.dateTimeToString(startDateTime, DateTimeFormatEnum.西元年月日時分秒_2) //
-					.orElse(""));
+					+ DateTimeUtil.dateTimeToString(startDateTime, DateTimeFormatEnum.西元年月日時分秒_2)
+					.orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 			}
 		}
 		// 刷新Cache

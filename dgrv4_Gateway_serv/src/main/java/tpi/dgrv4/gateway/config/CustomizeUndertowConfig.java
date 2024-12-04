@@ -1,14 +1,24 @@
 package tpi.dgrv4.gateway.config;
 
 import io.undertow.UndertowOptions;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> {
-
-    @Override
+	
+	// 設定伺服器的空閒超時時間，在指定的時間內沒有接收到客戶端的任何請求或數據,連接將被關閉。
+	@Value("${undertow.idle.timeout:61000}")
+	private int idleTimeout;
+    
+	// 請求的超時時間,以毫秒為單位。超過此時間的請求將被中止,以防止無回應的請求占用伺服器資源。
+	@Value("${undertow.no.request.timeout:60000}")
+	private int noRequestTimeout;
+	
+	@Override
     public void customize(UndertowServletWebServerFactory factory) {
         factory.addBuilderCustomizers(builder -> {
             // 是否啟用 HTTP/2 協議。如果啟用,Server將支援 HTTP/2,提供更好的性能。
@@ -39,13 +49,13 @@ public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<Under
             boolean allowEqualsInCookieValue = true;
 
             // 請求的超時時間,以毫秒為單位。超過此時間的請求將被中止,以防止無回應的請求占用伺服器資源。
-            int noRequestTimeout = 60 * 1000;
+            //int noRequestTimeout = 60 * 1000;
 
             // 是否啟用伺服器的統計功能。啟用此選項可以提供有關伺服器性能和使用情況的統計資訊。
             boolean enableStatistics = false;
 
             // 設定伺服器的空閒超時時間，在指定的時間內沒有接收到客戶端的任何請求或數據,連接將被關閉。
-            int idleTimeout = 61000;
+            //int idleTimeout = 61000;
 
             // 服務器監聽的Port number。客戶端需要連接到此端口才能與伺服器通訊。
             int port = factory.getPort();

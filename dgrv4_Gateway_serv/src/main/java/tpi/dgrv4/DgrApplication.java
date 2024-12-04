@@ -4,8 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.gateway.keeper.TPILogger;
 
-@SpringBootApplication
+@SpringBootApplication()
 public class DgrApplication extends SpringBootServletInitializer {
 
 	@Override
@@ -15,7 +17,12 @@ public class DgrApplication extends SpringBootServletInitializer {
 
 
 	public static void main(String[] args) {
-		SpringApplication.run(DgrApplication.class, args);
+		try {
+			SpringApplication.run(DgrApplication.class, args);
+		}catch(Exception e) {
+			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			throw e;
+		}
 	}
 
 }

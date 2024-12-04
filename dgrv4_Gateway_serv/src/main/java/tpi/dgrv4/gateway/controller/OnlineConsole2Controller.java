@@ -32,7 +32,7 @@ import tpi.dgrv4.gateway.vo.OnlineConsole;
 
 @RestController
 @RequestMapping("/dgrv4")
-@CrossOrigin()
+
 public class OnlineConsole2Controller {
 
 	public static Object lockObj = new Object();

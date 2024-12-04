@@ -34,6 +34,7 @@ public class IdPTokenHelper {
 		public String idToken;
 		public String accessToken;
 		public String refreshToken;
+		public String apiResp;
 	}
 	
     /**
@@ -75,7 +76,8 @@ public class IdPTokenHelper {
         		return tokenData;
         	}
         	
-        	JsonNode tokenJson = getObjectMapper().readTree(tokenResp.respStr);
+        	String apiResp = tokenResp.respStr;
+        	JsonNode tokenJson = getObjectMapper().readTree(apiResp);
         	String idToken = JsonNodeUtil.getNodeAsText(tokenJson, "id_token");// ID token
         	String accessToken = JsonNodeUtil.getNodeAsText(tokenJson, "access_token");// Access token
         	String refreshToken = JsonNodeUtil.getNodeAsText(tokenJson, "refresh_token");// Refresh token
@@ -83,6 +85,7 @@ public class IdPTokenHelper {
         	tokenData.idToken = idToken;
         	tokenData.accessToken = accessToken;
         	tokenData.refreshToken = refreshToken;
+        	tokenData.apiResp = apiResp;
 			
 		} catch (Exception e) {
 			TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));

@@ -35,7 +35,7 @@ public class DPB0064Controller {
 	 * 沒有 input 參數
 	 * status  = 啟用
 	 */
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/11/DPB0064", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

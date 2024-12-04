@@ -39,7 +39,7 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 @Primary
 public class DpaaAlertDispatcherJobImpl implements DpaaAlertDispatcherIfs {
 
-	private final TPILogger logger = TPILogger.tl; // slf4j
+	private final TPILogger logger = TPILogger.tl;
 
 	@Autowired
 	private ServiceConfig serviceConfig;

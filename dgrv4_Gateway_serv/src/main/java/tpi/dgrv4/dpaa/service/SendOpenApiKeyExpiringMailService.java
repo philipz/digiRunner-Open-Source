@@ -1,18 +1,12 @@
 package tpi.dgrv4.dpaa.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpModule;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.LicenseUtilBase;
@@ -37,12 +31,15 @@ import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
+import java.util.*;
+
 @Service
+@Scope("prototype")
 public class SendOpenApiKeyExpiringMailService {
 	
 	@Autowired
-	private LicenseUtilBase util;
-	
+	private LicenseUtilBase licenseUtil;
+
 	@Autowired
 	private TsmpOpenApiKeyDao tsmpOpenApiKeyDao;
 	
@@ -135,11 +132,11 @@ public class SendOpenApiKeyExpiringMailService {
 		String subjectCode = "subject.oak-expi";
 		String subject = getTemplate(subjectCode);
 		String tsmpEdition = getTsmpEdition();
-		
-		util.initLicenseUtil(tsmpEdition, null);
+
+		getLicenseUtil().initLicenseUtil(tsmpEdition, null);
 		String oakExpiUrl = getTsmpSettingService().getVal_OAK_EXPI_URL();
 		
-		String edition = util.getEdition(tsmpEdition); 
+		String edition = getLicenseUtil().getEdition(tsmpEdition);
 		TPILogger.tl.debug("edition:" + edition);
 		
 		String bodyCode = "";
@@ -238,13 +235,17 @@ public class SendOpenApiKeyExpiringMailService {
 			return "";
 		}
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日).get();//yyyy-MM-dd
+		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日).orElseThrow(TsmpDpAaRtnCode._1295::throwing);//yyyy-MM-dd
 		return dtStr;
 	}
 
 	protected String getTsmpEdition() {
 		String tsmpEdition = getTsmpSettingService().getVal_TSMP_LICENSE_KEY();
 		return tsmpEdition;
+	}
+
+	protected LicenseUtilBase getLicenseUtil(){
+		return this.licenseUtil;
 	}
 	
 	protected String getSendTime() {

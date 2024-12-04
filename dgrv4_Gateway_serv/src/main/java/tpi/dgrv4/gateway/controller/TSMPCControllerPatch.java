@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.gateway.filter.GatewayFilter;
 import tpi.dgrv4.gateway.service.TSMPCServicePatch;
-
+@Deprecated
 @RestController
 public class TSMPCControllerPatch {
 

@@ -18,7 +18,6 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 @Component
 @ServerEndpoint("/website/composer/comms")
 public class ComposerWebSocketServer {
-	private TPILogger logger = TPILogger.tl;
 
 	private static int onlineCount = 0;
 	// concurrent包的線程安全Set，用來存放每個客戶端對應的MyWebSocket對象。
@@ -35,7 +34,7 @@ public class ComposerWebSocketServer {
 		this.session = session;
 		webSocketSet.add(this); // 加入set中
 		addOnlineCount(); // 在線數加1
-		logger.debug("composer ws sever, open action, online number:" + ComposerWebSocketServer.onlineCount);
+		TPILogger.tl.debug("composer ws sever, open action, online number:" + ComposerWebSocketServer.onlineCount);
 	}
 
 	/**
@@ -45,7 +44,7 @@ public class ComposerWebSocketServer {
 	public void onClose() {
 		webSocketSet.remove(this); // 從set中刪除
 		subOnlineCount(); // 在線數減1
-		logger.debug("composer ws server, colse action, online number:" + ComposerWebSocketServer.onlineCount);
+		TPILogger.tl.debug("composer ws server, colse action, online number:" + ComposerWebSocketServer.onlineCount);
 
 	}
 
@@ -60,10 +59,10 @@ public class ComposerWebSocketServer {
 			if (ComposerWebSocketClientConn.session != null) {
 				ComposerWebSocketClientConn.session.getBasicRemote().sendText(message);
 			} else {
-				logger.error("--no session, send out composer websocket error----");
+				TPILogger.tl.error("--no session, send out composer websocket error----");
 			}
 		} catch (Exception e) {
-			logger.error(StackTraceUtil.logStackTrace(e));
+			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 		}
 
 	}
@@ -73,7 +72,7 @@ public class ComposerWebSocketServer {
 	 */
 	@OnError
 	public void onError(Session session, Throwable error) {
-		logger.error(StackTraceUtil.logStackTrace(error));
+		TPILogger.tl.error(StackTraceUtil.logStackTrace(error));
 	}
 
 	/**
@@ -92,7 +91,7 @@ public class ComposerWebSocketServer {
 			try {
 				item.sendMessage(message);
 			} catch (IOException e) {
-				logger.error(StackTraceUtil.logStackTrace(e));
+				TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 			}
 		}
 

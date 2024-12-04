@@ -1,13 +1,9 @@
 package tpi.dgrv4.gateway.component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -130,7 +126,8 @@ public class DgrcRoutingHelper {
 	
 	private String[] endWithSalsh(String uri) {
 		Pattern pattern = Pattern.compile("/");
-		Matcher matcher = pattern.matcher(uri);
+		if (uri==null) { uri=""; }
+		Matcher matcher = pattern.matcher(uri); // 不接受 null 
 		int count = 0;
 		while (matcher.find()) {
 			count++;
@@ -217,7 +214,7 @@ public class DgrcRoutingHelper {
 			if (StringUtils.hasLength(srcUrlMap.get(opt))) {
 				sortSrcUrlList = getCommForwardProcService().getSortSrcUrlListForLB(srcUrlMap.get(opt));
 			} else {
-				logger.error("Missing srcUrl information. ip/fqdn= " + ip + "/" + dn);
+				TPILogger.tl.error("Missing srcUrl information. ip/fqdn= " + ip + "/" + dn);
 				return null;
 			}
 
@@ -234,47 +231,44 @@ public class DgrcRoutingHelper {
 	 * 若沒有匹配的,則回覆0 <br>
 	 */
 	private int switchPath(String ip, String dn, TsmpApiReg apiReg) {
+		TPILogger.tl.debug("IP : " + ip + "FQDN : " + dn);
 		String ipForRedirect1 = apiReg.getIpForRedirect1();
 		if (StringUtils.hasLength(ipForRedirect1)) {
-			String[] ipArr1 = ipForRedirect1.trim().split(",");
-			List<String> ipList1 = Arrays.asList(ipArr1);
-			if (ipList1.contains(ip) || ipList1.contains(dn)) {
+			Set<String> set = Arrays.stream(ipForRedirect1.split(","))
+					.collect(Collectors.toSet());
+			if (ServiceUtil.isIpInWhitelist(ip, set) || (StringUtils.hasLength(dn) && ServiceUtil.isIpInWhitelist(dn, set))) {
 				return 1;
 			}
 		}
 		String ipForRedirect2 = apiReg.getIpForRedirect2();
 		if (StringUtils.hasLength(ipForRedirect2)) {
-			String[] ipArr2 = ipForRedirect2.trim().split(",");
-			List<String> ipList2 = Arrays.asList(ipArr2);
-
-			if (ipList2.contains(ip) || ipList2.contains(dn)) {
+			Set<String> set = Arrays.stream(ipForRedirect2.split(","))
+					.collect(Collectors.toSet());
+			if (ServiceUtil.isIpInWhitelist(ip, set) || (StringUtils.hasLength(dn) && ServiceUtil.isIpInWhitelist(dn, set))) {
 				return 2;
 			}
 		}
 		String ipForRedirect3 = apiReg.getIpForRedirect3();
 		if (StringUtils.hasLength(ipForRedirect3)) {
-			String[] ipArr3 = ipForRedirect3.trim().split(",");
-			List<String> ipList3 = Arrays.asList(ipArr3);
-
-			if (ipList3.contains(ip) || ipList3.contains(dn)) {
+			Set<String> set = Arrays.stream(ipForRedirect3.split(","))
+					.collect(Collectors.toSet());
+			if (ServiceUtil.isIpInWhitelist(ip, set) || (StringUtils.hasLength(dn) && ServiceUtil.isIpInWhitelist(dn, set))) {
 				return 3;
 			}
 		}
 		String ipForRedirect4 = apiReg.getIpForRedirect4();
 		if (StringUtils.hasLength(ipForRedirect4)) {
-			String[] ipArr4 = ipForRedirect4.trim().split(",");
-			List<String> ipList4 = Arrays.asList(ipArr4);
-
-			if (ipList4.contains(ip) || ipList4.contains(dn)) {
+			Set<String> set = Arrays.stream(ipForRedirect4.split(","))
+					.collect(Collectors.toSet());
+			if (ServiceUtil.isIpInWhitelist(ip, set) || (StringUtils.hasLength(dn) && ServiceUtil.isIpInWhitelist(dn, set))) {
 				return 4;
 			}
 		}
 		String ipForRedirect5 = apiReg.getIpForRedirect5();
 		if (StringUtils.hasLength(ipForRedirect5)) {
-			String[] ipArr5 = ipForRedirect5.trim().split(",");
-			List<String> ipList5 = Arrays.asList(ipArr5);
-
-			if (ipList5.contains(ip) || ipList5.contains(dn)) {
+			Set<String> set = Arrays.stream(ipForRedirect5.split(","))
+					.collect(Collectors.toSet());
+			if (ServiceUtil.isIpInWhitelist(ip, set) || (StringUtils.hasLength(dn) && ServiceUtil.isIpInWhitelist(dn, set))) {
 				return 5;
 			}
 		}
@@ -298,6 +292,9 @@ public class DgrcRoutingHelper {
 
 	public String getComposerSrcUrl(TsmpApi tsmpApi) {
 		Optional<TsmpSetting> tsmpSetting =  getTsmpSettingCacheProxy().findById(TsmpSettingDao.Key.TSMP_COMPOSER_ADDRESS);
+		if (tsmpSetting.isEmpty()) {
+			return null;
+		}
 		String[] tsmpSettingValue = tsmpSetting.get().getValue().split(",");
 		String srcUrl = tsmpApi.getSrcUrl();
 		srcUrl = tsmpSettingValue[0] + srcUrl;

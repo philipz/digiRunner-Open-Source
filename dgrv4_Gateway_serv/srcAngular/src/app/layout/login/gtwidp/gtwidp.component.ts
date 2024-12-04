@@ -32,6 +32,8 @@ export class GtwidpComponent implements OnInit {
   msg: string = 'Loading...';
   btnDisabled: boolean = true;
   processShow: boolean = true;
+  isCollapsed:boolean = false;
+  show:boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -42,6 +44,7 @@ export class GtwidpComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
+    this.show = false;
     this.formApi = this.fb.group([]);
     this.form = this.fb.group({
       'uname': new FormControl(''),
@@ -77,8 +80,12 @@ export class GtwidpComponent implements OnInit {
       if (this.path['action'] == 'consent') {
         this.getVgroupList();
       }
+      else{
+        this.show = true;
+      }
     }
     else {
+      this.show = true;
       this.msg = this.toolService.Base64Decoder(this.paramsObj['msg'])
     }
 
@@ -149,7 +156,7 @@ export class GtwidpComponent implements OnInit {
           return item
         })
 
-        // console.log(this.apiNodes)
+
         // console.log(this.formApi)
 
         this.form.get("timeUnit")!.valueChanges.subscribe(res => {
@@ -159,17 +166,32 @@ export class GtwidpComponent implements OnInit {
 
         this.form.get("timeUnit")?.setValue("86400");
 
-        // console.log(this.apiNodes)
-        if (this.apiNodes.length == 0) {
+
+        // 增加條件: 當為dp_開頭且無子項目時自動跳轉 => Tom 提出需求 for dp
+        if (this.apiNodes.length == 0 || (this.apiNodes.length == 1 &&  this.isValidStringStartWith_dp_(this.apiNodes[0].vgroupAliasShowUi) && this.apiNodes[0].apiDataList.length == 0)) {
           this.apiConfirm();
+        }else{
+          //當為dp_開頭預設展開
+          if (this.isValidStringStartWith_dp_(this.apiNodes[0].vgroupAliasShowUi)) {
+            this.isCollapsed = true;
+          }
+
+          this.show = true;
         }
 
       } catch (error) {
-        console.log(error)
+        this.show = true;
       }
     })
 
   }
+
+  isValidStringStartWith_dp_(str:string) {
+    // 使用正則表達式來檢查字串是否符合 dp_ 開頭後跟 19個數字
+    const regex = /^dp_\d{19}$/;
+    return regex.test(str);
+  }
+
 
   submitForm() {
 
@@ -225,7 +247,6 @@ export class GtwidpComponent implements OnInit {
   }
 
   menuChange(evt, item) {
-    // console.log(item)
     if (item.apiDataList) {
       // console.log('first',item.apiDataList)
       item.apiDataList.forEach(sub => {

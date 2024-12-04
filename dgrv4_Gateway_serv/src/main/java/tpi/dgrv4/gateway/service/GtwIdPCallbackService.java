@@ -1,5 +1,7 @@
 package tpi.dgrv4.gateway.service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -290,6 +292,7 @@ public class GtwIdPCallbackService {
 		String idTokenJwtstr = tokenData.idToken;
 		String accessTokenJwtstr = tokenData.accessToken;
 		String refreshTokenJwtstr = tokenData.refreshToken;
+		String apiResp = tokenData.apiResp;
  
 		if(!StringUtils.hasLength(idTokenJwtstr)) {
 			// 設定檔缺少參數
@@ -367,8 +370,8 @@ public class GtwIdPCallbackService {
 		Date expiredTime = IdPHelper.getAuthCodeExpiredTime();// 授權碼的到期時間
 		long expireDateTime = expiredTime.getTime();
 		createDgrGtwIdpAuthCode(state, dgRcode, DgrAuthCodePhase.AUTH_CODE, expireDateTime, idPType, dgrClientId,
-				userName, userAlias, userEmail, userPicture, idTokenJwtstr, accessTokenJwtstr, refreshTokenJwtstr,
-				null);
+				userName, userAlias, userEmail, userPicture, idTokenJwtstr, accessTokenJwtstr, refreshTokenJwtstr, apiResp,
+				null, null);
 
 		// 12.重新轉導 302 到租戶, dgR client 的 redirect url
 		Optional<OauthClientDetails> opt_authClientDetails = getOauthClientDetailsDao().findById(dgrClientId);
@@ -382,8 +385,8 @@ public class GtwIdPCallbackService {
 				+ "?code=%s" 
 				+ "&state=%s",
 				dgrClientRedirectUri, 
-				dgRcode,
-				state
+				dgRcode ,
+				URLEncoder.encode(state, StandardCharsets.UTF_8.toString()) // 編碼
 		);
 		TPILogger.tl.debug("Redirect to URL【dgR Client 的 Redirect URL】: " + redirectUrl);
 		httpResp.sendRedirect(redirectUrl);
@@ -418,8 +421,9 @@ public class GtwIdPCallbackService {
      */
 	public DgrGtwIdpAuthCode createDgrGtwIdpAuthCode(String state, String dgRcode, String phase, long expireDateTime,
 			String idPType, String dgrClientId, String userName, String userAlias, String userEmail, String userPicture,
-			String idTokenJwtstr, String accessTokenJwtstr, String refreshTokenJwtstr, String apiResp) {
-		
+			String idTokenJwtstr, String accessTokenJwtstr, String refreshTokenJwtstr, String apiResp,
+			String idtLightId, String idtRoleName) {
+
 		String codeStatus = TsmpAuthCodeStatus2.AVAILABLE.value();// 可用
 		
 //		Date expiredTime = IdPHelper.getCodeExpiredTime();//到期時間,現在時間+30秒
@@ -450,7 +454,8 @@ public class GtwIdPCallbackService {
 		dgrGtwIdpAuthCode.setAccessTokenJwtstr(accessTokenJwtstr);
 		dgrGtwIdpAuthCode.setRefreshTokenJwtstr(refreshTokenJwtstr);
 		dgrGtwIdpAuthCode.setApiResp(apiResp);
-		
+		dgrGtwIdpAuthCode.setUserLightId(idtLightId);
+		dgrGtwIdpAuthCode.setUserRoleName(idtRoleName);
 		dgrGtwIdpAuthCode.setCreateUser("SYSTEM");
 		dgrGtwIdpAuthCode.setCreateDateTime(DateTimeUtil.now());
 		dgrGtwIdpAuthCode = getDgrGtwIdpAuthCodeDao().save(dgrGtwIdpAuthCode);

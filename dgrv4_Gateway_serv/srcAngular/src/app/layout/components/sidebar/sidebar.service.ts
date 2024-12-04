@@ -46,19 +46,24 @@ export class SidebarService {
     ) {
         this.siderbarEventEmitter = new EventEmitter<{ menu: any, actived: any, id:any }>();
         this.siderbarEventEmitter.subscribe(({ menu, actived, id }) => {
+          // console.log('first',menu)
+            this.clear();
             this.actived = actived;
             if (id) this.activeId = id;
-            $(menu.nativeElement).closest('.list-group').find('.' + this.ACTIVE).removeClass(this.ACTIVE);
+            // $(menu.nativeElement).closest('.list-group').find('.' + this.ACTIVE).removeClass(this.ACTIVE);
             $(actived).addClass(this.ACTIVE)
         });
-        this.getId().subscribe(id => {
-            this.activeId = id;
-            // console.log(this.activatedRoute.snapshot.params);
-            // if (!this.activeId){
-            //     this.activeId = this.activatedRoute.snapshot.params.id;
-            //     console.log(this.activeId);
-            // }
-        });
+        const urlSegments = this.router.url.split('/');
+        this.activeId = urlSegments[urlSegments.length - 1];
+        // this.getId().subscribe(id => {
+
+        //     this.activeId = id;
+        //     // console.log(this.activatedRoute.snapshot.params);
+        //     // if (!this.activeId){
+        //     //     this.activeId = this.activatedRoute.snapshot.params.id;
+        //     //     console.log(this.activeId);
+        //     // }
+        // });
         //處理acConf
         this.acConf = this.toolService.getAcConf();
     }
@@ -85,7 +90,6 @@ export class SidebarService {
                 filter(event => event instanceof NavigationEnd),
                 map(() => {
                     let child = this.activatedRoute.firstChild;
-
                     while (child) {
                         if (child.firstChild) {
                             child = child.firstChild;
@@ -222,13 +226,13 @@ export class SidebarService {
                 })
             }
 
-            //若為np01的話，須納入np1201(該節點沒有父節點)
-            if (main.main == "NP01" && adjMenu) {
-                subs = tFuncDetail.filter(f => f.funcCode.includes(main.main) && f.funcCode != main.main || f.funcCode == "NP1201").map(f => {
+            //若為np05的話，須納入np1202(該節點沒有父節點)
+            if (main.main == "NP05" && adjMenu) {
+                subs = tFuncDetail.filter(f => f.funcCode.includes(main.main) && f.funcCode != main.main || f.funcCode == "NP1202").map(f => {
                     return {
                         name: f.funcCode,
                         path: `/${f.funcCode.includes(main.main) ? main.main.toLowerCase() : f.funcCode.substr(0, 4).toLowerCase()}/${f.funcCode.toLowerCase()}`,
-                        enabled: false,
+                        enabled: true,
                         funcURL: f.funcURL
                     } as SubMenu
                 })

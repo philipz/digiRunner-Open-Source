@@ -879,10 +879,11 @@ public class DPB0101Service {
 	}
 
 	public TsmpDpApptRjob saveRjob(TsmpDpApptRjob rjob) {
-		rjob = getTsmpDpApptRjobDao().save(rjob);
 		if (rjob == null) {
 			throw TsmpDpAaRtnCode._1242.throwing();
 		}
+		rjob = getTsmpDpApptRjobDao().save(rjob);
+		
 		// 將排程加入背景作業
 		rjob = getApptRjobDispatcher().activate(rjob.getApptRjobId(), rjob.getCreateUser());
 		return rjob;

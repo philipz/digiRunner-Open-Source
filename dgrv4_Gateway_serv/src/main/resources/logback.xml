@@ -20,6 +20,7 @@
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<maxFileSize>10MB</maxFileSize>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<pattern>${Format1}</pattern>
@@ -34,6 +35,7 @@
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.err.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<maxFileSize>10MB</maxFileSize>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<pattern>${Format1}</pattern>
@@ -49,6 +51,7 @@
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.loguuid.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<maxFileSize>10MB</maxFileSize>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<pattern>${Format1}</pattern>
@@ -68,6 +71,7 @@
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.file_sys_info.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<maxFileSize>10MB</maxFileSize>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<pattern>${Format1}</pattern>

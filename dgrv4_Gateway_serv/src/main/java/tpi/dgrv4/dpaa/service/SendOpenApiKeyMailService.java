@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.dpaa.component.TsmpMailEventBuilder;
 import tpi.dgrv4.dpaa.component.cache.proxy.TsmpDpMailTpltCacheProxy;
 import tpi.dgrv4.dpaa.component.job.DeleteExpiredMailJob;
@@ -254,7 +255,7 @@ public class SendOpenApiKeyMailService {
 			return "";
 		}
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日).get();// yyyy-MM-dd
+		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日).orElseThrow(TsmpDpAaRtnCode._1295::throwing);  // yyyy-MM-dd
 		return dtStr;
 	}
 	

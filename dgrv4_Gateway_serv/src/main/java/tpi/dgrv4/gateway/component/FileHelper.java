@@ -185,7 +185,7 @@ public class FileHelper implements IFileHelper{
 	 */
 	public static final Path renameIfDuplicate(Path file) {
 		if (Files.isRegularFile(file) && Files.exists(file)) {
-			final String timestamp = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒毫秒_4).get();
+			final String timestamp = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒毫秒_4).orElse(null);
 			final String[] nameInfos = file.getFileName().toString().split("\\.");
 			final String newFileName = nameInfos[0] + "_" + timestamp + (nameInfos.length > 1 ? "." + nameInfos[1] : "");
 			file = file.resolveSibling(newFileName);
@@ -197,7 +197,7 @@ public class FileHelper implements IFileHelper{
 	public String renameIfDuplicate(String refFileCateCode,Long refId, String fileName) {
 		List<TsmpDpFile> list = getTsmpDpFileDao().findByRefFileCateCodeAndRefIdAndFileName(refFileCateCode, refId, fileName);
 		if(list != null && list.size() > 0) {
-			final String timestamp = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒毫秒_4).get();
+			final String timestamp = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒毫秒_4).orElse(null);
 			final String[] nameInfos = fileName.split("\\.");
 			final String newFileName = nameInfos[0] + "_" + timestamp + (nameInfos.length > 1 ? "." + nameInfos[1] : "");
 			return newFileName; 
@@ -772,7 +772,8 @@ public class FileHelper implements IFileHelper{
 	 */
 	public final String restoreOrginalFilename(String tempFilename) {
 		Pattern p = Pattern.compile("\\d*\\.wait\\.(.*)");
-		Matcher m = p.matcher(tempFilename);
+		if (tempFilename==null) {tempFilename="";}
+		Matcher m = p.matcher(tempFilename); // 不接受 null 
 		if (m.matches()) {
 			return m.group(1);
 		}
@@ -796,7 +797,7 @@ public class FileHelper implements IFileHelper{
 
 	public boolean isTempFile(String filename) {
 		//這段 Regex 已被 Tom Review 過了, 故取消 hotspot 標記
-		return (filename != null) && filename.matches("\\d.*\\.wait\\..*\\..*");
+		return (filename != null) && filename.matches("\\d.*\\.wait\\..*\\..*"); // NOSONAR
 	}
 
 	/**

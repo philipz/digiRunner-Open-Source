@@ -43,4 +43,6 @@ public interface TsmpDpItemsDao extends JpaRepository<TsmpDpItems, TsmpDpItemsId
 	
 	public List<TsmpDpItems> findAllByOrderByItemIdAsc();
 	
+	public List<TsmpDpItems> findByItemIdAndLocale(Long itemId, String locale);
+	
 }

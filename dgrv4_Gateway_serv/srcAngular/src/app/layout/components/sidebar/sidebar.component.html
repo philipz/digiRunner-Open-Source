@@ -1,5 +1,5 @@
 <nav class="sidebar" [ngClass]="{sidebarPushRight: isActive, collapsed: collapsed}">
-  <div class="list-group" *ngIf="menus">
+  <div class="menu-group" *ngIf="menus">
     <div *ngFor="let menu of menus">
       <app-sidebar-template [menu]="menu" (menuClick)="menuClick($event)"></app-sidebar-template>
     </div>

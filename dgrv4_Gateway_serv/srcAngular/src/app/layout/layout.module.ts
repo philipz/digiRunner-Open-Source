@@ -13,6 +13,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from '../shared/guard/auth.guard';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
+import { PrimengModule } from '../shared/primeng.module';
 
 
 // import {ToolbarModule} from 'primeng/toolbar';
@@ -26,6 +27,7 @@ import { MatListModule } from '@angular/material/list';
     SharedPipesModule,
     MatSidenavModule,
     MatListModule,
+    PrimengModule
   ],
   declarations: [
     LayoutComponent,
@@ -33,6 +35,7 @@ import { MatListModule } from '@angular/material/list';
     HeaderComponent,
     FooterComponent,
     SidebarTemplateComponent,
+    HeaderComponent
   ],
   providers: [AuthGuard]
 })

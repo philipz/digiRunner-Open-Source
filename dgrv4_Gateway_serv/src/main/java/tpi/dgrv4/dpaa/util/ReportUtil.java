@@ -250,13 +250,13 @@ public class ReportUtil {
 
 	private String getGroupByLastRowDateTimeFormat(ReportDateTimeRangeTypeEnum dateTimeType, Date lastRowDateTime) {
 		if (dateTimeType == ReportDateTimeRangeTypeEnum.HOUR) {
-			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年月日時).get();
+			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年月日時).orElse(null);
 		} else if (dateTimeType == ReportDateTimeRangeTypeEnum.DAY) {
-			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年月日).get();
+			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年月日).orElse(null);
 		} else if (dateTimeType == ReportDateTimeRangeTypeEnum.MONTH) {
-			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年月_2).get();
+			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年月_2).orElse(null);
 		} else if (dateTimeType == ReportDateTimeRangeTypeEnum.YEAR) {
-			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年).get();
+			return DateTimeUtil.dateTimeToString(lastRowDateTime, DateTimeFormatEnum.西元年).orElse(null);
 		} else {
 			logger.error("ReportDateTimeRangeTypeEnum not found : " + dateTimeType);
 			return null;

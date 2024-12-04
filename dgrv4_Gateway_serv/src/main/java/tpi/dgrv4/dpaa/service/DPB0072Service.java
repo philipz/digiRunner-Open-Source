@@ -294,7 +294,7 @@ public class DPB0072Service {
 	}
 
 	private String printDt(Date dt) {
-		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).get();
+		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 	}
 
 	private String nvl(Object input) {

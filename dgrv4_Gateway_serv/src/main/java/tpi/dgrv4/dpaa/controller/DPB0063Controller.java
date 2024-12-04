@@ -37,7 +37,7 @@ public class DPB0063Controller {
 	 * delete = 停用
 	 * clear = 全部停用
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0063", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

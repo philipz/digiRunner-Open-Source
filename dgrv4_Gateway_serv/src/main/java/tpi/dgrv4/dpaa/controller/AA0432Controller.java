@@ -14,6 +14,8 @@ import tpi.dgrv4.dpaa.service.AA0432Service;
 import tpi.dgrv4.dpaa.util.ControllerUtil;
 import tpi.dgrv4.dpaa.vo.AA0432Req;
 import tpi.dgrv4.dpaa.vo.AA0432Resp;
+import tpi.dgrv4.gateway.constant.DgrDataType;
+import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpBaseReq;
 import tpi.dgrv4.gateway.vo.TsmpBaseResp;
 import tpi.dgrv4.gateway.vo.TsmpHttpHeader;
@@ -22,7 +24,7 @@ import tpi.dgrv4.gateway.vo.TsmpHttpHeader;
 public class AA0432Controller {
 	@Autowired
 	private AA0432Service service;
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0432", 
 			consumes = MediaType.APPLICATION_JSON_VALUE, 
 			produces = MediaType.APPLICATION_JSON_VALUE)

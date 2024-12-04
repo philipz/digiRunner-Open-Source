@@ -34,7 +34,7 @@ public class DPB0087Controller {
 	 * @param jsonStr
 	 * @return
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0087", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<byte[]> downLoadPEMFile(@RequestHeader HttpHeaders headers, //
 			@RequestBody TsmpBaseReq<DPB0087Req> req) {

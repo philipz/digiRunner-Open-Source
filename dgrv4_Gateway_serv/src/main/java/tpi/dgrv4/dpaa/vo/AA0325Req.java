@@ -13,6 +13,8 @@ public class AA0325Req {
 	private String webLocalIP;
 	private List<AA0325Log> httpRequestLog;
 	private List<AA0325SysLog> sysLog;
+	private String cpuUsage;
+	private String memoryUsage;
 
 	public String getComposerID() {
 		return composerID;
@@ -84,6 +86,22 @@ public class AA0325Req {
 
 	public void setSysLog(List<AA0325SysLog> sysLog) {
 		this.sysLog = sysLog;
+	}
+
+	public String getCpuUsage() {
+		return cpuUsage;
+	}
+
+	public void setCpuUsage(String cpuUsage) {
+		this.cpuUsage = cpuUsage;
+	}
+
+	public String getMemoryUsage() {
+		return memoryUsage;
+	}
+
+	public void setMemoryUsage(String memoryUsage) {
+		this.memoryUsage = memoryUsage;
 	}
 
 

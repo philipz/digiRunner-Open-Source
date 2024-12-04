@@ -1038,7 +1038,9 @@ public class TsmpRtnCodeTableInitializer {
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1558"), (locale = "zh-TW"), (tsmpRtnMsg = "停用日期需要小於啟用日期"), (tsmpRtnDesc = ""));
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1558"), (locale = "en-US"), (tsmpRtnMsg = "The disable date needs to be less than the enable date"), (tsmpRtnDesc = ""));
 
-		    
+			// 20240905, 自訂錯誤訊息, Mini Lee
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1559"), (locale = "zh-TW"), (tsmpRtnMsg = "{{0}}"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1559"), (locale = "en-US"), (tsmpRtnMsg = "{{0}}"), (tsmpRtnDesc = ""));
 		    
 		} catch (Exception e) {
 			StackTraceUtil.logStackTrace(e);

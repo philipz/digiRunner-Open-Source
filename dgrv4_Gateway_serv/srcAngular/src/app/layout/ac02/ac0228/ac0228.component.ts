@@ -63,7 +63,9 @@ export class Ac0228Component extends BaseComponent implements OnInit {
     "exp": 1690611646,
     "iat": 1685427646,
     "email": "{{$user.email%}}",
-    "picture": "{{$user.picture%}}"
+    "picture": "{{$user.picture%}}",
+    "lightId": "{{$user.lightId%}}",
+    "roleName": {{$user.roleName%}}
   }`;
 
   rawExp: string = `{
@@ -115,7 +117,9 @@ export class Ac0228Component extends BaseComponent implements OnInit {
       createUser: new FormControl(''),
       createDateTime: new FormControl(''),
       updateUser: new FormControl(''),
-      updateDateTime: new FormControl('')
+      updateDateTime: new FormControl(''),
+      idtLightId: new FormControl(''),
+      idtRoleName: new FormControl('')
     });
 
     const codes = ['client_id', 'client_name', 'client_alias'];
@@ -248,6 +252,8 @@ export class Ac0228Component extends BaseComponent implements OnInit {
             this.createDateTime.setValue(res.RespBody.createDateTime ? this.toolService.setformate(new Date(res.RespBody.createDateTime), 'YYYY-MM-DD HH:mm:ss') : '');
             this.updateUser.setValue(res.RespBody.updateUser);
             this.updateDateTime.setValue(res.RespBody.updateDateTime ? this.toolService.setformate(new Date(res.RespBody.updateDateTime), 'YYYY-MM-DD HH:mm:ss') : '');
+            this.idtLightId.setValue(res.RespBody.idtLightId);
+            this.idtRoleName.setValue(res.RespBody.idtRoleName);
 
           }
         })
@@ -325,6 +331,8 @@ export class Ac0228Component extends BaseComponent implements OnInit {
                 this.idtName.setValue(res.RespBody.idtName);
                 this.idtEmail.setValue(res.RespBody.idtEmail);
                 this.idtPicture.setValue(res.RespBody.idtPicture);
+                this.idtLightId.setValue(res.RespBody.idtLightId);
+                this.idtRoleName.setValue(res.RespBody.idtRoleName);
 
                 // console.log(res.RespBody.iconFile)
                 if (res.RespBody.iconFile) this._fileSrc = res.RespBody.iconFile;
@@ -486,7 +494,9 @@ export class Ac0228Component extends BaseComponent implements OnInit {
       idtName: this.idtName.value,
       idtEmail: this.idtEmail.value,
       idtPicture: this.idtPicture.value,
-      pageTitle: this.pageTitle.value
+      pageTitle: this.pageTitle.value,
+      idtLightId: this.idtLightId.value,
+      idtRoleName: this.idtRoleName.value
     } as DPB0186Req;
     // console.log(this.reqHeader.value)
     if (this.reqHeader.value && this.reqHeader.value !== '') reqCreate.reqHeader = this.reqHeader.value;
@@ -567,7 +577,9 @@ export class Ac0228Component extends BaseComponent implements OnInit {
       idtName: this.idtName.value,
       idtEmail: this.idtEmail.value,
       idtPicture: this.idtPicture.value,
-      pageTitle: this.pageTitle.value
+      pageTitle: this.pageTitle.value,
+      idtLightId: this.idtLightId.value,
+      idtRoleName: this.idtRoleName.value
     } as DPB0187Req;
 
     if (this.reqHeader.value && this.reqHeader.value !== '') reqbody.reqHeader = this.reqHeader.value;
@@ -617,5 +629,7 @@ export class Ac0228Component extends BaseComponent implements OnInit {
   public get createDateTime() { return this.formEdit.get('createDateTime')!; };
   public get updateUser() { return this.formEdit.get('updateUser')!; };
   public get updateDateTime() { return this.formEdit.get('updateDateTime')!; };
+  public get idtLightId() { return this.formEdit.get('idtLightId')!; };
+  public get idtRoleName() { return this.formEdit.get('idtRoleName')!; };
 
 }

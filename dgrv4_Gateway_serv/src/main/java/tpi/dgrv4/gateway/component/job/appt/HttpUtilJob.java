@@ -1,30 +1,12 @@
 package tpi.dgrv4.gateway.component.job.appt;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import jakarta.el.MethodNotFoundException;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.CApiKeyUtils;
 import tpi.dgrv4.common.constant.HttpType;
@@ -38,6 +20,16 @@ import tpi.dgrv4.gateway.component.job.appt.HttpUtilJob.InParams.InArgs;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This job can call all public and static methods declared in {@link HttpUtil}
@@ -81,6 +73,10 @@ public class HttpUtilJob extends ApptJob {
 		// 2. 檢查 inParams 內容是否正確
 		checkInParams(inParams);
 		
+		Map<String, String> header = new HashMap<>();
+		header.put("ApptJobId", getTsmpDpApptJob().getApptJobId()+"");
+		putHeader(inParams, header);
+		
 		// 3. 依照type 去加入cAPI-Key, No-Auth, Basic
 		inParams = putAuthentication(inParams, type);
 		
@@ -101,7 +97,11 @@ public class HttpUtilJob extends ApptJob {
 		// 7. 將執行結果另存為排程相關檔案
 		saveRespAsFile(resp);
 		
-		return "SUCCESS";
+		if(resp.statusCode >=200 && resp.statusCode < 400){
+			return "SUCCESS";
+		}else{
+			return "FAILED";
+		}
 	}
 
 	private InParams putAuthentication(InParams inParams, String type) throws Exception {
@@ -233,10 +233,7 @@ public class HttpUtilJob extends ApptJob {
 		Method method = null;
 		try {
 			method = ClassUtils.getMethod(HttpUtil.class, methodName, paramTypes);
-			if (method == null) {
-				throw new MethodNotFoundException();
-			}
-		} catch (Exception e) {
+        } catch (Exception e) {
 			String className = HttpUtil.class.getName();
 			List<String> typeNames = toTypeNames(inParams.getArgs());
 			String methodDesc = String.format("%s(%s)", methodName, //
@@ -292,6 +289,9 @@ public class HttpUtilJob extends ApptJob {
 		HttpRespData resp = HttpRespData.class.cast( //
 			method.invoke(null, args) //
 		);
+		// 當isisEnableInputStream 要做fetchByte否則沒有respStr
+		if (resp.isEnableInputStream)
+			resp.fetchByte();
 		return resp;
 	}
 

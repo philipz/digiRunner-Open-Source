@@ -204,7 +204,7 @@ export class TokenInterceptor implements HttpInterceptor {
             });
             const options: NavigationExtras  = {
               queryParams : {
-                re: '',
+                re: Date.now(),
               }
             };
             this.router.navigate(['/login'], options)

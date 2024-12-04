@@ -1,26 +1,10 @@
 package tpi.dgrv4.dpaa.service;
 
-import static tpi.dgrv4.dpaa.util.ServiceUtil.isValueTooLargeException;
-import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import jakarta.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.AuditLogEvent;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.BcryptParamDecodeException;
@@ -39,38 +23,21 @@ import tpi.dgrv4.dpaa.vo.AA0224Resp;
 import tpi.dgrv4.entity.constant.TsmpSequenceName;
 import tpi.dgrv4.entity.daoService.BcryptParamHelper;
 import tpi.dgrv4.entity.daoService.SeqStoreService;
-import tpi.dgrv4.entity.entity.DgrAcIdpUser;
-import tpi.dgrv4.entity.entity.TsmpApi;
-import tpi.dgrv4.entity.entity.TsmpApiId;
-import tpi.dgrv4.entity.entity.TsmpClientGroup;
-import tpi.dgrv4.entity.entity.TsmpClientVgroup;
-import tpi.dgrv4.entity.entity.TsmpGroup;
-import tpi.dgrv4.entity.entity.TsmpGroupApi;
-import tpi.dgrv4.entity.entity.TsmpGroupAuthorities;
-import tpi.dgrv4.entity.entity.TsmpGroupAuthoritiesMap;
-import tpi.dgrv4.entity.entity.TsmpGroupAuthoritiesMapId;
-import tpi.dgrv4.entity.entity.TsmpUser;
-import tpi.dgrv4.entity.entity.TsmpVgroup;
-import tpi.dgrv4.entity.entity.TsmpVgroupAuthoritiesMap;
-import tpi.dgrv4.entity.entity.TsmpVgroupGroup;
+import tpi.dgrv4.entity.entity.*;
 import tpi.dgrv4.entity.entity.jpql.TsmpSecurityLevel;
-import tpi.dgrv4.entity.repository.DgrAcIdpUserDao;
-import tpi.dgrv4.entity.repository.OauthClientDetailsDao;
-import tpi.dgrv4.entity.repository.TsmpApiDao;
-import tpi.dgrv4.entity.repository.TsmpClientGroupDao;
-import tpi.dgrv4.entity.repository.TsmpClientVgroupDao;
-import tpi.dgrv4.entity.repository.TsmpGroupApiDao;
-import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesMapDao;
-import tpi.dgrv4.entity.repository.TsmpGroupDao;
-import tpi.dgrv4.entity.repository.TsmpOrganizationDao;
-import tpi.dgrv4.entity.repository.TsmpRtnCodeDao;
-import tpi.dgrv4.entity.repository.TsmpUserDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupAuthoritiesMapDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupGroupDao;
+import tpi.dgrv4.entity.repository.*;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static tpi.dgrv4.dpaa.util.ServiceUtil.isValueTooLargeException;
+import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
 
 @Service
 public class AA0224Service {
@@ -145,6 +112,9 @@ public class AA0224Service {
 		try {
 			checkParams(auth, req);
 			checkDataAndUpdateTables(auth, req, locale, iip);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException e) {
 			throw e;
@@ -752,8 +722,8 @@ public class AA0224Service {
 				TsmpGroup group = optGroup.get();
 				if (nvl(group.getVgroupFlag()).equals("1")) {
 					// 1.更新 安全等級ID、允許使用時間(秒)、授權次數上限、虛擬群組ID、虛擬群組代碼、 更新日期及更新人員
-					if (req.getOriAllowDays() != req.getNewAllowDays()
-							|| req.getOriAllowTimes() != req.getNewAllowTimes()
+					if (!Objects.equals(req.getOriAllowDays(), req.getNewAllowDays())
+							|| !Objects.equals(req.getOriAllowTimes(), req.getNewAllowTimes())
 							|| req.getOriSecurityLevelId().equals(req.getNewSecurityLevelId())
 							|| nvl(req.getOriVgroupAlias()).equals(nvl(req.getNewVgroupAlias()))
 							|| nvl(req.getOriVgroupDesc()).equals(nvl(req.getNewVgroupDesc()))

@@ -36,7 +36,7 @@ public class DPB0175Service {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
 			
-			resp.setCreateDateTime(DateTimeUtil.dateTimeToString(vo.getCreateDateTime(), DateTimeFormatEnum.西元年月日時分秒).get());
+			resp.setCreateDateTime(DateTimeUtil.dateTimeToString(vo.getCreateDateTime(), DateTimeFormatEnum.西元年月日時分秒).orElse(null));
 			resp.setCreateUser(vo.getCreateUser());
 			resp.setHexId(RandomSeqLongUtil.toHexString(vo.getWsMappingId(), RandomLongTypeEnum.YYYYMMDD));
 			resp.setLongId(vo.getWsMappingId().toString());
@@ -44,7 +44,7 @@ public class DPB0175Service {
 			resp.setSiteName(vo.getSiteName());
 			resp.setTargetWs(vo.getTargetWs());
 			resp.setAuth(vo.getAuth());
-			resp.setUpdateDateTime(vo.getUpdateDateTime()!= null ? DateTimeUtil.dateTimeToString(vo.getUpdateDateTime(), DateTimeFormatEnum.西元年月日時分秒).get() : null);
+			resp.setUpdateDateTime(vo.getUpdateDateTime()!= null ? DateTimeUtil.dateTimeToString(vo.getUpdateDateTime(), DateTimeFormatEnum.西元年月日時分秒).orElse(null) : null);
 			resp.setUpdateUser(vo.getUpdateUser());
 
 		} catch (TsmpDpAaException e) {

@@ -1,16 +1,15 @@
 package tpi.dgrv4.common.utils.autoInitSQL.Initializer;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
-
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.LicenseEditionTypeVo;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.common.utils.autoInitSQL.vo.TsmpFuncVo;
+
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TsmpFuncTableInitializer {
@@ -21,11 +20,11 @@ public class TsmpFuncTableInitializer {
 	public static final String[] ALPHA = new String[] {
 
 			//v4-權限管理
-			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020",
+			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020","AC0021",
 			//系統功能管理
 			"AC01","AC0101","AC0103","AC0104","AC0105",
 			//用戶端管理
-			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230",
+			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230","AC0231",
 			//API管理
 			"AC03","AC0301","AC0311","AC0315","AC0316","AC0318","AC0319",
 			//監控管理(AC0706為無建立功能的告警頁面)
@@ -37,21 +36,21 @@ public class TsmpFuncTableInitializer {
 			//入口網後台管理
 			"NP01","NP0105","NP0113","NP0114","NP0115","NP0116",
 			//用戶憑證管理
-			"NP02","NP0201","NP0202","NP0203","NP0204",
+			"NP02","NP0201","NP0202","NP0203","NP0204","NP0205",
 			//各類申請單
 			"NP03","NP0301","NP0302","NP0303","NP0304","NP0401","NP0402",
 			//系統現況查詢
-			"NP05","NP0504","NP0512","NP0513","NP0514","NP0516","NP1201",
+			"NP05","NP0504","NP0512","NP0513","NP0514","NP0516","NP1201","NP1202",
 			//系統設定
-			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009"			
+			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009","LB0010"		
 	};	
 	public static final String[] ENTERPRISE = new String[] {
 			//v4-權限管理
-			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020",
+			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020","AC0021",
 			//系統功能管理
 			"AC01","AC0101","AC0103","AC0104","AC0105",
 			//用戶端管理
-			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230",
+			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230","AC0231",
 			//API管理
 			"AC03","AC0301","AC0311","AC0315","AC0316","AC0318","AC0319",
 			//監控管理
@@ -59,21 +58,21 @@ public class TsmpFuncTableInitializer {
 			//報表管理(Kibana)
 			"AC09","AC0901","AC0902","AC0903","AC0904","AC0905","AC0906","AC0907","AC0908","AC0909","AC0910",
 			//用戶憑證管理
-			"NP02","NP0201","NP0202","NP0203","NP0204",
+			"NP02","NP0201","NP0202","NP0203","NP0204","NP0205",
 			//各類申請單
 			"NP03","NP0304","NP0401","NP0402",
 			//系統現況查詢
-			"NP05","NP0504","NP0513","NP0514","NP0516","NP1201",
+			"NP05","NP0504","NP0513","NP0514","NP0516","NP1201","NP1202",
 			//系統設定
-			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009"
+			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009","LB0010"
 	};
 	public static final String[] ENTERPRISE_LITE = new String[] {
 			//v4-權限管理
-			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020",
+			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020","AC0021",
 			//系統功能管理
 			"AC01","AC0101","AC0103","AC0105",
 			//用戶端管理
-			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230",
+			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230","AC0231",
 			//API管理
 			"AC03","AC0301","AC0311","AC0315","AC0316","AC0318","AC0319",
 			//監控管理(AC0706為無建立功能的告警頁面)
@@ -85,17 +84,17 @@ public class TsmpFuncTableInitializer {
 			//各類申請單
 			"NP03","NP0304","NP0401","NP0402",
 			//系統現況查詢
-			"NP05","NP0504","NP0513","NP0514","NP0516","NP1201",
+			"NP05","NP0504","NP0513","NP0514","NP0516","NP1201","NP1202",
 			//系統設定
-			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009"
+			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009","LB0010"
 	};
 	public static final String[] EXPRESS = new String[] {
 			//v4-權限管理
-			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020",
+			"AC00","AC0002","AC0006","AC0012","AC0015","AC1002","AC1202","AC0016","AC0017","AC0018","AC0019","AC0020","AC0021",
 			//系統功能管理
 			"AC01","AC0101","AC0103","AC0105",
 			//用戶端管理
-			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230",
+			"AC02","AC0202","AC0212","AC0222","AC1107","AC1116","AC0226","AC0227","AC0228","AC0229","AC0230","AC0231",
 			//API管理
 			"AC03","AC0301","AC0311","AC0316","AC0318","AC0319",
 			//監控管理
@@ -107,14 +106,14 @@ public class TsmpFuncTableInitializer {
 			//各類申請單
 			"NP03","NP0304","NP0401","NP0402",
 			//系統現況查詢
-			"NP05","NP0504","NP0513","NP0514","NP0516","NP1201",
+			"NP05","NP0504","NP0513","NP0514","NP0516","NP1201","NP1202",
 			//系統設定
-			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009"	
+			"LB00","LB0001","LB0002","LB0003","LB0004","LB0005","LB0006","LB0007","LB0008","LB0009","LB0010"
 	};
 	
 	public List<TsmpFuncVo> insertTsmpFunc(LicenseEditionTypeVo licenseEdition, boolean isOsType) {
 		try {
-			
+			   
 	        createTsmpFunc("AC00","AC User Management","","使用者管理",null,"en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC00","AC 權限管理","AC01","使用者管理",null,"zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC0002","Users","User Maintenance","使用者功能查詢, 資料更新",null,"en-US","manager",DateTimeUtil.now());
@@ -133,6 +132,9 @@ public class TsmpFuncTableInitializer {
 	    	createTsmpFunc("AC0018","AC LDAP IdP","AC LDAP IdP","acLdapIdP","","zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC0019","AC MLDAP IdP","AC MLDAP IdP","acMLdapIdP","","en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC0019","AC MLDAP IdP","AC MLDAP IdP","acMLdapIdP","","zh-TW","manager",DateTimeUtil.now());
+	    	createTsmpFunc("AC0021","AC CUS IdP","AC CUS IdP","acCusIdP","","en-US","manager",DateTimeUtil.now());
+	    	createTsmpFunc("AC0021","AC CUS IdP","AC CUS IdP","acCusIdP","","zh-TW","manager",DateTimeUtil.now());
+
 	    	createTsmpFunc("AC01","Development Mode","","系統功能管理",null,"en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC01","系統功能管理","Function Management","系統功能管理",null,"zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC0101","Function Management","","功能維護",null,"en-US","manager",DateTimeUtil.now());
@@ -246,7 +248,9 @@ public class TsmpFuncTableInitializer {
 	    	createTsmpFunc("NP0203","TLS通訊憑證列表","TLS Communication Certificate List","TLS通訊憑證列表","","zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP0204","TLS Cert. Management","TLS Communication Certificate Management","TLS通訊憑證列表","","en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP0204","TLS通訊憑證維護","TLS Communication Certificate Management","TLS通訊憑證維護","","zh-TW","manager",DateTimeUtil.now());
-	    	createTsmpFunc("NP03","Application Forms","Application Form","各類申請單","","en-US","manager",DateTimeUtil.now());
+			createTsmpFunc("NP0205","Client Certificates(mTLS)","Client Certificates(mTLS)","用戶端憑證(mTLS)","","en-US","manager",DateTimeUtil.now());
+			createTsmpFunc("NP0205","用戶端憑證(mTLS)","mTLS Client Management","用戶端憑證(mTLS)","","zh-TW","manager",DateTimeUtil.now());
+			createTsmpFunc("NP03","Application Forms","Application Form","各類申請單","","en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP03","各類申請單","Application Form","各類申請單","","zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP0301","API Publish","API Shelves","API上下架、異動",null,"en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP0301","API上下架","API Shelves","API上下架、異動",null,"zh-TW","manager",DateTimeUtil.now());
@@ -274,6 +278,8 @@ public class TsmpFuncTableInitializer {
 	    	createTsmpFunc("NP0516","寄件歷程","Mail Log","寄件歷程","","zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP1201","Swagger Settings","Swagger Settings","Swager開放設定","","en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("NP1201","Swagger開放設定","Switch On/Off","Swager開放設定","","zh-TW","manager",DateTimeUtil.now());
+			createTsmpFunc("NP1202","API Group Status","API Group Status","apiGroupStatus","","en-US","manager",DateTimeUtil.now());
+			createTsmpFunc("NP1202","API群組現況查詢","API Group Status","API群組現況查詢","","zh-TW","manager",DateTimeUtil.now());
 
 	    	createTsmpFunc("LB00","系統設定","System Configs","System Configs",null,"zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("LB00","System Configs","System Configs","System Configs",null,"en-US","manager",DateTimeUtil.now());
@@ -311,6 +317,11 @@ public class TsmpFuncTableInitializer {
 	    	createTsmpFunc("AC0105","嵌入頁面維護","Embedded Function Management","Embedded Function Management","","zh-TW","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC0230","Client Export/Import","Client Export/Import","clientExportImport","","en-US","manager",DateTimeUtil.now());
 	    	createTsmpFunc("AC0230","用戶端匯出/入","Client Export/Import","clientExportImport","","zh-TW","manager",DateTimeUtil.now());
+	    	createTsmpFunc("AC0231","GTW CUS IdP","GTW CUS IdP","gtwCusIdp","","en-US","manager",DateTimeUtil.now());
+	    	createTsmpFunc("AC0231","GTW CUS IdP","GTW CUS IdP","gtwCusIdp","","zh-TW","manager",DateTimeUtil.now());
+	    	
+	    	createTsmpFunc("LB0010","Bot Detection","Bot Detection","botDetection","","en-US","manager",DateTimeUtil.now());
+	    	createTsmpFunc("LB0010","Bot Detection","Bot Detection","botDetection","","zh-TW","manager",DateTimeUtil.now());
 	    	
 	    	//取得版本tsmpFunc清單
 	    	setVersionTsmpFunc(licenseEdition);

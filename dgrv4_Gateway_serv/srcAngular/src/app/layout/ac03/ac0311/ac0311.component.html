@@ -499,15 +499,15 @@
                             </div>
                             <div class="p-form-check py-1">
                               <p-radioButton formControlName="headerMaskPolicy" value="1"  inputId="headerMaskPolicy1"></p-radioButton>
-                              <label for="headerMaskPolicy1" class="ml-2 mb-0">Policy 1: {{ 'mask.before_after'|translate:{num:headerMaskPolicyNum.value, mask:headerMaskPolicySymbol.value } }}</label>
+                              <label for="headerMaskPolicy1" class="ml-2 mb-0">Policy 1: {{ 'mask.before_after'|translate:{num:headerMaskPolicyNum.value, mask:headerMaskPolicySymbol.value?headerMaskPolicySymbol.value:'*' } }}</label>
                             </div>
                             <div class="p-form-check py-1">
                               <p-radioButton formControlName="headerMaskPolicy" value="2"  inputId="headerMaskPolicy2"></p-radioButton>
-                              <label for="headerMaskPolicy2" class="ml-2 mb-0">Policy 2: {{ 'mask.before'|translate:{num:headerMaskPolicyNum.value, mask:headerMaskPolicySymbol.value } }}</label>
+                              <label for="headerMaskPolicy2" class="ml-2 mb-0">Policy 2: {{ 'mask.before'|translate:{num:headerMaskPolicyNum.value, mask:headerMaskPolicySymbol.value?headerMaskPolicySymbol.value:'*' } }}</label>
                             </div>
                             <div class="p-form-check py-1">
                               <p-radioButton formControlName="headerMaskPolicy" value="3"  inputId="headerMaskPolicy3"></p-radioButton>
-                              <label for="headerMaskPolicy3" class="ml-2 mb-0">Policy 3: {{ 'mask.after'|translate:{num:headerMaskPolicyNum.value, mask:headerMaskPolicySymbol.value } }}</label>
+                              <label for="headerMaskPolicy3" class="ml-2 mb-0">Policy 3: {{ 'mask.after'|translate:{num:headerMaskPolicyNum.value, mask:headerMaskPolicySymbol.value?headerMaskPolicySymbol.value:'*' } }}</label>
                             </div>
                             <div class="mt-1" [hidden]="headerMaskPolicy.value == '0'">
                               <label class="control-label required mr-1" style="font-weight: 400;">{{ 'mask.word'|translate}}</label> <input type="number" [min]="1" [max]="9999" class="form-control mr-2" formControlName="headerMaskPolicyNum" style="display: inline;width: 75px;"/>
@@ -536,19 +536,19 @@
                           </div>
                           <div class="p-form-check py-1">
                             <p-radioButton formControlName="bodyMaskPolicy" value="1"  inputId="bodyMaskPolicy1"></p-radioButton>
-                            <label for="bodyMaskPolicy1" class="ml-2 mb-0">Policy 1: {{ 'mask.body_before_after'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value } }}</label>
+                            <label for="bodyMaskPolicy1" class="ml-2 mb-0">Policy 1: {{ 'mask.body_before_after'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value?bodyMaskPolicySymbol.value:'*' } }}</label>
                           </div>
                           <div class="p-form-check py-1">
                             <p-radioButton formControlName="bodyMaskPolicy" value="2"  inputId="bodyMaskPolicy2"></p-radioButton>
-                            <label for="bodyMaskPolicy2" class="ml-2 mb-0">Policy 2: {{ 'mask.body_before'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value } }}</label>
+                            <label for="bodyMaskPolicy2" class="ml-2 mb-0">Policy 2: {{ 'mask.body_before'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value?bodyMaskPolicySymbol.value:'*' } }}</label>
                           </div>
                           <div class="p-form-check py-1">
                             <p-radioButton formControlName="bodyMaskPolicy" value="3"  inputId="bodyMaskPolicy3"></p-radioButton>
-                            <label for="bodyMaskPolicy3" class="ml-2 mb-0">Policy 3: {{ 'mask.body_after'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value } }}</label>
+                            <label for="bodyMaskPolicy3" class="ml-2 mb-0">Policy 3: {{ 'mask.body_after'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value?bodyMaskPolicySymbol.value:'*' } }}</label>
                           </div>
                           <div class="p-form-check py-1">
                             <p-radioButton formControlName="bodyMaskPolicy" value="4"  inputId="bodyMaskPolicy4"></p-radioButton>
-                            <label for="bodyMaskPolicy4" class="ml-2 mb-0">Policy 4: {{ 'mask.body_after_regex'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value } }}</label>
+                            <label for="bodyMaskPolicy4" class="ml-2 mb-0">Policy 4: {{ 'mask.body_after_regex'|translate:{num:bodyMaskPolicyNum.value, mask:bodyMaskPolicySymbol.value?bodyMaskPolicySymbol.value:'*' } }}</label>
                           </div>
                           <div class="mt-1" [hidden]="bodyMaskPolicy.value=='0'">
                             <label class="control-label required mr-1" style="font-weight: 400;">{{ 'mask.word'|translate}}</label> <input type="number" [min]="1" [max]="9999" class="form-control mr-2" formControlName="bodyMaskPolicyNum" style="display: inline;width: 75px;"/>
@@ -845,22 +845,23 @@
                         <!-- <br> -->
                         <!-- 純文字 -->
                         <div class="p-form-check form-group ml-4">
-                          <p-radioButton formControlName="requestBody" value="body"  inputId="requestBody_body" (change)="requestBodyChangeHandler($event)"></p-radioButton>
+                          <p-radioButton formControlName="requestBody" value="body"  inputId="requestBody_body"></p-radioButton>
 			                    <label for="requestBody_body" class="ml-2 mb-0">{{'plain_text'|translate}}</label>
                         </div>
                         <ng-container *ngIf="requestBody.value == 'body' && requestBodyCheck.value == true">
-                            <textarea rows="5" cols="50" class="form-control mb-3 ml-4" formControlName="bodyText" style="resize: none;"></textarea>
+                            <textarea rows="5" cols="50" class="form-control mb-3 ml-4" formControlName="bodyText" style="resize: none;width: 98%;"></textarea>
                         </ng-container>
                         <!-- 表單 -->
                         <div class="p-form-check form-group ml-4">
-                          <p-radioButton formControlName="requestBody" value="form"  inputId="requestBody_form" (change)="requestBodyChangeHandler($event)"></p-radioButton>
+
+                          <p-radioButton formControlName="requestBody" value="form"  inputId="requestBody_form"></p-radioButton>
 			                    <label for="requestBody_form" class="ml-2 mb-0">{{'form'|translate}}</label>
                         </div>
                         <ng-container *ngIf="requestBody.value == 'form' && requestBodyCheck.value == true">
                           <div class="key-value-row-has-add-btn ml-4" >
                               <app-key-value name="keyvalue" #keyValueForm keyLabel="{{'key'|translate}}"
                                   valueLabel="{{'value'|translate}}" formControlName="keyValueForm"></app-key-value>
-                                  <button type="button" class="btn-icon tpi-second" [disabled]="disabledReqBody"
+                                  <button type="button" class="btn-icon tpi-second mb-1" [disabled]="disabledReqBody"
                                   (click)="add('form')"><i class="fa fa-plus"></i></button>
                           </div>
                         </ng-container>

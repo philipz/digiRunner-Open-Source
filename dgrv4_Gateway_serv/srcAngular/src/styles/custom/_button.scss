@@ -1,0 +1,117 @@
+.btn-login{
+  color:#fff;
+  // width: 120px;
+  height: 35px;
+  background: #666666;
+  border-radius: 50px;
+  flex: none;
+  order: 2;
+  flex-grow: 0;
+  &:hover{
+    color:#fff;
+    background:#EF622D;
+  }
+}
+
+
+.btn-warning {
+  color: #fff !important;
+  background-color: #f49e00 !important;
+  border-color: #f49e00 !important;
+  min-width: 72px !important;
+  font-size: 16px !important;
+}
+
+.btn {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: transparent;
+  padding: 0;
+}
+.btn-warning:hover {
+  color: #fff;
+  background-color: #ffb733;
+  border-color: #ffb733;
+}
+
+button.btn.btn-deta {
+  border: 1px solid #27bec5;
+  border-radius: 30px;
+  color: #27bec5;
+  outline: none;
+  padding: 1px 12px;
+  background-color: #fff;
+  &:hover {
+    opacity: 0.7;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+.tpi-btn {
+  font-size: 0.8rem;
+  border-radius: 50px;
+  min-width: 67px;
+  font-weight: 600;
+}
+
+.tpi-primary {
+  color: #ea7448 !important;
+  background: #fcd8ca !important;
+  border: #fcd8ca !important;
+  &:enabled:hover {
+    color: #ffffff !important;
+    background: #ea7448 !important;
+  }
+  &:disabled {
+    /* color: #B7B7B7!important; */
+    background: #fcd8ca;
+    opacity: 0.65;
+  }
+}
+
+.tpi-second {
+  color: #6096e7 !important;
+  background: #d4e0f3 !important;
+  /* border: #CEE0FC!important; */
+  &:enabled {
+    &:hover {
+      color: #ffffff !important;
+      background: #6096e7 !important;
+    }
+  }
+  &:disabled {
+    /* color: #B7B7B7!important;
+    background: #F1F1F1!important;
+    border: 1px solid #DEDEDE!important; */
+    background: #d4e0f3;
+    opacity: 0.65;
+  }
+}
+
+.tpi-header-return:hover {
+  color: #ff6e38;
+}
+
+.tpi-cancel {
+  background: #f1f1f1;
+  color: #b7b7b7;
+  border: 1px solid #dedede;
+  &:hover {
+    background: #b7b7b7;
+    color: #fff;
+    border: 1px solid #dedede;
+  }
+}
+
+.add-item-panel button,.item-panel button{
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}

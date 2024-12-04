@@ -505,6 +505,19 @@ import {
 } from 'src/app/models/api/ServerService/dpb0209.interface';
 import { ReqDPB9923 } from 'src/app/models/api/ServerService/dpb9923.interface';
 import { DPB9927Req } from 'src/app/models/api/ServerService/dpb9927.interface';
+import { DPB0220Req, ReqDPB0220, RespDPB0220 } from 'src/app/models/api/ServerService/dpb0220.interface';
+import { DPB0222Req, DPB0222RespBefore, ReqDPB0222, RespDPB0222 } from 'src/app/models/api/ServerService/dpb0222.interface';
+import { DPB0221Req, ReqDPB0221, RespDPB0221 } from 'src/app/models/api/ServerService/dpb0221.interface';
+import { DPB0223Req, DPB0223RespBefore, ReqDPB0223, RespDPB0223, RespDPB0223RespBefore } from 'src/app/models/api/ServerService/dpb0223.interface';
+import { DPB0224Req, ReqDPB0224, RespDPB0224 } from 'src/app/models/api/ServerService/dpb0224.interface';
+import { DPB0240Req, ReqDPB0240, RespDPB0240 } from 'src/app/models/api/ServerService/dpb0240.interface';
+import { DPB0242Req, ReqDPB0242, RespDPB0242, RespDPB0242Before } from 'src/app/models/api/ServerService/dpb0242.interface';
+import { DPB0241Req, ReqDPB0241, RespDPB0241 } from 'src/app/models/api/ServerService/dpb0241.interface';
+import { DPB0243Req, ReqDPB0243, RespDPB0243, RespDPB0243Before } from 'src/app/models/api/ServerService/dpb0243.interface';
+import { DPB0244Req, ReqDPB0244, RespDPB0244 } from 'src/app/models/api/ServerService/dpb0244.interface';
+import { DPB0234Req, ReqDPB0234, RespDPB0234 } from 'src/app/models/api/ServerService/dpb0234.interface';
+import { DPB0232Req, ReqDPB0232, RespDPB0232 } from 'src/app/models/api/ServerService/dpb0232.interface';
+import { DPB0233Req, DPB0233RespBefore, ReqDPB0233, RespDPB0233 } from 'src/app/models/api/ServerService/dpb0233.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -1853,6 +1866,168 @@ export class ServerService {
   importWebsocketProxy(req: any, file: File): Observable<RespDPB9922> {
     const path = `${this.basePath}/DPB9932`;
     return this.api.excuteTsmpSetting<RespDPB9922>(path, file, req);
+  }
+
+  queryIdPInfoList_cus(ReqBody?: DPB0220Req): Observable<RespDPB0220> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.queryIdPInfoList_cus),
+      ReqBody: ReqBody?ReqBody:{},
+    } as ReqDPB0220;
+    const path = `${this.indexPath}/DPB0220`;
+    return this.api.excuteNpPost<RespDPB0220>(path, body);
+  }
+
+  createIdPInfo_cus(ReqBody: DPB0222Req): Observable<RespDPB0222> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.createIdPInfo_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0222;
+    const path = `${this.indexPath}/DPB0222`;
+    return this.api.excuteNpPost<RespDPB0222>(path, body);
+  }
+
+  createIdPInfo_cus_before(): Observable<DPB0222RespBefore> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.createIdPInfo_cus),
+      ReqBody: {},
+    } as ReqDPB0222;
+    const path = `${this.indexPath}/DPB0222?before`;
+    return this.api.excuteNpPost<DPB0222RespBefore>(path, body);
+  }
+
+  queryIdPInfoDetail_cus(ReqBody: DPB0221Req): Observable<RespDPB0221> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.queryIdPInfoDetail_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0221;
+    const path = `${this.indexPath}/DPB0221`;
+    return this.api.excuteNpPost<RespDPB0221>(path, body);
+  }
+
+  updateIdPInfo_cus(ReqBody: DPB0223Req): Observable<RespDPB0223> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.updateIdPInfo_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0223;
+    const path = `${this.indexPath}/DPB0223`;
+    return this.api.excuteNpPost<RespDPB0223>(path, body);
+  }
+
+  updateIdPInfo_cus_before(): Observable<DPB0223RespBefore> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.updateIdPInfo_cus),
+      ReqBody: {},
+    } as ReqDPB0223;
+    const path = `${this.indexPath}/DPB0223?before`;
+    return this.api.excuteNpPost<DPB0223RespBefore>(path, body);
+  }
+
+  deleteIdPInfo_cus(ReqBody: DPB0224Req): Observable<RespDPB0224> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.deleteIdPInfo_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0224;
+    const path = `${this.indexPath}/DPB0224`;
+    return this.api.excuteNpPost<RespDPB0224>(path, body);
+  }
+
+  queryGtwIdPInfoByClientId_cus(ReqBody: DPB0240Req): Observable<RespDPB0240> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.queryGtwIdPInfoByClientId_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0240;
+    const path = `${this.indexPath}/DPB0240`;
+    return this.api.npPost<RespDPB0240>(path, body);
+  }
+
+  createGtwIdPInfo_cus_before(): Observable<RespDPB0242Before> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.createGtwIdPInfo_cus),
+      ReqBody: {},
+    } as ReqDPB0242;
+    const path = `${this.indexPath}/DPB0242?before`;
+    return this.api.npPost<RespDPB0242Before>(path, body);
+  }
+
+  createGtwIdPInfo_cus(ReqBody: DPB0242Req): Observable<RespDPB0242> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.createGtwIdPInfo_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0242;
+    const path = `${this.indexPath}/DPB0242`;
+    return this.api.npPost<RespDPB0242>(path, body);
+  }
+
+  queryGtwIdPInfoDetail_cus(ReqBody: DPB0241Req): Observable<RespDPB0241> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.queryGtwIdPInfoDetail_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0241;
+    const path = `${this.indexPath}/DPB0241`;
+    return this.api.npPost<RespDPB0241>(path, body);
+  }
+
+  updateGtwIdPInfo_cus(ReqBody: DPB0243Req): Observable<RespDPB0243> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.updateGtwIdPInfo_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0243;
+    const path = `${this.indexPath}/DPB0243`;
+    return this.api.npPost<RespDPB0243>(path, body);
+  }
+
+  updateGtwIdPInfo_cus_before(): Observable<RespDPB0243Before> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.updateGtwIdPInfo_cus),
+      ReqBody: {},
+    } as ReqDPB0243;
+    const path = `${this.indexPath}/DPB0243?before`;
+    return this.api.npPost<RespDPB0243Before>(path, body);
+  }
+
+  deleteGtwIdPInfo_cus(ReqBody: DPB0244Req): Observable<RespDPB0244> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.deleteGtwIdPInfo_cus),
+      ReqBody: ReqBody,
+    } as ReqDPB0244;
+    const path = `${this.indexPath}/DPB0244`;
+    return this.api.npPost<RespDPB0244>(path, body);
+  }
+
+  queryApiStatusByGroup(ReqBody: DPB0234Req): Observable<RespDPB0234> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.queryApiStatusByGroup),
+      ReqBody: ReqBody,
+    } as ReqDPB0234;
+    const path = `${this.indexPath}/DPB0234`;
+    return this.api.npPost<RespDPB0234>(path, body);
+  }
+
+  queryBotDetectionList(): Observable<RespDPB0232> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.queryBotDetectionList),
+      ReqBody: {},
+    } as ReqDPB0232;
+    const path = `${this.indexPath}/DPB0232`;
+    return this.api.npPost<RespDPB0232>(path, body);
+  }
+
+  createAndUpdateBotDetectionList(ReqBody: DPB0233Req): Observable<RespDPB0233> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.createAndUpdateBotDetectionList),
+      ReqBody: ReqBody,
+    } as ReqDPB0233;
+    const path = `${this.indexPath}/DPB0233`;
+    return this.api.npPost<RespDPB0233>(path, body);
+  }
+
+  createAndUpdateBotDetectionList_before(): Observable<DPB0233RespBefore> {
+    let body = {
+      ReqHeader: this.api.getReqHeader(TxID.createAndUpdateBotDetectionList),
+      ReqBody: {},
+    } as ReqDPB0233;
+    const path = `${this.indexPath}/DPB0233?before`;
+    return this.api.npPost<DPB0233RespBefore>(path, body);
   }
 
 }

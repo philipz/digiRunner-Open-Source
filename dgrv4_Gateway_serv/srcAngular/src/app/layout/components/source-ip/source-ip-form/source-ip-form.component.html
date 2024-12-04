@@ -1,9 +1,16 @@
 <div class="row" #content>
   <div class="col-12">
     <ng-template #ipDataList></ng-template>
+    <div class="felid-flex-start">
     <button type="button" class="btn tpi-second" (click)="addIdData()" style="border-radius: 50%;"
-     >
+      [hidden]="disabled || isAllowAll">
       <i class="fa fa-plus"></i>
     </button>
+    <button type="button" class="btn tpi-second" (click)="addIdData(undefined,true)" style="border-radius: 15px;"
+      [hidden]="disabled || isAllowAll">
+       <i class="fa fa-plus"></i>
+       {{'allow_all'|translate}}
+     </button>
+    </div>
   </div>
 </div>

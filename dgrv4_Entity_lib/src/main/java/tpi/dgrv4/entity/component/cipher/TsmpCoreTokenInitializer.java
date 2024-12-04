@@ -7,15 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.util.List;
 
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -99,8 +95,7 @@ public class TsmpCoreTokenInitializer {
 		info.append("\n=== Begin Token keyPair initialization ===");
 		info.append("\n_____________________________________________");
 		info.append("\n");
-		this.logger.info(info.toString());
-
+		this.logger.tl.info(info.toString());
 		KeyPair localKeyPair = getKeyPair();
 		KeyPair remoteKeyPair = loadAndExtractKeyPair();
 
@@ -256,7 +251,12 @@ public class TsmpCoreTokenInitializer {
 
 		KeyStore keyStore = null;
 		try {
-			keyStore = KeyStore.getInstance(getKeyStoreType());
+			var keystoreType = getKeyStoreType();
+			if ("bcfks".equalsIgnoreCase(keystoreType)) {
+				keyStore = KeyStore.getInstance(keystoreType, BouncyCastleFipsProvider.PROVIDER_NAME);
+			} else {
+				keyStore = KeyStore.getInstance(keystoreType);
+			}
 		} catch (Exception e) {
 			this.logger.debug("Fail to get KeyStore instance with type: " + getKeyStoreType());
 			return null;
@@ -268,7 +268,7 @@ public class TsmpCoreTokenInitializer {
 		try (FileInputStream fis = new FileInputStream(ksURI)) {
 			keyStore.load(fis, getKeyStorePassword());
 		} catch (FileNotFoundException e) {
-			this.logger.error("KeyStore not found!");
+			this.logger.error("KeyStore not found! " + ksURI);
 		} catch (Exception e) {
 			this.logger.error("Load KeyStore error!\n" + StackTraceUtil.logStackTrace(e));
 		}

@@ -658,7 +658,7 @@ export class Ac0002Component extends BaseComponent implements OnInit {
             showFooterBtn:true,
             // orgName:orgName
           },
-          width: '100vw',
+          width: '90vw',
           height: '100vh'
       })
 

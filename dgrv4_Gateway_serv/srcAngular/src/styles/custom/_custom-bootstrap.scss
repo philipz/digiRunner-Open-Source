@@ -1,0 +1,29 @@
+.form-control,
+.form-group label,.col-form-label {
+  font-size: 0.8rem;
+}
+
+.form-group {
+  margin-bottom: 0.5rem;
+  label {
+  font-weight: 400;
+  margin-bottom: 0.3rem;
+
+  color: #5a5541;
+}}
+
+.form-control {
+  padding: 0.3rem 0.5rem;
+  &:focus {
+    border-color: #FFAC00;
+    box-shadow: 0 0 0 .2rem #ffac0061;
+}
+  &.border-line {
+    border: 0;
+    border-top: 1px solid #ddd;
+  }
+  &.border-bottomline {
+    border: 0;
+    border-bottom: 1px solid #ddd;
+  }
+}

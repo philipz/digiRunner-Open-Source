@@ -1,36 +1,12 @@
 package tpi.dgrv4.dpaa.component.apptJob;
 
-import static tpi.dgrv4.common.utils.StackTraceUtil.getLineNumber;
-import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
-
-import java.time.DateTimeException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CancellationException;
-import java.util.function.Function;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpApptJobStatus;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertDetectResult;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertDispatcherJobHelper;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertEvent;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertNotifier;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertNotifierCustom;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertNotifierFactory;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertNotifierLine;
-import tpi.dgrv4.dpaa.component.alert.DpaaAlertNotifierRoleEmail;
+import tpi.dgrv4.dpaa.component.alert.*;
 import tpi.dgrv4.dpaa.constant.DpaaAlertDetectorJobCommand;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
@@ -38,6 +14,16 @@ import tpi.dgrv4.entity.entity.jpql.TsmpAlert;
 import tpi.dgrv4.entity.repository.TsmpAlertDao;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.time.DateTimeException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.function.Function;
+
+import static tpi.dgrv4.common.utils.StackTraceUtil.getLineNumber;
+import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
 
 @SuppressWarnings("serial")
 public abstract class DpaaAlertDetectorJob<P extends DpaaAlertDetectorJobParams> extends ApptJob {
@@ -425,7 +411,7 @@ public abstract class DpaaAlertDetectorJob<P extends DpaaAlertDetectorJobParams>
 			return c.getTime();
 		};
 		
-		Date startDt = this.params.getStartDate().get();
+		Date startDt = this.params.getStartDate().orElse(null);
 		startDt = truncFunc.apply(startDt);
 		Date endDt = truncFunc.apply(this.currentDetectSDt);
 		long elaspedTime = (endDt.getTime() - startDt.getTime()) / 1000;

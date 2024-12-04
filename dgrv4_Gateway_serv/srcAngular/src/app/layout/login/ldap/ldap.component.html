@@ -1,55 +1,105 @@
-<div class="login-page">
-
-
-  <div class="container" style="min-width: 600px; max-width: 600px;">
+<div class="login-center-page">
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <div class="form-header">
+        <h1 style="font-weight: bold">
+          <img [src]="imgSrc" />
+          {{ title }}
+        </h1>
+      </div>
+      <!-- <div class="logo_top">
+        <img src="assets/images/DigiFusion_digiRunner_logo_horizontal.png" alt="" title="">
+      </div> -->
+      <hr />
+      <div class="form-body">
+        <div class="line" [hidden]="idpType == 'API'">
+          <p>
+            {{
+              idpType == "LDAP"
+                ? ("adldap_login" | translate)
+                : ("m_adldap_login" | translate)
+            }}
+          </p>
+          <p style="font-size: small;">
+            {{ "continue_proc" | translate }}
+          </p>
+        </div>
+        <div class="form-area">
+          <div class="input-line">
+            <label for="uname">{{ "user_name" | translate }}</label>
+            <div class="input-sign-wrapper">
+              <span class="sign">
+                <img src="assets/images/login/i_user.png" alt="number" />
+              </span>
+              <input
+                type="text"
+                #username
+                class="form-control"
+                formControlName="uname"
+                [placeholder]="'user_name' | translate"
+              />
+            </div>
+          </div>
+          <div class="input-line">
+            <label for="uname">{{ "user_password" | translate }}</label>
+            <div class="input-sign-wrapper">
+              <span class="sign">
+                <img src="assets/images/login/i_pwd.png" alt="number" />
+              </span>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="pwd"
+                [placeholder]="'user_password' | translate"
+              />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-login">
+              {{ "login" | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="sign_box">
+        <label for="uname" class="control-label float-left">{{
+          "user_name" | translate
+        }}</label>
+        <div class="sign_row" style="position: relative"></div>
+        <label for="uname" class="control-label float-left">{{
+          "user_password" | translate
+        }}</label>
+        <div class="sign_row" style="position: relative">
+          <span style="margin-left: 8px; position: absolute; left: 7px">
+            <img
+              src="assets/images/i_pwd.png"
+              alt="pass"
+              style="width: 25px; height: 30px"
+            />
+          </span>
+          <input
+            type="password"
+            class="form-control"
+            formControlName="pwd"
+            [placeholder]="'user_password' | translate"
+          />
+        </div>
+        <div class="sign_row">
+          <button type="submit" class="btn btn-login">
+            {{ "login" | translate }}
+          </button>
+        </div>
+      </div> -->
+    </form>
+  </div>
+  <!-- <div class="container" style="min-width: 600px; max-width: 600px;">
     <div class="row align-items-center w-100 h-100" style="margin-top: 30%;">
       <div class="w-100 h-100 border border-black center">
 
         <div>
-          <form [formGroup]="form" (ngSubmit)="submitForm()">
-            <div>
-              <h1 style="font-weight: bold;">
-                <img [src]="imgSrc">
-                {{title}}
-              </h1>
-            </div>
-            <!-- <div class="logo_top">
-              <img src="assets/images/DigiFusion_digiRunner_logo_horizontal.png" alt="" title="">
-            </div> -->
-            <hr>
-            <div class="line" [hidden]="idpType=='API'">
-              <label style="color:#EF622D; font-weight: 600; font-size: 24px;">{{idpType == 'LDAP' ?('adldap_login'|translate) : ('m_adldap_login'|translate)}}</label>
-              <br>
-              <label style="color:#666666; font-weight: 600; font-size: 24px;">{{ 'continue_proc' |translate}}
-                digiRunner</label>
-            </div>
 
-            <div class="sign_box">
-              <label for="uname" class="control-label float-left">{{'user_name'|translate}}</label>
-              <div class="sign_row" style="position: relative">
-                <span style="position: absolute;left:7px;">
-                  <img src="assets/images/i_user.png" alt="number">
-                </span>
-                <input type="text" #username class="form-control" formControlName="uname"
-                  [placeholder]=" 'user_name'|translate" />
-              </div>
-              <label for="uname" class="control-label float-left">{{'user_password'|translate}}</label>
-              <div class="sign_row" style="position: relative">
-                <span style="margin-left: 8px;position: absolute;left:7px;">
-
-                  <img src="assets/images/i_pwd.png" alt="pass" style="width: 25px; height: 30px;">
-                </span>
-                <input type="password" class="form-control" formControlName="pwd"
-                  [placeholder]=" 'user_password'|translate" />
-              </div>
-              <div class="sign_row">
-                <button type="submit" class="btn btn-login">{{'login' | translate}}</button>
-              </div>
-            </div>
-
-          </form>
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 </div>

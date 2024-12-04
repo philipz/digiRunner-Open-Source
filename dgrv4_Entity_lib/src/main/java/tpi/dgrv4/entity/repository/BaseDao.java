@@ -16,7 +16,6 @@ import java.util.function.Function;
 
 public abstract class BaseDao {
 
-	
 	protected static ITPILogger logger;
 
 	@PersistenceContext
@@ -26,34 +25,38 @@ public abstract class BaseDao {
 		return doQuery(sql, params, clazz, -1);
 	}
 
-	@SuppressWarnings({ "unchecked"})
-	protected final <EntityType> List<EntityType> doQuery(String sql, Vector<Object> params, Class<EntityType> clazz, Integer pageSize) {
+	@SuppressWarnings({ "unchecked" })
+	protected final <EntityType> List<EntityType> doQuery(String sql, Vector<Object> params, Class<EntityType> clazz,
+			Integer pageSize) {
 		return doQuery(sql, clazz, pageSize, (query) -> {
-			for(int pos = 0; pos < params.size(); pos++) {
+			for (int pos = 0; pos < params.size(); pos++) {
 				query.setParameter((pos + 1), params.get(pos));
 			}
 			return query.getResultList();
 		});
 	}
 
-	protected final <EntityType> List<EntityType> doQuery(String sql, Map<String, Object> params, Class<EntityType> clazz) {
+	protected final <EntityType> List<EntityType> doQuery(String sql, Map<String, Object> params,
+			Class<EntityType> clazz) {
 		return doQuery(sql, params, clazz, -1);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected final <EntityType> List<EntityType> doQuery(String sql, Map<String, Object> params, Class<EntityType> clazz, Integer pageSize) {
+	protected final <EntityType> List<EntityType> doQuery(String sql, Map<String, Object> params,
+			Class<EntityType> clazz, Integer pageSize) {
 		return doQuery(sql, clazz, pageSize, (query) -> {
-			for(Parameter p : query.getParameters()) {
+			for (Parameter p : query.getParameters()) {
 				query.setParameter(p, params.get(p.getName()));
 			}
 			return query.getResultList();
 		});
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected final <EntityType> List<EntityType> doQuery(String sql, Map<String, Object> params, Class<EntityType> clazz, Integer pageSize, Integer firstResult) {
-		return doQuery(sql, clazz, pageSize,firstResult, (query) -> {
-			for(Parameter p : query.getParameters()) {
+	protected final <EntityType> List<EntityType> doQuery(String sql, Map<String, Object> params,
+			Class<EntityType> clazz, Integer pageSize, Integer firstResult) {
+		return doQuery(sql, clazz, pageSize, firstResult, (query) -> {
+			for (Parameter p : query.getParameters()) {
 				query.setParameter(p, params.get(p.getName()));
 			}
 			return query.getResultList();
@@ -61,12 +64,13 @@ public abstract class BaseDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <EntityType> List<EntityType> doQuery(String sql, Class<EntityType> clazz, Integer pageSize, Function<Query, List<EntityType>> function) {
+	private <EntityType> List<EntityType> doQuery(String sql, Class<EntityType> clazz, Integer pageSize,
+			Function<Query, List<EntityType>> function) {
 		Query query;
-		
+
 		try {
 			query = entityManager.createQuery(sql, clazz);
-			
+
 			if (pageSize != null && pageSize > 0) {
 				query.setMaxResults(pageSize);
 			}
@@ -77,18 +81,19 @@ public abstract class BaseDao {
 			return Collections.EMPTY_LIST;
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private <EntityType> List<EntityType> doQuery(String sql, Class<EntityType> clazz, Integer pageSize, Integer firstResult, Function<Query, List<EntityType>> function) {
+	private <EntityType> List<EntityType> doQuery(String sql, Class<EntityType> clazz, Integer pageSize,
+			Integer firstResult, Function<Query, List<EntityType>> function) {
 		Query query;
-		
+
 		try {
 			query = entityManager.createQuery(sql, clazz);
-			
+
 			if (pageSize != null && pageSize > 0) {
 				query.setMaxResults(pageSize);
 			}
-			
+
 			if (firstResult != null) {
 				query.setFirstResult(firstResult);
 			}
@@ -104,7 +109,7 @@ public abstract class BaseDao {
 	protected int doNativeUpdate(String nativeSql, Map<String, Object> params) {
 		Query query = entityManager.createNativeQuery(nativeSql);
 		if (params != null && !params.isEmpty()) {
-			for(Parameter p : query.getParameters()) {
+			for (Parameter p : query.getParameters()) {
 				query.setParameter(p, params.get(p.getName()));
 			}
 		}
@@ -137,17 +142,21 @@ public abstract class BaseDao {
 			}else {
 				query = entityManager.createNativeQuery(nativeSql, clazz);
 			}
-			
+
 		}
 		if (pageSize != null && pageSize > 0) {
 			query.setMaxResults(pageSize);
 		}
 		if (params != null && !params.isEmpty()) {
-			for(Parameter p : query.getParameters()) {
+			for (Parameter p : query.getParameters()) {
 				query.setParameter(p, params.get(p.getName()));
 			}
 		}
 		return query.getResultList();
+	}
+
+	protected EntityManager getEntityManager() {
+		return entityManager;
 	}
 
 	public static void setLogger(ITPILogger logger) {

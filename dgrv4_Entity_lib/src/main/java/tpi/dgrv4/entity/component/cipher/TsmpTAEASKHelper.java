@@ -80,6 +80,9 @@ public class TsmpTAEASKHelper {
 				String errMsg = "\n\t...Could not find TAEASK Key\n";
 				errMsg += "\t...Please add Eclipse 'Run as / Configurations... / Enviroment / Variable:TAEASK'\n";
 				this.logger.error(errMsg);
+				System.err.println("=============================================");
+				System.err.println(errMsg);
+				System.err.println("=============================================");
 			}
 		} catch (Exception e) {
 			this.logger.error("Unable to load TAEASK Key\n" + StackTraceUtil.logStackTrace(e));
@@ -89,7 +92,10 @@ public class TsmpTAEASKHelper {
 		if (!StringUtils.hasText(key)) {
 			try {
 				key = genKey();
-				this.logger.debug("Generating TAEASK Key: " + key);
+				this.logger.warn("Generating TAEASK Key: " + key);
+				System.err.println("=============================================");
+				System.err.println("Generating TAEASK Key: " + key);
+				System.err.println("=============================================");
 			} catch (Exception e) {
 				this.logger.error("Error generating TAEASK Key\n" + StackTraceUtil.logStackTrace(e));
 			}

@@ -3,6 +3,7 @@ package tpi.dgrv4.dpaa.service;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -23,6 +24,7 @@ import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
 
 @Service
+@Scope("prototype")
 public class DPB0118Service {
 
 	@Autowired

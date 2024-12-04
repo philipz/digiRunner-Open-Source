@@ -4,6 +4,7 @@ public class DPB0200Req {
 	private String jdbcUrl;
 	private String userName;
 	private String mima;
+	private String connName;
 
 	public String getJdbcUrl() {
 		return jdbcUrl;
@@ -28,4 +29,14 @@ public class DPB0200Req {
 	public void setMima(String mima) {
 		this.mima = mima;
 	}
+
+	public String getConnName() {
+		return connName;
+	}
+
+	public void setConnName(String connName) {
+		this.connName = connName;
+	}
+	
+	
 }

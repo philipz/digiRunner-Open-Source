@@ -1,7 +1,11 @@
 package tpi.dgrv4.gateway.component.job;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import org.springframework.beans.factory.annotation.Autowired;
+import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.gateway.component.ServiceConfig;
+import tpi.dgrv4.gateway.component.job.appt.ApptJob;
+import tpi.dgrv4.gateway.keeper.TPILogger;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,15 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import tpi.dgrv4.codec.constant.RandomLongTypeEnum;
-import tpi.dgrv4.codec.utils.RandomSeqLongUtil;
-import tpi.dgrv4.common.utils.StackTraceUtil;
-import tpi.dgrv4.gateway.component.ServiceConfig;
-import tpi.dgrv4.gateway.component.job.appt.ApptJob;
-import tpi.dgrv4.gateway.keeper.TPILogger;
 
 public class DeferrableJobManager extends JobManager {
 
@@ -42,9 +37,7 @@ public class DeferrableJobManager extends JobManager {
 	 */
 	@Override
 	public void init() {
-		this.poolSize = getValue("scheduler.deferrable.thread-pool-size", (val) -> {
-			return Integer.valueOf(val);
-		}, 1);
+		this.poolSize = getValue("scheduler.deferrable.thread-pool-size", Integer::valueOf, 1);
 		if (this.poolSize == null || this.poolSize < 1) {
 			this.poolSize = 1;
 		}
@@ -75,8 +68,8 @@ public class DeferrableJobManager extends JobManager {
 			
 			this.jobLogs.put(job.getGroupId(), System.currentTimeMillis());
 			String traceMsg = "[#JOB#][BEGIN]DeferrableJob: " + job.getGroupId();
-			if (job instanceof ApptJob) {
-				traceMsg += ", appt_id: " + ((ApptJob)job).getTsmpDpApptJob().getApptJobId();
+			if (job instanceof ApptJob apptJob) {
+				traceMsg += ", appt_id: " + apptJob.getTsmpDpApptJob().getApptJobId();
 			}
 			this.logger.trace(traceMsg);
 			
@@ -85,13 +78,18 @@ public class DeferrableJobManager extends JobManager {
 
 			long start = this.jobLogs.remove(job.getGroupId());
 			traceMsg = "[#JOB#][END]DeferrableJob: " + job.getGroupId();
-			if (job instanceof ApptJob) {
-				traceMsg += ", appt_id: " + ((ApptJob)job).getTsmpDpApptJob().getApptJobId();
+			if (job instanceof ApptJob apptJob) {
+				traceMsg += ", appt_id: " + apptJob.getTsmpDpApptJob().getApptJobId();
 			}
 			traceMsg += ", cost: " + (System.currentTimeMillis() - start) + "ms";
 			this.logger.trace(traceMsg);
+		} catch (InterruptedException e) {
+			// 重新設置中斷狀態
+			Thread.currentThread().interrupt();
+			this.logger.warn("takeDeferrableJob was interrupted: " + StackTraceUtil.logStackTrace(e));
+			return 0;
 		} catch (Exception e) {
-			this.logger.debug("takeDeferrableJob error: " + StackTraceUtil.logStackTrace(e));
+			this.logger.error("takeDeferrableJob error: " + StackTraceUtil.logStackTrace(e));
 		}
 		return 1;
 	}
@@ -182,7 +180,7 @@ public class DeferrableJobManager extends JobManager {
 	}
 
 	public void doAgaint2nd() {
-		if (this.buff2nd.size() > 0) {
+		if (!this.buff2nd.isEmpty()) {
 			executor2ndSingle.execute(() -> {
 				take2ndJob(); // 2nd 若有工作就一直 do Job
 			});
@@ -190,7 +188,7 @@ public class DeferrableJobManager extends JobManager {
 	}
 
 	private void buff2ndWait() {
-		if (this.buff2nd.size() == 0) {
+		if (this.buff2nd.isEmpty()) {
 			try {
 				synchronized (this.buff2nd) {
 					this.buff2nd.wait(); // take1stJob 有做 notify
@@ -204,7 +202,7 @@ public class DeferrableJobManager extends JobManager {
 	/** This is only for unit test */
 	public void take2ndJob(LinkedHashMap<String, Job> buff2nd) {
 		// 2nd 若有工作就一直 do Job
-		while (buff2nd.size() > 0) {
+		while (!buff2nd.isEmpty()) {
 			Map.Entry<String, Job> entry = null;
 			Iterator<Map.Entry<String, Job>> itr = buff2nd.entrySet().iterator();
 			if (itr.hasNext()) {

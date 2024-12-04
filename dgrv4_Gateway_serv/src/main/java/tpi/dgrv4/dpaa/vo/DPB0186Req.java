@@ -26,7 +26,8 @@ public class DPB0186Req extends ReqValidator{
 	private String idtPicture;
 	private String iconFile;
 	private String pageTitle;
-	
+	private String idtLightId;
+	private String idtRoleName;
 	public String getClientId() {
 		return clientId;
 	}
@@ -153,6 +154,22 @@ public class DPB0186Req extends ReqValidator{
 
 	public void setPageTitle(String pageTitle) {
 		this.pageTitle = pageTitle;
+	}
+
+	public String getIdtLightId() {
+		return idtLightId;
+	}
+
+	public void setIdtLightId(String idtLightId) {
+		this.idtLightId = idtLightId;
+	}
+
+	public String getIdtRoleName() {
+		return idtRoleName;
+	}
+
+	public void setIdtRoleName(String idtRoleName) {
+		this.idtRoleName = idtRoleName;
 	}
 
 	@Override
