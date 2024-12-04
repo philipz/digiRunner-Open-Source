@@ -48,7 +48,7 @@ docker run -it -d -p 31080:18080 tpisoftwareopensource/digirunner-open-source
 #### Option 2: Docker-Compose
 
 ```yml
-name: opendgr
+name: digirunner-open-source
 services:
     dgr:
         image: tpisoftwareopensource/digirunner-open-source
