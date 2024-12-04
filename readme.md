@@ -142,11 +142,11 @@ spec:
 
 1. Clone the repository: 
     ```sh
-    git clone https://github.com/TPIsoftwareOSPO/digiRunner.git
+    git clone https://github.com/TPIsoftwareOSPO/digiRunner-Open-Source.git
     ```
 2. Change directory:
     ```shell
-    cd digiRunner/
+    cd digiRunner-Open-Source/
     ```
 3. Run the service:
     ```sh
