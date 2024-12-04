@@ -208,13 +208,13 @@ cd digiRunner/
 #### Build the Docker image:
 
 ```sh
-docker build -t digiRunner .
+docker build -t digirunner .
 ```
 
 ### 2. Run the container
 
 ```sh
-docker run -p 18080:18080 digiRunner
+docker run -p 18080:18080 digirunner
 ```
 
 Open your browser and navigate to: http://localhost:18080/dgrv4/login
