@@ -209,7 +209,7 @@ spec:
 
 ## Documentation
 
-- [Document Center](https://docs.tpi.dev/)
+- [Documentation](https://docs.tpi.dev/)
 
 ## Build Your Own JAR
 
