@@ -1,5 +1,5 @@
 [![][tpi-logo]][tpi-url]
-# Your API Gateway for Zero downtime
+# Your API Gateway for Microservices
 [Documentation](https://docs.tpi.dev/) | [Blog](https://tpi.dev/home)
 ## Table of contents
 - [Overview](#overview)
