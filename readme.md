@@ -1,6 +1,6 @@
 [![][tpi-logo]][tpi-url]
 # Your API Gateway for Microservices
-[Documentation](https://docs.tpi.dev/) | [Blog](https://tpi.dev/home)
+[TPI.dev](https://tpi.dev/home) | [Documentation](https://docs.tpi.dev/) | [Blog](https://tpi.dev/blog)
 ## Table of contents
 - [Overview](#overview)
 - [Quick Start](#quick-start)
