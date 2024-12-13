@@ -1,5 +1,5 @@
 [![][tpi-logo]][tpi-url]
-# digiRunner: Your API Gateway for Microservices
+# Your API Gateway for Zero downtime
 [Documentation](https://docs.tpi.dev/) | [Blog](https://tpi.dev/home)
 ## Table of contents
 - [Overview](#overview)
