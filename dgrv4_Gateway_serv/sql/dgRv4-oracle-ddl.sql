@@ -2778,3 +2778,60 @@ ALTER TABLE dp_app RENAME COLUMN user_name TO dp_user_name;
 -- 20231228, 移除 open_apikey_id 欄位, jhmin
 ALTER TABLE dp_app DROP COLUMN open_apikey_id;
 ---- end DP的dp_app TABLE ----
+
+-- 20240718 , 第三方 AC IDP INFO , Kevin Cheng
+CREATE TABLE dgr_ac_idp_info_cus
+(
+    ac_idp_info_cus_id    NUMBER(19)                    NOT NULL,    -- ID
+    ac_idp_info_cus_name  NVARCHAR2(200),                            -- 第三方可識別名稱
+    cus_status            VARCHAR(1)      DEFAULT ('Y') NOT NULL,    -- Cus 狀態
+    cus_login_url         VARCHAR(4000)                 NOT NULL,    -- 第三方前端頁面 URL
+    cus_backend_login_url VARCHAR(4000)                 NOT NULL,    -- 第三方後端 URL
+    cus_user_data_url     VARCHAR(4000)                 NOT NULL,    -- 第三方使用者資料 URL
+    create_date_time      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user           NVARCHAR2(1000) DEFAULT 'SYSTEM',          -- 建立人員
+    update_date_time      TIMESTAMP,                                 -- 更新日期
+    update_user           NVARCHAR2(1000),                           -- 更新人員
+    version               NUMBER(10)      DEFAULT 1,                 -- 版號
+    CONSTRAINT dgr_ac_idp_info_cus_pk PRIMARY KEY (ac_idp_info_cus_id)
+);
+
+-- 20240911 , DGR_GTW_IDP_INFO_A  ADD COLUMN , Zoe Lee
+ALTER TABLE DGR_GTW_IDP_INFO_A ADD  IDT_LIGHT_ID VARCHAR(200);
+ALTER TABLE DGR_GTW_IDP_INFO_A ADD  IDT_ROLE_NAME NVARCHAR2(200);
+-- 20240911 , DGR_GTW_IDP_AUTH_CODE  ADD COLUMN , Zoe Lee
+ALTER TABLE DGR_GTW_IDP_AUTH_CODE ADD  USER_LIGHT_ID VARCHAR(200);
+ALTER TABLE DGR_GTW_IDP_AUTH_CODE ADD  USER_ROLE_NAME NVARCHAR2(200);
+-- 20240902 , CUS GATE IDP INFO , Kevin Cheng
+CREATE TABLE dgr_gtw_idp_info_cus
+(
+    gtw_idp_info_cus_id NUMBER(19)                  NOT NULL,      -- ID
+    client_id           VARCHAR(40)                 NOT NULL,      -- digiRunner 的 client_id
+    status              VARCHAR(1)      DEFAULT 'Y' NOT NULL,      -- 狀態
+    cus_login_url       VARCHAR(4000)               NOT NULL,      -- CUS 登入 URL
+    cus_user_data_url   VARCHAR(4000)               NOT NULL,      -- CUS 使用者資料 URL
+    icon_file           VARCHAR(4000),                             -- 登入頁圖示檔案
+    page_title          NVARCHAR2(400),                            -- 登入頁標題
+    create_date_time    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user         NVARCHAR2(1000) DEFAULT 'SYSTEM',          -- 建立人員
+    update_date_time    TIMESTAMP,                                 -- 更新日期
+    update_user         NVARCHAR2(1000),                           -- 更新人員
+    version             INT             DEFAULT 1,                 -- 版號
+    CONSTRAINT gtw_idp_info_cus_pk PRIMARY KEY (gtw_idp_info_cus_id)
+);
+
+-- 20241007, AC IdP授權碼記錄檔, 增加欄位, Mini Lee
+Alter TABLE dgr_ac_idp_auth_code ADD api_resp NVARCHAR2(2000);
+
+-- 20241022 , DGR_BOT_DETECTION , Kevin Cheng
+CREATE TABLE dgr_bot_detection (
+    bot_detection_id   NUMBER          NOT NULL,                -- ID
+    bot_detection_rule VARCHAR(4000)   NOT NULL,                -- 規則
+    type               VARCHAR(1)       DEFAULT 'W' NOT NULL,    -- 名單種類
+    create_date_time   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user        NVARCHAR2(1000)  DEFAULT 'SYSTEM',        -- 建立人員
+    update_date_time   TIMESTAMP,                                -- 更新日期
+    update_user        NVARCHAR2(1000),                           -- 更新人員
+    version            INT             DEFAULT 1,               -- 版號
+    CONSTRAINT BOT_DETECTION_PK PRIMARY KEY (bot_detection_id)
+);

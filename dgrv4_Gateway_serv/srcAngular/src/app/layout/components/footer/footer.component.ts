@@ -7,7 +7,7 @@ import { ToolService } from 'src/app/shared/services/tool.service';
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.css']
+  styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit {
 
@@ -19,16 +19,21 @@ export class FooterComponent implements OnInit {
     ) { }
 
   ngOnInit() {
+
     if(!this.toolService.getAcConf()) return;
 
-    this.aboutService.queryModuleVersion().subscribe(res => {
-      if (this.toolService.checkDpSuccess(res.ResHeader)) {
-          // this.versionInfo = res.RespBody;
-          this.coreVer = res.RespBody.version;
-          this.toolService.writeToken(res.RespBody.majorVersionNo ,'majorVersionNo');
-      }
-
+    this.aboutService.getModuleVersionData().subscribe(res=>{
+      this.coreVer = res.version;
     });
+
+    // this.aboutService.queryModuleVersion().subscribe(res => {
+    //   if (this.toolService.checkDpSuccess(res.ResHeader)) {
+    //       // this.versionInfo = res.RespBody;
+    //       this.coreVer = res.RespBody.version;
+    //       this.toolService.writeToken(res.RespBody.majorVersionNo ,'majorVersionNo');
+    //   }
+
+    // });
 
 
     //  this.coreVer = this.tool.getAcConf().coreVer;

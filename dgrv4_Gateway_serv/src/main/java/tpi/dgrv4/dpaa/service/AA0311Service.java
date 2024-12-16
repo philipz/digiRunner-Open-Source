@@ -1,31 +1,15 @@
 package tpi.dgrv4.dpaa.service;
-import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-
+import org.checkerframework.checker.regex.qual.Regex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import tpi.dgrv4.codec.utils.Base64Util;
-import tpi.dgrv4.common.constant.AuditLogEvent;
-import tpi.dgrv4.common.constant.TableAct;
-import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
-import tpi.dgrv4.common.constant.TsmpDpPublicFlag;
+import tpi.dgrv4.common.constant.*;
 import tpi.dgrv4.common.exceptions.BcryptParamDecodeException;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -39,24 +23,21 @@ import tpi.dgrv4.dpaa.vo.AA0311RedirectByIpData;
 import tpi.dgrv4.dpaa.vo.AA0311Req;
 import tpi.dgrv4.dpaa.vo.AA0311Resp;
 import tpi.dgrv4.entity.daoService.BcryptParamHelper;
-import tpi.dgrv4.entity.entity.DgrAcIdpUser;
-import tpi.dgrv4.entity.entity.TsmpApi;
-import tpi.dgrv4.entity.entity.TsmpApiId;
-import tpi.dgrv4.entity.entity.TsmpApiReg;
-import tpi.dgrv4.entity.entity.TsmpApiRegId;
-import tpi.dgrv4.entity.entity.TsmpUser;
+import tpi.dgrv4.entity.entity.*;
 import tpi.dgrv4.entity.entity.jpql.TsmpRegModule;
-import tpi.dgrv4.entity.repository.DgrAcIdpUserDao;
-import tpi.dgrv4.entity.repository.TsmpApiDao;
-import tpi.dgrv4.entity.repository.TsmpApiRegDao;
-import tpi.dgrv4.entity.repository.TsmpRegHostDao;
-import tpi.dgrv4.entity.repository.TsmpRegModuleDao;
-import tpi.dgrv4.entity.repository.TsmpUserDao;
+import tpi.dgrv4.entity.repository.*;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.CommForwardProcService;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
 
 @Service
 public class AA0311Service {
@@ -147,6 +128,8 @@ public class AA0311Service {
 			saveTsmpApiReg(userName, orgId, req, apiUUID, iip, resultSrcUrl);
 			
 			clearAPICache();
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.API.value());
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
@@ -405,14 +388,19 @@ public class AA0311Service {
 		}
 
 		Set<String> aa0311_set = new HashSet<>();
-		aa0311_methods.forEach((method) -> {
-			if (!aa0311_set.contains(method) && (HttpMethod.valueOf(method.toUpperCase()) != null)) {
-				aa0311_set.add(method);
-			} else {
+		for (String method : aa0311_methods) {
+			try{
+				if (!aa0311_set.contains(method) && (SafeHttpMethod.safeValueOf(method, true) != null)) {
+					aa0311_set.add(method);
+				}else {
+					this.logger.debug("Invalid methods: " + aa0311_methods);
+					throw TsmpDpAaRtnCode._1290.throwing();
+				}
+			}catch (IllegalArgumentException e){
 				this.logger.debug("Invalid methods: " + aa0311_methods);
 				throw TsmpDpAaRtnCode._1290.throwing();
 			}
-		});
+		}
 
 		List<String> consumes = checkRepeatValues("consumes", req.getConsumes());
 		req.setConsumes(consumes);
@@ -445,14 +433,24 @@ public class AA0311Service {
 					throw TsmpDpAaRtnCode._1407.throwing("{{redirectByIpDataList}}", "5",
 							String.valueOf(redirectByIpDataList.size()));
 				}
+				int i= 0;
 				if (redirectByIpDataList.size()>0) {
 					for (AA0311RedirectByIpData aa0311RedirectByIpData : redirectByIpDataList) {
-						if (!StringUtils.hasLength(aa0311RedirectByIpData.getIpForRedirect())) {
+						String ip = aa0311RedirectByIpData.getIpForRedirect();
+						if (!StringUtils.hasLength(ip)) {
 							throw TsmpDpAaRtnCode._1350.throwing("{{ipForRedirect}}");
 						}
+						if (!ip.matches(RegexpConstant.IP_CIDR_FQDN)){
+							throw  TsmpDpAaRtnCode._1352.throwing("{{ipForRedirect}}");
+						}
+						if ((ip.contains("0.0.0.0/0") || ip.contains("::/0")) && i != redirectByIpDataList.size() - 1) {
+							throw TsmpDpAaRtnCode._1559.throwing("If you want to allow all IPs, please set it as the last item.");
+						}
+
 						if (!StringUtils.hasLength(aa0311RedirectByIpData.getIpSrcUrl())) {
 							throw TsmpDpAaRtnCode._1350.throwing("{{ipSrcUrl}}");
 						}
+						i++;
 					}
 				}
 			}

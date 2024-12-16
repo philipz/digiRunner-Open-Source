@@ -112,6 +112,15 @@ public class AA0317Service {
 	public AA0317Resp exportRegCompAPIs(TsmpAuthorization auth, AA0317Req req) {
 		String userName = auth.getUserName();
 		String orgId = auth.getOrgId();
+
+		return exportRegCompAPIs(userName, orgId, req);
+	}
+
+	/**
+	 * In-Memory, <br> 
+	 * Landing 端匯出資料,由此進入
+	 */
+	public AA0317Resp exportRegCompAPIs(String userName, String orgId, AA0317Req req) {
 		List<ApiData> apiDataList = new ArrayList<>();
 		checkParams(orgId, userName, req, apiDataList);
 

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -75,6 +76,7 @@ import tpi.dgrv4.gateway.component.cache.proxy.TsmpTokenHistoryCacheProxy;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpUserCacheProxy;
 import tpi.dgrv4.gateway.component.cache.proxy.UsersCacheProxy;
 import tpi.dgrv4.gateway.constant.DgrAcIdpUserStatus;
+import tpi.dgrv4.gateway.constant.DgrDeployRole;
 import tpi.dgrv4.gateway.constant.DgrTokenGrantType;
 import tpi.dgrv4.gateway.constant.DgrTokenType;
 import tpi.dgrv4.gateway.filter.GatewayFilter;
@@ -145,6 +147,9 @@ public class TokenHelper {
 
 	@Autowired
 	private ServiceConfig serviceConfig;
+	
+	@Value("${digiRunner.gtw.deploy.role}")
+	private String deployRole;
 
 	public static String BASIC = "basic ";
 	public static String BEARER = "bearer ";
@@ -438,21 +443,23 @@ public class TokenHelper {
 	 * @param clientId
 	 */
 	private void updateTsmpClinetPWDFailTimes(String clientId) {
-		TsmpClient client = getTsmpClientDao().findById(clientId).get();
-		int PwdFailTimes = client.getPwdFailTimes();
-		int FAIL_TRESHHOLD = client.getFailTreshhold();
-		if (PwdFailTimes + 1 == FAIL_TRESHHOLD) {
-			client.setPwdFailTimes(PwdFailTimes + 1);
-			client.setClientStatus("3");
+		TsmpClient client = getTsmpClientDao().findById(clientId).orElse(null);
+		if (client != null) {
+			int PwdFailTimes = client.getPwdFailTimes();
+			int FAIL_TRESHHOLD = client.getFailTreshhold();
+			if (PwdFailTimes + 1 == FAIL_TRESHHOLD) {
+				client.setPwdFailTimes(PwdFailTimes + 1);
+				client.setClientStatus("3");
 
-		} else if (PwdFailTimes + 1 > FAIL_TRESHHOLD) {
-			client.setClientStatus("3");
-			
-		} else {
-			client.setPwdFailTimes(PwdFailTimes + 1);
+			} else if (PwdFailTimes + 1 > FAIL_TRESHHOLD) {
+				client.setClientStatus("3");
+
+			} else {
+				client.setPwdFailTimes(PwdFailTimes + 1);
+			}
+
+			client = getTsmpClientDao().save(client);
 		}
-
-		client = getTsmpClientDao().save(client);
 	}
 
 	/**
@@ -661,7 +668,7 @@ public class TokenHelper {
 		String webServerRedirectUriMsg = getMsgForWebServerRedirectUri(webServerRedirectUriList);
 
 		// redirect_uri 不正確
-		if (!webServerRedirectUriList.contains(redirectUri)) {
+		if (!isMatchRedirectUri(webServerRedirectUriList, redirectUri)) {
 			errMsg = String.format(
 					"The redirect_uri mismatch. \n" //
 					+ "client_id: %s, \n" //
@@ -680,6 +687,53 @@ public class TokenHelper {
 					HttpStatus.BAD_REQUEST);// 400
 		}
 		return null;
+	}
+	
+	/**
+	 * 檢查傳入的 redirectUri 和 client 註冊在系統中的是否相同 <br>
+	 * 若 redirectUri 為 https 或 https, 則網址必須完全相同才是符合 <br>
+	 * 否則, redirectUri 只要和註冊的 * 號前後相同即符合 <br>
+	 * @param webServerRedirectUriList client 註冊在系統中的
+	 * @param reqRedirectUri 傳入的 redirectUri
+	 */
+	private boolean isMatchRedirectUri(List<String> webServerRedirectUriList, String reqRedirectUri) {
+		if (isHttpsOrHttp(reqRedirectUri)) {// https or http
+			// 必須完全相同才是符合
+			if (webServerRedirectUriList.contains(reqRedirectUri)) {
+				return true;
+			}
+			return false;
+
+		} else {// 不是 https or http
+			for (String uriRule : webServerRedirectUriList) {
+				if (!isHttpsOrHttp(uriRule)) {// 只比對不是 https or http 的
+					uriRule = uriRule.replace(".", "\\.");
+					uriRule = uriRule.replace("*", ".*");
+					boolean result = ServiceUtil.checkDataByPattern(reqRedirectUri, uriRule);
+					if (result) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
+	
+	/**
+	 * 網址是否為 "https://" 或 "http://" 開頭
+	 * 
+	 * @return true: 是; false: 不是
+	 */
+	private boolean isHttpsOrHttp(String uri) {
+		if (uri == null) {
+			return false;
+		}
+		
+		if (uri.toLowerCase().startsWith("https://") || uri.toLowerCase().startsWith("http://")) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private String getMsgForWebServerRedirectUri(List<String> webServerRedirectUriList) {
@@ -1102,7 +1156,7 @@ public class TokenHelper {
 	 * 是否 refresh token exp 沒有值 或 refresh token 過期
 	 * 
 	 * @param tokenStr
-	 * @param exp      到期日,單位為秒,10碼
+	 * @param exp 到期日,單位為秒,10碼
 	 * @return
 	 */
 	public ResponseEntity<?> checkRefreshTokenExp(String tokenStr, Long exp) {
@@ -1137,10 +1191,6 @@ public class TokenHelper {
 
 	/**
 	 * 是否 access token / refresh token 已撤銷
-	 * 
-	 * @param tokenTypeHint
-	 * @param jti
-	 * @return
 	 */
 	public boolean checkTokenRevoked(String tokenTypeHint, String jti) {
 		boolean isTokenRevoked = false;
@@ -1161,14 +1211,26 @@ public class TokenHelper {
 	}
 
 	/**
-	 * 是否 access token 已撤銷
+	 * 檢查 jti 是否有值
 	 */
-	public ResponseEntity<?> checkAccessTokenRevoked(String jti) {
+	private ResponseEntity<?> checkJtiHasValue(String jti) {
 		if (!StringUtils.hasLength(jti)) {
 			String errMsg = Missing_required_parameter + "jti";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 是否 access token 已撤銷
+	 */
+	public ResponseEntity<?> checkAccessTokenRevoked(String jti) {
+		ResponseEntity<?> respEntity = checkJtiHasValue(jti);
+		if (respEntity != null) {// 資料有錯誤
+			return respEntity;
 		}
 
 		TsmpTokenHistory tsmpTokenHistory = getTsmpTokenHistoryCacheProxy().findFirstByTokenJti(jti);
@@ -1212,13 +1274,11 @@ public class TokenHelper {
 
 	/**
 	 * 是否 refresh token 已撤銷
-	 * 
-	 * @return
 	 */
 	public ResponseEntity<?> checkRefreshTokenRevoked(String jti) {
 		boolean isRevoked = false;
-		List<TsmpTokenHistory> tsmpTokenHistoryList = getTsmpTokenHistoryDao().findByRetokenJti(jti);// 找出所有的 refresh
-																										// token
+		// 找出所有的 refresh token
+		List<TsmpTokenHistory> tsmpTokenHistoryList = getTsmpTokenHistoryDao().findByRetokenJti(jti);
 		if (CollectionUtils.isEmpty(tsmpTokenHistoryList)) {// 查無資料
 			// Table [TSMP_TOKEN_HISTORY] 查不到資料
 			TPILogger.tl.debug("Table [TSMP_TOKEN_HISTORY] can't find data, retoken_jti:" + jti);
@@ -1244,9 +1304,8 @@ public class TokenHelper {
 	}
 
 	/**
-	 * 1.檢查 refresh_token 的 user_name 是否有值 2.檢查 user / IdP user 狀態
-	 * 
-	 * @return
+	 * 1.檢查 refresh_token 的 user_name 是否有值 <br>
+	 * 2.檢查 user / IdP user 狀態 <br>
 	 */
 	public ResponseEntity<?> checkRefreshTokenUserName(JsonNode payloadJsonNode, String retokenUserName,
 			String apiUrl) {
@@ -1293,8 +1352,8 @@ public class TokenHelper {
 	}
 
 	/**
-	 * 白名單記錄(後踢前), 把舊的token狀態改為 'N' (TSMP_TOKEN_HISTORY), 
-	 * 1.處理舊的 access token 狀態:
+	 * 白名單記錄(後踢前), 把舊的token狀態改為 'N' (TSMP_TOKEN_HISTORY), <br>
+	 * 1.處理舊的 access token 狀態: <br>
 	 * (1).若 grant_type 不是 client_credientails, 找出此 client id + user 的所有記錄, <br>
 	 * access token 的 revoked_status 若沒有值,更新狀態為"N" <br>
 	 * 2.處理舊的 refresh token 狀態: <br>
@@ -1595,32 +1654,32 @@ public class TokenHelper {
 			return respEntity;
 		}
 
-		// 3.1.檢查主機清單
+		// 4.檢查主機清單
 		respEntity = checkHostList(clientId, apiUrl, httpReq);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
 		}
 
-		// 4.檢查 client 用戶啟日/迄日 & 每日服務時間
+		// 5.檢查 client 用戶啟日/迄日 & 每日服務時間
 		respEntity = checkClientStartEndDateAndServiceTime(clientId, apiUrl);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
 		}
 
-		// 5.檢查 client 被授權的 grant type, 是否有 "client_credentials"
+		// 6.檢查 client 被授權的 grant type, 是否有 "client_credentials"
 		String grantType = DgrTokenGrantType.CLIENT_CREDENTIALS; // basic 視等同 "client_credentials"
 		respEntity = checkClientSupportGrantType(clientId, grantType, apiUrl);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
 		}
 
-		// 6.檢查 client 的 scope(僅一般群組), 是否有權限打 API
+		// 7.檢查 client 的 scope(僅一般群組), 是否有權限打 API
 		respEntity = checkClientGroupScope(apiId, moduleName, clientId, apiUrl);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
 		}
 
-		// 7.檢查 client API可用量 和 打 API 成功後, API使用量 加1
+		// 8.檢查 client API可用量 和 打 API 成功後, API使用量 加1
 		respEntity = checkClientApiQuota(clientId, apiUrl);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
@@ -1662,11 +1721,33 @@ public class TokenHelper {
 				return respEntity;
 			}
 
-			// 3.是否 token 已撤銷
 			String jti = JsonNodeUtil.getNodeAsText(payloadJsonNode, "jti");
-			respEntity = checkAccessTokenRevoked(jti);
-			if (respEntity != null) {// 資料有錯誤
-				return respEntity;
+			
+			// 3.檢查 token 是否已撤銷
+			boolean isSkipForMemory = false;// for in-memory
+			if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole())) {
+				// 若角色為 Memory, 為 In-Memory GTW 流程
+				// 1.先取DB資料判斷是否已撤銷
+				respEntity = checkJtiHasValue(jti);
+				if (respEntity != null) {// 資料有錯誤
+					return respEntity;
+				}
+
+				TsmpTokenHistory tsmpTokenHistory = getTsmpTokenHistoryCacheProxy().findFirstByTokenJti(jti);
+				
+				// 2.若查無資料,則略過檢查狀態及 quota
+				if (tsmpTokenHistory == null) {// 查無資料
+					// Table [TSMP_TOKEN_HISTORY] 查不到資料
+					TPILogger.tl.debug("Table [TSMP_TOKEN_HISTORY] can't find data, token_jti:" + jti);
+					isSkipForMemory = true;
+				}
+				
+			} else {
+				// 用原本的方式檢查是否已撤銷
+				respEntity = checkAccessTokenRevoked(jti);
+				if (respEntity != null) {// 資料有錯誤
+					return respEntity;
+				}
 			}
 
 			// 4.檢查 client 狀態
@@ -1676,19 +1757,19 @@ public class TokenHelper {
 				return respEntity;
 			}
 
-			// 4.1.檢查主機清單
+			// 5.檢查主機清單
 			respEntity = checkHostList(clientId, apiUrl, httpReq);
 			if (respEntity != null) {// 資料驗證有錯誤
 				return respEntity;
 			}
 
-			// 5.檢查 client 用戶啟日/迄日 & 每日服務時間
+			// 6.檢查 client 用戶啟日/迄日 & 每日服務時間
 			respEntity = checkClientStartEndDateAndServiceTime(clientId, apiUrl);
 			if (respEntity != null) {// 資料驗證有錯誤
 				return respEntity;
 			}
 
-			// 6.檢查 user 狀態
+			// 7.檢查 user 狀態
 			String idpType = JsonNodeUtil.getNodeAsText(payloadJsonNode, "idp_type");
 			String userName = JsonNodeUtil.getNodeAsText(payloadJsonNode, "user_name");
 			String orgId = JsonNodeUtil.getNodeAsText(payloadJsonNode, "org_id");
@@ -1701,7 +1782,7 @@ public class TokenHelper {
 				}
 			}
 
-			// 7.檢查 access token 的 scope 是否有權限打 API
+			// 8.檢查 access token 的 scope 是否有權限打 API
 			JsonNode scopeArray = payloadJsonNode.get("scope");// 取得 token 的 scope(group id)
 			List<String> tokenScopeList = JsonNodeUtil.convertJsonArrayToList(scopeArray);
 			respEntity = checkTokenScope(apiId, moduleName, tokenScopeList, apiUrl);
@@ -1709,18 +1790,24 @@ public class TokenHelper {
 				return respEntity;
 			}
 
-			// 8.檢查 client API 可用量 和 打 API 成功後, API 使用量加1
+			// 9.檢查 client API 可用量 和 打 API 成功後, API 使用量加1
 			respEntity = checkClientApiQuota(clientId, apiUrl);
 			if (respEntity != null) {// 資料驗證有錯誤
 				return respEntity;
 			}
 
-			// 9.檢查 access token 可用量 和 打 API 成功後, access token 使用量加1
-			respEntity = checkClientAccessTokenQuota(jti, apiUrl);
-			if (respEntity != null) {// 資料驗證有錯誤
-				return respEntity;
+			// 10.檢查 access token 可用量 和 打 API 成功後, access token 使用量加1
+			if (isSkipForMemory) {// 查無資料,則略過檢查狀態及 quota
+				// 不檢查可用量,
+				// 但當角色為 Memory, 先用 Map 儲存 token 的使用量
+				addTokenUsedMap4InMemory(jti);
+			} else {
+				respEntity = checkClientAccessTokenQuota(jti, apiUrl);
+				if (respEntity != null) {// 資料驗證有錯誤
+					return respEntity;
+				}
 			}
-
+ 
 			// 寫入參數,做為後面寫log時使用
 			// 因為有些DB是不分大小寫,所以再去DB撈一次,來解決cid大小寫不一致,造成dashboard分組,不使用byId因為它不是根劇DB的大小寫回傳
 			TsmpClient tsmpClient = getTsmpClientCacheProxy().findFirstByClientId(clientId);
@@ -1741,6 +1828,42 @@ public class TokenHelper {
 			String errMsg = TokenHelper.Internal_Server_Error;
 			TPILogger.tl.error(errMsg);
 			return getInternalServerErrorResp(apiUrl, errMsg);// 500
+		}
+	}
+	
+	/**
+	 * for In-Memory GTW 流程, <br>
+	 * 當角色為 Memory, 先用 Map 儲存 token 的使用量, <br>
+	 * 當調用 refreshGTW API 時一起送到 Landing 加到總使用量 <br>
+	 */
+	private void addTokenUsedMap4InMemory(String jti) {
+		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole())) {
+			// 若角色為 Memory, 用 Map 儲存加 1 的數量(使用量)
+			Long used = TPILogger.tokenUsedMap.get(jti);
+			if (used == null) {
+				TPILogger.tokenUsedMap.put(jti, 1L);
+			} else {
+				used += 1;
+				TPILogger.tokenUsedMap.put(jti, used);
+			}
+		}
+	}
+	
+	/**
+	 * for In-Memory GTW 流程, <br>
+	 * 當角色為 Memory, 先用 Map 儲存 API 的使用量, <br>
+	 * 當調用 refreshGTW API 時一起送到 Landing 加到總使用量 <br>
+	 */
+	private void addApiUsedMap4InMemory(String clientId) {
+		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole())) {
+			// 若角色為 Memory, 用 Map 儲存加 1 的數量(使用量)
+			Integer used = TPILogger.apiUsedMap.get(clientId);
+			if (used == null) {
+				TPILogger.apiUsedMap.put(clientId, 1);
+			} else {
+				used += 1;
+				TPILogger.apiUsedMap.put(clientId, used);
+			}
 		}
 	}
 
@@ -1788,19 +1911,19 @@ public class TokenHelper {
 				return checkClientResp;
 			}
 
-			// 3.1.檢查主機清單
+			// 4.檢查主機清單
 			respEntity = checkHostList(clientId, apiUrl, httpReq);
 			if (respEntity != null) {// 資料驗證有錯誤
 				return respEntity;
 			}
 
-			// 4.檢查 client 用戶啟日/迄日 & 每日服務時間
+			// 5.檢查 client 用戶啟日/迄日 & 每日服務時間
 			respEntity = checkClientStartEndDateAndServiceTime(clientId, apiUrl);
 			if (respEntity != null) {// 資料驗證有錯誤
 				return respEntity;
 			}
 
-			// 5.驗證 signature
+			// 6.驗證 signature
 			boolean isPass = OpenApiKeyUtil.verifyDgrkSignature(payload, openApiKey, secretKey, signature);
 			if (!isPass) {
 				String errMsg = "API Key Signature Incorrect";
@@ -1808,7 +1931,7 @@ public class TokenHelper {
 				return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 			}
 
-			// 6.API Key 已停用
+			// 7.API Key 已停用
 			if ("0".equals(status)) {
 				String errMsg = "API Key Status is Deactived";
 				TPILogger.tl.debug(errMsg);
@@ -1817,7 +1940,7 @@ public class TokenHelper {
 
 			long nowTime = System.currentTimeMillis();// 亳秒
 
-			// 7.API Key 已撤銷
+			// 8.API Key 已撤銷
 			if (revokedAt != null) {
 				if (revokedAt < nowTime) {// 撤銷
 					Date revokedDate = new Date(revokedAt);
@@ -1829,7 +1952,7 @@ public class TokenHelper {
 				}
 			}
 
-			// 8.API Key 已過期
+			// 9.API Key 已過期
 			if (expiredAt < nowTime) {// 過期
 				Date expireDate = new Date(expiredAt);
 				String expiredStr = DateTimeUtil.dateTimeToString(expireDate, DateTimeFormatEnum.西元年月日時分秒毫秒_2)
@@ -1839,20 +1962,20 @@ public class TokenHelper {
 				return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 			}
 
-			// 9.API Key 超過次數限制
+			// 10.API Key 超過次數限制
 			if (timesQuota == 0) {
 				String errMsg = "API Key Times Quota is 0";
 				TPILogger.tl.debug(errMsg);
 				return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 			}
 
-			// 10.檢查API Key 是否有取用此 API 的權限
+			// 11.檢查API Key 是否有取用此 API 的權限
 			respEntity = checkOpenApiKeyPermission(apiId, moduleName, openApikeyId, apiUrl);
 			if (respEntity != null) {
 				return respEntity;
 			}
 
-			// 11.打 API 成功後, API Key 的 timesQuota 要減1
+			// 12.打 API 成功後, API Key 的 timesQuota 要減1
 			if (timesQuota > 0) {
 				timesQuota = timesQuota - 1;
 				tsmpOpenApiKey.setTimesQuota(timesQuota);
@@ -2054,8 +2177,7 @@ public class TokenHelper {
 		// 因為最終要用findFirstByClientId的cache機制,所以沒用findById
 		TsmpClient cache_tsmpClient = getTsmpClientCacheProxy().findFirstByClientId(clientId);
 		if (cache_tsmpClient == null) {
-			ResponseEntity<?> errRespEntity = getFindTsmpClientError(clientId, reqUri);
-			return errRespEntity;
+            return getFindTsmpClientError(clientId, reqUri);
 		}
 
 		Integer apiQuota = cache_tsmpClient.getApiQuota();
@@ -2066,6 +2188,10 @@ public class TokenHelper {
 
 		// --- 使用 Dao ---
 		Optional<TsmpClient> opt_client = getTsmpClientDao().findById(clientId);
+		if (opt_client.isEmpty()){
+            return getFindTsmpClientError(clientId, reqUri);
+		}
+
 		TsmpClient tsmpClient = opt_client.get();
 		apiQuota = tsmpClient.getApiQuota();
 		Integer apiUsed = tsmpClient.getApiUsed() == null ? 0 : tsmpClient.getApiUsed();
@@ -2086,7 +2212,10 @@ public class TokenHelper {
 		tsmpClient.setUpdateTime(DateTimeUtil.now());
 		tsmpClient.setUpdateUser("SYSTEM apiUsed");
 		getTsmpClientDao().saveAndFlush(tsmpClient);
-
+		
+		// 當角色為 Memory, 先用 Map 儲存 API 使用量
+		addApiUsedMap4InMemory(clientId);
+		
 		return null;
 	}
 
@@ -2131,6 +2260,9 @@ public class TokenHelper {
 		tokenUsed += 1;
 		tsmpTokenHistory.setTokenUsed(tokenUsed);
 		tsmpTokenHistory = getTsmpTokenHistoryDao().saveAndFlush(tsmpTokenHistory);
+		
+		// 當角色為 Memory, 先用 Map 儲存 token 的使用量
+		addTokenUsedMap4InMemory(jti);
 
 		return null;
 	}
@@ -2396,6 +2528,10 @@ public class TokenHelper {
 		MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
 		header.put("Content-Type", Arrays.asList(MediaType.APPLICATION_JSON.toString()));
 		return header;
+	}
+	
+	protected String getDeployRole() {
+		return deployRole;
 	}
 
 	protected OauthClientDetailsCacheProxy getOauthClientDetailsCacheProxy() {

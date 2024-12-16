@@ -19,6 +19,7 @@ import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.component.alert.DpaaAlertDetectResult;
 import tpi.dgrv4.dpaa.component.alert.DpaaAlertEvent;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.dpaa.es.DgrESService;
 import tpi.dgrv4.dpaa.service.TsmpSettingService;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
@@ -129,9 +130,14 @@ public class DpaaAlertDetectorJobKeyword extends DpaaAlertDetectorJob<DpaaAlertD
 		String timeField = "ts";	// 預設搜尋 tsmp_api_log		
 
 		// 要搜尋的索引名稱
-		String endTimeStr = DateTimeUtil.dateTimeToString(endTime, DateTimeFormatEnum.西元年月日_3).get();
+		String endTimeStr = DateTimeUtil.dateTimeToString(endTime, DateTimeFormatEnum.西元年月日_3).orElse(null);
 		List<String> indices = Arrays.asList(new String[] {"tsmp_api_log_" + endTimeStr});
-		String startTimeStr = DateTimeUtil.dateTimeToString(startTime, DateTimeFormatEnum.西元年月日_3).get();
+		String startTimeStr = DateTimeUtil.dateTimeToString(startTime, DateTimeFormatEnum.西元年月日_3).orElse(null);
+		
+		if (!StringUtils.hasLength(startTimeStr)) {
+			throw TsmpDpAaRtnCode._1381.throwing();
+		}
+		
 		if (!startTimeStr.equals(endTimeStr)) {	// 起訖不同日
 			indices.add("tsmp_api_log_" + startTimeStr);
 		}

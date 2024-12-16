@@ -14,7 +14,7 @@ public enum TsmpDpReqReviewStatus {
 	DENIED("DENIED", "不同意"),
 	RETURN("RETURN", "退回"),
 	WAIT2("WAIT2", "待審(重送)"),
-	END("END", "結案/終止")
+	END("END", "取消")
 	;
 
 	private String value;

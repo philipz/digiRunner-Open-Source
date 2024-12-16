@@ -9,6 +9,7 @@ import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpApptJobStatus;
 import tpi.dgrv4.common.constant.TsmpDpRjobStatus;
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -26,6 +27,7 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -272,7 +274,7 @@ public class ApptRjobDispatcher implements Runnable {
 		job.setCreateDateTime(DateTimeUtil.now());
 		job.setCreateUser("SYS");
 		this.logger.trace("準備寫入週期排程項目: rjobId= " + job.getPeriodUid() +", rjobDId=" + job.getPeriodItemsId() + ", nextDt="
-				+ DateTimeUtil.dateTimeToString(new Date(job.getPeriodNexttime()), DateTimeFormatEnum.西元年月日時分秒_2).get()
+				+ DateTimeUtil.dateTimeToString(new Date(job.getPeriodNexttime()), DateTimeFormatEnum.西元年月日時分秒_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295))
 			    + ", inParams=" + job.getInParams());
 		job = getApptJobDispatcher().addAndRefresh(job);
 		if (job != null) {
@@ -600,7 +602,8 @@ public class ApptRjobDispatcher implements Runnable {
 				apptRjobId, 
 				rjob.getNextDateTime()
 			);
-			rjob = getTsmpDpApptRjobDao().findById(apptRjobId).get();
+			rjob = getTsmpDpApptRjobDao().findById(apptRjobId).orElse(null);
+			assert rjob != null;
 
 			// 如果推移後的執行時間, 週期排程將會失效, 就不寫入 apptJob
 			if (isRjobValid(rjob, newNextDateTime.getTime())) {
@@ -637,8 +640,8 @@ public class ApptRjobDispatcher implements Runnable {
 			throw DgrRtnCode._1296.throwing();
 		}
 		try {
-			CronExpression.isValidExpression(rjob.getCronExpression());
-		} catch (Exception e) {
+			CronExpression.parse(rjob.getCronExpression());
+		} catch (IllegalArgumentException e) {
 			this.logger.debug("週期排程表達式錯誤");
 			throw DgrRtnCode._1290.throwing();
 		}
@@ -715,30 +718,31 @@ public class ApptRjobDispatcher implements Runnable {
 	 * @return
 	 */
 	protected Date getAdjustedExecutionTime(Date requestTime, Date currentTime, String expression, int skipTimes) {
-		if (requestTime == null || !StringUtils.hasText(expression)) return null;
-		if (currentTime == null) currentTime = DateTimeUtil.now();
+		if (requestTime == null || !StringUtils.hasText(expression)){
+			return null;
+		}
+
+		if (currentTime == null) {
+			currentTime = Date.from(Instant.now());
+		}
 
 		CronExpression ce = CronExpression.parse(expression);
-		Date executionTime = null;
-		// 如果請求時間大於等於現在時間
-		if (requestTime.compareTo(currentTime) > 0) {
-			// 如果請求時間正好在週期時間上
-			if (isOnScheduledTime(requestTime, expression)) {
-				executionTime = requestTime;
-			} else {
-				executionTime = Date.from(Objects.requireNonNull(ce.next(requestTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())).atZone(ZoneId.systemDefault()).toInstant());
-			}
+		ZonedDateTime requestZdt = ZonedDateTime.ofInstant(requestTime.toInstant(), ZoneId.systemDefault());
+		ZonedDateTime currentZdt = ZonedDateTime.ofInstant(currentTime.toInstant(), ZoneId.systemDefault());
+
+		ZonedDateTime executionTime;
+		if (requestZdt.isAfter(currentZdt)) {
+			executionTime = isOnScheduledTime(requestTime, expression) ? requestZdt : ce.next(requestZdt);
 		} else {
-			executionTime = Date.from(Objects.requireNonNull(ce.next(currentTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())).atZone(ZoneId.systemDefault()).toInstant());
+			executionTime = ce.next(currentZdt);
 		}
 
-		if (skipTimes > -1) {
-			for (int i = 0; i < skipTimes; i++) {
-				executionTime = Date.from(Objects.requireNonNull(ce.next(executionTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())).atZone(ZoneId.systemDefault()).toInstant());
-			}
+		for (int i = 0; i < skipTimes; i++) {
+            assert executionTime != null;
+            executionTime = ce.next(executionTime);
 		}
-
-		return executionTime;
+		assert executionTime != null;
+		return Date.from(executionTime.toInstant());
 	}
 
 	/**
@@ -786,19 +790,20 @@ public class ApptRjobDispatcher implements Runnable {
 	 */
 	protected boolean isOnScheduledTime(Date dt, String expression) {
 		CronExpression ce = CronExpression.parse(expression);
-		// 調整 dt 的毫秒
-		Calendar input = Calendar.getInstance();
-		input.setTime(dt);
-		input.set(Calendar.MILLISECOND, 0);
-		// 從  dt 前 1 秒開始推算
-		Calendar base = (Calendar) input.clone();
-		base.set(Calendar.SECOND, base.get(Calendar.SECOND) - 1);
-		boolean isHit = false;
-		while(!isHit && input.compareTo(base) >= 0) {
-			base.setTime( Date.from(Instant.from(ce.next(base.getTime().toInstant()))) );
-			isHit = base.compareTo(input) == 0;
+		ZonedDateTime dateTime = ZonedDateTime.ofInstant(dt.toInstant(), ZoneId.systemDefault())
+				.withNano(0);  // 忽略納秒
+		ZonedDateTime previous = dateTime.minusSeconds(1);
+
+		ZonedDateTime nextDateTime = ce.next(previous);
+
+		// 檢查 nextDateTime 是否為 null
+		if (nextDateTime == null) {
+			// 如果 next() 返回 null，表示沒有下一個執行時間
+			// 這種情況下，當前時間肯定不是預定的執行時間
+			return false;
 		}
-		return isHit;
+
+		return nextDateTime.equals(dateTime);
 	}
 
 	protected TsmpDpItems getItemsById(String itemNo, String subitemNo, boolean errorWhenNotExists, String locale) {
@@ -816,7 +821,7 @@ public class ApptRjobDispatcher implements Runnable {
 	}
 
 	private String toDtStr(Date dt) {
-		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).orElse("");
+		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 	}
 
 	protected TsmpDpApptJobDao getTsmpDpApptJobDao() {

@@ -63,6 +63,7 @@ import tpi.dgrv4.dpaa.component.job.SendOpenApiKeyMailJob;
 import tpi.dgrv4.dpaa.component.job.SendReviewMailJob;
 import tpi.dgrv4.dpaa.component.rjob.ThinkpowerArticleJob;
 import tpi.dgrv4.dpaa.vo.TsmpMailEvent;
+import tpi.dgrv4.dpaa.component.job.SendMailJob;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.entity.jpql.TsmpEvents;
 import tpi.dgrv4.gateway.component.job.appt.HttpUtilJob;
@@ -450,6 +451,12 @@ public class DpaaJobConfig {
 	public DpaaAlertDetectorJobSystemBasic apptJob_RUNLOOP_ALERT_SYSTEM_BASIC(TsmpDpApptJob job) throws Exception {
 		ObjectMapper objectMapper = beanConfig.objectMapper();
 		return new DpaaAlertDetectorJobSystemBasic(job, objectMapper);
+	}
+
+	@Bean
+	@Scope("prototype")
+	public SendMailJob SendMailJob(TsmpAuthorization auth, List<TsmpMailEvent> mailEvents, String sendTime,String identif) {
+		return new SendMailJob(auth, mailEvents, sendTime ,identif);
 	}
 
 }

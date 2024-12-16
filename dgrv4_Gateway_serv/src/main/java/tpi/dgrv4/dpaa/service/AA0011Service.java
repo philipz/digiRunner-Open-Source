@@ -1,5 +1,7 @@
 package tpi.dgrv4.dpaa.service;
 
+import static tpi.dgrv4.dpaa.util.ServiceUtil.isValueTooLargeException;
+
 import java.util.List;
 
 import jakarta.transaction.Transactional;
@@ -82,7 +84,11 @@ public class AA0011Service {
 			throw e;
 		} catch (Exception e) {
 			this.logger.error(StackTraceUtil.logStackTrace(e));
-			throw TsmpDpAaRtnCode._1288.throwing();
+			if (isValueTooLargeException(e)) {
+				throw TsmpDpAaRtnCode._1220.throwing();
+			} else {
+				throw TsmpDpAaRtnCode._1288.throwing();
+			}
 				
 		}
 		return resp;
@@ -141,10 +147,10 @@ public class AA0011Service {
 		}
 		
 		String msg = "";
-		if(roleAlias.length() > 30) {
+		if(roleAlias.length() > 255) {
 			int length = roleAlias.length();
 			msg = String.valueOf(length);
-			throw TsmpDpAaRtnCode._1302.throwing("30",msg);
+			throw TsmpDpAaRtnCode._1302.throwing("255",msg);
 		}
 		
 		if(isRoleAliasDuplicated(roleAlias)) 

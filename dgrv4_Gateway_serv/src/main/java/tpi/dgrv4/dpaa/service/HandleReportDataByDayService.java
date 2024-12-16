@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.ReportDateTimeRangeTypeEnum;
 import tpi.dgrv4.common.constant.ReportTypeEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.dpaa.util.ReportUtil;
 import tpi.dgrv4.entity.entity.jpql.TsmpReportData;
@@ -35,7 +36,7 @@ public class HandleReportDataByDayService {
 
 		// 現在區間的日期
 		Date nowIntervalDate = this.getNowIntervalDate(execDate);
-		TPILogger.tl.debug("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).get());
+		TPILogger.tl.debug("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
 		
 		ReportUtil reportUtil = new ReportUtil();
 		
@@ -161,7 +162,7 @@ public class HandleReportDataByDayService {
 		// =====================================================================================================================
 		// 刪除小時資料
 		Date deleteDate = getDeleteIntervalDate(execDate);
-		TPILogger.tl.debug("deleteDate = " + DateTimeUtil.dateTimeToString(deleteDate, DateTimeFormatEnum.西元年月日時分秒).get());
+		TPILogger.tl.debug("deleteDate = " + DateTimeUtil.dateTimeToString(deleteDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
 		getTsmpReportDataDao().deleteByDateTimeRangeTypeAndLastRowDateTimeLessThan(
 				ReportDateTimeRangeTypeEnum.HOUR.value(), deleteDate);
 
@@ -179,7 +180,7 @@ public class HandleReportDataByDayService {
 	}
 
 	private Date getNowIntervalDate(Date nowDate) {
-		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 //		String mm = strDate.substring(14);
 //		String HH = strDate.substring(11,13);
 //		// 如果在0點0分就回上一個區間
@@ -193,13 +194,13 @@ public class HandleReportDataByDayService {
 //
 		strDate = strDate.substring(0, 10);
 		strDate = strDate + " 00:00:00.000";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 	}
 
 	private Date getDeleteIntervalDate(Date nowDate) {
-		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		String mm = strDate.substring(14);
 		// 如果剛好整點就回上一個區間
 		if (Integer.parseInt(mm) == 0) {
@@ -214,11 +215,11 @@ public class HandleReportDataByDayService {
 		day_nowTime.setTime(nowDate);
 		day_nowTime.add(Calendar.DATE, -3);
 		nowDate = day_nowTime.getTime();
-		strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		strDate = strDate.substring(0, 14);
 		strDate = strDate + "00:00.000";
-		Date day_nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date day_nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return day_nowIntervalDate;
 

@@ -30,8 +30,8 @@ import { ChipModule } from 'primeng/chip';
 import {SelectButtonModule} from 'primeng/selectbutton';
 import {ChipsModule} from 'primeng/chips';
 import {ScrollPanelModule} from 'primeng/scrollpanel';
-
-
+import {MegaMenuModule} from 'primeng/megamenu';
+import {MenuModule} from 'primeng/menu';
 
 const sharedModules: any[] = [
     InputTextModule,
@@ -63,7 +63,8 @@ const sharedModules: any[] = [
     ChipModule,
     SelectButtonModule,
     ChipsModule,
-    ScrollPanelModule
+    ScrollPanelModule,
+    MegaMenuModule,MenuModule
 ];
 @NgModule({
     imports: [CommonModule],

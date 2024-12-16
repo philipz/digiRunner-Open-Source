@@ -10,9 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.esotericsoftware.kryo.Kryo;
 
-import tpi.dgrv4.tcp.utils.packets.DoSetUserName;
 import tpi.dgrv4.tcp.utils.packets.sys.Packet_i;
-import tpi.dgrv4.tcp.utils.packets.sys.TcpIdentity;
 
 public class CommunicationServer implements Runnable {
 	ServerSocket server = null;
@@ -30,6 +28,7 @@ public class CommunicationServer implements Runnable {
 	public LinkedList<LinkerServer> connClinet = null;
 	public HashMap<IP_PortKey, LinkerServer> connMap = null;
 	public ArrayList<Notifier> notifiers = null;
+	public ConcurrentHashMap<String, Packet_i> ExternalDgrInfoMap;
 	public ConcurrentHashMap<String, Packet_i> httpNodeInfo;
 
 	public CommunicationServer(int port) {
@@ -53,11 +52,11 @@ public class CommunicationServer implements Runnable {
 		t.start();
 	}
 
-	public void addNotifier(Notifier notifier){
-		if (this.notifiers==null){
+	public void addNotifier(Notifier notifier) {
+		if (this.notifiers == null) {
 			notifiers = new ArrayList<Notifier>();
 		}
-		if (notifier != null){
+		if (notifier != null) {
 			this.notifiers.add(notifier);
 		}
 	}
@@ -98,7 +97,7 @@ public class CommunicationServer implements Runnable {
 			String remoteIp = con.getRemoteIP();
 			int remotePort = con.getRemotePort();
 			connMap.put(new IP_PortKey(remoteIp, remotePort), con);
-			for (Notifier noti: notifiers) {
+			for (Notifier noti : notifiers) {
 				noti.runConnection(con);
 			}
 			Thread t = new Thread(con);
@@ -113,7 +112,7 @@ public class CommunicationServer implements Runnable {
 			String remoteIp = conn.getRemoteIP();
 			connMap.remove(new IP_PortKey(remoteIp, remotePort));
 			connClinet.remove(conn);
-			for (Notifier noti: notifiers) {
+			for (Notifier noti : notifiers) {
 				noti.runDisconnect(conn);
 			}
 			notify();
@@ -139,24 +138,24 @@ public class CommunicationServer implements Runnable {
 	public void sendToAll_NotSelf(LinkerServer conn, Packet_i data) {
 		synchronized (connClinet) {
 			for (LinkerServer ll : connClinet) {
-				if (ll==conn){
+				if (ll == conn) {
 					continue;
 				}
 				ll.send(data);
 			}
 		}
 	}
-	
-	public void sendToSpecUserNames(LinkerServer conn, Packet_i data, String names[]){
+
+	public void sendToSpecUserNames(LinkerServer conn, Packet_i data, String names[]) {
 		synchronized (connClinet) {
-			int i=0;
+			int i = 0;
 			for (LinkerServer ll : connClinet) {
-				if (ll==conn ){
+				if (ll == conn) {
 					continue;
 				}
-				
+
 				for (int j = 0; j < names.length; j++) {
-					if (names[j].equals(ll.userName)){
+					if (names[j].equals(ll.userName)) {
 						ll.send(data);
 						System.err.println("server send to " + ll.userName);
 						break;
@@ -165,7 +164,6 @@ public class CommunicationServer implements Runnable {
 			}
 		}
 	}
-	
 
 	// 创建一个 Kryo 对象池，每个线程都从池中获取一个 Kryo 对象进行序列化和反序列化
 	public static final ThreadLocal<Kryo> kryoLocal = ThreadLocal.withInitial(() -> {
@@ -184,5 +182,5 @@ public class CommunicationServer implements Runnable {
 //		kryo.setWarnUnregisteredClasses(true); 
 		return kryo;
 	});
-    
+
 }

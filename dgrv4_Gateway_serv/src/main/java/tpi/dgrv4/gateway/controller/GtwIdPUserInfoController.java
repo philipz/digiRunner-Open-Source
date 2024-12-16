@@ -22,7 +22,7 @@ public class GtwIdPUserInfoController {
 	@Autowired
 	GtwIdPUserInfoService gtwIdPUserInfoService;
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/ssotoken/gtwidp/userInfo", 
 		consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, // 使用 Form Urlencoded 格式
 		produces = MediaType.APPLICATION_JSON_VALUE)

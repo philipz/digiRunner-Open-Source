@@ -49,6 +49,8 @@ public class IdPApiHelper {
 		public String userName;
 		public String userEmail;
 		public String userPicture;
+		public String idtLightId ;
+		public String idtRoleName;
 	}
 
 	/**
@@ -90,7 +92,8 @@ public class IdPApiHelper {
 	public static List<String> getKeyList(String str) {
 		List<String> keyList = new ArrayList<>();
 		Pattern pattern = Pattern.compile("\\{\\{\\$(.*?)%\\}\\}");
-		Matcher match = pattern.matcher(str);
+		if (str==null) {str="";}
+		Matcher match = pattern.matcher(str); // 不接受 null 
 
 		while (match.find()) {
 			keyList.add(match.group(1));// 例如: "user.name_th" 或 "user.name_en"
@@ -122,11 +125,13 @@ public class IdPApiHelper {
 		}
 
 		if (node.isArray()) {
-			return null;
+	        // 轉成 JSON 字串
+	        String nodeJsonString = new ObjectMapper().writeValueAsString(node);
+			return nodeJsonString;
 		}
 
 		if (node.isObject()) {
-			return null;
+			return  new ObjectMapper().writeValueAsString(node);
 		}
 
 		String value = node.asText();
@@ -184,6 +189,10 @@ public class IdPApiHelper {
 		String idtName = null;
 		String idtEmail = null;
 		String idtPicture = null;
+
+		String idtLightId = null;
+		String idtRoleName = null;
+
 		boolean isAc = true;
 		if (infoData instanceof DgrGtwIdpInfoA) {
 			isAc = false;
@@ -200,7 +209,8 @@ public class IdPApiHelper {
 			idtName = ((DgrGtwIdpInfoA) infoData).getIdtName();
 			idtEmail = ((DgrGtwIdpInfoA) infoData).getIdtEmail();
 			idtPicture = ((DgrGtwIdpInfoA) infoData).getIdtPicture();
-			
+			idtLightId = ((DgrGtwIdpInfoA) infoData).getIdtLightId();
+			idtRoleName = ((DgrGtwIdpInfoA) infoData).getIdtRoleName();
 		}else if (infoData instanceof DgrAcIdpInfoApi) {
 			loginUrl = ((DgrAcIdpInfoApi) infoData).getApiUrl();
 			apiMethod = ((DgrAcIdpInfoApi) infoData).getApiMethod();
@@ -214,6 +224,7 @@ public class IdPApiHelper {
 			idtName = ((DgrAcIdpInfoApi) infoData).getIdtName();
 			idtEmail = ((DgrAcIdpInfoApi) infoData).getIdtEmail();
 			idtPicture = ((DgrAcIdpInfoApi) infoData).getIdtPicture();
+
 		}
 		
 		ApiUserInfoData apiUserInfoData = new ApiUserInfoData();
@@ -370,7 +381,8 @@ public class IdPApiHelper {
 			apiUserInfoData.userName = IdPApiHelper.getJsonValueByParam(respJson, idtName);
 			apiUserInfoData.userEmail = IdPApiHelper.getJsonValueByParam(respJson, idtEmail);
 			apiUserInfoData.userPicture = IdPApiHelper.getJsonValueByParam(respJson, idtPicture);
-
+			apiUserInfoData.idtLightId = IdPApiHelper.getJsonValueByParam(respJson, idtLightId);
+			apiUserInfoData.idtRoleName = IdPApiHelper.getJsonValueByParam(respJson, idtRoleName);
 		} catch (Exception e) {
 			TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));
 			String errMsg = "";

@@ -31,7 +31,7 @@ public class DPB9912Controller {
 	@Autowired
 	private DPB9912Service service;
 		
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/17/DPB9912", params = {"before"}, //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,7 +49,7 @@ public class DPB9912Controller {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/17/DPB9912", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

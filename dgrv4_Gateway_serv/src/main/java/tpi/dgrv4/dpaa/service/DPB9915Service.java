@@ -155,7 +155,7 @@ public class DPB9915Service  {
 				lastDate = updDateTime;
 				lastUser = tsmpDpFile.getUpdateUser();
 			}
-			String lastDateString = DateTimeUtil.dateTimeToString(lastDate, DateTimeFormatEnum.西元年月日時分秒_2).get();
+			String lastDateString = DateTimeUtil.dateTimeToString(lastDate, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 			item.setLastUpdDateTime(lastDateString);
 			item.setLastUpdUser(lastUser);
 
@@ -253,7 +253,7 @@ public class DPB9915Service  {
 	private Date checkDateFormat(String dateString) {
 		Date date;
 		try {
-			date = DateTimeUtil.stringToDateTime(dateString, DateTimeFormatEnum.西元年月日時分秒_2).get();
+			date = DateTimeUtil.stringToDateTime(dateString, DateTimeFormatEnum.西元年月日時分秒_2).orElseThrow();
 		} catch (Exception e) {
 			throw TsmpDpAaRtnCode._1295.throwing();
 		}

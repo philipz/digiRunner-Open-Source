@@ -1,21 +1,14 @@
 package tpi.dgrv4.dpaa.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import tpi.dgrv4.common.constant.SafeHttpMethod;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
-import tpi.dgrv4.common.keeper.ITPILogger;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.service.composer.ComposerService;
 import tpi.dgrv4.dpaa.vo.AA0312Req;
@@ -24,6 +17,11 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AA0312Service {
@@ -57,10 +55,12 @@ public class AA0312Service {
 		return resp;
 	}
 
-	protected HttpMethod checkParams(AA0312Req req) {
-		String method = req.getMethod().toUpperCase();
-		HttpMethod httpMethod = HttpMethod.valueOf(method);
-		if (httpMethod == null) {
+	protected SafeHttpMethod checkParams(AA0312Req req) {
+		String method = req.getMethod();
+		SafeHttpMethod httpMethod = null;
+		try{
+			httpMethod = SafeHttpMethod.safeValueOf(method, true);
+		}catch (IllegalArgumentException e){
 			throw TsmpDpAaRtnCode._1352.throwing("{{method}}");
 		}
 		return httpMethod;

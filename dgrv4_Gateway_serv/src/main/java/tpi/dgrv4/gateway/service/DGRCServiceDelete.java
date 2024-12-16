@@ -39,7 +39,7 @@ import tpi.dgrv4.gateway.vo.FixedCacheVo;
 import tpi.dgrv4.gateway.vo.TsmpApiLogReq;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
-
+@Deprecated
 @Service
 public class DGRCServiceDelete implements IApiCacheService{
 	
@@ -104,7 +104,7 @@ public class DGRCServiceDelete implements IApiCacheService{
 			// 1. req header / body
 			// print log
 			String uuid = UUID.randomUUID().toString();
-			//判斷是否需要cAikey
+			//判斷是否需要cApikey
 			boolean cApiKeySwitch = getCommForwardProcService().getcApiKeySwitch(dgrcDel_moduleName, apiId);
 			String aType = "R";
 			if(cApiKeySwitch) {
@@ -409,10 +409,13 @@ public class DGRCServiceDelete implements IApiCacheService{
 		while (headerKeys.hasMoreElements()) {
 			String key = headerKeys.nextElement();
 			List<String> valueList = httpHeaders.get(key);
-			String tmpValue = valueList.toString();
-			//[ ] 符號總是位於 String 的第一個和最後一個字符，則可以使用 substring() 方法更有效地去除它們。
-			tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
-			String value = getCommForwardProcService().convertAuth(key, tmpValue, maskInfo);
+			String value = null;
+			if (!CollectionUtils.isEmpty(valueList)) {
+				String tmpValue = valueList.toString();
+				// [ ] 符號總是位於 String 的第一個和最後一個字符，則可以使用 substring() 方法更有效地去除它們。
+				tmpValue = tmpValue.substring(1, tmpValue.length() - 1);
+				value = getCommForwardProcService().convertAuth(key, tmpValue, maskInfo);
+			}
 			writeLogger(dgrcDel_log, "\tKey: " + key + ", Value: " + value);
 		}
 		writeLogger(dgrcDel_log, "--【End】 " + StackTraceUtil.getLineNumber() + " --\r\n");

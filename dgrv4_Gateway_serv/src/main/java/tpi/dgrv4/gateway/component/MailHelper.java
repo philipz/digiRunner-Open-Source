@@ -370,7 +370,7 @@ public class MailHelper {
 			}
 			
 			//這段 Regex 已被 Tom Review 過了, 故取消 hotspot 標記
-			if (i == delimiterE && paramSegment.matches(".*'.*'.*")) {
+			if (i == delimiterE && paramSegment.matches(".*'.*'.*")) { // NOSONAR
 				params.add( paramSegment.substring(delimiterS + 1, delimiterE) );
 			}
 		}
@@ -380,8 +380,9 @@ public class MailHelper {
 
 	private String resolveCode(String code, String refCode) {
 		//這段 Regex 已被 Tom Review 過了, 故取消 hotspot 標記
-		Pattern p = Pattern.compile("([\\$|\\^]*)(.+)");
-		Matcher m = p.matcher(refCode);
+		Pattern p = Pattern.compile("([\\$|\\^]*)(.+)"); // NOSONAR
+		if (refCode==null) {refCode="";}
+		Matcher m = p.matcher(refCode); // 不接受 null 
 		if (m.matches()) {
 			refCode = m.group(2);
 			String ch = null;

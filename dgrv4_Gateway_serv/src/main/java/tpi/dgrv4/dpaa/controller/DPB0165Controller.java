@@ -22,7 +22,7 @@ import tpi.dgrv4.gateway.vo.TsmpHttpHeader;
 public class DPB0165Controller {
 	@Autowired
 	private DPB0165Service service ;
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/11/DPB0165", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

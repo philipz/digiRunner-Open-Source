@@ -12,58 +12,67 @@ import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.ifs.TsmpCoreTokenBase;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.config.UrlMappingRefresher;
 import tpi.dgrv4.dpaa.vo.DPB9903Req;
 import tpi.dgrv4.dpaa.vo.DPB9903Resp;
-import tpi.dgrv4.entity.component.cipher.TsmpCoreTokenEntityHelper;
 import tpi.dgrv4.entity.component.cipher.TsmpTAEASKHelper;
 import tpi.dgrv4.entity.entity.TsmpSetting;
 import tpi.dgrv4.entity.repository.TsmpSettingDao;
+import tpi.dgrv4.gateway.TCP.Packet.BotDetectionUpdatePacket;
 import tpi.dgrv4.gateway.TCP.Packet.UpdateComposerTSPacket;
+import tpi.dgrv4.gateway.component.BotDetectionRuleValidator;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.ComposerWebSocketClientConn;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
-
 @Service
 public class DPB9903Service {
-    public enum EncrptionType{
-        ENC,TAEASK,NONE
-    }
+	public enum EncrptionType {
+		ENC, TAEASK, NONE
+	}
+
 	private TPILogger logger = TPILogger.tl;
 
 	@Autowired
 	private TsmpSettingDao tsmpSettingDao;
-	
+
 	@Autowired
 	private DgrAuditLogService dgrAuditLogService;
-	
+
 	@Autowired(required = false)
 	private TsmpCoreTokenBase tsmpCoreTokenBase;
-    
-    @Autowired
-    private TsmpTAEASKHelper tsmpTAEASKHelper;
 
-    @Autowired
-    private DaoGenericCacheService daoGenericCacheService;
-    
-    @Autowired
-    private ComposerWebSocketClientConn composerWebSocketClientConn;
-    
+	@Autowired
+	private TsmpTAEASKHelper tsmpTAEASKHelper;
+
+	@Autowired
+	private DaoGenericCacheService daoGenericCacheService;
+
+	@Autowired
+	private ComposerWebSocketClientConn composerWebSocketClientConn;
+
+	@Autowired
+	private UrlMappingRefresher urlMappingRefresher;
+
+	@Autowired
+	private BotDetectionRuleValidator botDetectionRuleValidator;
+
 	public DPB9903Resp updateTsmpSetting(TsmpAuthorization auth, DPB9903Req req, InnerInvokeParam iip) {
-		
-		//寫入 Audit Log M
+
+		// 寫入 Audit Log M
 		String lineNumber = StackTraceUtil.getLineNumber();
 		getDgrAuditLogService().createAuditLogM(iip, lineNumber, AuditLogEvent.UPDATE_TSMP_SETTING.value());
-		
+
 		checkParams(req);
-		
+
 		try {
 			TsmpSetting oldSetting = findOldSetting(req);
 			if (oldSetting == null) {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
-			
+
 			TsmpSetting newSetting = updateOldSetting(oldSetting, req, iip);
 
 			/**
@@ -84,12 +93,17 @@ public class DPB9903Service {
 			}
 
 			refreshCache(newSetting);
-			
-			//因為composer address被更新,websocket要重連
-			if("TSMP_COMPOSER_ADDRESS".equals(req.getId())) {
+			freshUrlMappings(newSetting);
+			freshBotDetectionRuleValidator(newSetting);
+
+			// 因為composer address被更新,websocket要重連
+			if ("TSMP_COMPOSER_ADDRESS".equals(req.getId())) {
 				restartWs();
 			}
-			
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.SETTING.value());
+
 			return new DPB9903Resp();
 		} catch (TsmpDpAaException e) {
 			throw e;
@@ -101,14 +115,34 @@ public class DPB9903Service {
 			throw TsmpDpAaRtnCode._1286.throwing();
 		}
 	}
-	
+
+	private void freshBotDetectionRuleValidator(TsmpSetting newSetting) {
+
+		if (newSetting != null) {
+			String id = newSetting.getId();
+			if (TsmpSettingDao.Key.CHECK_BOT_DETECTION.equals(id) || TsmpSettingDao.Key.BOT_DETECTION_LOG.equals(id)) {
+				BotDetectionUpdatePacket packet = new BotDetectionUpdatePacket();
+				TPILogger.lc.send(packet);
+			}
+		}
+	}
+
+	private void freshUrlMappings(TsmpSetting newSetting) {
+
+		String id = newSetting.getId();
+
+		if (TsmpSettingDao.Key.DGR_AC_LOGIN_PAGE.equalsIgnoreCase(id)) {
+			urlMappingRefresher.refreshUrlMappings();
+		}
+	}
+
 	protected void restartWs() {
 		getComposerWebSocketClientConn().restart();
 	}
 
 	protected void checkParams(DPB9903Req req) {
 		String id = req.getId();
-		
+
 		if (!StringUtils.hasLength(id)) {
 			throw TsmpDpAaRtnCode._1296.throwing();
 		}
@@ -122,54 +156,51 @@ public class DPB9903Service {
 	}
 
 	protected TsmpSetting updateOldSetting(TsmpSetting setting, DPB9903Req req, InnerInvokeParam iip) throws Exception {
-		String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, setting); //舊資料統一轉成 String
-		
+		String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, setting); // 舊資料統一轉成 String
+
 		String newVal = req.getNewVal();
 		String memo = req.getMemo();
 		if (req.getEncrptionType().equals(EncrptionType.ENC.toString())) {
-            String encEncode=getENCEncode(newVal);
-            setting.setValue(encEncode);
-        }
-        else if (req.getEncrptionType().equals(EncrptionType.TAEASK.toString())) {
-           String TAEASKEncode=getTAEASKEncode(newVal);
-            setting.setValue(TAEASKEncode);
-        }else {
-            setting.setValue(newVal);
-        }
-		
-		
+			String encEncode = getENCEncode(newVal);
+			setting.setValue(encEncode);
+		} else if (req.getEncrptionType().equals(EncrptionType.TAEASK.toString())) {
+			String TAEASKEncode = getTAEASKEncode(newVal);
+			setting.setValue(TAEASKEncode);
+		} else {
+			setting.setValue(newVal);
+		}
+
 //		setting.setValue(newVal);
 		setting.setMemo(memo);
 		setting = getTsmpSettingDao().saveAndFlush(setting);
-		
-		//寫入 Audit Log D
+
+		// 寫入 Audit Log D
 		String lineNumber = StackTraceUtil.getLineNumber();
-		getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
-				TsmpSetting.class.getSimpleName(), TableAct.U.value(), oldRowStr, setting);// U
-		
+		getDgrAuditLogService().createAuditLogD(iip, lineNumber, TsmpSetting.class.getSimpleName(), TableAct.U.value(),
+				oldRowStr, setting);// U
+
 		return setting;
 	}
 
-    protected String getENCEncode(String value) throws Exception {
-        String encoded = getTsmpCoreTokenBase().encrypt(value);
-        encoded = String.format("ENC(%s)", encoded);
-        logger.debug("ENC encode  " + encoded);
-        return encoded;
-    }
+	protected String getENCEncode(String value) throws Exception {
+		String encoded = getTsmpCoreTokenBase().encrypt(value);
+		encoded = String.format("ENC(%s)", encoded);
+		logger.debug("ENC encode  " + encoded);
+		return encoded;
+	}
 
-    protected String getTAEASKEncode(String value) {
-        String encoded = null;
-        encoded = getTsmpTAEASKHelper().encrypt(value);
-        logger.debug("TAEASK encode   " + encoded);
-        return encoded;
-    }
+	protected String getTAEASKEncode(String value) {
+		String encoded = null;
+		encoded = getTsmpTAEASKHelper().encrypt(value);
+		logger.debug("TAEASK encode   " + encoded);
+		return encoded;
+	}
 
-    protected void refreshCache(TsmpSetting newSetting) {
-    	/*
-		String id = newSetting.getId();
-		getTsmpSettingCacheProxy().findById(id);
-		*/
-    	getDaoGenericCacheService().clearAndNotify();
+	protected void refreshCache(TsmpSetting newSetting) {
+		/*
+		 * String id = newSetting.getId(); getTsmpSettingCacheProxy().findById(id);
+		 */
+		getDaoGenericCacheService().clearAndNotify();
 	}
 
 	protected TsmpSettingDao getTsmpSettingDao() {
@@ -179,14 +210,14 @@ public class DPB9903Service {
 	protected DgrAuditLogService getDgrAuditLogService() {
 		return dgrAuditLogService;
 	}
-	
+
 	protected TsmpCoreTokenBase getTsmpCoreTokenBase() {
 		return this.tsmpCoreTokenBase;
 	}
 
-    protected TsmpTAEASKHelper getTsmpTAEASKHelper() {
-        return this.tsmpTAEASKHelper;
-    }
+	protected TsmpTAEASKHelper getTsmpTAEASKHelper() {
+		return this.tsmpTAEASKHelper;
+	}
 
 	protected ComposerWebSocketClientConn getComposerWebSocketClientConn() {
 		return composerWebSocketClientConn;
@@ -195,6 +226,5 @@ public class DPB9903Service {
 	protected DaoGenericCacheService getDaoGenericCacheService() {
 		return daoGenericCacheService;
 	}
-
 
 }

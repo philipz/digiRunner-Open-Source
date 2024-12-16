@@ -1,31 +1,22 @@
 package tpi.dgrv4.dpaa.component.apptJob;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.concurrent.CancellationException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
-import tpi.dgrv4.dpaa.service.HandleDashboardDataByYearService;
-import tpi.dgrv4.dpaa.service.HandleDashboardDataService;
-import tpi.dgrv4.dpaa.service.HandleDashboardLogDataService;
-import tpi.dgrv4.dpaa.service.HandleESApiDataService;
-import tpi.dgrv4.dpaa.service.HandleESExpiredDataService;
-import tpi.dgrv4.dpaa.service.HandleReportDataByDayService;
-import tpi.dgrv4.dpaa.service.HandleReportDataByHourService;
-import tpi.dgrv4.dpaa.service.HandleReportDataByMinuteService;
-import tpi.dgrv4.dpaa.service.HandleReportDataByMonthService;
-import tpi.dgrv4.dpaa.service.HandleReportDataByYearService;
+import tpi.dgrv4.dpaa.service.*;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.repository.TsmpDpApptJobDao;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.TsmpSettingService;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.CancellationException;
 
 /**
  * 處理報表資料JOB
@@ -88,14 +79,6 @@ public class HandleReportDataJob extends ApptJob {
 			boolean isEs = false;
 			String rdbVal = "false";
 			try {
-				//String key = getTsmpSettingService().getVal_TSMP_LICENSE_KEY();
-				//LicenseUtil util = new LicenseUtil(key, null);
-				//String edition = util.getEdition(key);
-				
-				//if(LicenseEditionType.Enterprise.name().equals(edition)) {
-					//isEs = true;
-				//}
-				
 				rdbVal = getTsmpSettingService().getVal_TSMP_APILOG_FORCE_WRITE_RDB();
 				isEs = !getTsmpSettingService().getVal_ES_LOG_DISABLE();
 				if("false".equalsIgnoreCase(rdbVal) && !isEs) {
@@ -108,12 +91,12 @@ public class HandleReportDataJob extends ApptJob {
 					
 					Date execDate = getExecuteDate();
 					this.logger.debug(
-							"execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).get());
+							"execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 
 					if(StringUtils.hasText(strParam)) {
-						execDate = DateTimeUtil.stringToDateTime(strParam, DateTimeFormatEnum.西元年月日時分秒_2).get();
+						execDate = DateTimeUtil.stringToDateTime(strParam, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 						this.logger.debug(
-								"inParams execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).get());
+								"inParams execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 						getHandleESExpiredDataService().exec(execDate, id);
 						step("2/2P");
 						getHandleDashboardDataService().exec(execDate, isEs, id);
@@ -136,15 +119,15 @@ public class HandleReportDataJob extends ApptJob {
 	
 					Date execDate = getExecuteDate();
 					this.logger.debug(
-							"execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).get());
+							"execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 					String createUser = getTsmpDpApptJob().getCreateUser();
 	
 					String stepMax = "/6";
 	
 					if(StringUtils.hasText(strParam)) {
-						execDate = DateTimeUtil.stringToDateTime(strParam, DateTimeFormatEnum.西元年月日時分秒_2).get();
+						execDate = DateTimeUtil.stringToDateTime(strParam, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 						this.logger.debug(
-								"inParams execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).get());
+								"inParams execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 						step("6/6P");
 						getHandleDashboardDataService().exec(execDate, isEs, id);
 					}else {

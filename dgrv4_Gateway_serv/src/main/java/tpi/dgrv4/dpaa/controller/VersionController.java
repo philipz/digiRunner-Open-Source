@@ -21,7 +21,7 @@ public class VersionController {
 	@Autowired
 	private DPB0118Service service;
 	
-	@CrossOrigin
+	
 	@GetMapping(value = "/dgrv4/version")
 	public ResponseEntity<?> queryVersion(HttpServletRequest request,
 			@RequestParam(value = "url", required = false) String url) {
@@ -37,7 +37,7 @@ public class VersionController {
 				value = true;
 			}
 			
-			resp = service.queryModuleVersion(ipAddress, url, value); // Service
+			resp = service.queryModuleVersion(ipAddress,null,false); // Service
 			ObjectMapper om = new ObjectMapper();
 			json = om.writeValueAsString(resp);
 		} catch (Exception e) {

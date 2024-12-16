@@ -1,12 +1,56 @@
 package tpi.dgrv4.entity.repository;
 
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.persistence.Query;
 import tpi.dgrv4.entity.entity.TsmpApiReg;
 
 public class TsmpApiRegDaoImpl extends BaseDao {
+
+	public int deleteNonSpecifiedContent(List<AbstractMap.SimpleEntry<String, String>> list) {
+
+		if (list == null) {
+			return 0;
+		}
+
+		Map<String, Object> params = new HashMap<>();
+
+		StringBuffer sb = new StringBuffer();
+
+		sb.append(" DELETE FROM TsmpApiReg tsmpApiReg ");
+		sb.append(" WHERE NOT ( tsmpApiReg.apiKey = '' AND  tsmpApiReg.moduleName ='' ");
+
+		for (int i = 0; i < list.size(); i++) {
+
+			SimpleEntry<String, String> entry = list.get(i);
+			String apiKey = entry.getKey();
+			String moduleName = entry.getValue();
+
+			String paramsApiKey = "apiKey" + i;
+			String paramsModuleName = "moduleName" + i;
+
+			sb.append(" OR ( tsmpApiReg.apiKey =:" + paramsApiKey);
+			sb.append(" AND tsmpApiReg.moduleName =:" + paramsModuleName + " )");
+
+			params.put(paramsApiKey, apiKey);
+			params.put(paramsModuleName, moduleName);
+		}
+
+		sb.append(" )");
+
+		Query query = getEntityManager().createQuery(sb.toString());
+
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			query.setParameter(param.getKey(), param.getValue());
+		}
+
+		return query.executeUpdate();
+	}
+
 	public List<String> query_AA0429SrcUrl() {
 		Map<String, Object> params = new HashMap<>();
 
@@ -120,9 +164,7 @@ public class TsmpApiRegDaoImpl extends BaseDao {
 //		sb.append(" AND tsmpApiReg.ipSrcUrl5 <> ''");
 		return doQuery(sb.toString(), params, String.class);
 	}
-	
-	
-	
+
 	public List<TsmpApiReg> query_AA0423Service() {
 		Map<String, Object> params = new HashMap<>();
 

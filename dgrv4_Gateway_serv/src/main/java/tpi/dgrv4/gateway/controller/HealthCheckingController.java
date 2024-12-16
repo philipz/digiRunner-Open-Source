@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tpi.dgrv4.entity.repository.TsmpUserDao;
 
 @RestController
-@CrossOrigin
+
 public class HealthCheckingController {
 
 	@GetMapping(path = "/liveness")

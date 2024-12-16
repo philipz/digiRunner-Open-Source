@@ -352,6 +352,27 @@ export class Ac0311Component extends BaseComponent implements OnInit {
       }
     })
 
+    this.requestBody.valueChanges.subscribe(res=> {
+
+      this.bodyText!.disable();
+      this.bodyText!.reset();
+      this.keyValueForm!.disable();
+      this.keyValueForm!.reset();
+      this.disabledReqBody = true;
+
+      switch (res) {
+        case 'body':
+          this.bodyText!.enable();
+          break;
+        case 'form':
+          this.disabledReqBody = false;
+          this.keyValueForm!.enable();
+          break;
+        default:
+          break;
+      }
+    })
+
   }
 
   async init() {
@@ -636,13 +657,14 @@ export class Ac0311Component extends BaseComponent implements OnInit {
     ReqBody.regApiList = _regApiList;
     this.setDuplicateData();
 
-
+    this.ngxService.start();
     this.apiService.registerAPIList_v3(ReqBody).subscribe(res => {
       this.ngxService.stop();
       if (this.tool.checkDpSuccess(res.ResHeader)) {
         // this.openApiDocData = Object.assign({}) as AA0315Resp;
         this.messageService.add({ severity: 'success', summary: dict['message.reg_api'], detail: `${dict['message.register']} ${dict['message.success']}!` });
       }
+      this.ngxService.stop();
     });
   };
 
@@ -879,24 +901,26 @@ export class Ac0311Component extends BaseComponent implements OnInit {
   // }
 
   // 請求表身radio box
-  requestBodyChangeHandler(evt) {
-    this.bodyText!.disable();
-    this.bodyText!.reset();
-    this.keyValueForm!.disable();
-    this.keyValueForm!.reset();
-    this.disabledReqBody = true;
-    switch (evt.target.value) {
-      case 'body':
-        this.bodyText!.enable();
-        break;
-      case 'form':
-        this.disabledReqBody = false;
-        this.keyValueForm!.enable();
-        break;
-      default:
-        break;
-    }
-  }
+  // requestBodyChangeHandler(evt) {
+
+  //   this.bodyText!.disable();
+  //   this.bodyText!.reset();
+  //   this.keyValueForm!.disable();
+  //   this.keyValueForm!.reset();
+  //   this.disabledReqBody = true;
+
+  //   switch (evt.target.value) {
+  //     case 'body':
+  //       this.bodyText!.enable();
+  //       break;
+  //     case 'form':
+  //       this.disabledReqBody = false;
+  //       this.keyValueForm!.enable();
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
 
   // 查詢API List查詢API List
   queryApiList() {

@@ -1,0 +1,8 @@
+name: digirunner-open-source
+services:
+    dgr:
+        image: tpisoftwareopensource/digirunner-open-source
+        ports:
+            - "31080:18080"
+        environment:
+            - TZ=Asia/Taipei

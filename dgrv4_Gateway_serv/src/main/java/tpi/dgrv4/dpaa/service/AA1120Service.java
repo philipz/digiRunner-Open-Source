@@ -1,80 +1,27 @@
 package tpi.dgrv4.dpaa.service;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
-import tpi.dgrv4.dpaa.vo.AA1120DgrApikeyUseApi;
-import tpi.dgrv4.dpaa.vo.AA1120ExportData;
-import tpi.dgrv4.dpaa.vo.AA1120ImportClientRelated;
-import tpi.dgrv4.dpaa.vo.AA1120Req;
-import tpi.dgrv4.dpaa.vo.AA1120Resp;
-import tpi.dgrv4.entity.entity.DgrGtwIdpInfoA;
-import tpi.dgrv4.entity.entity.DgrGtwIdpInfoJdbc;
-import tpi.dgrv4.entity.entity.DgrGtwIdpInfoL;
-import tpi.dgrv4.entity.entity.DgrGtwIdpInfoO;
-import tpi.dgrv4.entity.entity.DgrRdbConnection;
-import tpi.dgrv4.entity.entity.DgrXApiKey;
-import tpi.dgrv4.entity.entity.DgrXApiKeyMap;
-import tpi.dgrv4.entity.entity.DpApp;
-import tpi.dgrv4.entity.entity.OauthClientDetails;
-import tpi.dgrv4.entity.entity.TsmpApi;
-import tpi.dgrv4.entity.entity.TsmpClient;
-import tpi.dgrv4.entity.entity.TsmpClientGroup;
-import tpi.dgrv4.entity.entity.TsmpClientVgroup;
-import tpi.dgrv4.entity.entity.TsmpDpClientext;
-import tpi.dgrv4.entity.entity.TsmpGroup;
-import tpi.dgrv4.entity.entity.TsmpGroupApi;
-import tpi.dgrv4.entity.entity.TsmpGroupAuthorities;
-import tpi.dgrv4.entity.entity.TsmpGroupAuthoritiesMap;
-import tpi.dgrv4.entity.entity.TsmpOpenApiKey;
-import tpi.dgrv4.entity.entity.TsmpOpenApiKeyMap;
-import tpi.dgrv4.entity.entity.TsmpVgroup;
-import tpi.dgrv4.entity.entity.TsmpVgroupAuthoritiesMap;
-import tpi.dgrv4.entity.entity.TsmpVgroupGroup;
+import tpi.dgrv4.dpaa.vo.*;
+import tpi.dgrv4.entity.entity.*;
 import tpi.dgrv4.entity.entity.jpql.TsmpClientHost;
 import tpi.dgrv4.entity.entity.jpql.TsmpSecurityLevel;
-import tpi.dgrv4.entity.repository.DgrGtwIdpInfoADao;
-import tpi.dgrv4.entity.repository.DgrGtwIdpInfoJdbcDao;
-import tpi.dgrv4.entity.repository.DgrGtwIdpInfoLDao;
-import tpi.dgrv4.entity.repository.DgrGtwIdpInfoODao;
-import tpi.dgrv4.entity.repository.DgrRdbConnectionDao;
-import tpi.dgrv4.entity.repository.DgrXApiKeyDao;
-import tpi.dgrv4.entity.repository.DgrXApiKeyMapDao;
-import tpi.dgrv4.entity.repository.DpAppDao;
-import tpi.dgrv4.entity.repository.OauthClientDetailsDao;
-import tpi.dgrv4.entity.repository.TsmpApiDao;
-import tpi.dgrv4.entity.repository.TsmpClientDao;
-import tpi.dgrv4.entity.repository.TsmpClientGroupDao;
-import tpi.dgrv4.entity.repository.TsmpClientHostDao;
-import tpi.dgrv4.entity.repository.TsmpClientVgroupDao;
-import tpi.dgrv4.entity.repository.TsmpDpClientextDao;
-import tpi.dgrv4.entity.repository.TsmpGroupApiDao;
-import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesDao;
-import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesMapDao;
-import tpi.dgrv4.entity.repository.TsmpGroupDao;
-import tpi.dgrv4.entity.repository.TsmpOpenApiKeyDao;
-import tpi.dgrv4.entity.repository.TsmpOpenApiKeyMapDao;
-import tpi.dgrv4.entity.repository.TsmpSecurityLevelDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupAuthoritiesMapDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupGroupDao;
+import tpi.dgrv4.entity.repository.*;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AA1120Service {
@@ -223,14 +170,11 @@ public class AA1120Service {
 		    AA1120ExportData exportData = new AA1120ExportData();
 		    exportData.setImportClientRelated(importVo);
 		    
-		    String number = DateTimeUtil.dateTimeToString(new Date(), DateTimeFormatEnum.西元年月日時分秒_4).get();
+		    String number = DateTimeUtil.dateTimeToString(new Date(), DateTimeFormatEnum.西元年月日時分秒_4).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 		    String fileName = "exportClientRelated_" + number + ".json";
 		    
 		    resp.setData(exportData);
 		    resp.setFileName(fileName);
-		    
-		    //String test = getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(resp.getData());
-	        //TPILogger.tl.debug("test="+test);
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tpi.dgrv4.common.constant.AuditLogEvent;
+import tpi.dgrv4.common.constant.RegexpConstant;
 import tpi.dgrv4.common.constant.TableAct;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.BcryptParamDecodeException;
@@ -52,6 +53,7 @@ import tpi.dgrv4.entity.repository.TsmpOrganizationDao;
 import tpi.dgrv4.entity.repository.TsmpRegModuleDao;
 import tpi.dgrv4.entity.repository.TsmpUserDao;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.CommForwardProcService;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
@@ -129,6 +131,8 @@ public class AA0313Service {
 		try {
 			updateApi(userName, req, apiPair, iip);
 			clearAPICache();
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.API.value());
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
@@ -241,14 +245,23 @@ public class AA0313Service {
 					throw TsmpDpAaRtnCode._1407.throwing("{{redirectByIpDataList}}", "5",
 							String.valueOf(redirectByIpDataList.size()));
 				}
+				int i=0;
 				if (redirectByIpDataList.size()>0) {
 					for (AA0313RedirectByIpData data : redirectByIpDataList) {
-						if (!StringUtils.hasLength(data.getIpForRedirect())) {
+						String ip = data.getIpForRedirect();
+						if (!StringUtils.hasLength(ip)) {
 							throw TsmpDpAaRtnCode._1350.throwing("{{ipForRedirect}}");
+						}
+						if (!ip.matches(RegexpConstant.IP_CIDR_FQDN)){
+							throw  TsmpDpAaRtnCode._1352.throwing("{{ipForRedirect}}");
+						}
+						if ((ip.contains("0.0.0.0/0") || ip.contains("::/0")) && i != redirectByIpDataList.size() - 1) {
+							throw TsmpDpAaRtnCode._1559.throwing("If you want to allow all IPs, please set it as the last item.");
 						}
 						if (!StringUtils.hasLength(data.getIpSrcUrl())) {
 							throw TsmpDpAaRtnCode._1350.throwing("{{ipSrcUrl}}");
 						}
+						i++;
 					}
 				}
 			}

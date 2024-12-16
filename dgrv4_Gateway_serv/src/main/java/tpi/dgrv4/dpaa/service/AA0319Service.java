@@ -1,11 +1,15 @@
 package tpi.dgrv4.dpaa.service;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -15,6 +19,8 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.transaction.Transactional;
+import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.common.constant.AuditLogEvent;
 import tpi.dgrv4.common.constant.TableAct;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
@@ -53,7 +59,9 @@ import tpi.dgrv4.entity.repository.TsmpRegModuleDao;
 import tpi.dgrv4.gateway.TCP.Packet.UpdateComposerTSPacket;
 import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.util.DigiRunnerGtwDeployProperties;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -82,7 +90,7 @@ public class AA0319Service {
 
 	@Autowired
 	private TsmpDpItemsCacheProxy tsmpDpItemsCacheProxy;
-	
+
 	@Autowired
 	private ApplicationContext ctx;
 
@@ -94,22 +102,26 @@ public class AA0319Service {
 
 	@Autowired
 	private ComposerService composerService;
-	
+
 	@Autowired
 	private DgrAuditLogService dgrAuditLogService;
-	
+
 	@Autowired
 	private DgrAuditLogMDao dgrAuditLogMDao;
-	
+
 	@Autowired
 	private DgrAuditLogDDao dgrAuditLogDDao;
 
 	@Autowired
 	private DaoGenericCacheService daoGenericCacheService;
-	
+
 	@Autowired
 	private DgrComposerFlowDao dgrComposerFlowDao;
-	
+
+	@Autowired
+	private DigiRunnerGtwDeployProperties digiRunnerGtwDeployProperties;
+
+	@Transactional
 	public AA0319Resp importRegCompAPIs(TsmpAuthorization auth, AA0319Req req, String locale, InnerInvokeParam iip) {
 		String userName = auth.getUserName();
 		String orgId = auth.getOrgId();
@@ -117,71 +129,107 @@ public class AA0319Service {
 		List<TsmpApiImp> tsmpApiImpList = checkParams(userName, orgId, req, userOrgIdList);
 
 		AA0319Resp resp = new AA0319Resp();
-		
+
 		Integer batchNo = req.getBatchNo();
 		AA0319RespItem respItem = null;
 		int uuidIndex = 1;
 
 		String uuid = iip != null ? iip.getTxnUid() : null;
-		
+
 		HashMap<String, TsmpApiImp> nodeDataHM = new HashMap<String, TsmpApiImp>();
-		HashMap<String, AA0319RespItem> respItemHM =new HashMap<String, AA0319RespItem>();
-		
+		HashMap<String, AA0319RespItem> respItemHM = new HashMap<String, AA0319RespItem>();
+
 		for (TsmpApiImp tsmpApiImp : tsmpApiImpList) {
-			if(iip != null) {
+			if (iip != null) {
 				iip.setTxnUid(uuid + "_" + uuidIndex);
 				uuidIndex++;
 			}
-			//寫入 Audit Log M
-			if("C".equals(tsmpApiImp.getCheckAct())){
+			// 寫入 Audit Log M
+			if ("C".equals(tsmpApiImp.getCheckAct())) {
 				String lineNumber = StackTraceUtil.getLineNumber();
-				if(TsmpApiSrc.REGISTERED.value().equals(tsmpApiImp.getApiSrc())) {
+				if (TsmpApiSrc.REGISTERED.value().equals(tsmpApiImp.getApiSrc())) {
 					getDgrAuditLogService().createAuditLogM(iip, lineNumber, AuditLogEvent.ADD_REGISTER_API.value());
-				}else if(TsmpApiSrc.COMPOSED.value().equals(tsmpApiImp.getApiSrc())){
+				} else if (TsmpApiSrc.COMPOSED.value().equals(tsmpApiImp.getApiSrc())) {
 					getDgrAuditLogService().createAuditLogM(iip, lineNumber, AuditLogEvent.ADD_COMPOSER_API.value());
 				}
-				
-			}else if("U".equals(tsmpApiImp.getCheckAct())) {
+
+			} else if ("U".equals(tsmpApiImp.getCheckAct())) {
 				String lineNumber = StackTraceUtil.getLineNumber();
-				if(TsmpApiSrc.REGISTERED.value().equals(tsmpApiImp.getApiSrc())) {
+				if (TsmpApiSrc.REGISTERED.value().equals(tsmpApiImp.getApiSrc())) {
 					getDgrAuditLogService().createAuditLogM(iip, lineNumber, AuditLogEvent.UPDATE_REGISTER_API.value());
-				}else if(TsmpApiSrc.COMPOSED.value().equals(tsmpApiImp.getApiSrc())){
+				} else if (TsmpApiSrc.COMPOSED.value().equals(tsmpApiImp.getApiSrc())) {
 					getDgrAuditLogService().createAuditLogM(iip, lineNumber, AuditLogEvent.UPDATE_COMPOSER_API.value());
 				}
 			}
-			
+
 			// 從 TsmpApiImp 匯入到 TsmpApi, TsmpApiReg
 			respItem = doImport(auth, batchNo, tsmpApiImp, locale, userOrgIdList, iip);
-			
+
 			// 將匯入結果帶回 Response
 			if (resp.getApiList() == null) {
 				resp.setApiList(new ArrayList<>());
 			}
 			resp.getApiList().add(respItem);
-			
-			// 收集全部的moduleName與ApiName			
+
+			// 收集全部的moduleName與ApiName
 			String flow = tsmpApiImp.getFlow();
 			if (StringUtils.hasText(flow)) {
 				String apiKey = tsmpApiImp.getApiKey();
 				String moduleName = tsmpApiImp.getModuleName();
-				String key = moduleName + apiKey ;
-				this.logger.debug(String.format("No flow data: apiKey=%s, moduleName=%s", apiKey, moduleName));				
+				String key = moduleName + apiKey;
+				this.logger.debug(String.format("flow data: apiKey=%s, moduleName=%s", apiKey, moduleName));				
 				nodeDataHM.put(key, tsmpApiImp);
 				respItemHM.put(key, respItem);
 			}
 		}
-		
+
 		// 一次request api跟Composer後端新增資料。
 		if (nodeDataHM.isEmpty() == false) {
 			doImportAllComposerNodes(auth, batchNo, nodeDataHM, locale, userOrgIdList, iip, respItemHM);
 		}
-		
+
 		clearAPICache();
 
+		// 判斷是否為記憶體角色
+		boolean isMemoryRole = getDigiRunnerGtwDeployProperties().isMemoryRole();
+		if (isMemoryRole) {
+			removeNonExistentData(tsmpApiImpList);
+		}
+
+		// in-memory, 用列舉的值傳入值
+		TPILogger.updateTime4InMemory(DgrDataType.API.value());
 		return resp;
 	}
 
+	/**
+	 * 移除不存在的數據。
+	 * <p>
+	 * 這個方法用於過濾出存在的數據，並將其從相關的資料庫表中刪除。
+	 * </p>
+	 *
+	 * @param tsmpApiImpList 提供一個包含 TsmpApiImp 實例的列表，從中提取存在的數據
+	 */
+	private void removeNonExistentData(List<TsmpApiImp> tsmpApiImpList) {
+		
+		if (CollectionUtils.isEmpty(tsmpApiImpList)) {
+			getTsmpApiDao().deleteAll();
+			getTsmpApiRegDao().deleteAll();
+			return;
+		}
+
+		// 將 TsmpApiImp 列表轉換為包含 apiKey 和 moduleName 的 SimpleEntry 列表
+		List<SimpleEntry<String, String>> existentData = tsmpApiImpList.stream()
+				.map(imp -> new SimpleEntry<>(imp.getApiKey(), imp.getModuleName())).collect(Collectors.toList());
+
+		// 從 TsmpApi 表中刪除不存在的數據
+		getTsmpApiDao().deleteNonSpecifiedContent(existentData);
+		// 從 TsmpApiReg 表中刪除不存在的數據
+		getTsmpApiRegDao().deleteNonSpecifiedContent(existentData);
+	}
+
 	protected List<TsmpApiImp> checkParams(String userName, String orgId, AA0319Req req, List<String> userOrgIdList) {
+		boolean isMemoryRole = getDigiRunnerGtwDeployProperties().isMemoryRole();
+		
 		if (StringUtils.isEmpty(userName)) {
 			throw TsmpDpAaRtnCode._1258.throwing();
 		}
@@ -191,26 +239,32 @@ public class AA0319Service {
 		}
 
 		List<AA0319ReqItem> reqItemList = req.getApiList();
-		if (CollectionUtils.isEmpty(reqItemList)) {
+		if (CollectionUtils.isEmpty(reqItemList) && !isMemoryRole) {
 			throw TsmpDpAaRtnCode._2009.throwing("1");
 		}
 
 		Integer batchNo = req.getBatchNo();
-		if (batchNo == null) {
-			throw TsmpDpAaRtnCode._1296.throwing();
-		}
-		
-		// 取出組織原則
-		userOrgIdList.addAll( checkOrgExists(orgId) );
+		if (!CollectionUtils.isEmpty(reqItemList)) {
+			if (batchNo == null) {
+				throw TsmpDpAaRtnCode._1296.throwing();
+			}
 
-		// batchNo 必須存在
-		long impCnt = getTsmpApiImpDao().countByBatchNo(batchNo);
-		if (impCnt < 1) {
-			throw TsmpDpAaRtnCode._1354.throwing("batchNo", String.valueOf(batchNo));
+			// batchNo 必須存在
+			long impCnt = getTsmpApiImpDao().countByBatchNo(batchNo);
+			if (impCnt < 1) {
+				throw TsmpDpAaRtnCode._1354.throwing("batchNo", String.valueOf(batchNo));
+			}
 		}
+
+		// 取出組織原則
+		userOrgIdList.addAll(checkOrgExists(orgId));
 
 		List<TsmpApiImp> tsmpApiImpList = new ArrayList<>();
 
+		if (CollectionUtils.isEmpty(reqItemList) && isMemoryRole) {
+			return tsmpApiImpList;
+		}
+		
 		// moduleName, apiKey 皆不得為空
 		final String recordType = "I";
 		for (AA0319ReqItem reqItem : reqItemList) {
@@ -220,14 +274,14 @@ public class AA0319Service {
 			if (StringUtils.isEmpty(apiKey) || StringUtils.isEmpty(moduleName)) {
 				throw TsmpDpAaRtnCode._1469.throwing();
 			}
-			
+
 			// 檢查 TSMP_API_IMP 是否存在
 			TsmpApiImpId id = new TsmpApiImpId(apiKey, moduleName, recordType, batchNo);
 			Optional<TsmpApiImp> opt = getTsmpApiImpDao().findById(id);
 			if (!opt.isPresent()) {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
-			
+
 			tsmpApiImpList.add(opt.get());
 		}
 
@@ -242,7 +296,7 @@ public class AA0319Service {
 		return userOrgIdList;
 	}
 
-	protected AA0319RespItem doImport(TsmpAuthorization auth, Integer batchNo, TsmpApiImp tsmpApiImp, String locale, 
+	protected AA0319RespItem doImport(TsmpAuthorization auth, Integer batchNo, TsmpApiImp tsmpApiImp, String locale,
 			List<String> userOrgIdList, InnerInvokeParam iip) {
 		String apiKey = tsmpApiImp.getApiKey();
 		String moduleName = tsmpApiImp.getModuleName();
@@ -250,8 +304,8 @@ public class AA0319Service {
 		AA0319RespItem respItem = new AA0319RespItem();
 		respItem.setApiKey(apiKey);
 		respItem.setModuleName(moduleName);
-		respItem.setResult( toSuccess(locale) );	// 預設匯入結果為"成功"，匯入過程中有誤再改 Result
-		
+		respItem.setResult(toSuccess(locale)); // 預設匯入結果為"成功"，匯入過程中有誤再改 Result
+
 		// 檢查要匯入的這支API，該模組是否與上傳OpenAPI文件所匯入的模組相同
 		String apiSrc = tsmpApiImp.getApiSrc();
 		boolean isInRegModule = checkRegModule(apiSrc, moduleName);
@@ -264,25 +318,23 @@ public class AA0319Service {
 		if (!StringUtils.isEmpty(rtnCode)) {
 			return returnWithResult(respItem, tsmpApiImp, rtnCode, locale);
 		}
-		
+
 		// 依據 checkAct 決定更新或新增 API 資料
 		Map<String, String> rtnParams = executeByCheckAct(auth, batchNo, tsmpApiImp, locale, iip);
 		if (!CollectionUtils.isEmpty(rtnParams)) {
 			return returnWithResult(respItem, tsmpApiImp, TsmpDpAaRtnCode._1452.getCode(), locale, rtnParams);
 		}
 
-		/* 因為用迴圈方式查資料，效率不好。改要一次方式查資料。
+		/*
+		 * 因為用迴圈方式查資料，效率不好。改要一次方式查資料。
 		 * 
-		// Composer 資料
-		rtnParams = importComposerData(apiSrc, batchNo, tsmpApiImp, auth.getUserName(), iip);
-		if (!CollectionUtils.isEmpty(rtnParams)) {
-			if (rtnParams.get("rtnCode").equals("1453")) {
-				return returnWithResult(respItem, tsmpApiImp, TsmpDpAaRtnCode._1453.getCode(), locale, rtnParams);
-			} else if (rtnParams.get("rtnCode").equals("1454")) {
-				return returnWithResult(respItem, tsmpApiImp, TsmpDpAaRtnCode._1454.getCode(), locale, rtnParams);
-			}
-		}
-		*/
+		 * // Composer 資料 rtnParams = importComposerData(apiSrc, batchNo, tsmpApiImp,
+		 * auth.getUserName(), iip); if (!CollectionUtils.isEmpty(rtnParams)) { if
+		 * (rtnParams.get("rtnCode").equals("1453")) { return returnWithResult(respItem,
+		 * tsmpApiImp, TsmpDpAaRtnCode._1453.getCode(), locale, rtnParams); } else if
+		 * (rtnParams.get("rtnCode").equals("1454")) { return returnWithResult(respItem,
+		 * tsmpApiImp, TsmpDpAaRtnCode._1454.getCode(), locale, rtnParams); } }
+		 */
 
 		return respItem;
 	}
@@ -295,13 +347,14 @@ public class AA0319Service {
 		return !CollectionUtils.isEmpty(mList);
 	}
 
-	protected AA0319RespItem returnWithResult(AA0319RespItem respItem, TsmpApiImp tsmpApiImp, String rtnCode, String locale) {
+	protected AA0319RespItem returnWithResult(AA0319RespItem respItem, TsmpApiImp tsmpApiImp, String rtnCode,
+			String locale) {
 		return returnWithResult(respItem, tsmpApiImp, rtnCode, locale, null);
 	}
 
 	protected AA0319RespItem returnWithResult(AA0319RespItem respItem, TsmpApiImp tsmpApiImp, //
 			String rtnCode, String locale, Map<String, String> params) {
-		respItem.setResult( toFail(locale) );
+		respItem.setResult(toFail(locale));
 		respItem.setDesc(null);
 
 		// 查詢回傳訊息(多國語系)
@@ -312,12 +365,12 @@ public class AA0319Service {
 			if (!CollectionUtils.isEmpty(params)) {
 				tsmpRtnMsg = MailHelper.buildContent(tsmpRtnMsg, params);
 			}
-			respItem.setDesc( trunc(tsmpRtnMsg, 50) );
+			respItem.setDesc(trunc(tsmpRtnMsg, 50));
 		} else {
 			// 找不到翻譯就直接填入 rtnCode
-			respItem.setDesc( trunc(rtnCode, 50) );
+			respItem.setDesc(trunc(rtnCode, 50));
 		}
-		
+
 		// 回寫 TSMP_API_IMP
 		tsmpApiImp.setResult(respItem.getResult().getV());
 		tsmpApiImp = getTsmpApiImpDao().saveAndFlush(tsmpApiImp);
@@ -333,13 +386,13 @@ public class AA0319Service {
 	protected String doBackup(Integer batchNo, TsmpApiImp tsmpApiImp, String locale, List<String> userOrgIdList) {
 		String apiKey = tsmpApiImp.getApiKey();
 		String moduleName = tsmpApiImp.getModuleName();
-		
+
 		TsmpApiId tsmpApiId = new TsmpApiId(apiKey, moduleName);
 		Optional<TsmpApi> opt_tsmpApi = getTsmpApiDao().findById(tsmpApiId);
-		
+
 		TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiKey, moduleName);
 		Optional<TsmpApiReg> opt_tsmpApiReg = getTsmpApiRegDao().findById(tsmpApiRegId);
-		
+
 		if (!(opt_tsmpApi.isPresent() && opt_tsmpApiReg.isPresent())) {
 			this.logger.debug(String.format("Skip backup: apiKey=%s, moduleName=%s", apiKey, moduleName));
 			return null;
@@ -350,10 +403,11 @@ public class AA0319Service {
 		// API組織原則
 		String apiOrgId = tsmpApi.getOrgId();
 		if (!StringUtils.isEmpty(apiOrgId) && !userOrgIdList.contains(apiOrgId)) {
-			this.logger.debug(String.format("Violate organization principle: apiOrgId(%s) not in %s", apiOrgId, userOrgIdList));
+			this.logger.debug(
+					String.format("Violate organization principle: apiOrgId(%s) not in %s", apiOrgId, userOrgIdList));
 			return TsmpDpAaRtnCode._1219.getCode();
 		}
-		
+
 		try {
 			// 如果有既有的備份資料就刪除
 			TsmpApiImpId tsmpApiImpId = new TsmpApiImpId(apiKey, moduleName, "B", batchNo);
@@ -361,14 +415,15 @@ public class AA0319Service {
 			if (opt_tsmpApiImp.isPresent()) {
 				getTsmpApiImpDao().delete(opt_tsmpApiImp.get());
 			}
-			
+
 			// 將現有 TSMP_API, TSMP_API_REG 資料備份進 TSMP_API_IMP
 			insertTsmpApiImp(batchNo, tsmpApi, opt_tsmpApiReg.get());
 		} catch (Exception e) {
-			this.logger.debug("Backup error: apiKey=" + apiKey + ", moduleName=" + moduleName + "\n" + StackTraceUtil.logStackTrace(e));
+			this.logger.debug("Backup error: apiKey=" + apiKey + ", moduleName=" + moduleName + "\n"
+					+ StackTraceUtil.logStackTrace(e));
 			return e.getMessage();
 		}
-		
+
 		return null;
 	}
 
@@ -422,33 +477,33 @@ public class AA0319Service {
 		i.setIpSrcUrl4(tsmpApiReg.getIpSrcUrl4());
 		i.setIpForRedirect5(tsmpApiReg.getIpForRedirect5());
 		i.setIpSrcUrl5(tsmpApiReg.getIpSrcUrl5());
-		
+
 		String headerMaskPolicy = tsmpApiReg.getHeaderMaskPolicy();
 		i.setHeaderMaskPolicy(StringUtils.hasLength(headerMaskPolicy) ? headerMaskPolicy : "0");
 		i.setHeaderMaskKey(tsmpApiReg.getHeaderMaskKey());
 		i.setHeaderMaskPolicyNum(tsmpApiReg.getHeaderMaskPolicyNum());
 		i.setHeaderMaskPolicySymbol(tsmpApiReg.getHeaderMaskPolicySymbol());
-		
+
 		String bodyMaskPolicy = tsmpApiReg.getBodyMaskPolicy();
 		i.setBodyMaskKeyword(tsmpApiReg.getBodyMaskKeyword());
 		i.setBodyMaskPolicy(StringUtils.hasLength(bodyMaskPolicy) ? bodyMaskPolicy : "0");
 		i.setBodyMaskPolicyNum(tsmpApiReg.getBodyMaskPolicyNum());
 		i.setBodyMaskPolicySymbol(tsmpApiReg.getBodyMaskPolicySymbol());
-		
+
 		String failDiscoveryPolicy = tsmpApiReg.getFailDiscoveryPolicy();
 		i.setFailDiscoveryPolicy(StringUtils.hasLength(failDiscoveryPolicy) ? failDiscoveryPolicy : "0");
 
 		String failHandlePolicy = tsmpApiReg.getFailHandlePolicy();
 		i.setFailHandlePolicy(StringUtils.hasLength(failHandlePolicy) ? failHandlePolicy : "0");
-		
+
 		i.setLabel1(tsmpApi.getLabel1());
 		i.setLabel2(tsmpApi.getLabel2());
 		i.setLabel3(tsmpApi.getLabel3());
 		i.setLabel4(tsmpApi.getLabel4());
 		i.setLabel5(tsmpApi.getLabel5());
-		
+
 		i.setApiStatus(tsmpApi.getApiStatus());
-		
+
 		getTsmpApiImpDao().saveAndFlush(i);
 	}
 
@@ -458,6 +513,7 @@ public class AA0319Service {
 		String checkAct = tsmpApiImp.getCheckAct();
 		String apiKey = tsmpApiImp.getApiKey();
 		String moduleName = tsmpApiImp.getModuleName();
+
 		try {
 			if ("C".equals(checkAct)) {
 				String orgId = auth.getOrgId();
@@ -467,7 +523,8 @@ public class AA0319Service {
 				updateTsmpApi(userName, tsmpApiImp, iip);
 				updateTsmpApiReg(userName, tsmpApiImp, iip);
 			} else {
-				this.logger.debug(String.format("Unknown checkAct: %s, apiKey=%s, moduleName=%s", checkAct, apiKey, moduleName));
+				this.logger.debug(
+						String.format("Unknown checkAct: %s, apiKey=%s, moduleName=%s", checkAct, apiKey, moduleName));
 			}
 			return null;
 		} catch (Exception e) {
@@ -476,14 +533,14 @@ public class AA0319Service {
 			return createParams_1452(checkAct, apiKey, moduleName, locale, e);
 		}
 	}
-	
+
 	protected void restoreFromTsmpApiImp(Throwable e, String checkAct, String apiKey, String moduleName, //
 			Integer batchNo, String userName, InnerInvokeParam iip) {
 		if ("C".equals(checkAct)) {
 			this.logger.debug("Create API error: " + StackTraceUtil.logStackTrace(e));
 			deleteTsmpApi(apiKey, moduleName);
 			deleteTsmpApiReg(apiKey, moduleName);
-			//刪除auditLog
+			// 刪除auditLog
 			getDgrAuditLogDDao().deleteByTxnUid(iip.getTxnUid());
 			getDgrAuditLogMDao().deleteByTxnUid(iip.getTxnUid());
 		} else if ("U".equals(checkAct)) {
@@ -495,8 +552,8 @@ public class AA0319Service {
 				try {
 					updateTsmpApi(userName, opt_forRestore.get(), iip);
 					updateTsmpApiReg(userName, opt_forRestore.get(), iip);
-					
-					//刪除auditLog
+
+					// 刪除auditLog
 					getDgrAuditLogDDao().deleteByTxnUid(iip.getTxnUid());
 					getDgrAuditLogMDao().deleteByTxnUid(iip.getTxnUid());
 				} catch (Exception ee) {
@@ -516,7 +573,8 @@ public class AA0319Service {
 		rtnParams.put("1", apiKey);
 		rtnParams.put("2", moduleName);
 		rtnParams.put("3", e.getMessage());
-		TsmpDpItems items = getTsmpDpItemsCacheProxy().findById(new TsmpDpItemsId("API_IMP_CHECK_ACT", checkAct, locale));
+		TsmpDpItems items = getTsmpDpItemsCacheProxy()
+				.findById(new TsmpDpItemsId("API_IMP_CHECK_ACT", checkAct, locale));
 		if (items != null) {
 			rtnParams.put("0", items.getSubitemName());
 		}
@@ -554,24 +612,24 @@ public class AA0319Service {
 		tsmpApi.setScheduledRemovalDate(source.getScheduledRemovalDate());
 		tsmpApi.setEnableScheduledDate(source.getEnableScheduledDate());
 		tsmpApi.setDisableScheduledDate(source.getDisableScheduledDate());
-		
 		tsmpApi.setLabel1(source.getLabel1());
 		tsmpApi.setLabel2(source.getLabel2());
 		tsmpApi.setLabel3(source.getLabel3());
 		tsmpApi.setLabel4(source.getLabel4());
 		tsmpApi.setLabel5(source.getLabel5());
-		
+
 		tsmpApi.setApiStatus(source.getApiStatus());
-		
+
 		tsmpApi = getTsmpApiDao().saveAndFlush(tsmpApi);
-		
-		if(TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc()) || TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
-			//寫入 Audit Log D
+
+		if (TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc())
+				|| TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
+			// 寫入 Audit Log D
 			String lineNumber = StackTraceUtil.getLineNumber();
-			getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
-					TsmpApi.class.getSimpleName(), TableAct.C.value(), null, tsmpApi);
+			getDgrAuditLogService().createAuditLogD(iip, lineNumber, TsmpApi.class.getSimpleName(), TableAct.C.value(),
+					null, tsmpApi);
 		}
-		
+
 		return tsmpApi;
 	}
 
@@ -594,7 +652,7 @@ public class AA0319Service {
 		tsmpApiReg.setCreateUser(source.getCreateUser());
 		tsmpApiReg.setNoOauth(source.getNoOauth());
 		tsmpApiReg.setFunFlag(source.getFunFlag());
-		
+
 		tsmpApiReg.setRedirectByIp(source.getRedirectByIp());
 
 		tsmpApiReg.setIpForRedirect1(source.getIpForRedirect1());
@@ -622,23 +680,23 @@ public class AA0319Service {
 		tsmpApiReg.setBodyMaskPolicy(source.getBodyMaskPolicy());
 		tsmpApiReg.setBodyMaskPolicyNum(source.getBodyMaskPolicyNum());
 		tsmpApiReg.setBodyMaskPolicySymbol(source.getBodyMaskPolicySymbol());
-		
+
 		String failDiscoveryPolicy = source.getFailDiscoveryPolicy();
 		tsmpApiReg.setFailDiscoveryPolicy(failDiscoveryPolicy);
 
 		String failHandlePolicy = source.getFailHandlePolicy();
 		tsmpApiReg.setFailHandlePolicy(failHandlePolicy);
-		
+
 		tsmpApiReg = getTsmpApiRegDao().saveAndFlush(tsmpApiReg);
-		
-		if(TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc()) 
+
+		if (TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc())
 				|| TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
-			//寫入 Audit Log D
+			// 寫入 Audit Log D
 			String lineNumber = StackTraceUtil.getLineNumber();
-			getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
-					TsmpApiReg.class.getSimpleName(), TableAct.C.value(), null, tsmpApiReg);
+			getDgrAuditLogService().createAuditLogD(iip, lineNumber, TsmpApiReg.class.getSimpleName(),
+					TableAct.C.value(), null, tsmpApiReg);
 		}
-		
+
 		return tsmpApiReg;
 	}
 
@@ -650,9 +708,9 @@ public class AA0319Service {
 			throw new Exception("TSMP_API not exists");
 		}
 		TsmpApi tsmpApi = opt.get();
-		
-		String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, tsmpApi); //舊資料統一轉成 String
-		
+
+		String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, tsmpApi); // 舊資料統一轉成 String
+
 		tsmpApi.setApiName(source.getApiName());
 		tsmpApi.setApiStatus("2");
 		tsmpApi.setApiSrc(source.getApiSrc());
@@ -680,16 +738,17 @@ public class AA0319Service {
 		tsmpApi.setLabel4(source.getLabel4());
 		tsmpApi.setLabel5(source.getLabel5());
 		tsmpApi.setApiStatus(source.getApiStatus());
-		
+
 		tsmpApi = getTsmpApiDao().saveAndFlush(tsmpApi);
-		
-		if(TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc()) || TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
-			//寫入 Audit Log D
+
+		if (TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc())
+				|| TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
+			// 寫入 Audit Log D
 			String lineNumber = StackTraceUtil.getLineNumber();
-			getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
-					TsmpApi.class.getSimpleName(), TableAct.U.value(), oldRowStr, tsmpApi);
+			getDgrAuditLogService().createAuditLogD(iip, lineNumber, TsmpApi.class.getSimpleName(), TableAct.U.value(),
+					oldRowStr, tsmpApi);
 		}
-		
+
 		return tsmpApi;
 	}
 
@@ -746,13 +805,14 @@ public class AA0319Service {
 
 		tsmpApiReg = getTsmpApiRegDao().saveAndFlush(tsmpApiReg);
 
-		if(TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc()) || TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
-			//寫入 Audit Log D
+		if (TsmpApiSrc.REGISTERED.value().equals(source.getApiSrc())
+				|| TsmpApiSrc.COMPOSED.value().equals(source.getApiSrc())) {
+			// 寫入 Audit Log D
 			String lineNumber = StackTraceUtil.getLineNumber();
-			getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
-					TsmpApiReg.class.getSimpleName(), TableAct.U.value(), oldRowStr, tsmpApiReg);
+			getDgrAuditLogService().createAuditLogD(iip, lineNumber, TsmpApiReg.class.getSimpleName(),
+					TableAct.U.value(), oldRowStr, tsmpApiReg);
 		}
-		
+
 		return tsmpApiReg;
 	}
 
@@ -769,7 +829,6 @@ public class AA0319Service {
 			getTsmpApiRegDao().deleteById(tsmpApiRegId);
 		}
 	}
-
 
 	protected Map<String, String> createParams_1453(String apiKey, String moduleName, Throwable e) {
 		// 錯誤訊息範本：Composer Flow 轉型失敗：apiKey=[{{0}}, moduleName=[{{1}}], msg={{2}}
@@ -790,7 +849,6 @@ public class AA0319Service {
 		rtnParams.put("2", e.getMessage());
 		return rtnParams;
 	}
-
 
 	protected AA0319Pair toSuccess(String locale) {
 		return toImpResult("S", locale);
@@ -848,6 +906,42 @@ public class AA0319Service {
 				if (resp == null) {
 					resp = new DgrComposerFlow();
 				}
+				
+				//20240716, 因composer是以UUID為主, 但可能A匯出時, B卻自己有建立該API, 
+				//此時匯入後他們UUID是不一樣的(DgrComposerFlow和TsmpApiReg或TsmpApi),會造成composer無法開啟問題
+				if(StringUtils.hasText(flow) && flow.length() > 4) {
+					String temp = flow.substring(4);
+					temp = new String (Base64Util.base64URLDecode(temp), StandardCharsets.UTF_8);
+					int applicationIndex = -1;
+					String searchApp = "\"application\"";
+					applicationIndex = temp.indexOf(searchApp);
+					if(applicationIndex > -1) {
+						int apiIdIndex = -1;
+						String searchApiId = "\"apiId\"";
+						apiIdIndex = temp.indexOf(searchApiId, applicationIndex);
+						if(apiIdIndex > -1) {
+							int uuidStartIndex = temp.indexOf("\"", apiIdIndex + searchApiId.length());
+							int uuidEndIndex = -1;
+							if(uuidStartIndex > -1) {
+								uuidEndIndex = temp.indexOf("\"", uuidStartIndex + 1);
+							}
+							if(uuidStartIndex > -1 && uuidEndIndex > -1) {
+								String uuid = temp.substring(uuidStartIndex + 1, uuidEndIndex);
+								TsmpApi tsmpApiVo = this.getTsmpApiDao().findByModuleNameAndApiKey(moduleName, apiKey);
+								if(tsmpApiVo != null) {
+									if(tsmpApiVo.getApiUid() != null && !tsmpApiVo.getApiUid().equals(uuid)) {
+										temp = temp.replaceAll(uuid, tsmpApiVo.getApiUid());
+										flow = flow.substring(0, 4) + Base64Util.base64URLEncode(temp.getBytes());
+										this.logger.debug("apiId change");
+									}
+								}
+							}else {
+								this.logger.debug("apiId not found");
+							}
+						}
+					}
+				}
+				
 				resp.setApiId(apiKey);
 				resp.setModuleName(moduleName);
 				resp.setUpdateDateTime(DateTimeUtil.now());
@@ -893,9 +987,11 @@ public class AA0319Service {
 	protected void clearAPICache() {
 		getDaoGenericCacheService().clearAndNotify();
 	}
+
 	protected DgrComposerFlowDao getDgrComposerFlowDao() {
 		return dgrComposerFlowDao;
 	}
+
 	protected TsmpApiDao getTsmpApiDao() {
 		return this.tsmpApiDao;
 	}
@@ -923,7 +1019,7 @@ public class AA0319Service {
 	protected TsmpOrganizationDao getTsmpOrganizationDao() {
 		return this.tsmpOrganizationDao;
 	}
-	
+
 	protected ApplicationContext getCtx() {
 		return this.ctx;
 	}
@@ -942,9 +1038,10 @@ public class AA0319Service {
 
 	protected NoticeClearCacheEventsJob getNoticeClearCacheEventsJob(Integer action, String cacheName, //
 			List<String> tableNameList) {
-		return (NoticeClearCacheEventsJob) getCtx().getBean("noticeClearCacheEventsJob", action, cacheName, tableNameList);
+		return (NoticeClearCacheEventsJob) getCtx().getBean("noticeClearCacheEventsJob", action, cacheName,
+				tableNameList);
 	}
-	
+
 	protected DgrAuditLogService getDgrAuditLogService() {
 		return dgrAuditLogService;
 	}
@@ -959,5 +1056,9 @@ public class AA0319Service {
 
 	protected DaoGenericCacheService getDaoGenericCacheService() {
 		return daoGenericCacheService;
+	}
+
+	protected DigiRunnerGtwDeployProperties getDigiRunnerGtwDeployProperties() {
+		return digiRunnerGtwDeployProperties;
 	}
 }

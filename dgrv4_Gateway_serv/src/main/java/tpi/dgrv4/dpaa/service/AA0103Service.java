@@ -137,7 +137,8 @@ public class AA0103Service {
 						aa0103List.setReportType(ReportType.OUTBOUND_LINKS);
 					}
 				} catch (URISyntaxException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
+					TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 				}
 			}
 			

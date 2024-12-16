@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import tpi.dgrv4.gateway.component.TokenHelper;
 import tpi.dgrv4.gateway.component.TokenHelper.JwtPayloadData;
+import tpi.dgrv4.gateway.filter.GatewayFilter;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.TsmpRtnCodeService;
 import tpi.dgrv4.gateway.service.TsmpSettingService;
@@ -33,8 +34,8 @@ public class DgrJtiCheck {
 		
 		boolean isEnabled = getTsmpSettingService().getVal_CHECK_JTI_ENABLE();
 		if(isEnabled) {
-			boolean isDgrUrl = (uri.length() >= 10 && (uri.substring(0, 10).equals("/dgrv4/11/")));
-			isDgrUrl = isDgrUrl || (uri.length() >= 10 && (uri.substring(0, 10).equals("/dgrv4/17/")));
+			boolean isDgrUrl = GatewayFilter.isDgrUrl(uri);// 是否為 dgR AC API
+			
 			//不驗証的API
 			if(uri.length() >= 17 && (uri.substring(0, 17).equals("/dgrv4/11/DPB0189"))) {
 				isDgrUrl = false;

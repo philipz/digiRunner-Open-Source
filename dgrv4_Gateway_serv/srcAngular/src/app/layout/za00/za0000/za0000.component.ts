@@ -6,9 +6,12 @@ import {
   OnInit,
   AfterViewInit,
   OnChanges,
+  ViewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import { TransformMenuNamePipe } from 'src/app/shared/pipes/transform-menu-name.pipe';
 import { filter } from 'rxjs';
+import { FrameComponent } from '../../components/frame/frame.component';
 
 @Component({
   selector: 'app-za0000',
@@ -16,13 +19,13 @@ import { filter } from 'rxjs';
   styleUrls: ['./za0000.component.css'],
 })
 export class za0000Component extends BaseComponent implements OnInit {
-  reportID: string = '';
-  status: boolean = false;
+  @ViewChild('frameRef', { read: ViewContainerRef, static: true })
+  frameRef!: ViewContainerRef;
 
-  constructor(
-    tr: TransformMenuNamePipe,
-    route: ActivatedRoute,
-  ) {
+  reportID: string = '';
+  // status: boolean = false;
+
+  constructor(tr: TransformMenuNamePipe, route: ActivatedRoute) {
     super(route, tr);
     // 因此路由共用元件
     this.route.paramMap.subscribe((res) => {
@@ -31,10 +34,9 @@ export class za0000Component extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.status = false;
-    setTimeout(() => {
-      this.status = true;
-      this.initTitle();
+
+    this.initTitle();
+    if (this.frameRef) {
       if (this.route.snapshot.params['cusfunc']) {
         this.reportID = this.route.snapshot.params['cusfunc'];
       } else {
@@ -42,7 +44,23 @@ export class za0000Component extends BaseComponent implements OnInit {
           this.reportID = res['id'];
         });
       }
-    }, 0);
+      this.frameRef.clear();
+      let _frameRef = this.frameRef.createComponent(FrameComponent);
+      _frameRef.instance.reportID = this.reportID;
+    }
+
+    // this.status = false;
+    // setTimeout(() => {
+    //   this.status = true;
+    //   this.initTitle();
+    //   if (this.route.snapshot.params['cusfunc']) {
+    //     this.reportID = this.route.snapshot.params['cusfunc'];
+    //   } else {
+    //     this.route.data.subscribe((res) => {
+    //       this.reportID = res['id'];
+    //     });
+    //   }
+    // }, 0);
   }
 
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +18,7 @@ import tpi.dgrv4.common.utils.LicenseEditionType;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.service.DgrAuditLogService;
 import tpi.dgrv4.dpaa.util.OAuthUtil;
+import tpi.dgrv4.dpaa.util.RandomUtils;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.entity.component.cipher.TsmpTAEASKHelper;
 import tpi.dgrv4.entity.entity.OauthClientDetails;
@@ -181,7 +181,7 @@ public class SyncTsmpdpapiToDpClientJob extends ApptJob {
 		int length = 8;
 	    boolean useLetters = true;
 	    boolean useNumbers = false;
-	    String generatedString = RandomStringUtils.random(length, useLetters, useNumbers);
+	    String generatedString = RandomUtils.randomString(length, useLetters, useNumbers);
 		return generatedString;
 	}
 

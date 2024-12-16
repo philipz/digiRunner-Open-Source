@@ -38,7 +38,7 @@ public class DPB0047Controller {
 	 * 可做為Flag 設計的應用, ex:前台檢查是否有使用"會員註冊", 
 	 * callThisMethod(itemNo="MEMBER_REG_FLAG", isDefault=Y), 會回傳 subItemNo值 
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0047", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

@@ -321,7 +321,8 @@ public class GtwIdPLoginService {
 			String userEmail = userInfoData.userEmail;
 			String userPicture = userInfoData.userPicture;
 			getGtwIdPCallbackService().createDgrGtwIdpAuthCode(state, null, DgrAuthCodePhase.STATE, expireDateTime,
-					idPType, dgrClientId, userName, userAlias, userEmail, userPicture, null, null, null, null);
+					idPType, dgrClientId, userName, userAlias, userEmail, userPicture, null, null, null, null, null,
+					null);
 
 			// 5.轉導到 user 同意畫面
 			String dgrConsentUiUrl = getDgrUserConsentUiUrl(idPType, responseType, dgrClientId, openIdScopeStr,
@@ -413,7 +414,8 @@ public class GtwIdPLoginService {
 			String userEmail = ldapAdAuthData.mail;
 			String userPicture = null;
 			getGtwIdPCallbackService().createDgrGtwIdpAuthCode(state, null, DgrAuthCodePhase.STATE, expireDateTime,
-					idPType, dgrClientId, reqUserName, userAlias, userEmail, userPicture, null, null, null, null);
+					idPType, dgrClientId, reqUserName, userAlias, userEmail, userPicture, null, null, null, null, null,
+					null);
 
 			// 6.轉導到 user 同意畫面
 			String dgrConsentUiUrl = getDgrUserConsentUiUrl(idPType, responseType, dgrClientId, openIdScopeStr,
@@ -500,9 +502,10 @@ public class GtwIdPLoginService {
 			String userEmail = apiUserInfoData.userEmail;
 			String userPicture = apiUserInfoData.userPicture;
 			String apiResp = apiUserInfoData.apiResp;
-
+			String	idtLightId=	apiUserInfoData.idtLightId ;
+			String idtRoleName= apiUserInfoData.idtRoleName;
 			getGtwIdPCallbackService().createDgrGtwIdpAuthCode(state, null, DgrAuthCodePhase.STATE, expireDateTime,
-					idPType, dgrClientId, reqUserName, userAlias, userEmail, userPicture, null, null, null, apiResp);
+					idPType, dgrClientId, reqUserName, userAlias, userEmail, userPicture, null, null, null, apiResp, idtLightId, idtRoleName);
 
 			// 6.轉導到 user 同意畫面
 			String dgrConsentUiUrl = getDgrUserConsentUiUrl(idPType, responseType, dgrClientId, openIdScopeStr,

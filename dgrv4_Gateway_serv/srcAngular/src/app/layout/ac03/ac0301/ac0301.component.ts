@@ -62,6 +62,15 @@ import {
 } from 'src/app/models/api/ApiService/aa0428.interfcae';
 import { ApiStatusModifyComponent } from './api-status-modify/api-status-modify.component';
 import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
+import {
+  AA0318Item,
+  AA0318Req,
+} from 'src/app/models/api/ApiService/aa0318.interface';
+import { FileService } from 'src/app/shared/services/api-file.service';
+import {
+  AA0319Req,
+  AA0319ReqItem,
+} from 'src/app/models/api/ApiService/aa0319.interface';
 
 @Component({
   selector: 'app-ac0301',
@@ -74,14 +83,14 @@ import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
     APISrcPipe,
     RegHostService,
     ConfirmationService,
-    MultiSelect
+    MultiSelect,
   ],
 })
 export class Ac0301Component extends BaseComponent implements OnInit {
   @ViewChild('dialog') _dialog!: DialogComponent;
   @ViewChild('labelFilter')
   lableFilter!: MultiSelect;
-
+  form!: FormGroup;
   queryForm: FormGroup;
   dialogTitle: string = '';
   formOperate = FormOperate;
@@ -135,6 +144,12 @@ export class Ac0301Component extends BaseComponent implements OnInit {
   selLabelList: Array<string> = [];
   showLabelList_tip: boolean = false;
   lblList: { label: string; value: string }[] = [];
+  apiFile?: File;
+
+  import_apiList: Array<AA0318Item> = [];
+  import_cols: { field: string }[] = [];
+  import_selected: Array<AA0318Item> = [];
+  fileBatchNo: number = 0;
 
   constructor(
     route: ActivatedRoute,
@@ -153,7 +168,8 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     private regService: RegHostService,
     private serverService: ServerService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService // private utilService: UtilService
+    private dialogService: DialogService, // private utilService: UtilService
+    private fileService: FileService
   ) {
     super(route, tr);
 
@@ -222,6 +238,11 @@ export class Ac0301Component extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.form = this.fb.group({
+      file: new FormControl(),
+      fileName: new FormControl({ value: '', disabled: true }),
+      fileSize: new FormControl(''),
+    });
     this.route.params.subscribe((res: any) => {
       if (res && res.apiSrc) {
         let request = JSON.parse(res.request);
@@ -578,6 +599,15 @@ export class Ac0301Component extends BaseComponent implements OnInit {
       },
       { field: 'desc', header: dict['group_desc'] },
     ];
+    this.import_cols = [
+      { field: 'apiKey' },
+      { field: 'moduleName' },
+      { field: 'apiName' },
+      { field: 'apiSrc' },
+      { field: 'endpoint' },
+      { field: 'checkAct' },
+      { field: 'result' },
+    ];
     // 預設查詢
     let ReqBody = {
       keyword: this.queryKeyword!.value,
@@ -923,7 +953,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     }
   }
 
-  async active(scheduledDate?: number, apiStatus?:string) {
+  async active(scheduledDate?: number, apiStatus?: string) {
     this.messageService.clear('confirm');
     const code = [
       'message.update',
@@ -982,7 +1012,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
         let ReqBody = {
           ignoreAlert: 'Y',
           apiList: _apiList,
-          apiStatus: apiStatus? apiStatus: this.currentUpdateStatusAction,
+          apiStatus: apiStatus ? apiStatus : this.currentUpdateStatusAction,
         } as AA0303Req;
         if (scheduledDate) {
           ReqBody.scheduledDate = scheduledDate;
@@ -1203,6 +1233,8 @@ export class Ac0301Component extends BaseComponent implements OnInit {
           const ref = this.dialogService.open(ApiTestComponent, {
             header: dict['api_test_page'],
             styleClass: 'cHeader',
+            autoZIndex: false,
+
             data: {
               apikey: rowData.apiKey.ori
                 ? rowData.apiKey.ori
@@ -1218,7 +1250,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
               //   : rowData.moduleName.val,
               apiSrc: rowData.apiSrc.v,
             },
-            width: '100vw',
+            width: '90vw',
           });
         } else if (type == 'page') {
           this.pageNum = 4;
@@ -1630,18 +1662,23 @@ export class Ac0301Component extends BaseComponent implements OnInit {
                     return { label: item, value: item };
                   });
 
-                  this.selLabelList = this.selLabelList.filter(selItem=> this.lblList.map(x=>x.label).includes(selItem));
+                  this.selLabelList = this.selLabelList.filter((selItem) =>
+                    this.lblList.map((x) => x.label).includes(selItem)
+                  );
                   this.clearFilter();
 
                   this.searchByLabel
-                  ? this.queryAPIListByLabel(this.selLabelList)
-                  : this.submitForm();
-                   this.changePage('query');
-
+                    ? this.queryAPIListByLabel(this.selLabelList)
+                    : this.submitForm();
+                  this.changePage('query');
+                } else {
+                  this.lblList = [];
+                  this.selLabelList = [];
+                  this.clearFilter();
+                  this.submitForm();
+                  this.changePage('query');
                 }
               });
-
-
             }
           });
         break;
@@ -1697,17 +1734,23 @@ export class Ac0301Component extends BaseComponent implements OnInit {
                     return { label: item, value: item };
                   });
 
-                  this.selLabelList = this.selLabelList.filter(selItem=> this.lblList.map(x=>x.label).includes(selItem));
+                  this.selLabelList = this.selLabelList.filter((selItem) =>
+                    this.lblList.map((x) => x.label).includes(selItem)
+                  );
                   this.clearFilter();
 
                   this.searchByLabel
-                  ? this.queryAPIListByLabel(this.selLabelList)
-                  : this.submitForm();
-                   this.changePage('query');
-
+                    ? this.queryAPIListByLabel(this.selLabelList)
+                    : this.submitForm();
+                  this.changePage('query');
+                } else {
+                  this.lblList = [];
+                  this.selLabelList = [];
+                  this.clearFilter();
+                  this.submitForm();
+                  this.changePage('query');
                 }
               });
-
             }
           });
         break;
@@ -1776,7 +1819,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
 
   async changePage(action: string, rowData?: AA0301Item) {
     this.showLabelList_tip = false;
-    const code = ['button.detail', 'button.update'];
+    const code = ['button.detail', 'button.update', 'upload_reg_comp_api_file'];
     const dict = await this.tool.getDict(code);
     switch (action) {
       case 'query':
@@ -2104,9 +2147,18 @@ export class Ac0301Component extends BaseComponent implements OnInit {
           data: {
             tarUrl: tarUrl,
           },
-          width: '100vw',
+          width: '90vw',
           height: '100vh',
         });
+        break;
+      case 'import':
+        this.resetFormValidator(this.form);
+        this.apiFile = undefined;
+        $('#file').val('');
+        this.import_apiList = [];
+        this.currentTitle = `${this.title} > ${dict['upload_reg_comp_api_file']}`;
+        this.pageNum = 5;
+
         break;
     }
   }
@@ -2239,7 +2291,13 @@ export class Ac0301Component extends BaseComponent implements OnInit {
   }
 
   tabChange(evt) {
-    this.selLabelList = [];
+    if (evt.index == 0) {
+      this.submitForm();
+    } else {
+      this.selected = [];
+      this.dataList = [];
+      this.selLabelList = [];
+    }
   }
 
   clearFilter() {
@@ -2247,6 +2305,241 @@ export class Ac0301Component extends BaseComponent implements OnInit {
       this.lableFilter.filterValue = '';
       this.lableFilter.updateFilledState();
     }
+  }
+
+  openFileBrowser() {
+    $('#file').click();
+  }
+
+  changeFile(event) {
+    if (event.target.files.length != 0) {
+      this.apiFile = event.target.files[0];
+      this.fileName.setValue(this.apiFile!.name);
+      let _fileSize = this.apiFile!.size / 1024;
+      this.fileSize.setValue(Math.round(_fileSize * 100) / 100);
+    } else {
+      this.file.reset();
+      this.fileName.setValue('');
+      this.fileSize.setValue('');
+    }
+  }
+
+  uploadFile() {
+    let fileReader = new FileReader();
+    fileReader.onloadend = () => {
+      this.fileService.uploadFile2(this.apiFile!).subscribe((res) => {
+        if (this.tool.checkDpSuccess(res.ResHeader)) {
+          this.import_apiList = [];
+          this.ngxService.start();
+          let ReqBody = {
+            tempFileName: res.RespBody.tempFileName,
+          } as AA0318Req;
+          this.apiService.uploadRegCompAPIs(ReqBody).subscribe(async (resp) => {
+            this.ngxService.stop();
+            if (this.tool.checkDpSuccess(resp.ResHeader)) {
+              const code = [
+                'uploading',
+                'waiting',
+                'cfm_size',
+                'upload_result',
+                'message.success',
+              ];
+              const dict = await this.tool.getDict(code);
+              this.messageService.add({
+                severity: 'success',
+                summary: dict['upload_result'],
+                detail: `${dict['message.success']}!`,
+              });
+              this.fileBatchNo = resp.RespBody.batchNo;
+
+              resp.RespBody.apiList.map((rowData) => {
+                if (rowData.srcURLByIpRedirectMap) {
+                  let tmp = <any>[];
+                  Object.keys(rowData.srcURLByIpRedirectMap)
+                    .sort()
+                    .map((key) => {
+                      // console.log('key',key);
+                      tmp.push({
+                        ip: key,
+                        srcURL: rowData.srcURLByIpRedirectMap![key],
+                      });
+                    });
+                  rowData.srcURLByIpRedirectMap = tmp;
+                }
+                return {
+                  ...rowData,
+                };
+              });
+              this.import_apiList = resp.RespBody.apiList;
+            }
+          });
+        }
+      });
+    };
+    fileReader.readAsText(this.apiFile!);
+  }
+
+  decodeSrcUrl(srcUrl) {
+    if (srcUrl.includes('b64.')) {
+      let srcUrlArr = srcUrl.split('.');
+      srcUrlArr.shift();
+
+      let srcUrlArrEdit: string[] = [];
+      for (let i = 0; i < srcUrlArr.length; i++) {
+        if (i % 2 == 0) {
+          srcUrlArrEdit.push(
+            srcUrlArr[i] + '%, ' + base64.Base64.decode(srcUrlArr[i + 1])
+          );
+        }
+      }
+
+      return srcUrlArrEdit.join('<br>');
+    } else {
+      return srcUrl;
+    }
+  }
+
+  async import() {
+    const code = [
+      'button.import',
+      'data',
+      'message.success',
+      'unchecked_api',
+      'cfm_import',
+      'message.fail',
+    ];
+    const dict = await this.tool.getDict(code);
+
+    if (this.import_selected.length < this.import_apiList.length) {
+
+      this.confirmationService.confirm({
+        header: dict['unchecked_api'],
+        message: dict['cfm_import'],
+        key: 'cd',
+        accept: () => {
+          this.confirmImport();
+        },
+      });
+    } else {
+      this.ngxService.start();
+      let _apiList = this.import_selected.map((item) => {
+        return {
+          moduleName: item.moduleName.t
+            ? item.moduleName.ori
+            : item.moduleName.val,
+          apiKey: item.apiKey.t ? item.apiKey.ori : item.apiKey.val,
+        } as AA0319ReqItem;
+      });
+      let ReqBody = {
+        batchNo: this.fileBatchNo,
+        apiList: _apiList,
+      } as AA0319Req;
+      this.apiService.importRegCompAPIs(ReqBody).subscribe((res) => {
+        this.ngxService.stop();
+        if (this.tool.checkDpSuccess(res.ResHeader)) {
+          for (let i = 0; i < res.RespBody.apiList.length; i++) {
+            this.import_selected.forEach((item) => {
+              if (
+                (item.apiKey.t ? item.apiKey.ori : item.apiKey.val) ==
+                  res.RespBody.apiList[i].apiKey &&
+                (item.moduleName.t
+                  ? item.moduleName.ori
+                  : item.moduleName.val) == res.RespBody.apiList[i].moduleName
+              ) {
+                item['result'] = res.RespBody.apiList[i].result;
+
+                if (res.RespBody.apiList[i].result.v == 'S') {
+                  item['memo'] = {
+                    t: false,
+                    val: '',
+                  };
+                } else {
+                  if (res.RespBody.apiList[i].desc) {
+                    item['memo'] = res.RespBody.apiList[i].desc;
+                  }
+                }
+              }
+            });
+          }
+          if (res.RespBody.apiList.every((item) => item.result.v == 'S')) {
+            this.messageService.add({
+              severity: 'success',
+              summary: `${dict['button.import']} ${dict['message.success']}`,
+            });
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: `${dict['button.import']} ${dict['message.fail']}`,
+            });
+          }
+          this.import_selected = [];
+        }
+      });
+    }
+  }
+
+  async confirmImport() {
+    this.messageService.clear();
+    const code = ['button.import', 'data', 'message.success', 'message.fail'];
+    const dict = await this.tool.getDict(code);
+    this.ngxService.start();
+    let _apiList = this.import_selected.map((item) => {
+      return {
+        moduleName: item.moduleName.t
+          ? item.moduleName.ori
+          : item.moduleName.val,
+        apiKey: item.apiKey.t ? item.apiKey.ori : item.apiKey.val,
+      } as AA0319ReqItem;
+    });
+    let ReqBody = {
+      batchNo: this.fileBatchNo,
+      apiList: _apiList,
+    } as AA0319Req;
+    this.apiService.importRegCompAPIs(ReqBody).subscribe((res) => {
+      this.ngxService.stop();
+      if (this.tool.checkDpSuccess(res.ResHeader)) {
+        for (let i = 0; i < res.RespBody.apiList.length; i++) {
+          this.selected.forEach((item) => {
+            if (
+              (item.apiKey.t ? item.apiKey.ori : item.apiKey.val) ==
+                res.RespBody.apiList[i].apiKey &&
+              (item.moduleName.t ? item.moduleName.ori : item.moduleName.val) ==
+                res.RespBody.apiList[i].moduleName
+            ) {
+              item['result'] = res.RespBody.apiList[i].result;
+              if (res.RespBody.apiList[i].result.v == 'S') {
+                item['memo'] = {
+                  t: false,
+                  val: '',
+                };
+              } else {
+                if (res.RespBody.apiList[i].desc) {
+                  item['memo'] = res.RespBody.apiList[i].desc;
+                }
+              }
+            }
+          });
+        }
+        if (res.RespBody.apiList.every((item) => item.result.v == 'S')) {
+          this.messageService.add({
+            severity: 'success',
+            summary: `${dict['button.import']} ${dict['message.success']}`,
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: `${dict['button.import']} ${dict['message.fail']}`,
+          });
+        }
+        this.import_selected = [];
+      }
+    });
+  }
+
+  selectAll(evn) {
+    this.import_selected = this.import_selected.filter(
+      (item) => item.checkAct.v != 'N'
+    );
   }
 
   public get q_jwtSetting() {
@@ -2386,5 +2679,15 @@ export class Ac0301Component extends BaseComponent implements OnInit {
   }
   public get failHandlePolicy() {
     return this.updateForm.get('failHandlePolicy')!;
+  }
+
+  public get file() {
+    return this.form.get('file')!;
+  }
+  public get fileName() {
+    return this.form.get('fileName')!;
+  }
+  public get fileSize() {
+    return this.form.get('fileSize')!;
   }
 }

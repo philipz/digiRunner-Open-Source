@@ -1,5 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDrawerToggleResult, MatSidenav } from '@angular/material/sidenav';
+import { AboutService } from '../shared/services/api-about.service';
+import { ToolService } from '../shared/services/tool.service';
 
 @Component({
   selector: 'app-layout',
@@ -15,7 +17,10 @@ export class LayoutComponent implements OnInit {
   mode:string = 'side'; //side,over
   isMin:boolean = false;
 
-  constructor() { }
+  constructor(
+    private aboutService:AboutService,
+    private toolService:ToolService
+  ) { }
 
   @HostListener('window:resize', ['$event'])
   getScreen(){
@@ -31,7 +36,13 @@ export class LayoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // console.log('layout init')
+
+    this.aboutService.queryModuleVersion().subscribe(res=>{
+      if (this.toolService.checkDpSuccess(res.ResHeader)) {
+              this.aboutService.setModuleVersionData(res.RespBody);
+              this.toolService.writeToken(res.RespBody.majorVersionNo ,'majorVersionNo');
+          }
+    })
   }
 
 
@@ -44,6 +55,12 @@ export class LayoutComponent implements OnInit {
       // console.log('選單狀態：' + result);
       this.isMin = !result;
     });
+  }
+
+  closeMask() {
+    const dom: any = document.querySelector('body');
+    dom.classList.toggle('push-right');
+
   }
 
 }

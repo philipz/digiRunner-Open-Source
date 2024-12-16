@@ -32,7 +32,7 @@ public class OAuthRevocationController {
 	@PostMapping(value = "/oauth/revocation",
 			consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> introspection(HttpServletRequest httpReq,
+	public ResponseEntity<?> revocation(HttpServletRequest httpReq,
 			HttpServletResponse httpRes,
 			@RequestHeader HttpHeaders httpHeaders,
 			@RequestParam MultiValueMap<String, String> values) {

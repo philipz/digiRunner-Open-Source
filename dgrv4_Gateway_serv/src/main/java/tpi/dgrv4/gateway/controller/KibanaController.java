@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.gateway.service.KibanaService;
 
-@RestController
+//@RestController
 public class KibanaController {
 
 	@Autowired
@@ -40,15 +40,17 @@ public class KibanaController {
 
 	}
 
-	@RequestMapping(value = "/_plugin/kibana/**")
+	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
+//	@RequestMapping(value = "/_plugin/kibana/**")
 	public void resourceAWS(@RequestHeader HttpHeaders httpHeaders, HttpServletRequest request,
 			HttpServletResponse response, @RequestBody(required = false) String payload) throws Throwable {
 
 		service.resource(httpHeaders, request, response, payload);
 
 	}
-	
-	@RequestMapping(value = "/_dashboards/**")
+
+	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
+//	@RequestMapping(value = "/_dashboards/**")
 	public void resourceOpenSearch(@RequestHeader HttpHeaders httpHeaders, HttpServletRequest request,
 			HttpServletResponse response, @RequestBody(required = false) String payload) throws Throwable {
 

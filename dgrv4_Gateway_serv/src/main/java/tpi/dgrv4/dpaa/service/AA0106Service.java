@@ -179,29 +179,33 @@ public class AA0106Service {
 		String embeddedUrl = req.getEmbeddedUrl();
 		// 1350:[{{0}}] 為必填欄位
 		if (!StringUtils.hasLength(embeddedUrl) && req.getType() == 1) {
-			throw TsmpDpAaRtnCode._1350.throwing("{{embeddedUrl}}");
+			throw TsmpDpAaRtnCode._1350.throwing("Embedded URL");
 		}
 		// 1351:[{{0}}] 長度限制 [{{1}}] 字內，您輸入[{{2}}] 個字
 		if (embeddedUrl!=null && embeddedUrl.length() > 2000) {
 			int length = embeddedUrl.length();
 			String msg = String.valueOf(length);
-			throw TsmpDpAaRtnCode._1351.throwing("{{embeddedUrl}}", "2000", msg);
+			throw TsmpDpAaRtnCode._1351.throwing("Embedded URL", "2000", msg);
 		}
 		
 		//當Type = 1 且有Host時,MasterFuncCode必填
 		if(1 == req.getType()) {
 			URI uri;
 			try {
+				if(req.getIsKibana() == null) {		
+					throw TsmpDpAaRtnCode._1350.throwing("{{Kibana}}");
+				}
+				
 				uri = new URI(embeddedUrl);
-				if(uri.getHost()!=null && !StringUtils.hasLength(req.getMasterFuncCode())) {
-					throw TsmpDpAaRtnCode._1296.throwing();				
+				if(!req.getIsKibana() && !StringUtils.hasLength(req.getMasterFuncCode())) {		
+					throw TsmpDpAaRtnCode._1350.throwing("{{masterFuncCode}}");
 				}
 				
 				if(req.getIsKibana() && uri.getHost()!=null) {
-					throw TsmpDpAaRtnCode._1352.throwing("host");
+					throw TsmpDpAaRtnCode._1352.throwing("Embedded URL");
 				}
 				if(!req.getIsKibana() && uri.getHost()==null) {
-					throw TsmpDpAaRtnCode._1352.throwing("host");
+					throw TsmpDpAaRtnCode._1352.throwing("Embedded URL");
 				}
 			} catch (TsmpDpAaException e) {
 				throw e;

@@ -57,6 +57,8 @@ public class DPB0185Service {
 			String icon = StringUtils.hasLength(a.getIconFile()) ? a.getIconFile() : IdPHelper.DEFULT_ICON_FILE;
 			resp.setIconFile(icon);
 			resp.setPageTitle(a.getPageTitle());
+			resp.setIdtLightId(a.getIdtLightId());
+			resp.setIdtRoleName(a.getIdtRoleName());
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {

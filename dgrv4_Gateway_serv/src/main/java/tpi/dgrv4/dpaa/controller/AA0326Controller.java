@@ -36,7 +36,7 @@ public class AA0326Controller {
 	@Autowired
 	private CApiKeyService capiKeyService;
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0326", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

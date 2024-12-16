@@ -173,6 +173,28 @@ export class Np0401Component extends BaseComponent implements OnInit {
                 });
             }
         });
+        this.startDate?.valueChanges.subscribe(res => {
+          if(!res){
+             this.startDate?.setValue(new Date(),{ emitEvent: false })
+             return;
+          }
+          const sDate = new Date(res);
+          sDate.setHours(0,0,0,0);
+          const eDate = new Date(this.endDate?.value);
+          eDate.setHours(0,0,0,0);
+          if(eDate<sDate) this.endDate?.setValue(sDate)
+        })
+        this.endDate?.valueChanges.subscribe(res => {
+          if(!res){
+            this.endDate?.setValue(new Date(),{ emitEvent: false })
+            return;
+         }
+          const eDate = new Date(res);
+          eDate.setHours(0,0,0,0);
+          const sDate = new Date(this.startDate?.value);
+          sDate.setHours(0,0,0,0);
+          if(eDate<sDate) this.startDate?.setValue(eDate)
+        })
     }
 
     converDateInit() {

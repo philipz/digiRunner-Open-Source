@@ -37,7 +37,7 @@ public class TsmpApiCacheProxy extends DaoCacheProxy {
 			return isExist;
 		};
 		
-		return getOne("existsById", supplier, Boolean.class, id).get().booleanValue();
+		return getOne("existsById", supplier, Boolean.class, id).orElse(false).booleanValue();
 	}
 	
 	public List<TsmpApi> queryAll_APIkeyAndModuleNameAndSrcUrl() {

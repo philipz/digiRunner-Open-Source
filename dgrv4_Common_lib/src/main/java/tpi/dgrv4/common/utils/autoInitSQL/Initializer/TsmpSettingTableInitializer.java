@@ -259,8 +259,31 @@ public class TsmpSettingTableInitializer {
 	        createTsmpSetting((id = "AC_IDP_API_REVIEW_ENABLE"), (value = "true"), (memo = "AC IdP API 寄發審核信流程 及 自動建立 User 功能是否啟用 (true/false)"));
 	        
 //			-- 20240506, 異動系統預設資料請先解鎖, Webber Luo
-	        createTsmpSetting((id = "DEFAULT_DATA_CHANGE_ENABLED"), (value = "false"), (memo = "異動系統預設資料功能是否啟用 (true/false)"));
+	        createTsmpSetting((id = "DEFAULT_DATA_CHANGE_ENABLED"), (value = "false"), (memo = "異動系統預設資料須啟用(true/false)，影響功能如下: 1.使用者維護，禁止(manager、DpUser)刪除操作。 2.角色維護，禁止(ADMIN)刪除操作。 3.角色清單設定，禁止(Administrator)刪除操作。 4.用戶端維護，禁止(adminConsole、DpClient)刪除操作。 5.群組維護，禁止(SMS(Admin Console))刪除操作。"));
        
+//			-- 20240819, v4 AC IdP 的設定, Kevin Cheng
+	        createTsmpSetting((id = "AC_IDP_CUS_REVIEW_ENABLE"), (value = "true"), (memo = "AC IdP CUS 自動建立 User 功能是否啟用 (true/false)"));
+
+//			-- 20241022, v4 BOT_DETECTION 的設定, Kevin Cheng
+	        createTsmpSetting((id = "CHECK_BOT_DETECTION"), (value = "false"), (memo = "Bot Detection檢查器是否啟用 (true/false)"));
+
+//			-- 20241101, v4 kibana 登入的方式, Zoe Lee
+			createTsmpSetting((id = "KIBANA_AUTH"), (value = "basic"), (memo = "basic/session"));
+			createTsmpSetting((id = "KIBANA_LOGIN_URL"), (value = "/xxxx/yyy/login"), (memo = "Kibana登入URL"));
+			createTsmpSetting((id = "KIBANA_LOGIN_REQUESTBODY"), (value = "{\n" +
+					"    \"providerType\": \"basic\",\n" +
+					"    \"providerName\": \"basic\",\n" +
+					"    \"currentURL\": \"/\",\n" +
+					"    \"params\": {\n" +
+					"        \"username\": \"{{username}}\",\n" +
+					"        \"password\": \"{{password}}\"\n" +
+					"    }\n" +
+					"}"), (memo = "Kibana登入要帶的requestBody，以{{username}}代替 username 的value  以{{password}} 代替  password 的value "));
+	        
+//			-- 20241107, v4 BOT_DETECTION 的設定, Kevin Cheng
+	        createTsmpSetting((id = "BOT_DETECTION_LOG"), (value = "false"), (memo = "Bot Detection 檢查器 Log 是否印出 (true/false)"));
+
+			
 		} catch (Exception e) {
 			StackTraceUtil.logStackTrace(e);
 			throw e;

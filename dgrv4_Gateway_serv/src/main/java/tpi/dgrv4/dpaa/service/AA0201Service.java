@@ -33,6 +33,7 @@ import tpi.dgrv4.entity.repository.*;
 import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -298,6 +299,8 @@ public class AA0201Service {
 			
 			resp.setClientID(clientID);
 
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {

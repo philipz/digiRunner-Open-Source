@@ -28,7 +28,7 @@ public class GtwIdPVgroupController {
 	@Autowired
 	private GtwIdPVgroupService service;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/gtwidp/{idPType}/getVgroupList")
 	public ResponseEntity<?> getVgroupList(@RequestHeader HttpHeaders headers, 
 			HttpServletRequest httpReq, 

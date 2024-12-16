@@ -1,21 +1,15 @@
 package tpi.dgrv4.gateway.component.job;
 
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import tpi.dgrv4.codec.constant.RandomLongTypeEnum;
-import tpi.dgrv4.codec.utils.RandomSeqLongUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.gateway.component.cache.core.CacheValueAdapter;
 import tpi.dgrv4.gateway.component.cache.core.GenericCache;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
 public class RefreshCacheJob extends DeferrableJob {
@@ -175,15 +169,15 @@ public class RefreshCacheJob extends DeferrableJob {
 	protected boolean pause2(JobManager jobManager) {
 		if (putIn2ndTime + BUFFER_INTERVAL > System.currentTimeMillis()) {
 			//如果已有人執行過了, 把最新的時間再更新回去
-			Long lasthNewExecuteTime = alreadyRun.get(getGroupId());
-			if (lasthNewExecuteTime != null && lasthNewExecuteTime.longValue() > this.putIn2ndTime) {
-				this.putIn2ndTime = lasthNewExecuteTime.longValue() + BUFFER_INTERVAL ;
+			Long lastNewExecuteTime = alreadyRun.get(getGroupId());
+			if (lastNewExecuteTime != null && lastNewExecuteTime > this.putIn2ndTime) {
+				this.putIn2ndTime = lastNewExecuteTime + BUFFER_INTERVAL;
 			}
-			//this.putIn2ndTime = System.currentTimeMillis();
+
 			// put 2nd Queue(還沒有到 6 秒就再放回去 2nd)
 			synchronized (jobManager.buff2nd) {
 				jobManager.buff2nd.put(this.getGroupId(), this);
-				jobManager.buff2nd.notify();
+				jobManager.buff2nd.notifyAll();
 			}
 			
 			// 為了不讓 2nd 又利刻取出來, 所以在此 Thread 停 n 秒

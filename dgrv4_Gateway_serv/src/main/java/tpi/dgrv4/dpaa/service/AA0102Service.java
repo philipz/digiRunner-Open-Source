@@ -183,15 +183,15 @@ public class AA0102Service {
 			
 			//都要有值或都要無值
 			if((StringUtils.hasLength(uriHost) && !StringUtils.hasLength(uriNewHost)) || (!StringUtils.hasLength(uriHost) && StringUtils.hasLength(uriNewHost))) {
-				throw TsmpDpAaRtnCode._1352.throwing("host");
+				throw TsmpDpAaRtnCode._1352.throwing("Embedded URL");
 			}
 			if(req.getFuncCode()!=null && req.getFuncCode().length()>4 && 
 					req.getIsKibana()!=null && req.getIsKibana() && uriNewHost!=null) {
-				throw TsmpDpAaRtnCode._1352.throwing("host");
+				throw TsmpDpAaRtnCode._1352.throwing("Embedded URL");
 			}
 			if(req.getFuncCode()!=null && req.getFuncCode().length()>4 && 
 					req.getIsKibana()!=null && !req.getIsKibana() && uriNewHost==null) {
-				throw TsmpDpAaRtnCode._1352.throwing("host");
+				throw TsmpDpAaRtnCode._1352.throwing("Embedded URL");
 			}
 		}
 

@@ -15,6 +15,7 @@ import tpi.dgrv4.dpaa.vo.DPB0209Resp;
 import tpi.dgrv4.entity.entity.DgrXApiKey;
 import tpi.dgrv4.entity.repository.DgrXApiKeyDao;
 import tpi.dgrv4.entity.repository.DgrXApiKeyMapDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -49,6 +50,9 @@ public class DPB0209Service {
 				getDgrXApiKeyDao().delete(dgrXApiKey);
 				getDgrXApiKeyMapDao().deleteByRefApiKeyId(longId);
 			}
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 
 		} catch (TsmpDpAaException e) {
 			throw e;

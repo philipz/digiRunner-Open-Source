@@ -19,7 +19,7 @@ public class AcIdPReviewController {
 	@Autowired
 	AcIdPReviewService service;
  
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/acidp/acIdPReview")
 	public void acIdPReview(@RequestHeader HttpHeaders httpHeaders, 
 			HttpServletRequest httpReq,

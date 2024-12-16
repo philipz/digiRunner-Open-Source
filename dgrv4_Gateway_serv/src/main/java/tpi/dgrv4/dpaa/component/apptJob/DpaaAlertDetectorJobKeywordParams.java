@@ -34,7 +34,7 @@ public class DpaaAlertDetectorJobKeywordParams extends DpaaAlertDetectorJobParam
 
 	@JsonIgnore
 	public String saveLastAlertDt(Date lastAlertDt) {
-		this.lastAlertDt = DateTimeUtil.dateTimeToString(lastAlertDt, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		this.lastAlertDt = DateTimeUtil.dateTimeToString(lastAlertDt, DateTimeFormatEnum.西元年月日時分秒毫秒).orElse(null);
 		return this.lastAlertDt;
 	}
 

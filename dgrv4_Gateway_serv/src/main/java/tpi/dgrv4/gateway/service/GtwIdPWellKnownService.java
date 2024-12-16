@@ -63,11 +63,13 @@ public class GtwIdPWellKnownService {
 		// 對外公開的Port
 		String dgrPublicPort = getTsmpSettingService().getVal_DGR_PUBLIC_PORT();
 		
-		String issuer = getIssuer(dgrPublicDomain, dgrPublicPort, idPType);
-		String authorizationEndpoint = getAuthorizationEndpoint(dgrPublicDomain, dgrPublicPort, idPType);
-		String tokenEndpoint = getTokenEndpoint(dgrPublicDomain, dgrPublicPort);
-		String jwksUri = getJwksUri(dgrPublicDomain, dgrPublicPort);
-		String callbackEndpoint = getCallbackEndpoint(dgrPublicDomain, dgrPublicPort, idPType);
+		String schemeAndDomainAndPort = getSchemeAndDomainAndPort(dgrPublicDomain, dgrPublicPort);
+		
+		String issuer = getIssuer(schemeAndDomainAndPort, idPType);
+		String authorizationEndpoint = getAuthorizationEndpoint(schemeAndDomainAndPort, idPType);
+		String tokenEndpoint = getTokenEndpoint(schemeAndDomainAndPort);
+		String jwksUri = getJwksUri(schemeAndDomainAndPort);
+		String callbackEndpoint = getCallbackEndpoint(schemeAndDomainAndPort, idPType);
 		
 		// 支援哪些 Scope
 		List<String> scopesSupportedList = GtwIdPHelper.getSupportScopeList();
@@ -95,6 +97,28 @@ public class GtwIdPWellKnownService {
 	}
 	
 	/**
+	 * 取得 dgR 的 Scheme Domain Port <br>
+	 * 例如: https://domain:port <br>
+	 * 若 port 為 443,則不顯示 port <br>
+	 * 例如: https://domain <br>
+	 */
+	public static String getSchemeAndDomainAndPort(String dgrPublicDomain, String dgrPublicPort) {
+		String schemeAndDomainAndPort = "";
+		
+		// 若 https 為預設 port 443,則不顯示 port
+		if("443".equals(dgrPublicPort)) {
+			schemeAndDomainAndPort = String.format("https://%s", 
+					dgrPublicDomain);
+		}else {
+			schemeAndDomainAndPort = String.format("https://%s:%s", 
+					dgrPublicDomain,
+					dgrPublicPort);
+		}
+		
+		return schemeAndDomainAndPort;
+	}
+
+	/**
 	 * 檢查傳入的資料
 	 */
 	private ResponseEntity<?> checkReqParam(String idPType) {
@@ -111,8 +135,8 @@ public class GtwIdPWellKnownService {
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/{idPType}/.well-known/openid-configuration
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/GOOGLE/.well-known/openid-configuration
 	 */
-	public static String getWellKnownUrl(String dgrPublicDomain, String dgrPublicPort, String idPType) {
-		String issuer = getIssuer(dgrPublicDomain, dgrPublicPort, idPType);
+	public static String getWellKnownUrl(String schemeAndDomainAndPort, String idPType) {
+		String issuer = getIssuer(schemeAndDomainAndPort, idPType);
 		String wellKnownUrl = String.format("%s/.well-known/openid-configuration", 
 				issuer);
 		
@@ -126,10 +150,9 @@ public class GtwIdPWellKnownService {
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/{idPType} <br>
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/GOOGLE <br>
 	 */
-	public static String getIssuer(String dgrPublicDomain, String dgrPublicPort, String idPType) {
-		String issuer = String.format("https://%s:%s/dgrv4/ssotoken/%s", 
-				dgrPublicDomain,
-				dgrPublicPort,
+	public static String getIssuer(String schemeAndDomainAndPort, String idPType) {
+		String issuer = String.format("%s/dgrv4/ssotoken/%s", 
+				schemeAndDomainAndPort,
 				idPType);
 		
 		return issuer;
@@ -141,10 +164,9 @@ public class GtwIdPWellKnownService {
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/gtwidp/{idPType}/authorization <br>
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/gtwidp/GOOGLE/authorization <br>
 	 */
-	public static String getAuthorizationEndpoint(String dgrPublicDomain, String dgrPublicPort, String idPType) {
-		String authorizationEndpoint = String.format("https://%s:%s/dgrv4/ssotoken/gtwidp/%s/authorization",
-				dgrPublicDomain,
-				dgrPublicPort,
+	public static String getAuthorizationEndpoint(String schemeAndDomainAndPort, String idPType) {
+		String authorizationEndpoint = String.format("%s/dgrv4/ssotoken/gtwidp/%s/authorization",
+				schemeAndDomainAndPort,
 				idPType);
 		
 		return authorizationEndpoint;
@@ -155,11 +177,9 @@ public class GtwIdPWellKnownService {
 	 * 例如: <br>
 	 * https://127.0.0.1:8080/oauth/token <br>
 	 */
-	public static String getTokenEndpoint(String dgrPublicDomain, String dgrPublicPort) {
-		String tokenEndpoint = String.format("https://%s:%s/oauth/token",
-				dgrPublicDomain,
-				dgrPublicPort);
-		
+	public static String getTokenEndpoint(String schemeAndDomainAndPort) {
+		String tokenEndpoint = String.format("%s/oauth/token", schemeAndDomainAndPort);
+
 		return tokenEndpoint;
 	}
 	
@@ -168,10 +188,9 @@ public class GtwIdPWellKnownService {
 	 * 例如: <br>
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/gtwidp/GOOGLE/gtwIdPCallback <br>
 	 */
-	public static String getCallbackEndpoint(String dgrPublicDomain, String dgrPublicPort, String idPType) {
-		String tokenEndpoint = String.format("https://%s:%s/dgrv4/ssotoken/gtwidp/%s/gtwIdPCallback",
-				dgrPublicDomain,
-				dgrPublicPort,
+	public static String getCallbackEndpoint(String schemeAndDomainAndPort, String idPType) {
+		String tokenEndpoint = String.format("%s/dgrv4/ssotoken/gtwidp/%s/gtwIdPCallback",
+				schemeAndDomainAndPort,
 				idPType);
 		
 		return tokenEndpoint;
@@ -182,10 +201,9 @@ public class GtwIdPWellKnownService {
 	 * 例如: <br>
 	 * https://127.0.0.1:8080/dgrv4/ssotoken/oauth2/certs <br>
 	 */
-	public static String getJwksUri(String dgrPublicDomain, String dgrPublicPort) {
-		String jwksUri = String.format("https://%s:%s/dgrv4/ssotoken/oauth2/certs",
-				dgrPublicDomain,
-				dgrPublicPort);
+	public static String getJwksUri(String schemeAndDomainAndPort) {
+		String jwksUri = String.format("%s/dgrv4/ssotoken/oauth2/certs",
+				schemeAndDomainAndPort);
 		
 		return jwksUri;
 	}

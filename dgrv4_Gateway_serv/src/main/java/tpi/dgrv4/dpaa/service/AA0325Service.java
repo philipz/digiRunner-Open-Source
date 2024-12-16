@@ -1,28 +1,16 @@
 package tpi.dgrv4.dpaa.service;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import tpi.dgrv4.codec.utils.TimeZoneUtil;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.LoggerLevelConstant;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.controller.AA0325Controller;
@@ -36,6 +24,16 @@ import tpi.dgrv4.gateway.service.TsmpSettingService;
 import tpi.dgrv4.gateway.vo.ComposerInfoData;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
+
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class AA0325Service {
@@ -63,12 +61,14 @@ public class AA0325Service {
 		composerInfoData.setWebServerPort(req.getWebServerPort());
 		composerInfoData.setVersion(req.getVersion());
 		composerInfoData.setTs(req.getTs());
+		composerInfoData.setCpuUsage(req.getCpuUsage());
+		composerInfoData.setMemoryUsage(req.getMemoryUsage());
 
 		composerInfoData.setUpTime(
 				DateTimeUtil.secondsToDaysHoursMinutesSeconds(composerInfoData.getTs() - req.getStartupTime()));
 
 		composerInfoData.setTsToString(
-				DateTimeUtil.dateTimeToString(new Date(composerInfoData.getTs()), DateTimeFormatEnum.西元年月日時分秒).get());
+				DateTimeUtil.dateTimeToString(new Date(composerInfoData.getTs()), DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 
 		// 定期跟Server回報主機的Composer資訊。
 		ComposerInfoPacket composerInfoPacket = new ComposerInfoPacket();
@@ -159,7 +159,7 @@ public class AA0325Service {
 		Date nowDate = new Date();
 
 		// index是否存在,不存在就建立
-		String indexName = "tsmp_comp_log_" + DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日_4).get();
+		String indexName = "tsmp_comp_log_" + DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日_4).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 
 		List<AA0325Log> logData = req.getHttpRequestLog();
 
@@ -182,7 +182,6 @@ public class AA0325Service {
 					if (resp.statusCode == 200) {
 						TPILogger.tl.debug("write Composer http API Log to ES = " + strJson);						
 					}
-					// TPILogger.tl.debug(resp.getLogStr());
 				} catch (Exception e) {
 					TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 				}

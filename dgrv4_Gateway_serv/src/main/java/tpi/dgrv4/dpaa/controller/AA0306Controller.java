@@ -26,7 +26,7 @@ public class AA0306Controller {
 	@Autowired
 	private AA0306Service service;
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0306", params = { "before" }, //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)
@@ -35,7 +35,7 @@ public class AA0306Controller {
 		return ControllerUtil.getReqConstraints(req, new AA0306Req());
 	}
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0306", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

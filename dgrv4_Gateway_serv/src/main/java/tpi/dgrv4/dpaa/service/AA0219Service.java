@@ -46,22 +46,29 @@ public class AA0219Service {
 			OauthClientDetails oauthClientDetails = getOauthClientDetailsDao().findById(clientId).orElse(null);
 			resp.setClientID(clientId);
 			Set<String> typeSet = null;
-			if(StringUtils.isEmpty(oauthClientDetails.getAuthorizedGrantTypes())) {
+
+			if (oauthClientDetails == null || oauthClientDetails.getAuthorizedGrantTypes() == null || oauthClientDetails.getAuthorizedGrantTypes().isEmpty()) {
 				typeSet = new LinkedHashSet<>();
-			}else {
+			} else {
 				String[] arrType = oauthClientDetails.getAuthorizedGrantTypes().split(",");
-				typeSet = new LinkedHashSet(Arrays.asList(arrType));
+				typeSet = new LinkedHashSet<>(Arrays.asList(arrType));
 			}
+
 			
 			resp.setAuthorizedGrantType(typeSet);
-			resp.setAccessTokenValidity(oauthClientDetails.getAccessTokenValidity());
-			resp.setRaccessTokenValidity(oauthClientDetails.getRefreshTokenValidity());
-			resp.setWebServerRedirectUri(oauthClientDetails.getWebServerRedirectUri());
-			resp.setWebServerRedirectUri1(oauthClientDetails.getWebServerRedirectUri1());
-			resp.setWebServerRedirectUri2(oauthClientDetails.getWebServerRedirectUri2());
-			resp.setWebServerRedirectUri3(oauthClientDetails.getWebServerRedirectUri3());
-			resp.setWebServerRedirectUri4(oauthClientDetails.getWebServerRedirectUri4());
-			resp.setWebServerRedirectUri5(oauthClientDetails.getWebServerRedirectUri5());
+
+			Optional.ofNullable(oauthClientDetails).ifPresent(oDetails -> {
+				resp.setAccessTokenValidity(oDetails.getAccessTokenValidity());
+				resp.setRaccessTokenValidity(oDetails.getRefreshTokenValidity());
+				resp.setWebServerRedirectUri(oDetails.getWebServerRedirectUri());
+				resp.setWebServerRedirectUri1(oDetails.getWebServerRedirectUri1());
+				resp.setWebServerRedirectUri2(oDetails.getWebServerRedirectUri2());
+				resp.setWebServerRedirectUri3(oDetails.getWebServerRedirectUri3());
+				resp.setWebServerRedirectUri4(oDetails.getWebServerRedirectUri4());
+				resp.setWebServerRedirectUri5(oDetails.getWebServerRedirectUri5());
+			});
+
+
 			
 			Optional<TsmpClient> opt_tsmpClient = getTsmpClientDao().findById(clientId);
 			if (opt_tsmpClient.isPresent()) {

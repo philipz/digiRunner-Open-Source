@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import tpi.dgrv4.common.constant.DashboardReportTypeEnum;
 import tpi.dgrv4.common.constant.DashboardTimeTypeEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.dpaa.vo.DashboardMedianAideVo;
 import tpi.dgrv4.entity.entity.TsmpApi;
@@ -769,14 +770,18 @@ public class HandleDashboardDataService {
 			//儲存計算資料
 			for(String rtimeKey : map.keySet()) {
 				try {
-					DgrDashboardLastData vo =  lastDataList.stream().filter(f->f.getStr1().equals(rtimeKey)).findAny().get();
 					Map<String, Long> statusMap = map.get(rtimeKey);
-					if(statusMap.get("Y") != null) {
-						vo.setNum1(vo.getNum1() + statusMap.get("Y"));
-					}
-					if(statusMap.get("N") != null) {
-						vo.setNum2(vo.getNum2() + statusMap.get("N"));
-					}
+
+					lastDataList.stream().filter(f->f.getStr1().equals(rtimeKey)).findAny().ifPresent(vo -> {
+						if(statusMap.get("Y") != null) {
+							vo.setNum1(vo.getNum1() + statusMap.get("Y"));
+						}
+						if(statusMap.get("N") != null) {
+							vo.setNum2(vo.getNum2() + statusMap.get("N"));
+						}
+					});
+
+
 				}catch(Exception e) {
 					TPILogger.tl.error("rtimeKey="+rtimeKey);
 					throw e;
@@ -799,7 +804,7 @@ public class HandleDashboardDataService {
 						rtime = getApiTrafficTime(timeType, rtime);
 					}
 					
-					String rtimeKey = this.dateToStringForyyyyMMddHH(rtime);
+					String rtimeKey = Optional.ofNullable(this.dateToStringForyyyyMMddHH(rtime)).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 					
 					DgrDashboardLastData vo = new DgrDashboardLastData();
 					vo.setTimeType(timeType.value());
@@ -841,7 +846,7 @@ public class HandleDashboardDataService {
 						vo = lastDataList.get(0);
 					}else {
 						String key = rtimeKey.substring(11) +":00";
-						vo =  lastDataList.stream().filter(f->f.getStr1().equals(key)).findAny().get();
+						vo =  lastDataList.stream().filter(f->f.getStr1().equals(key)).findAny().orElseThrow(TsmpDpAaRtnCode._1298::throwing);
 					}
 					
 					Map<String, Long> statusMap = map.get(rtimeKey);

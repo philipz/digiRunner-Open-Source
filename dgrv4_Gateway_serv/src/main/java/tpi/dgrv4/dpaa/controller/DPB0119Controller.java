@@ -19,6 +19,8 @@ import tpi.dgrv4.dpaa.vo.DPB0119Resp;
 import tpi.dgrv4.gateway.vo.TsmpBaseResp;
 import tpi.dgrv4.gateway.vo.TsmpHttpHeader;
 
+import java.util.Optional;
+
 /***
  * 取得客製包URL
  * 
@@ -36,7 +38,7 @@ public class DPB0119Controller {
 	 * @param DPB0119Resp
 	 * @return
 	 */
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/11/DPB0119", params = { "1" }, //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,10 +52,8 @@ public class DPB0119Controller {
 		} catch (Exception e) {	
 			
 			// 因為Querystring沒有locale資訊，所以前端將locale資訊放入HttpHeaders內
-			String locale = LocaleType.EN_US;
-			if (headers.get("locale")!=null && headers.get("locale").isEmpty() == false) {
-				locale = headers.get("locale").get(0);
-			}
+			String locale = Optional.ofNullable(headers.get("locale")).map(lc->lc.get(0)).orElse(LocaleType.EN_US);
+
 			ReqHeader reqHeader = new ReqHeader();
 			reqHeader.setLocale(locale);
 			throw new TsmpDpAaException(e, reqHeader);

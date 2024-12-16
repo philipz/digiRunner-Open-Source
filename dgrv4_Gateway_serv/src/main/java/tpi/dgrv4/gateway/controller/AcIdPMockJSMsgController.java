@@ -19,7 +19,7 @@ import tpi.dgrv4.codec.utils.Base64Util;
 @RestController
 public class AcIdPMockJSMsgController {
 
-	@CrossOrigin
+	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
 	@RequestMapping(value = "/dgrv4/mockac/idpsso/errMsg")
 	public ResponseEntity<?> showMsg(@RequestHeader HttpHeaders headers, @RequestParam String msg,
 			HttpServletRequest req, HttpServletResponse resp) throws IOException {

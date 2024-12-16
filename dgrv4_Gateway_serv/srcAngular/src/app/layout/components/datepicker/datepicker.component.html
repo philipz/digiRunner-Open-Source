@@ -1,0 +1,28 @@
+<div class="datepicker-wrapper">
+  <div class="datepicker-item">
+    <input type="checkbox"
+      name={{dateType}}
+      id="{{dateType}}All"
+      value="all"
+      [checked]="AllChecked"
+      [indeterminate]="AllIndeterminate"
+      (change)="allSelect()"
+      [disabled]="disabled"
+    >
+    <label for="month">All</label>
+  </div>
+  <ng-container *ngFor="let item of dateList;let i=index">
+    <div class="datepicker-item">
+      <input type="checkbox"
+        name={{dateType}}
+        id={{dateType+i}}
+        value={{item.value}}
+        [(ngModel)]="item.checked"
+        (change)="emitDataChange()"
+        [disabled]="disabled"
+      >
+      <label for={{dateType+i}}>{{item.label}}</label>
+    </div>
+  </ng-container>
+</div>
+

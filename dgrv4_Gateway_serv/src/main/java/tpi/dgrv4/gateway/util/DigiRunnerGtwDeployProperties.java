@@ -7,7 +7,7 @@ import tpi.dgrv4.gateway.constant.DgrDeployRole;
 
 @Component
 public class DigiRunnerGtwDeployProperties {
-
+ 
 	@Value("${digiRunner.gtw.deploy.role:#{null}}")
 	private String deployRole;
 
@@ -16,10 +16,14 @@ public class DigiRunnerGtwDeployProperties {
 
 	@Value("${digiRunner.gtw.deploy.interval.ms:1000}")
 	private Long deployIntervalMs;
-
+ 
 	@Value("${digiRunner.gtw.deploy.landing.ip.port:#{null}}")
 	private String deployLandingIpPort;
 
+	// 預設 https
+	@Value("${digiRunner.gtw.deploy.landing.scheme:https}")
+	private String deployLandingScheme;
+	
 	public boolean isMemoryRole() {
 		return DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole());
 	}
@@ -56,4 +60,11 @@ public class DigiRunnerGtwDeployProperties {
 		this.deployLandingIpPort = deployLandingIpPort;
 	}
 
+	public String getDeployLandingScheme() {
+		return deployLandingScheme;
+	}
+
+	public void setDeployLandingScheme(String deployLandingScheme) {
+		this.deployLandingScheme = deployLandingScheme;
+	}
 }

@@ -1,8 +1,6 @@
 package tpi.dgrv4.dpaa.service;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -101,7 +99,6 @@ public class AA0704Service {
 		Boolean alertEnabled = "0".equals(decodeAlertEnabled) ? false : true;
 		Integer alertInterval = req.getAlertInterval();
 		String alertMsg = req.getAlertMsg();
-		//String alertName = req.getAlertName();
 		String alertSys = req.getAlertSys();
 		String alertType = req.getAlertType();
 		Boolean cFlag = "true".equalsIgnoreCase(req.getcFlag())? true : false;
@@ -117,13 +114,13 @@ public class AA0704Service {
 		Integer threshold = req.getThreshold();
 		
 		TsmpAlert tsmpAlertVo = getTsmpAlertDao().findById(alertId).orElse(null);
+		assert tsmpAlertVo != null;
 		String strOriTsmpAlert = tsmpAlertVo.toString();
 		
 		tsmpAlertVo.setAlertDesc(alertDesc);
 		tsmpAlertVo.setAlertEnabled(alertEnabled);
 		tsmpAlertVo.setAlertInterval(alertInterval);
 		tsmpAlertVo.setAlertMsg(alertMsg);
-		//tsmpAlertVo.setAlertName(alertName);
 		tsmpAlertVo.setAlertSys(alertSys);
 		tsmpAlertVo.setAlertType(alertType);
 		tsmpAlertVo.setcFlag(cFlag);
@@ -160,7 +157,7 @@ public class AA0704Service {
 		return value;
 	}
 
-	private void checkParam(AA0704Req req) throws JsonParseException, JsonMappingException, IOException {
+	private void checkParam(AA0704Req req) throws IOException {
 		Long alertId = Long.valueOf(req.getAlertId());
 		List<String> roleIDList = req.getRoleIDList();
 		String exType = req.getExType();

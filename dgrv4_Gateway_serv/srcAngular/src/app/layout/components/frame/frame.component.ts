@@ -8,6 +8,9 @@ import { TimeRange } from 'src/app/models/common.enum';
 const base64url = require('base64url');
 import * as shajs from 'sha.js';
 import { AlertService } from 'src/app/shared/services/alert.service';
+import { delay, Subscription } from 'rxjs';
+import { event } from 'jquery';
+
 
 @Component({
   selector: 'app-frame',
@@ -21,33 +24,69 @@ export class FrameComponent implements OnInit {
   url: SafeResourceUrl = '';
   timeRange = TimeRange.Today;
   timeRanges;
+  showStatus: boolean = false;
+  msgListenterAdd: boolean = false;
+  messageSubscription?: Subscription;
+
+  messageHandler: (event: MessageEvent) => void;
+  processing:boolean = false;
 
   constructor(
     private sanitizer: DomSanitizer,
     private util: UtilService,
     private tool: ToolService,
-    private alertService: AlertService
-  ) {}
+    private alertService: AlertService,
 
-  ngOnInit() {
-    // this.timeRanges = this.tool.getTimeRange();
-    // let url = `${environment.reportUrl}/app/kibana#/dashboard/e2b7a7e0-d388-11e8-9cad-796349acce0a?embed=true&_g=(refreshInterval:(pause:!t,value:86400000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(description:'%E6%AF%8F%E5%A4%A9%E5%B0%8D%E4%B8%8D%E5%90%8CAPI%E9%80%B2%E8%A1%8C%E5%91%BC%E5%8F%AB%E6%AC%A1%E6%95%B8%E7%9A%84%E7%B5%B1%E8%A8%88%E8%A1%A8%20(API%20count%20Group%20by%20API)%0A',filters:!(),fullScreenMode:!f,options:(darkTheme:!f,hidePanelTitles:!f,useMargins:!t),panels:!((embeddableConfig:(),gridData:(h:28,i:'1',w:41,x:0,y:0),id:'21efc440-d386-11e8-9cad-796349acce0a',panelIndex:'1',type:visualization,version:'6.4.2')),query:(language:lucene,query:''),timeRestore:!f,title:'1.API%20%E4%BD%BF%E7%94%A8%E6%AC%A1%E6%95%B8%E7%B5%B1%E8%A8%88(%E5%88%86%E6%88%90%E5%8A%9F%2F%E5%A4%B1%E6%95%97)',viewMode:view)`;
-    this.url = this.sanitizer.bypassSecurityTrustResourceUrl('');
-    this.search();
+  ) {
+
+    this.messageHandler = this.createMessageHandler();
   }
 
-  search() {
-    let uuidObj = this.generateCAPI();
-    // if (this.reportID.toLocaleLowerCase().startsWith('za')) {
-    //   let url = ''
-    //   if(this.reportID == 'za0003'){
-    //     url = `https://127.0.0.1:4080/dgrv4/cus/za00/za0001`;
-    //   }else
-    //   url = `https://127.0.0.1:4080/dgrv4/cus/za00/${this.reportID}`;
-    //   this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    //   return;
-    // }
+  ngOnInit() {
+    this.showStatus = false;
 
+    // this.timeRanges = this.tool.getTimeRange();
+    this.url = this.sanitizer.bypassSecurityTrustResourceUrl('');
+    this.search();
+
+    window.addEventListener('message', this.messageHandler);
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('message', this.messageHandler);
+  }
+
+  createMessageHandler(): (event: MessageEvent) => void {
+    return (event: MessageEvent) => {
+      if (event.data?.from == 'frame' && event.data?.type == 'token_expired') {
+        if(!this.processing){
+          this.processing = true; //避免同時事件(兩筆以上)造成 oauth/token事件被cancel導致登出
+          this.util!.queryReportUrls({
+            reportID: this.reportID.toUpperCase(),
+            timeRange: 'T',
+          }).subscribe((r) => {
+            this.processing = false;
+            if (this.tool.checkDpSuccess(r.ResHeader)) {
+              const iframe = document.getElementById(
+                '_frame'
+              ) as HTMLIFrameElement;
+              iframe.contentWindow?.postMessage(
+                { from: 'dgr', type: 'redo' },
+                '*'
+              );
+            }
+          });
+        }
+      }
+      else if(event.data?.from == 'frame' && event.data?.type == 'reset_idle_time'){
+        // console.log('reset_idle_time')
+        this.tool.setExpiredTime();
+      }
+    };
+  }
+
+  search(noframe: boolean = false) {
+    let uuidObj = this.generateCAPI();
 
     if (this.timeRange) {
       this.util
@@ -57,16 +96,9 @@ export class FrameComponent implements OnInit {
         })
         .subscribe((r) => {
           if (this.tool.checkDpSuccess(r.ResHeader)) {
-            // this.util.getAuthCode_v3({
-            //     authType: 'Proxy',
-            //     resource: "xxxx",
-            //     subclass: "xxxxxxx"
-            // }).subscribe(res => {
-            //     if (this.tool.checkDpSuccess(res.ResHeader)) {
+            this.showStatus = true;
 
-            //     }
-            // });
-
+            if (noframe) return;
             let tarUrl = '';
             if (
               location.hostname == 'localhost' ||
@@ -82,29 +114,28 @@ export class FrameComponent implements OnInit {
             // LINK:另開頁面
             let url = '';
             switch (r.RespBody.reportType) {
-              case "SYS_RPT":
+              case 'SYS_RPT':
                 url = `${tarUrl}${r.RespBody.rpContentPath}/login?cuuid=${uuidObj.uuid}&capi_key=${uuidObj.capi}&reportURL=${r.RespBody.reportUrl}&embed=true`;
                 this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
                 break;
-              case "IFRAME":
-                //  url =`${location.protocol}//${location.hostname}:${location.port}${r.RespBody.reportUrl}`
-                 url =`${environment.cusHostName}${r.RespBody.reportUrl}`
-                 this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+              case 'IFRAME':
+                if (environment.production) {
+                  url = `${location.protocol}//${location.hostname}:${location.port}${r.RespBody.reportUrl}`;
+                } else {
+                  url = `${environment.cusHostName}${r.RespBody.reportUrl}`;
+                }
+                this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
                 break;
-              case "LINK":
-                url =`${r.RespBody.reportUrl}`
+              case 'LINK':
+                url = `${r.RespBody.reportUrl}`;
                 window.open(url, '_blank');
                 break;
               default:
                 // 預期reportType存在
-                this.alertService.ok('reportType not found','');
-                // url = `${tarUrl}${r.RespBody.rpContentPath}/login?cuuid=${uuidObj.uuid}&capi_key=${uuidObj.capi}&reportURL=${r.RespBody.reportUrl}&embed=true`;
-                // this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+                this.alertService.ok('reportType not found', '');
+
                 break;
             }
-
-            // let url = `${tarUrl}/kibana/login?reportURL=${r.RespBody.reportUrl}&embed=true`
-
           }
         });
     }

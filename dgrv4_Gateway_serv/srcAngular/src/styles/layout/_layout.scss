@@ -1,0 +1,33 @@
+.layout-wrapper {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout-main-container-wrapper {
+  display: flex;
+  height: calc(100vh - var(--header-h) - var(--footer-h));
+}
+
+.layout-main-container {
+  // background-color: cadetblue;
+  height: 100%;
+  overflow: auto;
+  width: calc(100% - var(--sidebar-w));
+  transition: 0.2s width;
+  padding: 10px 0 20px;
+}
+.mask{
+  display: none;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 2;
+  background-color: black;
+  opacity: 0.3;
+  top: 0;
+  left: 0;
+}
+@import "./header";
+@import "./sidebar";
+@import "./footer";

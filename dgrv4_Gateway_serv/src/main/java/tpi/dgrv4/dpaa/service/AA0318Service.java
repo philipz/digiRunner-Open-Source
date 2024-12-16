@@ -80,6 +80,27 @@ public class AA0318Service {
 		}
 		return resp;
 	}
+	
+	/**
+	 * for In-Memory, <br>
+	 * GTW(In-Memory) 端匯入資料,由此進入
+	 */
+	public AA0318Resp uploadRegCompAPIsForInMemoryInput(String userName, String orgId, AA0317Data aa0317Data) {
+		String locale = "en-US";// 固定用英文
+		AA0318Resp resp = new AA0318Resp();
+		try {
+			String fileName = System.currentTimeMillis() + "";
+			uploadAPIList(resp, aa0317Data.getR(), fileName, userName, locale); // 註冊
+			uploadAPIList(resp, aa0317Data.getC(), fileName, userName, locale); // 組合
+
+		} catch (TsmpDpAaException e) {
+			throw e;
+		} catch (Exception e) {
+			this.logger.debug(String.format("Upload Reg/Comp API error: %s", StackTraceUtil.logStackTrace(e)));
+			throw TsmpDpAaRtnCode._1203.throwing();
+		}
+		return resp;
+	}
 
 	protected AA0317Data checkParams(String userName, String orgId, AA0318Req req) {
 		if (StringUtils.isEmpty(userName)) {
@@ -349,7 +370,8 @@ public class AA0318Service {
 					// 寫入 TsmpApiImp
 					tsmpApiImp = getTsmpApiImpDao().save(tsmpApiImp);
 				} catch (Exception e) {
-					this.logger.debug(String.format("Check TsmpApiImp error: %s", StackTraceUtil.logStackTrace(e)));
+					TPILogger.tl.error(StackTraceUtil.logTpiShortStackTrace(e)); //為顯示 postgres 在 TPI 程式中的哪一行抛出
+					TPILogger.tl.error(String.format("Check TsmpApiImp error: %s", StackTraceUtil.logStackTrace(e)));
 					tsmpApiImp.setCheckAct("N");
 					tsmpApiImp.setMemo(e.getMessage());
 				}

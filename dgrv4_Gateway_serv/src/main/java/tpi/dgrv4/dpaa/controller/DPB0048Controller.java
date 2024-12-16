@@ -43,7 +43,7 @@ public class DPB0048Controller {
 	 * 2不重複程式直接呼叫DPB0047Service，取得的資料在Controller將【鎖定】資料過濾掉。
 	 * 
 	 */
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0048", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

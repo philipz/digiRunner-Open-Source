@@ -10,7 +10,6 @@ import java.util.Optional;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -32,6 +31,7 @@ import tpi.dgrv4.dpaa.component.TsmpMailEventBuilder;
 import tpi.dgrv4.dpaa.component.job.AA0004Job;
 import tpi.dgrv4.dpaa.component.job.DeleteExpiredMailJob;
 import tpi.dgrv4.dpaa.util.OAuthUtil;
+import tpi.dgrv4.dpaa.util.RandomUtils;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.AA0004Req;
 import tpi.dgrv4.dpaa.vo.AA0004Resp;
@@ -166,10 +166,15 @@ public class AA0004Service {
 				}
 				
 				//USERS
-				Users usersVo = getUsersDao().findById(userName).orElse(null);
+
 				Users newUsersVo = new Users();
-				newUsersVo.setPassword(usersVo.getPassword());
-				newUsersVo.setUserStatus(usersVo.getUserStatus());
+
+				var user = getUsersDao().findById(userName);
+
+				if (user.isPresent()) {
+					newUsersVo.setPassword(user.get().getPassword());
+					newUsersVo.setUserStatus(user.get().getUserStatus());
+				}
 				newUsersVo.setUserName(newUserName);
 				
 				Optional<Users> opt_users = getUsersDao().findById(userName);
@@ -464,7 +469,7 @@ public class AA0004Service {
 	private String getRandom(int len) {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0 ; i < len ; i++) {
-			String number = RandomStringUtils.random(1, false, true);//取得亂數
+			String number = RandomUtils.randomString(1, false, true);//取得亂數
 			if(i == 0 && "0".equals(number)) {
 				number = "1";
 			}

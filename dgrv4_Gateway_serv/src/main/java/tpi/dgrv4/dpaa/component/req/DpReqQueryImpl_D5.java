@@ -1,22 +1,14 @@
 package tpi.dgrv4.dpaa.component.req;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import tpi.dgrv4.dpaa.component.TsmpMailEventBuilder;
-import tpi.dgrv4.dpaa.component.cache.proxy.TsmpDpMailTpltCacheProxy;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpModule;
 import tpi.dgrv4.common.utils.DateTimeUtil;
+import tpi.dgrv4.dpaa.component.TsmpMailEventBuilder;
+import tpi.dgrv4.dpaa.component.cache.proxy.TsmpDpMailTpltCacheProxy;
 import tpi.dgrv4.dpaa.service.ApiItemService;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.TsmpApiItem;
@@ -33,6 +25,8 @@ import tpi.dgrv4.entity.repository.TsmpDpReqOrderd5dDao;
 import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
+import java.util.*;
 
 /**
  * 處理"Open API Key"簽核單查詢
@@ -142,7 +136,7 @@ public class DpReqQueryImpl_D5 extends DpReqQueryAbstract<DpReqQueryResp_D5> //
 		Map<String, Object> bodyParams = new HashMap<>();
 		bodyParams.put("reviewType", resp.getReqTypeName().replace("Open ", ""));
 		bodyParams.put("reqOrderNo", resp.getReqOrderNo());
-		bodyParams.put("createDateTime", DateTimeUtil.dateTimeToString(resp.getCreateDateTime(), DateTimeFormatEnum.西元年月日).orElse(new String()));
+		bodyParams.put("createDateTime", DateTimeUtil.dateTimeToString(resp.getCreateDateTime(), DateTimeFormatEnum.西元年月日).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 		bodyParams.put("applyUserName", resp.getApplierName());
 		bodyParams.put("orgName", resp.getOrgName());
 		bodyParams.put("subTitle", resp.getReqSubtypeName().replace("Open ", ""));
@@ -191,8 +185,7 @@ public class DpReqQueryImpl_D5 extends DpReqQueryAbstract<DpReqQueryResp_D5> //
 			return "";
 		}
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).get();// yyyy/MM/dd
-		return dtStr;
+		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).orElse(String.valueOf(TsmpDpAaRtnCode._1295));
 	}
  
 	private List<DpReqQueryResp_D5d> getD5dRespList(Long d5Id, String locale) {

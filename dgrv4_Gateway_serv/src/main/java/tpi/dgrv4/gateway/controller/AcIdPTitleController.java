@@ -14,7 +14,7 @@ public class AcIdPTitleController {
 	@Autowired
 	private AcIdPTitleService service;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/acidp/{idPType}/getTitle")
 	public ResponseEntity<String> getTitle(@PathVariable(value = "idPType", required = true) String idPType) {
 

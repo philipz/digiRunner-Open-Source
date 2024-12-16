@@ -30,6 +30,7 @@ const routes: Routes = [
       { path: 'ac00/ac0018', loadChildren: () => import('./ac00/ac0018/ac0018.module').then(m => m.Ac0018Module), data: { id: 'ac0018' } },
       { path: 'ac00/ac0019', loadChildren: () => import('./ac00/ac0019/ac0019.module').then(m => m.Ac0019Module), data: { id: 'ac0019' } },
       { path: 'ac00/ac0020', loadChildren: () => import('./ac00/ac0020/ac0020.module').then(m => m.Ac0020Module), data: { id: 'ac0020' } },
+      { path: 'ac00/ac0021', loadChildren: () => import('./ac00/ac0021/ac0021.module').then(m => m.Ac0021Module), data: { id: 'ac0021' } },
 
       { path: 'ac01/ac0101', loadChildren: () => import('./ac01/ac0101/ac0101.module').then(m => m.Ac0101Module), data: { id: 'ac0101' } },
       { path: 'ac01/ac0103', loadChildren: () => import('./ac01/ac0103/ac0103.module').then(m => m.Ac0103Module), data: { id: 'ac0103' } },
@@ -44,6 +45,7 @@ const routes: Routes = [
       { path: 'ac02/ac0228', loadChildren: () => import('./ac02/ac0228/ac0228.module').then(m => m.Ac0228Module), data: { id: 'ac0228' } },
       { path: 'ac02/ac0229', loadChildren: () => import('./ac02/ac0229/ac0229.module').then(m => m.Ac0229Module), data: { id: 'ac0229' } },
       { path: 'ac02/ac0230', loadChildren: () => import('./ac02/ac0230/ac0230.module').then(m => m.Ac0230Module), data: { id: 'ac0230' } },
+      { path: 'ac02/ac0231', loadChildren: () => import('./ac02/ac0231/ac0231.module').then(m => m.Ac0231Module), data: { id: 'ac0231' } },
 
       { path: 'ac03/ac0301', loadChildren: () => import('./ac03/ac0301/ac0301.module').then(m => m.Ac0301Module), data: { id: 'ac0301' } },
       { path: 'ac03/ac0311', loadChildren: () => import('./ac03/ac0311/ac0311.module').then(m => m.Ac0311Module), data: { id: 'ac0311' } },
@@ -96,13 +98,14 @@ const routes: Routes = [
       // { path: 'np01/np0114', loadChildren: () => import('./np01/np0114/np0114.module').then(m => m.Np0114Module), data: { id: 'np0114' } },
       // { path: 'np01/np0115', loadChildren: () => import('./np01/np0115/np0115.module').then(m => m.Np0115Module), data: { id: 'np0115' } },
       // { path: 'np01/np0116', loadChildren: () => import('./np01/np0116/np0116.module').then(m => m.Np0116Module), data: { id: 'np0116' } },
-
-      { path: 'np12/np1201', loadChildren: () => import('./np01/np1201/np1201.module').then(m => m.Np1201Module), data: { id: 'np1201' } },
+      // { path: 'np12/np1201', loadChildren: () => import('./np01/np1201/np1201.module').then(m => m.Np1201Module), data: { id: 'np1201' } }, //20240918 移除
+      { path: 'np12/np1202', loadChildren: () => import('./np01/np1202/np1202.module').then(m => m.Np1202Module), data: { id: 'np1202' } },
 
       { path: 'np02/np0201', loadChildren: () => import('./np02/np0201/np0201.module').then(m => m.Np0201Module), data: { id: 'np0201' } },
       { path: 'np02/np0202', loadChildren: () => import('./np02/np0202/np0202.module').then(m => m.Np0202Module), data: { id: 'np0202' } },
       { path: 'np02/np0203', loadChildren: () => import('./np02/np0203/np0203.module').then(m => m.Np0203Module), data: { id: 'np0203' } },
       { path: 'np02/np0204', loadChildren: () => import('./np02/np0204/np0204.module').then(m => m.Np0204Module), data: { id: 'np0204' } },
+      // { path: 'np02/np0205', loadChildren: () => import('./np02/np0205/np0205.module').then(m => m.Np0205Module), data: { id: 'np0205' } },
 
       // { path: 'np03/np0301', loadChildren: () => import('./np03/np0301/np0301.module').then(m => m.Np0301Module), data: { id: 'np0301' } },
       // { path: 'np03/np0302', loadChildren: () => import('./np03/np0302/np0302.module').then(m => m.Np0302Module), data: { id: 'np0302' } },
@@ -137,6 +140,7 @@ const routes: Routes = [
       { path: 'lb00/lb0007', loadChildren: () => import('./labs/website-proxy/website-proxy.module').then(m => m.WebsiteProxyModule), data: { id: 'lb0007' } },
       { path: 'lb00/lb0008', loadChildren: () => import('./labs/rdb-connection/rdb-connection.module').then(m => m.RdbConnectionModule), data: { id: 'lb0008' } },
       { path: 'lb00/lb0009', loadChildren: () => import('./labs/mail-template-io/mail-template-io.module').then(m => m.MailTemplateIoModule), data: { id: 'lb0009' } },
+      { path: 'lb00/lb0010', loadChildren: () => import('./labs/lb0010/lb0010.module').then(m => m.Lb0010Module), data: { id: 'lb0010' } }, //Bot Detection
 
       //註冊自定義報表容器
       { path: 'ac09/:cusfunc', loadChildren: () => import('./ac09/ac0900/ac0900.module').then(m => m.Ac0900Module) },

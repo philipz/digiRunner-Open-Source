@@ -26,7 +26,7 @@ public class DataEncryptionController {
 	@Autowired
 	private DataEncryptionService service;
 
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/ssotoken/dataEncryption", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, // 使用 application/json 格式
 			produces = MediaType.APPLICATION_JSON_VALUE) // 使用 application/json 格式

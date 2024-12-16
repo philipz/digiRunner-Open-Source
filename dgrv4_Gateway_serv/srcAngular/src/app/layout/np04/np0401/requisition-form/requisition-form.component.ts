@@ -54,8 +54,8 @@ export class RequisitionFormComponent implements OnInit {
                     { field: 'apiDesc', header: dict['api_desc'] },
                     { field: 'publicFlagName', header: dict['public_flag'] },
                     { field: 'orgName', header: dict['dept'] },
-                    { field: 'themeList', header: dict['theme_name'] },
-                    { field: 'docFileInfo', header: dict['api_doc'] }
+                    // { field: 'themeList', header: dict['theme_name'] },
+                    // { field: 'docFileInfo', header: dict['api_doc'] }
                 ];
                 this.detailDataList = this.data.data.detailData.apiOnOff.apiOnOffList;
                 break;
@@ -65,8 +65,8 @@ export class RequisitionFormComponent implements OnInit {
                     { field: 'apiDesc', header: dict['api_desc'] },
                     { field: 'publicFlagName', header: dict['public_flag'] },
                     { field: 'orgName', header: dict['dept'] },
-                    { field: 'themeList', header: dict['theme_name'] },
-                    { field: 'docFileInfo', header: dict['api_doc'] }
+                    // { field: 'themeList', header: dict['theme_name'] },
+                    // { field: 'docFileInfo', header: dict['api_doc'] }
                 ];
                 this.detailDataList = this.data.data.detailData.apiUserApply.apiList;
                 break;
@@ -75,8 +75,8 @@ export class RequisitionFormComponent implements OnInit {
                     { field: 'apiName', header: dict['api_name'] },
                     { field: 'apiDesc', header: dict['api_desc'] },
                     { field: 'orgName', header: dict['dept'] },
-                    { field: 'themeList', header: dict['theme_name'] },
-                    { field: 'docFileInfo', header: dict['api_doc'] }
+                    // { field: 'themeList', header: dict['theme_name'] },
+                    // { field: 'docFileInfo', header: dict['api_doc'] }
                 ];
                 this.detailDataList = this.data.data.detailData.openApiKey.apiDatas;
                 break;

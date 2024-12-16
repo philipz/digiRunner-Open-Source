@@ -22,13 +22,15 @@ export interface DPB0186Req {
   idtPicture?: string;
   iconFile?: string;
   pageTitle: string;
+  idtLightId?: string;
+  idtRoleName?: string;
 }
 
 export interface RespDPB0186 extends BaseRes {
   RespBody: DPB0186Resp;
 }
 
-export interface DPB0186Resp { }
+export interface DPB0186Resp {}
 
 export interface RespDPB0186Before extends BaseRes {
   RespBody: RespDPB0186RespBefore;

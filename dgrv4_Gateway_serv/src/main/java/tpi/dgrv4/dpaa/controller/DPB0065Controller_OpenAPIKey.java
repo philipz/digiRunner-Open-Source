@@ -17,7 +17,7 @@ import tpi.dgrv4.gateway.vo.TsmpBaseResp;
 
 @RestController
 public class DPB0065Controller_OpenAPIKey {
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0065OpenAPIKey", params = {"before"}, //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

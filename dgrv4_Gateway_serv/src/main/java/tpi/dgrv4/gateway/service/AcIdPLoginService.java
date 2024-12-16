@@ -102,6 +102,7 @@ public class AcIdPLoginService {
 
 			if (DgrIdPType.LDAP.equals(idPType) 
 					|| DgrIdPType.MLDAP.equals(idPType) 
+					|| DgrIdPType.CUS.equals(idPType) 
 					|| DgrIdPType.API.equals(idPType)) 
 			{
 				loginByIdpType(httpReq, httpResp, idPType, userName, userMima, acIdPMsgUrl, reqUri, userIp,
@@ -147,6 +148,7 @@ public class AcIdPLoginService {
 		String errMsg = null;
 		String userAlias = null;
 		String userEmail = null;
+		String apiResp = null;
 		
 		// 1.檢查 User 帳號 & 密碼是否正確
 		LdapAdAuthData ldapAdAuthData = null;
@@ -170,6 +172,7 @@ public class AcIdPLoginService {
 			errMsg = apiUserInfoData.errMsg;
 			userAlias = apiUserInfoData.userName;
 			userEmail = apiUserInfoData.userEmail;
+			apiResp = apiUserInfoData.apiResp;
 			
 		} else {
 			ldapAdAuthData = new LdapAdAuthData();
@@ -196,7 +199,7 @@ public class AcIdPLoginService {
 
 		getAcIdPHelper().sendMailOrCreateDgRcode(httpReq, httpResp, idPType, userName, userAlias, userEmail,
 				idTokenJwtstr, accessTokenJwtstr, refreshTokenJwtstr, reqUri, userIp, userHostname, txnUid,
-				acIdPMsgUrl);
+				acIdPMsgUrl, apiResp);
 	}
 
 	/**

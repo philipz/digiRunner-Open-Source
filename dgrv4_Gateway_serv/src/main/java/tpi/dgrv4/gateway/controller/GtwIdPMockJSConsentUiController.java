@@ -41,7 +41,7 @@ public class GtwIdPMockJSConsentUiController {
 	@Autowired
 	private GtwIdPVgroupService gtwIdPVgroupService;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/mockac/gtwidp/{idPType}/consentui")
 	public ResponseEntity<?> getGtwConsent(@RequestHeader HttpHeaders httpHeaders, 
 			HttpServletRequest httpReq,

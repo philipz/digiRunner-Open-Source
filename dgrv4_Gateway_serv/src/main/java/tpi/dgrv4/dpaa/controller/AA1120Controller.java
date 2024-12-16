@@ -30,7 +30,7 @@ public class AA1120Controller {
 	private AA1120Service service;
 	
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA1120", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

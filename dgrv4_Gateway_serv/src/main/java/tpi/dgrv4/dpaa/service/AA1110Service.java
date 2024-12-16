@@ -17,6 +17,7 @@ import tpi.dgrv4.entity.entity.TsmpGroupAuthoritiesMap;
 import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesDao;
 import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesMapDao;
 import tpi.dgrv4.entity.repository.TsmpGroupDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -64,6 +65,9 @@ public class AA1110Service {
 			
 			//刪除資料
 			getTsmpGroupAuthoritiesDao().delete(groupAuthVo);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException e) {
 			throw e;

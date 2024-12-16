@@ -25,7 +25,7 @@ public class DPB0123Controller {
 	@Autowired
 	private DPB0123ApiService service;
 	
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/DPB0123", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

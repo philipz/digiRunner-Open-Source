@@ -12,7 +12,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import tpi.dgrv4.dpaa.service.ChangeDbConnInfoService;
 
 @RestController
-@CrossOrigin()
+
 @Deprecated
 public class ChangeDbConnInfoController {
 	@Autowired

@@ -81,7 +81,7 @@
       <ng-template pTemplate="footer" let-columns>
         <tr *ngIf="tableData.length">
           <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
-            <span>{{'row_count' | translate}}: {{tableData.length}}</span>
+            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableData.length}}</span>
 
             <!-- 查詢更多 -->
             <button type="button" class="btn tpi-header-return" (click)="getMoreData()">{{ 'button.more'| translate}}

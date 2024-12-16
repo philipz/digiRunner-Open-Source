@@ -139,10 +139,18 @@ export class Ac0104Component extends BaseComponent implements OnInit {
             isOpen: this.tool.Base64Encoder(this.tool.BcryptEncoder(JSON.stringify(action))) + ',' + this.isOpen(action)
         } as DPB0124Req;
 
-        this.serverService.updateIndexOpenOrClose(req).subscribe(res => {
-            this.messageService.add({ severity: 'success', summary: 'Update Index Status', detail: 'Update Success!' });
-                this.submitForm();
-        });
+        this.serverService
+          .updateIndexOpenOrClose(req)
+          .subscribe(async (res) => {
+            const code = ['message.update', 'message.success'];
+            const dict = await this.tool.getDict(code);
+            this.messageService.add({
+              severity: 'success',
+              summary: `${dict['message.update']} Index Status`,
+              detail: `${dict['message.update']} ${dict['message.success']}`,
+            });
+            this.submitForm();
+          });
 
     }
 

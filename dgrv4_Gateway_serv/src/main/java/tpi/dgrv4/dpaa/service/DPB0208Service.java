@@ -35,6 +35,7 @@ import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.entity.repository.TsmpGroupDao;
 import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.component.TokenHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -144,6 +145,9 @@ public class DPB0208Service {
 				sendMail(xApiKey, dgrXApiKey, tsmpClient, clientId, clientEmails, groupIdList, createUserName);
 			}
 
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
+
 		} catch (TsmpDpAaException e) {
 			this.logger.error(StackTraceUtil.logStackTrace(e));
 			throw e;
@@ -210,10 +214,10 @@ public class DPB0208Service {
 		bodyParams.put("xApiKeyId", dgrXApiKey.getApiKeyId());
 		bodyParams.put("xApiKeyAlias", dgrXApiKey.getApiKeyAlias());
 		bodyParams.put("xApiKey", xApiKey);// 為明文的 xApiKey
-		bodyParams.put("effectiveDate", DateTimeUtil.dateTimeToString(effectiveDate, DateTimeFormatEnum.西元年月日).get());
-		bodyParams.put("expiryDate", DateTimeUtil.dateTimeToString(expiryDate, DateTimeFormatEnum.西元年月日).get());
+		bodyParams.put("effectiveDate", DateTimeUtil.dateTimeToString(effectiveDate, DateTimeFormatEnum.西元年月日).orElse(null));
+		bodyParams.put("expiryDate", DateTimeUtil.dateTimeToString(expiryDate, DateTimeFormatEnum.西元年月日).orElse(null));
 		bodyParams.put("createDateTime",
-				DateTimeUtil.dateTimeToString(createDateTime, DateTimeFormatEnum.西元年月日時分秒).get());
+				DateTimeUtil.dateTimeToString(createDateTime, DateTimeFormatEnum.西元年月日時分秒).orElse(null));
 		bodyParams.put("createUserName", createUserName);
 		bodyParams.put("groupMappings", groupMappings);
 

@@ -13,7 +13,8 @@
     <ng-container *ngIf="value.invalid && (value.dirty || value.touched)">
       <small class="form-text text-danger">{{ value.errors!["ipaddress"] }}</small>
     </ng-container>
-    <button type="button" class="btn btn-icon tpi-primary" (click)="delete($event)">
+    <button type="button" class="btn btn-icon tpi-primary" (click)="delete($event)" style="
+    flex: 1 0 auto; margin-top: 3px;">
       <i class="fa fa-minus"></i>
     </button>
   </div>

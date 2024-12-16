@@ -35,4 +35,8 @@ public interface TsmpTokenHistoryDao extends JpaRepository<TsmpTokenHistory, Lon
 	public List<TsmpTokenHistory> findByReexpiredAtBefore(Date expDate);
 	
 	public List<TsmpTokenHistory> findByUserName(String userName);
+	
+	public List<TsmpTokenHistory> findByReexpiredAtAfterOrExpiredAtAfter(Date expDate,Date expDate2);
+
+	public void deleteByTokenJti(String tokenJti);
 }

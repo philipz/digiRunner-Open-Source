@@ -34,7 +34,7 @@ public class TptokenController {
 	 * @param req
 	 * @return
 	 */
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/tptoken/oauth/token", //
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE, //使用 Form Data 格式
 		produces = MediaType.APPLICATION_JSON_VALUE)

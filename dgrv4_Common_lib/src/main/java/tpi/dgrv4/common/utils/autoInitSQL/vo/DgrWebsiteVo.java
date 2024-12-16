@@ -9,10 +9,15 @@ public class DgrWebsiteVo {
 	private String remark;
 	
 	private String websiteStatus;
+	
+	private String auth;
+	
+	private String ignoreApi;
 
 	@Override
 	public String toString() {
-		return "DgrWebsite [dgrWebsiteId=" + dgrWebsiteId + ", websiteName=" + websiteName + ", websiteStatus= " + websiteStatus +", remark=" + remark + "]\n";
+		return "DgrWebsiteVo [dgrWebsiteId=" + dgrWebsiteId + ", websiteName=" + websiteName + ", remark=" + remark
+				+ ", websiteStatus=" + websiteStatus + ", auth=" + auth + ", ignoreApi=" + ignoreApi + "]";
 	}
 
 	public Long getDgrWebsiteId() {
@@ -45,6 +50,22 @@ public class DgrWebsiteVo {
 
 	public void setWebsiteStatus(String websiteStatus) {
 		this.websiteStatus = websiteStatus;
+	}
+
+	public String getAuth() {
+		return auth;
+	}
+
+	public void setAuth(String auth) {
+		this.auth = auth;
+	}
+
+	public String getIgnoreApi() {
+		return ignoreApi;
+	}
+
+	public void setIgnoreApi(String ignoreApi) {
+		this.ignoreApi = ignoreApi;
 	}
 	
 

@@ -165,9 +165,9 @@ export class Ac0509Component extends BaseComponent implements OnInit {
       { field: 'createDateTime', header: dict['event_create_datetime'], width: '10%' },
     ];
 
-    this.form.valueChanges.subscribe(() => {
-      this.tableData = [];
-    })
+    // this.form.valueChanges.subscribe(() => {
+    //   this.tableData = [];
+    // })
 
     let reqBody = {
       startDate: dayjs(this.startDate!.value).format('YYYY/MM/DD'),

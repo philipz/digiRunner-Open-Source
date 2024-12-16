@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +43,7 @@ import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.common.vo.ReqHeader;
 import tpi.dgrv4.dpaa.util.OAuthUtil;
+import tpi.dgrv4.dpaa.util.RandomUtils;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.AA0001Req;
 import tpi.dgrv4.dpaa.vo.AA0011Req;
@@ -610,7 +610,7 @@ public class UdpssotokenService{
 	 * @return
 	 */
 	public String createSsoUserSecret(String userName, String createUser) {
-		String secret = RandomStringUtils.random(4, true, true);//取得亂數
+		String secret = RandomUtils.randomString(4, true, true);//取得亂數
 		
 		TsmpSsoUserSecret ssoUserSecret = new TsmpSsoUserSecret();
 		ssoUserSecret.setUserName(userName);
@@ -654,7 +654,7 @@ public class UdpssotokenService{
 	 * @return
 	 */
 	private String createSsoUserSecret(String userName) {
-		String secret = RandomStringUtils.random(4, true, true);//取得亂數
+		String secret = RandomUtils.randomString(4, true, true);//取得亂數
 		
 		TsmpSsoUserSecret ssoUserSecret = new TsmpSsoUserSecret();
 		ssoUserSecret.setUserName(userName);

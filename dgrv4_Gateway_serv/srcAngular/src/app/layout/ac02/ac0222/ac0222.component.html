@@ -283,13 +283,13 @@
             <div class="form-group row">
                 <div class="col-sm-4">
                     <label>{{'module_list'|translate}}</label>
-                    <p-listbox #data_0235Listbox [style]="{'width': '105%', 'font-size': '20px'}" [options]="data_0235"
+                    <p-listbox #data_0235Listbox [style]="{'width': '105%', 'font-size': '20px'}" [options]="data_0235" [emptyMessage]="'no_data_result'|translate"
                         [(ngModel)]="selectedAPI_key" [ngModelOptions]="{standalone: true}" [filter]="true"
                         filterValue="" (click)="showDialog_APIList(selectedAPI_key)"></p-listbox>
                 </div>
                 <div class="col-sm-8">
                     <label>{{'api_list'|translate}}</label>
-                    <p-listbox #data_APIListListbox [style]="{'width': '100%', 'font-size': '20px'}"
+                    <p-listbox #data_APIListListbox [style]="{'width': '100%', 'font-size': '20px'}" [emptyMessage]="'no_data_result'|translate"
                         [options]="data_APIList" [filter]="true"></p-listbox>
                 </div>
             </div>
@@ -916,13 +916,13 @@
             <div class="form-group row">
                 <div class="col-sm-4">
                     <label>{{'module_list'|translate}}</label>
-                    <p-listbox #data_0235Listbox [style]="{'width': '105%', 'font-size': '20px'}" [options]="data_0235"
+                    <p-listbox #data_0235Listbox [style]="{'width': '105%', 'font-size': '20px'}" [options]="data_0235" [emptyMessage]="'no_data_result'|translate"
                         [(ngModel)]="selectedAPI_key" [ngModelOptions]="{standalone: true}" [filter]="true"
                         filterValue="" (click)="showDialog_APIList(selectedAPI_key)"></p-listbox>
                 </div>
                 <div class="col-sm-8">
                     <label>{{'api_list'|translate}}</label>
-                    <p-listbox #data_APIListListbox [style]="{'width': '100%', 'font-size': '20px'}"
+                    <p-listbox #data_APIListListbox [style]="{'width': '100%', 'font-size': '20px'}" [emptyMessage]="'no_data_result'|translate"
                         [options]="data_APIList" [filter]="true"></p-listbox>
                 </div>
             </div>

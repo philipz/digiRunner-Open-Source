@@ -145,11 +145,14 @@ public class GtwIdPVerifyService {
 		String dgrPublicDomain = getTsmpSettingService().getVal_DGR_PUBLIC_DOMAIN();
 		// 對外公開的Port
 		String dgrPublicPort = getTsmpSettingService().getVal_DGR_PUBLIC_PORT();
+		
+		String schemeAndDomainAndPort = GtwIdPWellKnownService.getSchemeAndDomainAndPort(dgrPublicDomain,
+				dgrPublicPort);
 
 		String matchIssuer = null;
 		List<String> supportGtwIdPTypeList = GtwIdPHelper.getSupportGtwIdPType();// 目前 GTW IdP 支援的 IdP Type
 		for (String idPType : supportGtwIdPTypeList) {
-			String issuer = GtwIdPWellKnownService.getIssuer(dgrPublicDomain, dgrPublicPort, idPType);
+			String issuer = GtwIdPWellKnownService.getIssuer(schemeAndDomainAndPort, idPType);
 			if (iss.equals(issuer)) {
 				matchIssuer = issuer;
 				break;

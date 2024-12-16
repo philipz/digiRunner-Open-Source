@@ -17,7 +17,7 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 @RestController
 public class AcIdPMockJSCallbackController {
 	
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/mockac/idpsso/accallback")
 	public void compSync(@RequestHeader HttpHeaders headers, 
 			@RequestParam String dgRcode, 

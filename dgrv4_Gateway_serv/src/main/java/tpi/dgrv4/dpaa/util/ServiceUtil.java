@@ -29,7 +29,6 @@ import tpi.dgrv4.dpaa.constant.RegexpConstant;
 import tpi.dgrv4.dpaa.vo.ConvertTimeUnitRst;
 import tpi.dgrv4.entity.component.cache.proxy.TsmpDpItemsCacheProxy;
 import tpi.dgrv4.entity.component.cache.proxy.TsmpRtnCodeCacheProxy;
-import tpi.dgrv4.entity.entity.ITsmpRtnCode;
 import tpi.dgrv4.entity.entity.TsmpDpItems;
 import tpi.dgrv4.entity.entity.TsmpRtnCode;
 import tpi.dgrv4.gateway.keeper.TPILogger;
@@ -376,7 +375,8 @@ public class ServiceUtil {
 	 */
 	public static boolean checkDataByPattern(String input, String rule) {
 		Pattern p = Pattern.compile(rule);
-		Matcher m = p.matcher(input); 
+		if(input==null) {input="";}
+		Matcher m = p.matcher(input); // 不接受 null 
 		return m.matches();
 			
 	}
@@ -714,7 +714,7 @@ public class ServiceUtil {
 			int ipAddr = (Integer.parseInt(ips[0]) << 24) | (Integer.parseInt(ips[1]) << 16)
 					| (Integer.parseInt(ips[2]) << 8) | Integer.parseInt(ips[3]);
 			//這段 Regex 已被 Tom Review 過了, 故取消 hotspot 標記
-			int type = Integer.parseInt(cidr.replaceAll(".*/", ""));
+			int type = Integer.parseInt(cidr.replaceAll(".*/", "")); // NOSONAR
 			int mask = 0xFFFFFFFF << (32 - type);
 			String cidrIp = cidr.replaceAll("/.*", "");
 			String[] cidrIps = cidrIp.split("\\.");
@@ -746,7 +746,8 @@ public class ServiceUtil {
 	 */
 	public static String replaceParameterToP(String str) {
 		Pattern p = Pattern.compile("\\{[^\\{\\}/]*\\}"); 
-		Matcher m = p.matcher(str);
+		if(str==null) {str="";}
+		Matcher m = p.matcher(str); // 不接受 null 
 		str = m.replaceAll("{p}");
 		return str;
 	}

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.ReportDateTimeRangeTypeEnum;
 import tpi.dgrv4.common.constant.ReportTypeEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.dpaa.util.ReportUtil;
 import tpi.dgrv4.entity.entity.jpql.TsmpReportData;
@@ -35,7 +36,7 @@ public class HandleReportDataByYearService {
 
 		// 現在區間的日期
 		Date nowIntervalDate = this.getNowIntervalDate(execDate);
-		TPILogger.tl.debug("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).get());
+		TPILogger.tl.debug("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
 		
 		ReportUtil reportUtil = new ReportUtil();
 		
@@ -161,7 +162,7 @@ public class HandleReportDataByYearService {
 		// =====================================================================================================================
 		// 刪除月資料
 		Date deleteDate = getDeleteIntervalDate(execDate);
-		TPILogger.tl.debug("deleteDate = " + DateTimeUtil.dateTimeToString(deleteDate, DateTimeFormatEnum.西元年月日時分秒).get());
+		TPILogger.tl.debug("deleteDate = " + DateTimeUtil.dateTimeToString(deleteDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
 		getTsmpReportDataDao().deleteByDateTimeRangeTypeAndLastRowDateTimeLessThan(
 				ReportDateTimeRangeTypeEnum.MONTH.value(), deleteDate);
 
@@ -179,7 +180,7 @@ public class HandleReportDataByYearService {
 	}
 
 	private Date getNowIntervalDate(Date nowDate) {
-		String yearNow_strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String yearNow_strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 //		String mm = yearNow_strDate.substring(14);
 //		String HH = yearNow_strDate.substring(11,13);
 //		String dd = yearNow_strDate.substring(8,10);
@@ -195,13 +196,13 @@ public class HandleReportDataByYearService {
 //
 		yearNow_strDate = yearNow_strDate.substring(0, 5);
 		yearNow_strDate = yearNow_strDate + "01-01 00:00:00.000";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(yearNow_strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(yearNow_strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 	}
 
 	private Date getDeleteIntervalDate(Date nowDate) {
-		String yearDel_strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String yearDel_strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		String mm = yearDel_strDate.substring(14);
 		String HH = yearDel_strDate.substring(11,13);
 		String dd = yearDel_strDate.substring(8,10);
@@ -219,11 +220,11 @@ public class HandleReportDataByYearService {
 		nowTime.setTime(nowDate);
 		nowTime.add(Calendar.YEAR, -1);
 		nowDate = nowTime.getTime();
-		yearDel_strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		yearDel_strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		yearDel_strDate = yearDel_strDate.substring(0, 5);
 		yearDel_strDate = yearDel_strDate + "01-01 00:00:00.000";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(yearDel_strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(yearDel_strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 

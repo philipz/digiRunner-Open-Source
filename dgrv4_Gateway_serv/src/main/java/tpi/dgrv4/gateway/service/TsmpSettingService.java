@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,12 +26,16 @@ import tpi.dgrv4.entity.exceptions.DgrRtnCode;
 import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpCoreTokenHelperCacheProxy;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpSettingCacheProxy;
+import tpi.dgrv4.gateway.constant.DgrDeployRole;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 
 @Service
 public class TsmpSettingService {
 
 	private TPILogger logger = TPILogger.tl;
+	
+	@Value("${digiRunner.gtw.deploy.role}")
+	private String deployRole;
 	
 	@Autowired
 	private TsmpSettingCacheProxy tsmpSettingCacheProxy;
@@ -55,7 +60,8 @@ public class TsmpSettingService {
 	 */
 	public String getENCPlainVal(String val) {
 		Pattern pattern = Pattern.compile("^ENC\\((\\S+)\\)$");
-		Matcher matcher = pattern.matcher(val);
+		if (val==null) {val="";} // Oracle 取值會是 null
+		Matcher matcher = pattern.matcher(val); // 不接受 null
 		if (matcher.matches()) {
 			val = matcher.group(1);
 			return getTsmpCoreTokenHelperCacheProxy().decrypt(val);
@@ -151,17 +157,21 @@ public class TsmpSettingService {
 	 * @return 若有做ENC加密,傳回明文; 否則,傳回DB中的原值
 	 */	
 	public <R> R getVal(String id, Function<String, R> func) {
-		TsmpSetting entity = findById(id, true);
+		TsmpSetting entity = findById(id);
 		String val = entity.getValue();
+		if (val == null) {
+			val = "";
+		} // Oracle 取值會是 null
 		val = getENCPlainVal(val);
 		return func.apply(val);
 	}
 
-	private TsmpSetting findById(String id, boolean errorWhenNotExists) {
+	private TsmpSetting findById(String id) {
 		Optional<TsmpSetting> opt = getTsmpSettingCacheProxy().findById(id);
-		if (errorWhenNotExists && !opt.isPresent()) {
+		if (!opt.isPresent()) {
 			logger.debug("id=" + id);
 			throw DgrRtnCode._1202.throwing();
+
 		}
 		return opt.get();
 	}
@@ -315,16 +325,30 @@ public class TsmpSettingService {
 
 	public String getVal_DGRKEEPER_IP() {
 		String key = getKey_DGRKEEPER_IP();
-		return getStringVal(key);
-	}
-	
-	public String getKey_DGRKEEPER_PORT() {
-		return TsmpSettingDao.Key.DGRKEEPER_PORT;
+		String val = getStringVal(key); 
+		// role = Memory 另外使用一個 +10 的 port
+		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
+			TPILogger.tl.info("I am [Memory] Role, DGR Keeper IP = [127.0.0.1] ");
+			val = "127.0.0.1";
+		}
+		return val; 
 	}
 
 	public int getVal_DGRKEEPER_PORT() {
 		String key = getKey_DGRKEEPER_PORT();
-		return getIntVal(key, 8080);
+		int val = getIntVal(key, 8080);
+		// role = Memory 另外使用一個 +10 的 port
+		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
+			TPILogger.tl.info("I am [Memory] Role, DGR Keeper Port + [10] ");
+			val = val + 10 ;
+		}
+		
+		return val;
+	}
+
+
+	public String getKey_DGRKEEPER_PORT() {
+		return TsmpSettingDao.Key.DGRKEEPER_PORT;
 	}
 	
 	public String getKey_LOGGER_LEVEL() {
@@ -1137,6 +1161,15 @@ public class TsmpSettingService {
 		return getBooleanVal(gateway_key, false);
 	}
 	
+	public String getKey_AC_IDP_CUS_REVIEW_ENABLE() {
+		return TsmpSettingDao.Key.AC_IDP_CUS_REVIEW_ENABLE;
+	}
+	
+	public boolean getVal_AC_IDP_CUS_REVIEW_ENABLE() {
+		String gateway_key = getKey_AC_IDP_CUS_REVIEW_ENABLE();
+		return getBooleanVal(gateway_key, false);
+	}
+	
 	// GTW IdP
 	public String getKey_GTW_IDP_JWK1() {
 		return TsmpSettingDao.Key.GTW_IDP_JWK1;
@@ -1318,7 +1351,35 @@ public class TsmpSettingService {
 	private String getKey_KIBANA_REPORTURL_PREFIX() {
 		return TsmpSettingDao.Key.KIBANA_REPORTURL_PREFIX;
 	}
-	
+
+	public String getVal_KIBANA_AUTH() {
+		String key = getKey_KIBANA_AUTH();
+		return getStringVal(key);
+	}
+
+	private String getKey_KIBANA_AUTH() {
+		return TsmpSettingDao.Key.KIBANA_AUTH;
+	}
+
+
+	public String getVal_KIBANA_LOGIN_URL() {
+		String key = getKey_KIBANA_LOGIN_URL();
+		return getStringVal(key);
+	}
+
+	private String getKey_KIBANA_LOGIN_URL() {
+		return TsmpSettingDao.Key.KIBANA_LOGIN_URL;
+	}
+
+	public String getVal_KIBANA_LOGIN_REQUESTBODY() {
+		String key = getKey_KIBANA_LOGIN_REQUESTBODY();
+		return getStringVal(key);
+	}
+
+	private String getKey_KIBANA_LOGIN_REQUESTBODY() {
+		return TsmpSettingDao.Key.KIBANA_LOGIN_REQUESTBODY;
+	}
+
 	public String getKey_CUS_NAME_SETTING() {
 		return TsmpSettingDao.Key.CUS_NAME_SETTING;
 	}

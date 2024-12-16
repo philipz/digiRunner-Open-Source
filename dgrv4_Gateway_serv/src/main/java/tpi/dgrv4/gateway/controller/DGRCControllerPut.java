@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.gateway.filter.GatewayFilter;
 import tpi.dgrv4.gateway.service.DGRCServicePut;
-
+@Deprecated
 @RestController
 public class DGRCControllerPut {
 

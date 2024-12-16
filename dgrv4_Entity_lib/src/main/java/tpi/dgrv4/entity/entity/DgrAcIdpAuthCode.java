@@ -37,6 +37,9 @@ public class DgrAcIdpAuthCode {
 
 	@Column(name = "user_name")
 	private String userName;
+	
+	@Column(name = "api_resp")
+	private String apiResp;
 
 	@Column(name = "create_date_time")
 	private Date createDateTime = DateTimeUtil.now();
@@ -58,8 +61,8 @@ public class DgrAcIdpAuthCode {
 	public String toString() {
 		return "DgrAcIdpAuthCode [acIdpAuthCodeId=" + acIdpAuthCodeId + ", authCode=" + authCode + ", expireDateTime="
 				+ expireDateTime + ", status=" + status + ", idpType=" + idpType + ", userName=" + userName
-				+ ", createDateTime=" + createDateTime + ", createUser=" + createUser + ", updateDateTime="
-				+ updateDateTime + ", updateUser=" + updateUser + ", version=" + version + "]";
+				+ ", apiResp=" + apiResp + ", createDateTime=" + createDateTime + ", createUser=" + createUser
+				+ ", updateDateTime=" + updateDateTime + ", updateUser=" + updateUser + ", version=" + version + "]";
 	}
 
 	public Long getAcIdpAuthCodeId() {
@@ -108,6 +111,14 @@ public class DgrAcIdpAuthCode {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+	
+	public String getApiResp() {
+		return apiResp;
+	}
+
+	public void setApiResp(String apiResp) {
+		this.apiResp = apiResp;
 	}
 
 	public Date getCreateDateTime() {

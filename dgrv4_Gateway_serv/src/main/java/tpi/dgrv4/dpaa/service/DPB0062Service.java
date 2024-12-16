@@ -165,7 +165,7 @@ public class DPB0062Service implements TsmpDpApptJobSetter {
 		final String inParams = req.getInParams();
 		final String identifData = req.getIdentifData();
 		final String sdtStr = req.getStartDateTime();
-		final Date startDateTime = DateTimeUtil.stringToDateTime(sdtStr, DateTimeFormatEnum.西元年月日時分_2).get();
+		final Date startDateTime = DateTimeUtil.stringToDateTime(sdtStr, DateTimeFormatEnum.西元年月日時分_2).orElse(null);
 		
 		TsmpDpApptJob j = new TsmpDpApptJob();
 		j.setRefItemNo(refItemNo);

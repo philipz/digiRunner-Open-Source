@@ -26,6 +26,7 @@ import tpi.dgrv4.dpaa.component.req.DpReqServiceFactory;
 import tpi.dgrv4.dpaa.component.req.DpReqServiceIfs;
 import tpi.dgrv4.entity.component.cache.proxy.TsmpDpItemsCacheProxy;
 import tpi.dgrv4.entity.entity.DgrAcIdpAuthCode;
+import tpi.dgrv4.entity.entity.DgrImportClientRelatedTemp;
 import tpi.dgrv4.entity.entity.DgrWebsite;
 import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
@@ -38,6 +39,7 @@ import tpi.dgrv4.entity.entity.jpql.TsmpDpReqOrderm;
 import tpi.dgrv4.entity.entity.jpql.TsmpEvents;
 import tpi.dgrv4.entity.entity.jpql.TsmpNoticeLog;
 import tpi.dgrv4.entity.repository.DgrAcIdpAuthCodeDao;
+import tpi.dgrv4.entity.repository.DgrImportClientRelatedTempDao;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.entity.repository.TsmpClientLogDao;
 import tpi.dgrv4.entity.repository.TsmpDpApptJobDao;
@@ -96,6 +98,9 @@ public class HousekeepingJob extends ApptJob {
 
 	@Autowired
 	private DgrAcIdpAuthCodeDao dgrAcIdpAuthCodeDao;
+	
+	@Autowired
+	private DgrImportClientRelatedTempDao dgrImportClientRelatedTempDao;	
 
 	@Autowired
 	private TrafficCheck trafficCheck;
@@ -179,6 +184,16 @@ public class HousekeepingJob extends ApptJob {
 		 * 
 		 */
 		deleteApiBatchModifyTemp();
+		
+		/**
+		 * 第12部分: 允許異動系統預設資料定時關閉
+		 */
+		disableUpdateDefaultDataMode();
+		
+		/**
+		 * 第13部分: 刪除暫存的client匯入資訊
+		 */
+		deleteImportClientRelated();
 
 		return "SUCCESS";
 
@@ -258,12 +273,11 @@ public class HousekeepingJob extends ApptJob {
 
 	public void refreshClientApiOuota(Calendar now) {
 		Optional<TsmpSetting> getRefreshFRQ = getTsmpSettingDao().findById("DGR_CLIENT_QUOTA_FRQ");
+		if (getRefreshFRQ.isEmpty()) return;
 		String frq = getRefreshFRQ.get().getValue();
 		// SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, and SATURDAY.
 		// Calendar星期排序 順序1-7
-		if (!getRefreshFRQ.isPresent()) {
-			return;
-		} else if ("N".equalsIgnoreCase(frq)) {
+		if ("N".equalsIgnoreCase(frq)) {
 			return;
 		} else if ("D".equalsIgnoreCase(frq)) {// 每日
 			this.logger.debug("1");
@@ -346,6 +360,11 @@ public class HousekeepingJob extends ApptJob {
 				String fileNameSuffix = String.valueOf(vo.getApptJobId()).concat(".mail");
 				fileList.addAll(getTsmpDpFileDao().query_DPB0061Service_01(refFileCateCode, fileNameSuffix));
 			}
+			// 刪除過期的SCB_PASM檔案
+			if ("HTTP_UTIL_CALL".equals(vo.getRefItemNo())) {
+				String refFileCateCode = TsmpDpFileType.HTTP_UTIL_JOB_API.value();													
+				fileList.addAll(tsmpDpFileDao.findByRefFileCateCodeAndRefId(refFileCateCode, vo.getApptJobId()));
+			}
 			if (CollectionUtils.isEmpty(fileList) == false) {
 				for (TsmpDpFile tsmpDpFile : fileList) {
 					getTsmpDpFileDao().delete(tsmpDpFile);
@@ -427,6 +446,33 @@ public class HousekeepingJob extends ApptJob {
 		}
 
 	}
+	
+	public void disableUpdateDefaultDataMode() {
+		Optional<TsmpSetting> opt_tsmpSetting = getTsmpSettingDao().findById("DEFAULT_DATA_CHANGE_ENABLED");
+
+		if (opt_tsmpSetting.isPresent()) {
+			TsmpSetting tsmpSetting = opt_tsmpSetting.get();
+			tsmpSetting.setValue("false");
+			getTsmpSettingDao().saveAndFlush(tsmpSetting);
+		}
+
+		step("12. 1/1");
+	}
+	
+	public void deleteImportClientRelated() {
+		Date expDate = getExpDate("ImportClientRelated", "short");
+		List<DgrImportClientRelatedTemp> list = getDgrImportClientRelatedTempDao().findByCreateDateTimeBefore(expDate);
+		if (CollectionUtils.isEmpty(list)) {
+			step("13. 0/0");
+			return;
+		}
+
+		for (int i = 0; i < list.size(); i++) {
+			step(String.format("13. %d/%d", (i + 1), list.size()));
+			DgrImportClientRelatedTemp vo = list.get(i);
+			getDgrImportClientRelatedTempDao().delete(vo);
+		}
+	}
 
 	protected DgrAcIdpAuthCodeDao getDgrAcIdpAuthCodeDao() {
 		return dgrAcIdpAuthCodeDao;
@@ -474,6 +520,10 @@ public class HousekeepingJob extends ApptJob {
 
 	protected TsmpSettingDao getTsmpSettingDao() {
 		return tsmpSettingDao;
+	}
+
+	protected DgrImportClientRelatedTempDao getDgrImportClientRelatedTempDao() {
+		return dgrImportClientRelatedTempDao;
 	}
 
 	protected TrafficCheck getTrafficCheck() {

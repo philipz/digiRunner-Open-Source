@@ -12,6 +12,7 @@ import tpi.dgrv4.dpaa.vo.DPB0168Req;
 import tpi.dgrv4.dpaa.vo.DPB0168Resp;
 import tpi.dgrv4.entity.entity.DgrGtwIdpInfoL;
 import tpi.dgrv4.entity.repository.DgrGtwIdpInfoLDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -34,6 +35,9 @@ public class DPB0168Service {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
 			getDgrGtwIdpInfoLDao().delete(dgrGtwIdpInfoL);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 
 		} catch (TsmpDpAaException e) {
 			throw e;

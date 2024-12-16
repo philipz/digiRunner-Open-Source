@@ -58,7 +58,7 @@ public class DPB9916Service {
 			resp.setRefId(tsmpDpFile.getRefId());
 			resp.setFileName(tsmpDpFile.getFileName());
 			resp.setCreateUser(tsmpDpFile.getCreateUser());
-			createDateTimeString = DateTimeUtil.dateTimeToString(tsmpDpFile.getCreateDateTime(), DateTimeFormatEnum.西元年月日時分秒_2).get();
+			createDateTimeString = DateTimeUtil.dateTimeToString(tsmpDpFile.getCreateDateTime(), DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 			resp.setCreateDateTime(createDateTimeString);
 			resp.setFilePath(tsmpDpFile.getFilePath()+tsmpDpFile.getFileName());
 			String isBlob=tsmpDpFile.getIsBlob();
@@ -72,7 +72,7 @@ public class DPB9916Service {
 			if (StringUtils.hasLength(tsmpDpFile.getUpdateUser())) {
 				String updateDateTimeString;
 				resp.setUpdateUser(tsmpDpFile.getUpdateUser());
-				updateDateTimeString = DateTimeUtil.dateTimeToString(tsmpDpFile.getUpdateDateTime(), DateTimeFormatEnum.西元年月日時分秒_2).get();
+				updateDateTimeString = DateTimeUtil.dateTimeToString(tsmpDpFile.getUpdateDateTime(), DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 				resp.setUpdateDateTime(updateDateTimeString);
 			}
 			

@@ -319,21 +319,36 @@ public class DgrAuditLogService {
 				|| AuditLogEvent.LOGOUT.value().equals(eventNo)) { //登出
 			
 			String param2 = null;
+			String param5 = null;
 			if (StringUtils.hasLength(idPType)) {// 以 IdP 登入 AC
-				param2 = idPSub;// 例如: google 時,為 "101872102234493560911"
+				String[] arrUserName = userName.split("\\.");
+				String userNameOrUserAlias = "";
+				if (arrUserName.length >= 2) {
+					userNameOrUserAlias = arrUserName[1];
+					param2 = userNameOrUserAlias;
+				}
+ 
+				// IdPType + "." + user_name, 例如: Google 時,為 "GOOGLE.101872102234493560911"
+				param5 = idPType + "." + idPSub;
 
-			} else {//以 AC 登入
+			} else {// 以 AC 登入
 				if (StringUtils.hasLength(userName)) {
-					param2 = getUserAlias(userName);// user_alias
+					param2 = getUserAlias(userName);// 存入值為 user_alias
+					if (!StringUtils.hasText(param2)) { // 若沒有值, 則存入 user_name
+						param2 = userName;
+					}
+
+					param5 = userName;// user_name
 				}
 			}
 			
 			String tokenJti = iip.getTsmpAuthorization().getJti();
 			
-			dgrAuditLogM.setParam1(state);//"SUCCESS" 或 "FAILED"
-			dgrAuditLogM.setParam2(param2);//user_alias 或 idPSub
-			dgrAuditLogM.setParam3(httpCode);//httpCode
-			dgrAuditLogM.setParam4(tokenJti);//Token jti
+			dgrAuditLogM.setParam1(state);// "SUCCESS" 或 "FAILED"
+			dgrAuditLogM.setParam2(param2);// user_alias 或 idPSub
+			dgrAuditLogM.setParam3(httpCode);// httpCode
+			dgrAuditLogM.setParam4(tokenJti);// Token jti
+			dgrAuditLogM.setParam5(param5);
 		}
 		
 		dgrAuditLogM = getDgrAuditLogMDao().saveAndFlush(dgrAuditLogM);
@@ -708,7 +723,7 @@ public class DgrAuditLogService {
 		
 		Optional<TsmpGroupAuthorities> opt4 = getTsmpGroupAuthoritiesDao().findById(tsmpGroupAuthoritiesMapVo.getGroupAuthoritieId());
 		String param4 = "";
-		if(opt.isPresent()) {
+		if(opt.isPresent() && opt4.isPresent()) {
 			TsmpGroupAuthorities tsmpGroupAuthoritiesVo = opt4.get();
 			param4 = tsmpGroupAuthoritiesVo.getGroupAuthoritieName();
 		}
@@ -729,7 +744,7 @@ public class DgrAuditLogService {
 		}
 		return userAlias;
 	}
-	
+
 	public InnerInvokeParam getInnerInvokeParam(String apiUrl, String userName, String clientId, 
 			String userIp, String userHostname) {
 		

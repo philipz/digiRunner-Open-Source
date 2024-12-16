@@ -30,7 +30,7 @@ public class GtwIdPLoginController {
 	GtwIdPLoginService service;
 	
 	// 前端使用
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/gtwidp/{idPType}/gtwlogin",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> gtwIdPLogin_get(@RequestHeader HttpHeaders httpHeaders, 
@@ -48,7 +48,7 @@ public class GtwIdPLoginController {
 		}
 	}
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/ssotoken/gtwidp/{idPType}/gtwlogin", 
 		consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, // 使用 Form Urlencoded 格式
 		produces = MediaType.APPLICATION_JSON_VALUE)

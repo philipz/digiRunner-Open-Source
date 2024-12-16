@@ -2,12 +2,9 @@ FROM azul/zulu-openjdk-alpine:17
 
 RUN apk add --no-cache curl
 
-WORKDIR /opt/open-dgr
-
-COPY ./dgrv4_Gateway_serv/build/libs/opendgr-*.jar opendgr.jar
+COPY ./dgrv4_Gateway_serv/build/libs/* /opt/digirunner/
+COPY ./dgrv4_Gateway_serv/keys/* /opt/digirunner/keys/
+RUN mv /opt/digirunner/digiRunner-*.jar /opt/digirunner/digirunner.jar
 
 ENTRYPOINT [ "java", "-jar" ]
-CMD ["-Xms2g","-Xmx4g", "/opt/open-dgr/opendgr.jar" ]
-
-
-
+CMD ["-Xms2g","-Xmx4g", "/opt/digirunner/digirunner.jar", "--digiRunner.token.key-store.path=/opt/digirunner/keys"]

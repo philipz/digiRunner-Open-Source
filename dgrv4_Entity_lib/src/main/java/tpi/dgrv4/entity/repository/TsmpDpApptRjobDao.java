@@ -37,4 +37,6 @@ public interface TsmpDpApptRjobDao extends JpaRepository<TsmpDpApptRjob, String>
 
 	public List<TsmpDpApptRjob> findByCreateUser(String createUser);
 	
+	public List<TsmpDpApptRjob> findByRjobName(String rjobName);
+	
 }

@@ -90,7 +90,7 @@ public class MonitorHostService {
 			logVo.setHused(infoVo.getHused());
 			logVo.setMem(infoVo.getMem());
 			logVo.setNode(node);
-			logVo.setTs(DateTimeUtil.dateTimeToString(new Date(currentTimestamp), DateTimeFormatEnum.西元年月日T時分秒時區).get());
+			logVo.setTs(DateTimeUtil.dateTimeToString(new Date(currentTimestamp), DateTimeFormatEnum.西元年月日T時分秒時區).orElse(null));
 			logVo.setType(type);
 			
 			// [一級快取]的工作數量
@@ -239,7 +239,7 @@ public class MonitorHostService {
 	private void insertEs(TsmpMonitorLog logVo, Map<String, Object> esInfo) throws IOException {
 		String esUrl = String.valueOf(esInfo.get(ES_URL));
 		
-		String indexName = "tsmp_monitor_log_" + DateTimeUtil.dateTimeToString(new Date(logVo.getCreateTimestamp()), DateTimeFormatEnum.西元年月日_4).get();
+		String indexName = "tsmp_monitor_log_" + DateTimeUtil.dateTimeToString(new Date(logVo.getCreateTimestamp()), DateTimeFormatEnum.西元年月日_4).orElse(null);
 		String strJson = getObjectMapper().writeValueAsString(logVo);
 		String esReqUrl = esUrl + indexName + "/_doc";
 		

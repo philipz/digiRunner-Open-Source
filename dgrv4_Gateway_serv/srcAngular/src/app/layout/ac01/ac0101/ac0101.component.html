@@ -53,7 +53,7 @@
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr>
           <td *ngFor="let col of columns" [style.width]="col.width">
-            {{ rowData[col.field] }}
+            {{ (col.field =='locale') ? rowData.localeName +' ('+rowData.locale +')': rowData[col.field] }}
           </td>
           <td style="text-align: center; width: 120px">
             <button pButton pRipple type="button" icon="pi pi-eye" [disabled]="canDetail == false"

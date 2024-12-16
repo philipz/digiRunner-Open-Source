@@ -13,6 +13,7 @@ import tpi.dgrv4.dpaa.vo.DPB9904Req;
 import tpi.dgrv4.dpaa.vo.DPB9904Resp;
 import tpi.dgrv4.entity.entity.TsmpSetting;
 import tpi.dgrv4.entity.repository.TsmpSettingDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -52,6 +53,9 @@ public class DPB9904Service {
 					TsmpSetting.class.getSimpleName(), TableAct.D.value(), oldRowStr, null);// D
 			
 			getDaoGenericCacheService().clearAndNotify();
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.SETTING.value());
 			
 			return new DPB9904Resp();
 		} catch (TsmpDpAaException e) {

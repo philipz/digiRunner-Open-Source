@@ -175,7 +175,7 @@ public class DPB0084Service {
 
 	private String getCertDateTime(Long timeInMillis) {
 		Date dt = new Date(timeInMillis);
-		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).get();
+		String dtStr = DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日_2).orElse(null);
 		this.logger.debug(String.format("certDt: %d -> %s", timeInMillis, dtStr));
 		return dtStr;
 	}
@@ -188,7 +188,7 @@ public class DPB0084Service {
 	}
 	
 	private String getCreateDateTime(Date createDateTime) {
-		return DateTimeUtil.dateTimeToString(createDateTime, DateTimeFormatEnum.西元年月日時分_2).get();
+		return DateTimeUtil.dateTimeToString(createDateTime, DateTimeFormatEnum.西元年月日時分_2).orElse(null);
 	}
 
 	protected TsmpClientCertDao getTsmpClientCertDao() {

@@ -1,21 +1,12 @@
 package tpi.dgrv4.gateway.filter;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -26,10 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.entity.TsmpApi;
 import tpi.dgrv4.entity.entity.TsmpApiId;
@@ -40,18 +27,7 @@ import tpi.dgrv4.entity.exceptions.ICheck;
 import tpi.dgrv4.gateway.component.DgrcRoutingHelper;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpApiCacheProxy;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpApiRegCacheProxy;
-import tpi.dgrv4.gateway.component.check.ApiNotFoundCheck;
-import tpi.dgrv4.gateway.component.check.ApiStatusCheck;
-import tpi.dgrv4.gateway.component.check.CusTokenCheck;
-import tpi.dgrv4.gateway.component.check.DgrJtiCheck;
-import tpi.dgrv4.gateway.component.check.HostHeaderCheck;
-import tpi.dgrv4.gateway.component.check.IgnoreApiPathCheck;
-import tpi.dgrv4.gateway.component.check.ModeCheck;
-import tpi.dgrv4.gateway.component.check.SqlInjectionCheck;
-import tpi.dgrv4.gateway.component.check.TokenCheck;
-import tpi.dgrv4.gateway.component.check.TrafficCheck;
-import tpi.dgrv4.gateway.component.check.XssCheck;
-import tpi.dgrv4.gateway.component.check.XxeCheck;
+import tpi.dgrv4.gateway.component.check.*;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.CommForwardProcService;
 import tpi.dgrv4.gateway.service.TsmpSettingService;
@@ -61,6 +37,9 @@ import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp;
 import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp2;
 import tpi.dgrv4.gateway.vo.ResHeader;
 import tpi.dgrv4.gateway.vo.TsmpApiLogReq;
+
+import java.io.IOException;
+import java.util.*;
 
 @Component
 public class GatewayFilter extends OncePerRequestFilter {
@@ -158,6 +137,9 @@ public class GatewayFilter extends OncePerRequestFilter {
 	@Autowired
 	private CusTokenCheck cusTokenCheck;
 
+	@Autowired
+	private BotDetectionCheck dotBotDetectionCheck;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -170,6 +152,11 @@ public class GatewayFilter extends OncePerRequestFilter {
 			// uri 只會異動為 "dgrc"、"tsmpc"
 			String uri = request.getRequestURI();
 			// 若 Host Header 不符合安全檢查就 true, 否則 false
+
+			if (dotBotDetectionCheck.check(request)) {
+				int status = HttpServletResponse.SC_FORBIDDEN;// 403
+				throw new DgrException(status, dotBotDetectionCheck);
+			}
 
 			if (hostHeaderCheck.check(request)) {
 				int status = HttpServletResponse.SC_UNAUTHORIZED;// 401
@@ -188,18 +175,9 @@ public class GatewayFilter extends OncePerRequestFilter {
 				return;
 			}
 
-			// dgrv4 特權、不驗 token 之API, ex: version、logger、online、AA0325、AA0326
-			boolean isIgnore = false;
-			List<String> list = Arrays.asList("/dgrv4/version", "/dgrv4/logger", "/dgrv4/onlineConsole2",
-					"/dgrv4/11/AA0325", "/dgrv4/11/AA0326", "/dgrv4/shutdown");
-			for (String list001 : list) {
-				if (uri.contains(list001)) {
-					isIgnore = true;
-					break;
-				}
-			}
+			boolean isSpecialApi = isSpecialApi(uri); // 是否為 dgrv4 特權 API
 
-			if (!isIgnore) {
+			if (!isSpecialApi) {
 				// digiRunner.gtw.mode 檢查器, ex: onlyAC
 				if (!modeCheck.check(uri)) {
 					logger.debug("Request uri = " + uri);
@@ -208,6 +186,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 				}
 			}
 
+			// 客製包打主包之判斷方法
 			if (cusTokenCheck.check(request)) {
 				int status = 403;
 				throw new DgrException(status, cusTokenCheck);
@@ -221,7 +200,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 			b = b || (uri.length() >= 4 && (uri.substring(0, 4).equals("/17/")));
 			b = b || (uri.length() >= 6 && (uri.substring(0, 6).equals("/dgrc/")));
 			b = b || (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpc/")));
-			b = b || (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpg/")));//因為v3的noAuth要用tsmpg
+			b = b || (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpg/")));// 因為v3的noAuth要用tsmpg
 			b = b || (uri.length() >= 7 && (uri.substring(0, 7).equals("/dgrv4/")));
 			b = b || (uri.length() >= 7 && (uri.substring(0, 7).equals("/oauth/")));
 			b = b || (uri.length() >= 10 && (uri.substring(0, 10).equals("/mocktest/")));
@@ -291,13 +270,12 @@ public class GatewayFilter extends OncePerRequestFilter {
 						path = uri.substring(5, uri.length());
 						entry = "dgrc";
 					}
-					if (uri.substring(0, 6).equals("/tsmpc")
-					    || uri.substring(0, 6).equals("/tsmpg") //因為v3的noAuth要用tsmpg
-						) {
+					if (uri.substring(0, 6).equals("/tsmpc") || uri.substring(0, 6).equals("/tsmpg") // 因為v3的noAuth要用tsmpg
+					) {
 						path = uri.substring(6, uri.length());
 						entry = "tsmpc";
 					}
-					if (ignoreApiPathCheck.check(path) == false) {
+					if (!ignoreApiPathCheck.check(path)) {
 						// 20231129修改五大檢查器的回傳格式
 						OAuthTokenErrorResp checkResp = checkList(response, request, uri);
 						// 進行五種檢查器檢查
@@ -355,7 +333,6 @@ public class GatewayFilter extends OncePerRequestFilter {
 			responseWrapper.setHeaderByForce("Content-Security-Policy", cspVal);
 		}
 
-		
 		responseWrapper.setHeaderByForce("Access-Control-Allow-Origin", getTsmpSettingService().getVal_DGR_CORS_VAL()); // CORS
 																														// 改從
 																														// Setting
@@ -406,8 +383,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 			return request;
 			// 要同時符合 1. 是要走 /kibana2 以及url 內沒有 /kibana2 的才加入 預防/kibana2/login 被二次加入/kibana2
 		} else if (isGCPkibana(request, kibanaPrefix) && !uri.contains("login")) {
-			// TODO 若是 GCP "ElasticCloud", 需 add basepath "/kibana2"
-			// 導向 KibanaController.java "/kibana2/**"
+			// 導向 KibanaController.java "/kibana/**"
 			request = GatewayFilter.changeRequestURI(request, kibanaPrefix + uri);
 		} else {
 			// 沒有要變動 uri 就不用 new 物件
@@ -422,8 +398,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 	private boolean isDGRCorTSMPC(String uri) {
 		return ((uri.length() >= 6 && (uri.substring(0, 6).equals("/dgrc/")))
 				|| (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpc/")))
-				|| (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpg/")))//因為v3的noAuth要用tsmpg
-				);
+				|| (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpg/")))// 因為v3的noAuth要用tsmpg
+		);
 	}
 
 	private boolean isGCPkibana(HttpServletRequest request, String kibanaPrefix) {
@@ -446,7 +422,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 			String referer = request.getHeader("Referer");
 //		boolean hasReferer = false;
 			if (StringUtils.hasLength(referer)) {
-				if (referer.contains("/app/")) {
+				// 報表管理和監控管理也列入
+				if (referer.contains("/app/") || referer.contains("/ac09/") || referer.contains("/ac05/")) {
 					return true;
 				}
 
@@ -559,8 +536,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 		}
 
 		boolean isTsmpc = reqUrl.substring(0, 7).equals("/tsmpc/");
-		if(!isTsmpc) {
-			isTsmpc = reqUrl.substring(0, 7).equals("/tsmpg/");//因為v3的noAuth要用tsmpg
+		if (!isTsmpc) {
+			isTsmpc = reqUrl.substring(0, 7).equals("/tsmpg/");// 因為v3的noAuth要用tsmpg
 		}
 		if (paths == tsmp_dgrcRouting) {
 			if (isTsmpc) {
@@ -681,7 +658,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 
 		// API開關
 		// API狀態:啟用 / 停用(TSMP_API.api_status) 啟用為true,否則就false
-		if (apiStatusCheck.check(apiId, moduleName) == false) {
+		if (!apiStatusCheck.check(apiId, moduleName)) {
 			return getCheckErrorResp("disabled", "API was disabled", request.getRequestURI(),
 					HttpStatus.SERVICE_UNAVAILABLE.value());
 		}
@@ -751,7 +728,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 		response.setStatus(status);
 		try {
 			// 檢核失敗時寫API Log
-			if (!"ModeCheck".equals(check.getClass().getSimpleName()))
+			String simpleName = check.getClass().getSimpleName();
+			if (!"ModeCheck".equals(simpleName))
 				writeLog(request, response, entry);
 
 			response.getWriter().append(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(vo));
@@ -811,7 +789,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 		if (!paths) {
 			String keyword = "tsmpc/";
 			int flag = reqUrl.indexOf(keyword);
-			if(flag == -1) {
+			if (flag == -1) {
 				keyword = "tsmpg/";
 				flag = reqUrl.indexOf(keyword);
 			}
@@ -850,13 +828,14 @@ public class GatewayFilter extends OncePerRequestFilter {
 	public Boolean isURLRID(String moduleName, String apiKey) {
 		TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiKey, moduleName);
 		Optional<TsmpApiReg> tsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);
-		String UrlRid = tsmpApiReg.get().getUrlRid();
-		if ("1".equals(UrlRid)) {
+		if (tsmpApiReg.isEmpty())
+			return false;
+
+		String urlRid = tsmpApiReg.get().getUrlRid();
+		if ("1".equals(urlRid))
 			return true;
-		}
 
 		return false;
-
 	}
 
 	boolean isTsmpcApiExist(String moduleName, String apiKey) {
@@ -942,7 +921,6 @@ public class GatewayFilter extends OncePerRequestFilter {
 				GatewayFilter.apiRespThroughput.put(currentSeconds, 1);
 			}
 		}
-
 	}
 
 	public static void setApiReqThroughput() {
@@ -959,7 +937,38 @@ public class GatewayFilter extends OncePerRequestFilter {
 				apiReqThroughput.put(currentSeconds, 1);
 			}
 		}
-
 	}
 
+	/**
+	 * 是否為 dgrv4 特權 API (不驗 token 之API) <br>
+	 * 例如: version、logger、online、AA0325、AA0326 <br>
+	 * 
+	 * @return true: 是; false: 不是
+	 */
+	public static boolean isSpecialApi(String uri) {
+		// dgrv4 特權、不驗 token 之API,
+		boolean isSpecial = false;
+		List<String> list = Arrays.asList("/dgrv4/version", "/dgrv4/logger", "/dgrv4/onlineConsole2",
+				"/dgrv4/11/AA0325", "/dgrv4/11/AA0326", "/dgrv4/shutdown");
+		for (String list001 : list) {
+			if (uri.contains(list001)) {
+				isSpecial = true;
+				break;
+			}
+		}
+
+		return isSpecial;
+	}
+
+	/**
+	 * 是否為 dgR AC API
+	 * 
+	 * @return true: 是; false: 不是
+	 */
+	public static boolean isDgrUrl(String uri) {
+		boolean isDgrUrl = (uri.length() >= 10 && (uri.substring(0, 10).equals("/dgrv4/11/")));
+		isDgrUrl = isDgrUrl || (uri.length() >= 10 && (uri.substring(0, 10).equals("/dgrv4/17/")));
+
+		return isDgrUrl;
+	}
 }

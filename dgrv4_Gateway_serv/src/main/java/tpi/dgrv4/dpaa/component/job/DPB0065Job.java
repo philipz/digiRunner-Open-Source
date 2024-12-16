@@ -95,7 +95,7 @@ public class DPB0065Job extends DeferrableJob {
 	}
 
 	public int doDeleteExpiredSequence(String param, Date date) {
-		String today_yyyyMMdd = DateTimeUtil.dateTimeToString(date, DateTimeFormatEnum.西元年月日_3).get();
+		String today_yyyyMMdd = DateTimeUtil.dateTimeToString(date, DateTimeFormatEnum.西元年月日_3).orElse(null);
 		
 		List<SeqStore> seqList = getSeqStoreDao().queryExpiredSequence(param, today_yyyyMMdd);
 		if (seqList == null || seqList.isEmpty()) {

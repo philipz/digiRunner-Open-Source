@@ -24,7 +24,7 @@ public class GtwIdPIconController {
 	@Autowired
 	private GtwIdPIconService service;
 
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/ssotoken/gtwidp/{idPType}/getIcon")
 	public ResponseEntity<String> getIcon(
 			@RequestHeader HttpHeaders headers, 

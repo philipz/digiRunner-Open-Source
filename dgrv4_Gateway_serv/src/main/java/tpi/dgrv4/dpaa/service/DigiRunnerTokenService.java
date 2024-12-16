@@ -3,6 +3,7 @@ package tpi.dgrv4.dpaa.service;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -129,16 +130,21 @@ public class DigiRunnerTokenService {
 				.getToken(formData, basicAuth, apiUrl);
 			if (responseEntity.getStatusCode().is2xxSuccessful()) {
 				OAuthTokenResp oauthTokenResp = responseEntity.getBody();
-				tokenResp = new DigiRunnerTokenResp();
-				tokenResp.setAccessToken(oauthTokenResp.getAccessToken());
-				tokenResp.setTokenType(oauthTokenResp.getTokenType());
-				tokenResp.setRefreshToken(oauthTokenResp.getRefreshToken());
-				tokenResp.setExpiresIn(oauthTokenResp.getExpiresIn());
-				tokenResp.setScope(oauthTokenResp.getScope());
-				tokenResp.setOrgId(oauthTokenResp.getOrgId());
-				tokenResp.setNode(oauthTokenResp.getNode());
-				tokenResp.setStime(oauthTokenResp.getStime());
-				tokenResp.setJti(oauthTokenResp.getJti());
+
+				tokenResp = Optional.ofNullable(oauthTokenResp).map(otrp -> {
+					var resp = new DigiRunnerTokenResp();
+					resp.setAccessToken(otrp.getAccessToken());
+					resp.setTokenType(otrp.getTokenType());
+					resp.setRefreshToken(otrp.getRefreshToken());
+					resp.setExpiresIn(otrp.getExpiresIn());
+					resp.setScope(otrp.getScope());
+					resp.setOrgId(otrp.getOrgId());
+					resp.setNode(otrp.getNode());
+					resp.setStime(otrp.getStime());
+					resp.setJti(otrp.getJti());
+					return resp;
+				}).orElse(null);
+
 			}
 		} catch (Exception e) {
 			this.logger.debug("Get token error: " + StackTraceUtil.logStackTrace(e));

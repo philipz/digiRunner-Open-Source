@@ -1,5 +1,6 @@
 package tpi.dgrv4.dpaa.service;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import tpi.dgrv4.entity.entity.OauthClientDetails;
 import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.repository.OauthClientDetailsDao;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -116,17 +118,23 @@ public class AA0218Service {
 			TsmpClient tsmpClientVo = getTsmpClientDao().findById(clientId).orElse(null);
 			
 			String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, tsmpClientVo); //舊資料統一轉成 String
-			
-			tsmpClientVo.setAccessTokenQuota(req.getAccessTokenQuota());
-			tsmpClientVo.setRefreshTokenQuota(req.getRefreshTokenQuota());
-			tsmpClientVo = getTsmpClientDao().save(tsmpClientVo);
+
+			TsmpClient updatedVo = Optional.ofNullable(tsmpClientVo).map(vo-> {
+				vo.setAccessTokenQuota(req.getAccessTokenQuota());
+				vo.setRefreshTokenQuota(req.getRefreshTokenQuota());
+				return vo;
+			}).orElse(tsmpClientVo);
+
+			tsmpClientVo = getTsmpClientDao().save(updatedVo);
 			
 			//寫入 Audit Log D
 			lineNumber = StackTraceUtil.getLineNumber();
 			getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
 					TsmpClient.class.getSimpleName(), TableAct.U.value(), oldRowStr, tsmpClientVo);
-			
-			
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
+
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
@@ -150,6 +158,14 @@ public class AA0218Service {
 	}
 
 	private void checkParam(AA0218Req req) {
+		// 檢查輸入的網址 Default Redirect URI 和 Extends Redirect URI 1 ~ 5
+		checkRedirectUri(req.getWebServerRedirectUri(), "");
+		checkRedirectUri(req.getWebServerRedirectUri1(), "1");
+		checkRedirectUri(req.getWebServerRedirectUri2(), "2");
+		checkRedirectUri(req.getWebServerRedirectUri3(), "3");
+		checkRedirectUri(req.getWebServerRedirectUri4(), "4");
+		checkRedirectUri(req.getWebServerRedirectUri5(), "5");
+
 		String clientId = req.getClientID();
 		Set<String> authorizedGrantType = req.getAuthorizedGrantType();
 		
@@ -182,6 +198,65 @@ public class AA0218Service {
 		}
 		return value;
 	}
+	
+	/**
+	 * 檢查輸入的網址 Default Redirect URI 和 Extends Redirect URI 1 ~ 5, <br>
+	 * 若為 https 或 https, 則網址不能有 * 號 <br>
+	 * 否則, 則網址要有 * 號 <br>
+	 */
+	private void checkRedirectUri(String uri, String index) {
+		if (uri == null) {
+			return;
+		}
+ 
+		String errMsg = null;
+		if (!uri.contains("://")) {
+			errMsg = "Redirect URI " + index + " is incomplete: " + uri;
+			// Redirect URI 不完整: uri
+			this.logger.debug(errMsg);
+			throw TsmpDpAaRtnCode._1559.throwing(errMsg);
+		}
+		
+		if (isHttpsOrHttp(uri)) {// https 或 https
+			if (uri.toLowerCase().equals("https://") || uri.toLowerCase().equals("http://")) {
+				errMsg = "Redirect URI " + index + " is incomplete: " + uri;
+				// Redirect URI 不完整: uri
+				this.logger.debug(errMsg);
+				throw TsmpDpAaRtnCode._1559.throwing(errMsg);
+			}
+			
+			if (uri.contains("*")) {// 網址不能有 * 號
+				errMsg = "Redirect URI " + index + " is incorrect, cannot have * sign: " + uri;
+				// Redirect URI 錯誤,不能有 * 號: uri
+				this.logger.debug(errMsg);
+				throw TsmpDpAaRtnCode._1559.throwing(errMsg);
+			}
+		} else {// 不是 https 或 https, 則網址必須有 * 號
+			if (!uri.contains("*")) {
+				errMsg = "Redirect URI " + index + " is incorrect, must have * sign: " + uri;
+				// Redirect URI 錯誤,必須有 * 號: uri
+				this.logger.debug(errMsg);
+				throw TsmpDpAaRtnCode._1559.throwing(errMsg);
+			}
+		}
+	}
+ 
+	/**
+	 * 網址是否為 "https://" 或 "http://" 開頭
+	 * 
+	 * @return true: 是; false: 不是
+	 */
+	private boolean isHttpsOrHttp(String uri) {
+		if (uri == null) {
+			return false;
+		}
+		
+		if (uri.toLowerCase().startsWith("https://") || uri.toLowerCase().startsWith("http://")) {
+			return true;
+		}
+
+		return false;
+	}
 
 	protected TsmpClientDao getTsmpClientDao() {
 		return tsmpClientDao;
@@ -198,5 +273,4 @@ public class AA0218Service {
 	protected DgrAuditLogService getDgrAuditLogService() {
 		return dgrAuditLogService;
 	}
-
 }

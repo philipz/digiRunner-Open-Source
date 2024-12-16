@@ -1,0 +1,36 @@
+.login-center-page{
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .form-wrapper{
+    width: 600px;
+    border: 1px solid #dee2e6;
+    .form-header h1{
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 2rem;
+    }
+    .form-body{
+      padding:  0 2rem 2rem 1rem;
+      .line {
+        color: var(--tpi-primary);
+        font-weight: 600;
+        font-size: 1.2rem;
+        text-align: center;
+        margin: 1rem 0 0;
+
+        p+p{
+          color: #666666;
+        }
+      }
+      .btn-row{
+        text-align: center;
+        button{
+          width: 96px;
+        }
+      }
+    }
+  }
+}

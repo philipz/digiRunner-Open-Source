@@ -1,5 +1,6 @@
 package tpi.dgrv4.entity.repository;
 
+import java.util.AbstractMap;
 import java.util.Date;
 import java.util.List;
 
@@ -85,6 +86,8 @@ public interface TsmpApiDao extends JpaRepository<TsmpApi, TsmpApiId> {
 	public List<String> query_AA0427Lable5(List<String> apiSrc);
 
 	public List<TsmpApi> query_AA0428Service(AA0301SearchCriteria cri);
+	
+	int deleteNonSpecifiedContent(List<AbstractMap.SimpleEntry<String, String>> list);
 
 	public List<TsmpApi> query_AA0423Service(List<String> labelList);
 

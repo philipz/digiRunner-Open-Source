@@ -23,7 +23,7 @@ public class AA0430Controller {
 	@Autowired
 	private AA0430Service service;
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/AA0430", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

@@ -152,17 +152,18 @@ public class DgrApiLog2ESQueue {
 		try {
 			
 			resp = HttpUtil.httpReqByRawData(esReqUrl, HttpMethod.POST.toString(), bulkBody, header, false);
+			// 告知寫入成功或失敗
+			if (resp.statusCode >= 200 && resp.statusCode < 400) {
+
+				// TPILogger.tl.debug("[#queueTrace#] \n" + resp.getLogStr() + "\n");
+			} else {
+				TPILogger.tl.error("! Request ES API has ben FAIL !");
+			}
 		} catch (IOException e) {
 			TPILogger.tl.error("\nesReqUrl = " + esReqUrl + "\n" + StackTraceUtil.logStackTrace(e));
 		}
 
-		// 告知寫入成功或失敗
-		if (resp.statusCode >= 200 && resp.statusCode < 400) {
-
-			// TPILogger.tl.debug("[#queueTrace#] \n" + resp.getLogStr() + "\n");
-		} else {
-			TPILogger.tl.error("! Request ES API has ben FAIL !");
-		}		
+		
 	}
 	
 	public static int workIndex = -1; // -1:不可用, 0~n:為可用URL

@@ -23,7 +23,7 @@ import tpi.dgrv4.gateway.vo.TsmpHttpHeader;
 public class DPB0167Controller {
 	@Autowired
 	private DPB0167Service service;
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0167", params = {"before"}, //
 	consumes = MediaType.APPLICATION_JSON_VALUE, //
 	produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,7 +36,7 @@ public TsmpBaseResp<BeforeControllerResp> updateGtwIdPInfo_ldap_before(@RequestH
 	}
 }
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/11/DPB0167", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

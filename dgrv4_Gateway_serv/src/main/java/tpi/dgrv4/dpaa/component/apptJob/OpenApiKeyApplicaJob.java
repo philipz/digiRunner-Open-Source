@@ -23,6 +23,7 @@ import tpi.dgrv4.entity.repository.TsmpDpReqOrdermDao;
 import tpi.dgrv4.entity.repository.TsmpOpenApiKeyDao;
 import tpi.dgrv4.entity.repository.TsmpOpenApiKeyMapDao;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 
 /**
@@ -103,7 +104,10 @@ public class OpenApiKeyApplicaJob extends ApptJob {
 				
 				// 寄發申請成功Mail通知			
 				sendSuccessEmail(reqOrdermId, openApiKeyId, TsmpDpReqReviewType.OPEN_API_KEY.OPEN_API_KEY_APPLICA.value(), reqOrderNo);
-				
+
+				// in-memory, 用列舉的值傳入值
+				TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
+
 				successCnt++;
 			} catch (Exception e) {
 				logger.debug(StackTraceUtil.logStackTrace(e));

@@ -35,7 +35,8 @@ public class AA0002Service {
 			String idPType = auth.getIdpType();
 			if (DgrIdPType.LDAP.equals(idPType) // LDAP
 					|| DgrIdPType.MLDAP.equals(idPType) // MLDAP
-					|| DgrIdPType.API.equals(idPType)) // API
+					|| DgrIdPType.API.equals(idPType) // API
+				|| DgrIdPType.CUS.equals(idPType)) // CUS
 			{
 				// 1.以 SSO AC IdP (LDAP / MLDAP / API)的方式登入
 				String userNameForQuery = auth.getUserNameForQuery();

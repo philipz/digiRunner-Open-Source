@@ -21,7 +21,8 @@ public enum TsmpDpFileType {
 	REG_COMP_API("REG_COMP_API"),		// 註冊/組合API的匯出檔案
 	TSMP_DP_APPT_JOB("TSMP_DP_APPT_JOB"),// 排程作業相關檔案
 	DASHBOARD_TEMP_DATA("DASHBOARD_TEMP_DATA"), //DASHBOARD未匹配紀錄
-	API_MODIFY_BATCH("API_MODIFY_BATCH") //API批量修改的暫存檔
+	API_MODIFY_BATCH("API_MODIFY_BATCH"), //API批量修改的暫存檔
+	HTTP_UTIL_JOB_API("HTTP_UTIL_JOB_API")// PASM 產生報表
 	;
 
 	private String value;

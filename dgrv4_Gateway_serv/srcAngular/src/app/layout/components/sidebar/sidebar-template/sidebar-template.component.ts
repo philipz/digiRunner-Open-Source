@@ -24,7 +24,7 @@ export class SidebarTemplateComponent implements OnInit {
   @Output('menuClick') menuClick = new EventEmitter<any>();
 
   isActive: boolean = true;
-  firstPagLoad: boolean = true;
+  firstPageLoad: boolean = true;
   allEnabled: boolean = true;
 
   _mainId: string = '';
@@ -52,19 +52,21 @@ export class SidebarTemplateComponent implements OnInit {
     if (this.tsmp_menu) {
       this.addExpandClass(this.tsmp_menu.nativeElement);
     }
-    this.firstPagLoad = false;
+    this.firstPageLoad = false;
   }
 
   addExpandClass(element: any, _menuMain: string = '') {
     let $li = $(element).children('li').first();
-    if (this.firstPagLoad) {
+
+    if (this.firstPageLoad) {
       this.isActive ? $li.find('>ul').slideDown() : $li.find('>ul').slideUp();
     } else {
       $li.find('>ul').is(':hidden')
         ? $li.find('>ul').slideDown()
         : $li.find('>ul').slideUp();
+
       $li
-        .closest('.list-group')
+        .closest('.menu-group')
         .find('li.nested')
         .not($li)
         .find('>ul')
@@ -80,7 +82,7 @@ export class SidebarTemplateComponent implements OnInit {
     this.service.siderbarEventEmitter.emit({
       menu: this.tsmp_menu,
       actived: actived,
-      id: null,
+      id: sub.name,
     });
     if (sub.funcURL) {
       if (sub.funcURL.includes('tsmpdpbe')) {
@@ -92,14 +94,14 @@ export class SidebarTemplateComponent implements OnInit {
   mouseenter(img, id) {
     img.setAttribute(
       'src',
-      'assets/images/' + (id.indexOf('ZA') > -1 ? 'AC13' : id) + '_h.png'
+      'assets/images/menu/' + (id.indexOf('ZA') > -1 ? 'AC13' : id) + '_h.png'
     );
   }
 
   mouseout(img, id) {
     img.setAttribute(
       'src',
-      'assets/images/' + (id.indexOf('ZA') > -1 ? 'AC13' : id) + '.png'
+      'assets/images/menu/' + (id.indexOf('ZA') > -1 ? 'AC13' : id) + '.png'
     );
   }
 }

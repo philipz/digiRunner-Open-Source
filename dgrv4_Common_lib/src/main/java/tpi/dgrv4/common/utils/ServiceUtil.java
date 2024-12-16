@@ -1,31 +1,24 @@
 package tpi.dgrv4.common.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.util.StringUtils;
+import tpi.dgrv4.common.constant.LocaleType;
+import tpi.dgrv4.common.constant.RegexpConstant;
+import tpi.dgrv4.common.keeper.ITPILogger;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import tpi.dgrv4.common.constant.LocaleType;
-import tpi.dgrv4.common.constant.RegexpConstant;
-import tpi.dgrv4.common.keeper.ITPILogger;
 
 public class ServiceUtil {
 
@@ -61,7 +54,7 @@ public class ServiceUtil {
 	/**
 	 * Locale 修改成符合資料表中的資料格式, ex. zh-TW
 	 * 
-	 * @param locale
+	 * @param gateway_locale
 	 * @return
 	 */
 	public static String getLocale(String gateway_locale) {
@@ -103,7 +96,7 @@ public class ServiceUtil {
 	/**
 	 * 如果 input 為 null, 則返回 alternatives 中第一個非 null 的值;<br>
 	 * 若 alternatives 為空值, 則返回 Integer.MIN_VALUE
-	 * @param input
+	 * @param gateway_input
 	 * @param alternatives
 	 * @return
 	 * @throws Exception
@@ -119,7 +112,7 @@ public class ServiceUtil {
 	/**
 	 * 如果 input 為 null, 則返回 alternatives 中第一個非 null 的值;<br>
 	 * 若 alternatives 為空值, 則返回空字串
-	 * @param input
+	 * @param gateway_input
 	 * @param alternatives
 	 * @return
 	 * @throws Exception
@@ -257,7 +250,7 @@ public class ServiceUtil {
 	/**
 	 * 只能輸入數字英文
 	 * 
-	 * @param input
+	 * @param gateway_input
 	 * @return
 	 */
 	public static boolean isNumericOrAlphabetic(String gateway_input) {
@@ -470,15 +463,113 @@ public class ServiceUtil {
 		}
 	}
 	
-	
+    public static boolean isIpInNetworkForIpv6(String ip, String cidr) {
+        try {
+            // Split CIDR into address and prefix length
+            String[] parts = cidr.split("/");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid CIDR format");
+            }
+
+            // Parse address and prefix length
+            Inet6Address cidrAddress = (Inet6Address) InetAddress.getByName(parts[0]);
+            int prefixLength = Integer.parseInt(parts[1]);
+
+            // Parse the IP to check
+            Inet6Address checkAddress = (Inet6Address) InetAddress.getByName(ip);
+
+            // Convert addresses to BigInteger
+            BigInteger cidrBigInt = new BigInteger(1, cidrAddress.getAddress());
+            BigInteger checkBigInt = new BigInteger(1, checkAddress.getAddress());
+
+            // Calculate the mask
+            BigInteger mask = BigInteger.valueOf(-1).shiftLeft(128 - prefixLength);
+
+            // Apply mask to both addresses
+            BigInteger cidrsubnet = cidrBigInt.and(mask);
+            BigInteger checkSubnet = checkBigInt.and(mask);
+
+            // Compare the results
+            cidrsubnet.equals(checkSubnet);
+            return cidrsubnet.equals(checkSubnet);
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("Invalid IP address or CIDR", e);
+        }
+    }
+
+	public static boolean isIpInCidr(String ip, String cidr) {
+		try {
+			// 分割 CIDR
+			String[] parts = cidr.split("/");
+			String cidrIp = parts[0];
+			int prefixLength = Integer.parseInt(parts[1]);
+
+			// 驗證 prefixLength
+			if (prefixLength < 0 || (cidrIp.contains(":") && prefixLength > 128) || (!cidrIp.contains(":") && prefixLength > 128)) {
+				throw new IllegalArgumentException("Invalid prefix length");
+			}
+			// 取得 IP 位址的位元組陣列
+			InetAddress inetAddress = InetAddress.getByName(cidrIp);
+			byte[] cidrBytes = inetAddress.getAddress();
+			byte[] ipBytes = InetAddress.getByName(ip).getAddress();
+
+			// 處理IPv4和IPv6位址的長度差異
+			if (cidrBytes.length != ipBytes.length) {
+				return false;
+			}
+
+			// 計算子網遮罩
+			byte[] mask = new byte[cidrBytes.length];
+			for (int i = 0; i < mask.length; i++) {
+				int maskBits = Math.min(prefixLength - (i * 8), 8);
+				mask[i] = (byte) (maskBits > 0 ? 0xFF << (8 - maskBits) : 0);
+			}
+
+			// 進行位元 AND 操作並比較
+			for (int i = 0; i < cidrBytes.length; i++) {
+				if ((cidrBytes[i] & mask[i]) != (ipBytes[i] & mask[i])) {
+					return false;
+				}
+
+			}
+			return true;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Invalid IP address or CIDR", e);
+		}
+	}
+
+	public static boolean isIpInWhitelist(String ipOrFqdn, Set<String> whitelist) {
+		try {
+			InetAddress addr = InetAddress.getByName(ipOrFqdn);
+			String ip = addr.getHostAddress();
+			for (String entry : whitelist) {
+				//當白名單內有 ::/0 或0.0.0.0/0 代表全部放行，直接不用判斷後面
+				if ("::/0".equalsIgnoreCase(entry) || "0.0.0.0/0".equalsIgnoreCase(entry)) {
+					return true;
+				} else if ("localhost".equalsIgnoreCase(entry) || "::1".equalsIgnoreCase(entry) || "0:0:0:0:0:0:0:1".equalsIgnoreCase(entry) || "127.0.0.1".equalsIgnoreCase(entry)) {
+					//特殊處理localhost情況
+					//白名單中有本機位址情況下，所有類型的本機位址都要放
+					if (addr.isLoopbackAddress()) {
+						return true;
+					}
+				} else if (entry.contains("/")) {
+					if (isIpInCidr(ip, entry)) {
+						return true;
+					}
+				} else if (entry.equals(ip) || entry.equalsIgnoreCase(ipOrFqdn)) {
+					return true;
+				}
+			}
+		} catch (UnknownHostException e) {
+			logger.error("ipOrFqdn :　"+ipOrFqdn +"\n whitelist" + whitelist.toString() +"\n" + e);
+		}
+
+		return false;
+	}
 
 	public static void setLogger(ITPILogger logger) {
 		ServiceUtil.logger = logger;
 	}
-	
-	
-	
-	
 
 	/**
 	 * base 64 加密(無後綴)

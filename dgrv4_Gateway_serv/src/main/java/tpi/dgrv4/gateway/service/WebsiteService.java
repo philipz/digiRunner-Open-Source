@@ -628,7 +628,7 @@ public class WebsiteService {
 	 */
 	private ResponseEntity<?> verifyIdToken(HttpHeaders httpHeaders, HttpServletResponse response, String reqUri)
 			throws Exception {
-		String authorization = httpHeaders.getFirst("Authorization");
+		String authorization = Optional.ofNullable(httpHeaders.get("Authorization")).map(az -> az.get(0)).orElse("");
 
 		// 是否有 Authorization
 		ResponseEntity<?> respEntity = getTokenHelper().checkHasAuthorization(authorization, reqUri);

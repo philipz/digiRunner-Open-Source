@@ -1,57 +1,32 @@
 package tpi.dgrv4.dpaa.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
+import tpi.dgrv4.common.exceptions.TsmpDpAaException;
+import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.constant.AnalyzeClientRelatedDataStatus;
+import tpi.dgrv4.dpaa.vo.*;
+import tpi.dgrv4.entity.entity.*;
+import tpi.dgrv4.entity.entity.jpql.TsmpClientHost;
+import tpi.dgrv4.entity.entity.jpql.TsmpSecurityLevel;
+import tpi.dgrv4.entity.repository.*;
+import tpi.dgrv4.gateway.component.cache.proxy.TsmpApiCacheProxy;
+import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
-import tpi.dgrv4.common.exceptions.TsmpDpAaException;
-import tpi.dgrv4.common.utils.StackTraceUtil;
-import tpi.dgrv4.dpaa.constant.AnalyzeClientRelatedDataStatus;
-import tpi.dgrv4.dpaa.vo.AA1120DgrApikeyUseApi;
-import tpi.dgrv4.dpaa.vo.AA1120ExportData;
-import tpi.dgrv4.dpaa.vo.AA1120ImportClientRelated;
-import tpi.dgrv4.dpaa.vo.AA1121Client;
-import tpi.dgrv4.dpaa.vo.AA1121Group;
-import tpi.dgrv4.dpaa.vo.AA1121GroupAuth;
-import tpi.dgrv4.dpaa.vo.AA1121LackApi;
-import tpi.dgrv4.dpaa.vo.AA1121RdbConnection;
-import tpi.dgrv4.dpaa.vo.AA1121Resp;
-import tpi.dgrv4.dpaa.vo.AA1121SecurityLevel;
-import tpi.dgrv4.dpaa.vo.AA1121Vgroup;
-import tpi.dgrv4.entity.entity.DgrImportClientRelatedTemp;
-import tpi.dgrv4.entity.entity.DgrRdbConnection;
-import tpi.dgrv4.entity.entity.TsmpApiId;
-import tpi.dgrv4.entity.entity.TsmpClient;
-import tpi.dgrv4.entity.entity.TsmpGroup;
-import tpi.dgrv4.entity.entity.TsmpGroupApi;
-import tpi.dgrv4.entity.entity.TsmpGroupAuthorities;
-import tpi.dgrv4.entity.entity.TsmpVgroup;
-import tpi.dgrv4.entity.entity.jpql.TsmpClientHost;
-import tpi.dgrv4.entity.entity.jpql.TsmpSecurityLevel;
-import tpi.dgrv4.entity.repository.DgrImportClientRelatedTempDao;
-import tpi.dgrv4.entity.repository.DgrRdbConnectionDao;
-import tpi.dgrv4.entity.repository.TsmpClientDao;
-import tpi.dgrv4.entity.repository.TsmpClientHostDao;
-import tpi.dgrv4.entity.repository.TsmpGroupApiDao;
-import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesDao;
-import tpi.dgrv4.entity.repository.TsmpGroupDao;
-import tpi.dgrv4.entity.repository.TsmpSecurityLevelDao;
-import tpi.dgrv4.entity.repository.TsmpVgroupDao;
-import tpi.dgrv4.gateway.component.cache.proxy.TsmpApiCacheProxy;
-import tpi.dgrv4.gateway.keeper.TPILogger;
-import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
 @Service
 public class AA1121Service {
@@ -83,18 +58,9 @@ public class AA1121Service {
 	public AA1121Resp importClientRelated(TsmpAuthorization tsmpAuthorization, MultipartFile mFile) {
 
 		try {
-			
-			
 			checkParam(mFile);
-			
-			//將json轉bean
-			AA1120ExportData exportData = getExportData(mFile.getInputStream());
-			
-			//解析資料
-			AA1121Resp resp = analyzeData(exportData);
-			
-			//暫存資料,供給其他API使用,並給resp.longId
-			saveTempData(resp, exportData, tsmpAuthorization);
+
+			AA1121Resp resp = importClientRelated(tsmpAuthorization, mFile.getInputStream());
 		    
      		return resp;
 		} catch (TsmpDpAaException e) {
@@ -105,6 +71,45 @@ public class AA1121Service {
 		} 
 	}
 	
+	/**
+	 * for In-Memory, <br>
+	 * GTW(In-Memory) 端匯入資料,由此進入 <br>
+	 */
+	public AA1121Resp importClientRelatedForInMemoryInput(AA1120ExportData exportData) {
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, exportData);
+
+			TsmpAuthorization auth = new TsmpAuthorization();// 因不會傳入token,建立一個空的
+			auth.setUserName("In-Memory SYSTEM");
+			
+			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+			AA1121Resp resp = importClientRelated(auth, in);
+			return resp;
+
+		} catch (TsmpDpAaException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error(StackTraceUtil.logStackTrace(e));
+			throw TsmpDpAaRtnCode._1297.throwing();
+		}
+	}
+	
+	private AA1121Resp importClientRelated(TsmpAuthorization tsmpAuthorization, InputStream inputStream)
+			throws Exception {
+
+		// 將json轉bean
+		AA1120ExportData exportData = getExportData(inputStream);
+
+		// 解析資料
+		AA1121Resp resp = analyzeData(exportData);
+
+		// 暫存資料,供給其他API使用,並給resp.longId
+		saveTempData(resp, exportData, tsmpAuthorization);
+
+		return resp;
+	}
+
 	private AA1120ExportData getExportData(InputStream inputStream) {
 		try (inputStream){
 			AA1120ExportData exportData = getObjectMapper().readValue(inputStream, AA1120ExportData.class);
@@ -529,8 +534,10 @@ public class AA1121Service {
 		}
 		
 		String fileName = mFile.getOriginalFilename();
-		int fileNameIndex = fileName.lastIndexOf(".");
-		String fileExtension = fileName.substring(fileNameIndex + 1);
+		String fileExtension = Optional.ofNullable(fileName)
+				.filter(f -> f.contains("."))
+				.map(f -> f.substring(f.lastIndexOf(".") + 1))
+				.orElse("");
 		if(!"json".equalsIgnoreCase(fileExtension)) {
 			throw TsmpDpAaRtnCode._1443.throwing();
 		}

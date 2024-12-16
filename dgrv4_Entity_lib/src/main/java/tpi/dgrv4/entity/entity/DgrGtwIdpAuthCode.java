@@ -68,6 +68,13 @@ public class DgrGtwIdpAuthCode {
 	@Column(name = "state")
 	private String state;
 
+	@Column(name = "user_light_id")
+	private String userLightId;
+
+	@Column(name = "user_role_name")
+	private String userRoleName;
+
+
 	@Column(name = "create_date_time")
 	private Date createDateTime = DateTimeUtil.now();
 
@@ -221,6 +228,22 @@ public class DgrGtwIdpAuthCode {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	public String getUserLightId() {
+		return userLightId;
+	}
+
+	public void setUserLightId(String userLightId) {
+		this.userLightId = userLightId;
+	}
+
+	public String getUserRoleName() {
+		return userRoleName;
+	}
+
+	public void setUserRoleName(String userRoleName) {
+		this.userRoleName = userRoleName;
 	}
 
 	public Date getCreateDateTime() {

@@ -181,7 +181,7 @@ public class AcIdPHelper {
 	public void sendMailOrCreateDgRcode(HttpServletRequest httpReq, HttpServletResponse httpResp, String idPType, String userName,
 			String userAlias, String userEmail, String idTokenJwtstr, String accessTokenJwtstr,
 			String refreshTokenJwtstr, String reqUri, String userIp, String userHostname, String txnUid,
-			String acIdPMsgUrl) throws Exception {
+			String acIdPMsgUrl, String apiResp) throws Exception {
 		
 		boolean isReviewAndCreate = true;// 預設要寄發審核信流程及自動建立 User
 		
@@ -194,6 +194,9 @@ public class AcIdPHelper {
 		} else if (DgrIdPType.API.equals(idPType)) {
 			// AC IdP API 寄發審核信流程 及 自動建立 User 功能是否啟用
 			isReviewAndCreate = getTsmpSettingService().getVal_AC_IDP_API_REVIEW_ENABLE();
+			
+		} else if (DgrIdPType.CUS.equals(idPType)) {
+			isReviewAndCreate = getTsmpSettingService().getVal_AC_IDP_CUS_REVIEW_ENABLE();
 		}
 		
 		// 1.取得 IdP User 的資料, 建立 或 更新
@@ -206,7 +209,7 @@ public class AcIdPHelper {
 		} else {
 			// 已有 User 資料
 			doHasUser(httpReq, httpResp, dgrAcIdpUser, isReviewAndCreate, reqUri, userIp, userHostname, txnUid, idPType,
-					userName, userAlias, userEmail, acIdPMsgUrl, idTokenJwtstr, accessTokenJwtstr, refreshTokenJwtstr);
+					userName, userAlias, userEmail, acIdPMsgUrl, idTokenJwtstr, accessTokenJwtstr, refreshTokenJwtstr, apiResp);
 		}
 	}
 	
@@ -290,7 +293,7 @@ public class AcIdPHelper {
 	private void doHasUser(HttpServletRequest httpReq, HttpServletResponse httpResp, DgrAcIdpUser dgrAcIdpUser,
 			boolean isReviewAndCreate, String reqUri, String userIp, String userHostname, String txnUid,
 			String idPType, String userName, String userAlias, String userEmail, String acIdPMsgUrl,
-			String idTokenJwtstr, String accessTokenJwtstr, String refreshTokenJwtstr) throws Exception {
+			String idTokenJwtstr, String accessTokenJwtstr, String refreshTokenJwtstr, String apiResp) throws Exception {
 		String errMsg = null;
 		String showMsg = null;
 		String userStatus = dgrAcIdpUser.getUserStatus();
@@ -337,7 +340,7 @@ public class AcIdPHelper {
 		} else if (DgrAcIdpUserStatus.ALLOW.isValueEquals(userStatus)) {// User 狀態為 Allow
 			// 2.產生 dgRcode, 並儲存至DB
 			// 建立 DGR_AC_IDP_AUTH_CODE (SSO IdP授權碼記錄檔)
-			DgrAcIdpAuthCode dgrAcIdpAuthCode = createDgrAcIdpAuthCode(userName, idPType);
+			DgrAcIdpAuthCode dgrAcIdpAuthCode = createDgrAcIdpAuthCode(userName, idPType, apiResp);
 			String dgRcode = dgrAcIdpAuthCode.getAuthCode();
 
 			if (DgrIdPType.GOOGLE.equals(idPType) //
@@ -434,12 +437,12 @@ public class AcIdPHelper {
     /**
      * 重新導向到前端,顯示訊息
 	 * 1.若 idPType 為 LDAP / MLDAP / API, 則 URL 改成相對路徑, 例如. "/dgrv4/ac4/idpsso/errMsg"
-	 * 2.若 idPType 為 GOOGLE / MS, 則 URL 依 DB 的值為準
+	 * 2.若 idPType 為 GOOGLE / MS / CUS, 則 URL 依 DB 的值為準
      */
     public void redirectToShowMsg(HttpServletResponse httpResp, String msg, String acIdPMsgUrl, String idPType) throws Exception {
 		if (DgrIdPType.LDAP.equals(idPType) 
 				|| DgrIdPType.MLDAP.equals(idPType) 
-				|| DgrIdPType.API.equals(idPType)) 
+				|| DgrIdPType.API.equals(idPType))
 		{
 			URL urlObj = new URL(acIdPMsgUrl);
 			acIdPMsgUrl = urlObj.getPath();// 使用相對路徑
@@ -459,13 +462,13 @@ public class AcIdPHelper {
     /**
      * 重新導向到前端,以登入AC
      * 1.若 idPType 為 LDAP / MLDAP / API, 則 URL 改成相對路徑, 例如. "/dgrv4/ac4/idpsso/accallback"
-	 * 2.若 idPType 為 GOOGLE / MS, 則 URL 依 DB 的值為準
+	 * 2.若 idPType 為 GOOGLE / MS / CUS, 則 URL 依 DB 的值為準
      */
 	public void redirectToAcCallback(HttpServletResponse httpResp, String dgRcode, String acIdPAccallbackUrl,
 			String idPType) throws Exception {
 		if (DgrIdPType.LDAP.equals(idPType) 
 				|| DgrIdPType.MLDAP.equals(idPType) 
-				|| DgrIdPType.API.equals(idPType)) 
+				|| DgrIdPType.API.equals(idPType))
 		{
 			URL urlObj = new URL(acIdPAccallbackUrl);
 			acIdPAccallbackUrl = urlObj.getPath();// 使用相對路徑
@@ -586,7 +589,7 @@ public class AcIdPHelper {
     	bodyParams.put("idPType", idPType);
     	bodyParams.put("allowUrl", allowUrlStr);
     	bodyParams.put("denyUrl", denyUrlStr);
-    	bodyParams.put("applyTime", DateTimeUtil.dateTimeToString(new Date(), DateTimeFormatEnum.西元年月日時分).get());
+    	bodyParams.put("applyTime", DateTimeUtil.dateTimeToString(new Date(), DateTimeFormatEnum.西元年月日時分).orElse(null));
     	String content = getMailHelper().buildNestedContent(bodyTpltCode, bodyParams);
     	
     	// 收件者
@@ -951,7 +954,7 @@ public class AcIdPHelper {
     /**
      * 建立 DGR_AC_IDP_AUTH_CODE (SSO IdP授權碼記錄檔)
      */
-	public DgrAcIdpAuthCode createDgrAcIdpAuthCode(String userName, String idPType) {
+	public DgrAcIdpAuthCode createDgrAcIdpAuthCode(String userName, String idPType, String apiResp) {
 		String dgRcode = UUID64Util.UUID64(UUID.randomUUID());//產生 dgRcode(UUID 64位元)
 		String codeStatus = TsmpAuthCodeStatus2.AVAILABLE.value();// 可用
 		
@@ -964,6 +967,7 @@ public class AcIdPHelper {
 		dgrAcIdpAuthCode.setStatus(codeStatus);
 		dgrAcIdpAuthCode.setUserName(userName);
 		dgrAcIdpAuthCode.setIdpType(idPType);
+		dgrAcIdpAuthCode.setApiResp(apiResp);
 		dgrAcIdpAuthCode.setCreateDateTime(DateTimeUtil.now());
 		dgrAcIdpAuthCode.setCreateUser("SYSTEM");
 		dgrAcIdpAuthCode = getDgrAcIdpAuthCodeDao().saveAndFlush(dgrAcIdpAuthCode);
@@ -1040,8 +1044,7 @@ public class AcIdPHelper {
 	protected DgrAcIdpInfoMLdapMDao getDgrAcIdpInfoMLdapMDao() {
 		return dgrAcIdpInfoMLdapMDao;
 	}
-	
-	protected DgrAcIdpInfoApiDao getDgrAcIdpInfoApiDao() {
+protected DgrAcIdpInfoApiDao getDgrAcIdpInfoApiDao() {
 		return dgrAcIdpInfoApiDao;
 	}
 }

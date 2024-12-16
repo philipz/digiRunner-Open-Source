@@ -21,7 +21,7 @@ public class RefreshMemListController {
 	@Autowired
 	private ApptJobDispatcher apptJobDispatcher;
 
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/v3/refreshMemList", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

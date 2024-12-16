@@ -9,7 +9,6 @@ import java.util.Optional;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ import tpi.dgrv4.dpaa.component.TsmpMailEventBuilder;
 import tpi.dgrv4.dpaa.component.job.AA0231Job;
 import tpi.dgrv4.dpaa.component.job.DeleteExpiredMailJob;
 import tpi.dgrv4.dpaa.util.OAuthUtil;
+import tpi.dgrv4.dpaa.util.RandomUtils;
 import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.AA0231Req;
 import tpi.dgrv4.dpaa.vo.AA0231Resp;
@@ -43,6 +43,7 @@ import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -268,6 +269,9 @@ public class AA0231Service {
 
 				getDaoGenericCacheService().clearAndNotify();
 			}
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException e) {
 			throw e;
@@ -283,7 +287,7 @@ public class AA0231Service {
 	private String getRandom(int len) {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0 ; i < len ; i++) {
-			String number = RandomStringUtils.random(1, false, true);//取得亂數
+			String number = RandomUtils.randomString(1, false, true);//取得亂數
 			if(i == 0 && "0".equals(number)) {
 				number = "1";
 			}

@@ -59,7 +59,7 @@ export class SidebarComponent extends BaseComponent {
             }),
             switchMap(menu => this.filterMenuItem(menu)
             ),
-            map(menu => this.validateMenusNFuncCode(menu)) //沒在layout routing內出現的就會篩掉
+            map(menu => this.tool.validateMenusNFuncCode(menu)) //沒在layout routing內出現的就會篩掉
         ).subscribe(menus => this.menus = menus)
     }
 
@@ -68,7 +68,7 @@ export class SidebarComponent extends BaseComponent {
             if (r) {
                 this.service.convert(this.service.removes).pipe(
                     switchMap(menu => this.filterMenuItem(menu)),
-                    map(menu => this.validateMenusNFuncCode(menu))//沒在layout routing內出現的就會篩掉
+                    map(menu => this.tool.validateMenusNFuncCode(menu))//沒在layout routing內出現的就會篩掉
                 ).subscribe(menus => this.menus = menus);
             }
         })
@@ -85,44 +85,43 @@ export class SidebarComponent extends BaseComponent {
      * 把menu(由Tsmp_func取回)的資料跟前端routes source(layout.routing.ts)的id做比對
      * 若menu.func_code無法對應到routes的id，則移除
      */
-    validateMenusNFuncCode(menu: any) {
-        let layoutRouteData = new Array; // 用來記錄有在layout.routing.ts內註冊的頁面id
-        const config = this.router.config;
+    // validateMenusNFuncCode(menu: any) {
+    //     let layoutRouteData = new Array; // 用來記錄有在layout.routing.ts內註冊的頁面id
+    //     const config = this.router.config;
 
-        for (let i = 0; i < config.length; i++) {
-            if ('_loadedConfig' in config[i]) {
-                if (config[i]['_loadedConfig'].routes[0].children) {
-                    config[i]['_loadedConfig'].routes[0].children.forEach(childRoute => {
-                        if ('data' in childRoute) {
-                            layoutRouteData.push(childRoute.data.id.toUpperCase())
-                        }
-                    });
-                }
-            }
-        }
-        // console.log(layoutRouteData);
-        // console.log(menu);
+    //     for (let i = 0; i < config.length; i++) {
+    //         if ('_loadedConfig' in config[i]) {
+    //             if (config[i]['_loadedConfig'].routes[0].children) {
+    //                 config[i]['_loadedConfig'].routes[0].children.forEach(childRoute => {
+    //                     if ('data' in childRoute) {
+    //                         layoutRouteData.push(childRoute.data.id.toUpperCase())
+    //                     }
+    //                 });
+    //             }
+    //         }
+    //     }
+    //     // console.log(layoutRouteData);
+    //     // console.log(menu);
 
-        menu.forEach((item:Menu) => {
-            item.subs = item.subs?.filter(subitem => layoutRouteData.find(id =>{
-              return subitem.name.startsWith('ZA') || subitem.name.startsWith('AC09') || id === subitem.name
-            }))
-        });
-        // console.log('menu:',menu)
+    //     menu.forEach((item:Menu) => {
+    //         item.subs = item.subs?.filter(subitem => layoutRouteData.find(id =>{
+    //           return subitem.name.startsWith('ZA') || subitem.name.startsWith('AC09') || id === subitem.name
+    //         }))
+    //     });
+    //     // console.log('menu:',menu)
 
-       menu = menu.filter((item:Menu) =>{
-          return (item.subs && item.subs.length>0) ? true: false;
-        })
-        // console.log('menu:',menu)
-        return menu;
-    }
+    //    menu = menu.filter((item:Menu) =>{
+    //       return (item.subs && item.subs.length>0) ? true: false;
+    //     })
+    //     // console.log('menu:',menu)
+    //     return menu;
+    // }
 
     /**
      * 客製化選單 調整選單位置
      * @param data
      */
     private customAdjMenuPosition(data: Menu[]) {
-
         let labs = data.find(d => d.main === 'LB00');
         let labsIndex = data.findIndex(d => d.main === 'LB00');
         if(labs) {
@@ -224,6 +223,13 @@ export class SidebarComponent extends BaseComponent {
             ac00.subs.splice(ac0020_index,1);
             ac00.subs.push(ac0020);
           }
+
+          const ac0021 = ac00.subs.find(x => x.name === 'AC0021');
+          if(ac0021){
+            const ac0021_index = ac00.subs.findIndex(x => x.name === 'AC0021');
+            ac00.subs.splice(ac0021_index,1);
+            ac00.subs.push(ac0021);
+          }
         }
 
         let ac02 = data.find(d => d.main === 'AC02');
@@ -259,10 +265,27 @@ export class SidebarComponent extends BaseComponent {
             let ac0230_index = ac02.subs.findIndex(x => x.name === 'AC0230');
             ac02.subs.splice(ac0230_index,1);
             ac02.subs.push(ac0230);
-            // let ac0226_index = ac02.subs.findIndex(x => x.name === 'AC0226');
-            // ac02.subs.splice(ac0226_index, 0, ac0230);
+          }
+          let ac0231 = ac02.subs.find(x => x.name === 'AC0231');
+          if(ac0231){
+            let ac0031_index = ac02.subs.findIndex(x => x.name === 'AC0231');
+            ac02.subs.splice(ac0031_index,1);
+            let ac0230_index = ac02.subs.findIndex(x => x.name === 'AC0230');
+            ac02.subs.splice(ac0230_index,0,ac0231);
           }
 
+        }
+
+        // 調整np1202的排序，使其介於在np0504及np0512之間
+        let np05 = data.find(d => d.main === 'NP05');
+        if (np05 && np05.subs && np05.subs.length) {
+            let np1202 = np05.subs.find(x => x.name === 'NP1202');
+            if(np1202){
+                let np1202index = np05.subs.findIndex(x => x.name === 'NP1202');
+                np05.subs.splice(np1202index, 1);
+                let np0512_index = np05.subs.findIndex(x => x.name === 'NP0512');
+                np05.subs.splice(np0512_index, 0, np1202);
+            }
         }
         return data;
     }

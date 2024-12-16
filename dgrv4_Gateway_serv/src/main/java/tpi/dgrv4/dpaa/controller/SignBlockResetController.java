@@ -35,7 +35,7 @@ public class SignBlockResetController {
 	/**
 	 * 換一個新的signBlock，避免signBlock被盜用。
 	 */
-	@CrossOrigin
+	
 	@GetMapping(value = "/dgrv4/resetSignBlock", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,11 +1,10 @@
 package tpi.dgrv4.entity.repository;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import tpi.dgrv4.entity.entity.TsmpGroup;
+
+import java.util.List;
 
 @Repository
 public interface TsmpGroupDao extends JpaRepository<TsmpGroup, String> {
@@ -62,5 +61,7 @@ public interface TsmpGroupDao extends JpaRepository<TsmpGroup, String> {
 	public boolean existsByGroupAliasAndVgroupFlag(String groupAlias, String vgroupFlag);
 
 	public TsmpGroup findFirstByGroupNameAndVgroupFlag(String groupName, String vgroupFlag);
+
+	public List<TsmpGroup> findByGroupIdContainingOrGroupNameContainingOrGroupAliasContaining(String groupId, String groupName, String groupAlias);
 
 }

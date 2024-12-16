@@ -18,6 +18,7 @@ import tpi.dgrv4.dpaa.vo.AA0220Resp;
 import tpi.dgrv4.entity.daoService.BcryptParamHelper;
 import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -75,6 +76,9 @@ public class AA0220Service {
 			lineNumber = StackTraceUtil.getLineNumber();
 			getDgrAuditLogService().createAuditLogD(iip, lineNumber, 
 					TsmpClient.class.getSimpleName(), TableAct.U.value(), oldRowStr, tsmpClientVo);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException e) {
 			throw e;

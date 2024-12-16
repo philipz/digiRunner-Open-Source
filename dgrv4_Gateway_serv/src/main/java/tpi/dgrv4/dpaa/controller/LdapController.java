@@ -30,7 +30,7 @@ public class LdapController {
 	@Autowired
 	private LdapService service;
 	
-	@CrossOrigin
+
 	@PostMapping(value = "/dgrv4/ssotoken/ldap", //
 		consumes = MediaType.APPLICATION_JSON_VALUE, //
 		produces = MediaType.APPLICATION_JSON_VALUE)

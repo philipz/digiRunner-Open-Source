@@ -11,6 +11,7 @@ import tpi.dgrv4.dpaa.vo.AA1108Req;
 import tpi.dgrv4.dpaa.vo.AA1108Resp;
 import tpi.dgrv4.entity.entity.TsmpGroupAuthorities;
 import tpi.dgrv4.entity.repository.TsmpGroupAuthoritiesDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -57,7 +58,9 @@ public class AA1108Service {
 			groupAuthVo.setGroupAuthoritieLevel(newGroupAuthoritieLevel);
 			
 			getTsmpGroupAuthoritiesDao().saveAndFlush(groupAuthVo);
-			
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException aa1108_e) {
 			throw aa1108_e;

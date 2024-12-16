@@ -103,9 +103,9 @@ export class Np0304Component extends BaseComponent implements OnInit {
         this.openApiKeyDetailCols = [
             { field: 'apiName', header: dict['api_name'], width: '15%' },
             { field: 'apiDesc', header: dict['api_desc'], width: '15%' },
-            { field: 'themeDatas', header: dict['theme_name'], width: '15%' },
+            // { field: 'themeDatas', header: dict['theme_name'], width: '15%' },
             { field: 'orgName', header: dict['org_name'], width: '15%' },
-            { field: 'fileName', header: dict['api_doc'], width: '15%' }
+            // { field: 'fileName', header: dict['api_doc'], width: '15%' }
         ];
         this.applyOpenApiKeyTitle = `${this.title} > ${dict['api_key_list']} > ${dict['button.apply']}`;
         this.updateOpenApiKeyTitle = `${this.title} > ${dict['api_key_list']} > ${dict['button.change']}`;

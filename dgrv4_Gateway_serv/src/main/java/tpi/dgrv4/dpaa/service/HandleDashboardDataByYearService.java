@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 import tpi.dgrv4.common.constant.DashboardReportTypeEnum;
 import tpi.dgrv4.common.constant.DashboardTimeTypeEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.dpaa.vo.DashboardAideVo;
 import tpi.dgrv4.entity.entity.TsmpApi;
@@ -428,9 +429,9 @@ public class HandleDashboardDataByYearService {
 		//回傳的結果的List,提供給其他圖表計算運用
 		List<DgrDashboardLastData> lastDataList = new ArrayList<>();
 		
-		//以cid為gorup,再以moduleName+txid為group
+		//以cid為gorup,再以moduleName+txid為group, 20240814在v3版的txid有可能是null,在SCB遇到
 		Map<String, Map<String,List<Map>>> cidMap = list.stream().collect(Collectors.groupingBy(map->map.get("cid").toString(),
-				           () -> new TreeMap<>(), Collectors.groupingBy(map->map.get("module_name").toString()+","+map.get("txid").toString())));
+				           () -> new TreeMap<>(), Collectors.groupingBy(map->map.get("module_name").toString()+","+(String)map.get("txid"))));
 		Map<String, DashboardAideVo> otherMap = new LinkedHashMap<>();
 		for(String cidKey : cidMap.keySet()) {
 			Map<String,List<Map>> apiMap = cidMap.get(cidKey);
@@ -473,7 +474,8 @@ public class HandleDashboardDataByYearService {
 						vo.setTimeType(DashboardTimeTypeEnum.YEAR.value());
 						vo.setDashboardType(DashboardReportTypeEnum.CLIENT_USAGE_METRICS.value());
 						vo.setStr1(StringUtils.hasText(cidKey) ? cidKey : "NoAuth");
-						vo.setStr2(this.getApiName(apiList.get(0).get("module_name").toString(), apiList.get(0).get("txid").toString()));
+						//20240814在v3版的txid有可能是null,在SCB遇到
+						vo.setStr2(this.getApiName(apiList.get(0).get("module_name").toString(), (String)apiList.get(0).get("txid")));
 						vo.setNum1(total);
 						vo.setNum2(success);
 						vo.setNum3(fail);
@@ -496,7 +498,8 @@ public class HandleDashboardDataByYearService {
 						if(otherMap.get(apiKey) == null) {
 							daVo = new DashboardAideVo();
 							daVo.setMoudleName(map.get("module_name").toString());
-							daVo.setApiKey(map.get("txid").toString());
+							//20240814在v3版的txid有可能是null,在SCB遇到
+							daVo.setApiKey((String)map.get("txid"));
 							otherMap.put(apiKey, daVo);
 						}else {
 							daVo = otherMap.get(apiKey);
@@ -567,7 +570,7 @@ public class HandleDashboardDataByYearService {
 		
 		strDate = strDate.substring(0, 15);
 		strDate = strDate + "0:00.000";
-		startDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒_2).get();
+		startDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒_2).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		
 		return startDate;
 
@@ -582,7 +585,7 @@ public class HandleDashboardDataByYearService {
 		
 		strDate = strDate.substring(0, 15);
 		strDate = strDate + "9:59.999";
-		Date endDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒_2).get();
+		Date endDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒_2).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		
 		return endDate;
 

@@ -27,5 +27,6 @@ public interface TsmpOrganizationDao extends JpaRepository<TsmpOrganization, Str
 	public TsmpOrganization findFirstByParentId(String parentId);
 	
 	public TsmpOrganization findByOrgName(String orgName);
+	public TsmpOrganization findFirstByParentIdIsNullOrParentIdIs(String parentId);
 
 }

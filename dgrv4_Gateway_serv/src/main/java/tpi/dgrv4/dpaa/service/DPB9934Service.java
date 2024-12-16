@@ -181,8 +181,8 @@ public class DPB9934Service {
 						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(10)))
 						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(11)))
 						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(12)))
-						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(12)))
-						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(12)))) {
+						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(13)))
+						&& !StringUtils.hasText(formatter.formatCellValue(row.getCell(14)))) {
 					continue;
 				}
 

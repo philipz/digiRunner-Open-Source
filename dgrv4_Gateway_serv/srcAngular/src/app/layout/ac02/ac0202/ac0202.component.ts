@@ -43,6 +43,7 @@ import { ServerService } from 'src/app/shared/services/api-server.service';
 import { ManagerGroupListComponent } from 'src/app/shared/manager-group-list/manager-group-list.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DPB0208Req } from 'src/app/models/api/ServerService/dpb0208.interface';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 @Component({
     selector: 'app-ac0202',
@@ -141,6 +142,7 @@ export class Ac0202Component extends BaseComponent implements OnInit {
         private alertService:AlertService,
         private serverService: ServerService,
         private dialogService: DialogService,
+        private ngxSrvice: NgxUiLoaderService
     ) {
         super(route, tr);
         dayjs.extend(utc);
@@ -1781,7 +1783,7 @@ export class Ac0202Component extends BaseComponent implements OnInit {
       //   clientID: this.clientDetail?.clientID,
       //   securityLevelID: this.clientDetail?.securityLV.securityLevelId
       // },
-      width: '100vw',
+      width: '90vw',
       // height: '100vh'
     })
 
@@ -1815,7 +1817,7 @@ export class Ac0202Component extends BaseComponent implements OnInit {
       groupIdList: this.groupIdList.value.map((rowData:AA0228GroupInfo) => rowData.groupID)
     } as DPB0208Req;
     if(this.effectiveAt.value) req.effectiveAt = new Date(this.effectiveAt.value).getTime().toString();
-
+    this.ngxSrvice.start();
     this.serverService.createXApiKey(req).subscribe( async res=>{
       if (this.toolService.checkDpSuccess(res.ResHeader)) {
         const code = ['message.create', 'message.success']
@@ -1826,7 +1828,8 @@ export class Ac0202Component extends BaseComponent implements OnInit {
           detail: `${dict['message.create']} ${dict['message.success']}!` });
           this.changeXAPiKeyStatus();
           this.queryXApiKeyListByClientId();
-    }
+      }
+      this.ngxSrvice.stop();
     })
   }
 

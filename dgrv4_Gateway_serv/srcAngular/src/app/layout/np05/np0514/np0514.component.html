@@ -1,26 +1,51 @@
-<app-container [title]="currentTitle" [isDefault]="pageNum == 1 " (headerReturn)="headerReturn()">
-    <!-- 查詢週期排程 -->
-    <div [hidden]="pageNum != 1">
+<app-container
+  [title]="currentTitle"
+  [isDefault]="pageNum == 1"
+  (headerReturn)="headerReturn()"
+>
+  <!-- 查詢週期排程 -->
+  <div [hidden]="pageNum != 1">
+    <form [formGroup]="form" (ngSubmit)="queryScheduleList()">
+      <div class="form-group row">
+        <div class="col-12">
+          <p-dropdown
+            [showClear]="true"
+            [options]="statusOption"
+            [filter]="true"
+            placeholder="{{ 'plz_chs' | translate }}"
+            formControlName="status"
+            [style]="{ width: '10%' }"
+          >
+          </p-dropdown>
 
-        <form [formGroup]="form" (ngSubmit)="queryScheduleList()">
-          <div class="form-group row">
-            <div class="col-12">
-                <p-dropdown [showClear]="true" [options]="statusOption" [filter]="true"
-                placeholder="{{'plz_chs' | translate}}" formControlName="status" [style]="{'width':'10%'}">
-                </p-dropdown>
+          <span class="p-input-icon-right ml-2" style="width: 40vw">
+            <i
+              class="pi pi-search tpi-i-search"
+              (click)="queryScheduleList()"
+            ></i>
+            <input
+              type="text"
+              class="form-control tpi-i-input"
+              id="keyword"
+              formControlName="keyword"
+              placeholder="{{ 'alias' | translate }}、{{
+                'frequency' | translate
+              }}、{{ 'memo' | translate }}"
+              (keyup.enter)="queryScheduleList()"
+            />
+          </span>
 
-                <span class="p-input-icon-right ml-2" style="width: 40vw;">
-                  <i class="pi pi-search tpi-i-search" (click)="queryScheduleList();"></i>
-                  <input type="text" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
-                    placeholder="{{'alias'|translate}}、{{'frequency'|translate}}、{{'memo'|translate}}" (keyup.enter)="queryScheduleList()">
-                </span>
-
-                <button type="button" class="btn tpi-btn tpi-second float-right" [disabled]="canCreate == false"
-                (click)="changePage('create');">{{'button.create'|translate}}</button>
-
-            </div>
-          </div>
-            <!-- <div class="form-group row">
+          <button
+            type="button"
+            class="btn tpi-btn tpi-second float-right"
+            [disabled]="canCreate == false"
+            (click)="changePage('create')"
+          >
+            {{ "button.create" | translate }}
+          </button>
+        </div>
+      </div>
+      <!-- <div class="form-group row">
                 <div class="col-4 col-xl-4 col-lg-4">
                     <label class="control-label">{{'keyword_search'|translate}}</label>
                     <input type="text" formControlName="keyword" class="form-control"
@@ -42,58 +67,89 @@
                     </button>
                 </div>
             </div> -->
-        </form>
-        <hr>
-        <p-table #body *ngIf="scheduleCols" [columns]="scheduleCols" [value]="scheduleList" selectionMode="single"
-            responsiveLayout="scroll" styleClass="p-datatable-striped"
-            [style]="{'word-break':'break-word'}">
-            <ng-template pTemplate="colgroup" let-columns>
-                <colgroup>
-                    <col *ngFor="let col of columns" [style.width]="col.width">
-                </colgroup>
-                <colgroup style="width:240px;">{{'action'|translate}}</colgroup>
-            </ng-template>
-            <ng-template pTemplate="header" let-columns>
-                <tr>
-                    <th *ngFor="let col of columns" scope="col">
-                        {{col.header}}
-                    </th>
-                    <th style="width:240px;" scope="col">{{'action'|translate}}
-                    </th>
-                </tr>
-            </ng-template>
+    </form>
+    <hr />
+    <p-table
+      #body
+      *ngIf="scheduleCols"
+      [columns]="scheduleCols"
+      [value]="scheduleList"
+      selectionMode="single"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-striped"
+      [style]="{ 'word-break': 'break-word' }"
+    >
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col *ngFor="let col of columns" [style.width]="col.width" />
+        </colgroup>
+        <colgroup style="width: 240px">
+          {{
+            "action" | translate
+          }}
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" scope="col">
+            {{ col.header }}
+          </th>
+          <th style="width: 240px" scope="col">{{ "action" | translate }}</th>
+        </tr>
+      </ng-template>
 
-            <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns" [style.width]="col.width">
+            {{ rowData[col.field] }}
+          </td>
 
-                <tr>
-                    <td *ngFor="let col of columns" [style.width]="col.width">
-                        {{rowData[col.field]}}
-                    </td>
+          <td style="text-align: center; width: 240px">
+            <button
+              pButton
+              pRipple
+              type="button"
+              icon="pi pi-eye"
+              class="p-button-rounded p-button-text p-button-plain"
+              (click)="changePage('detail', rowData)"
+              [pTooltip]="'button.detail' | translate"
+              tooltipPosition="top"
+            ></button>
+            <button
+              pButton
+              pRipple
+              type="button"
+              icon="fa fa-edit"
+              class="p-button-rounded p-button-text p-button-plain"
+              (click)="changePage('update', rowData)"
+              [pTooltip]="'button.edit' | translate"
+              tooltipPosition="top"
+            ></button>
+            <button
+              pButton
+              pRipple
+              type="button"
+              icon="pi pi-ellipsis-v"
+              class="p-button-rounded p-button-text p-button-plain"
+              (click)="toggleBtnMenu($event, rowData)"
+            ></button>
 
-                    <td style="text-align:center;width: 240px">
-                        <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
-                        (click)="changePage('detail',rowData);" [pTooltip]="'button.detail' | translate" tooltipPosition="top" ></button>
-                        <button pButton pRipple type="button" icon="fa fa-edit" class="p-button-rounded p-button-text p-button-plain"
-                        (click)="changePage('update',rowData);" [pTooltip]="'button.edit' | translate" tooltipPosition="top"></button>
-                        <button pButton pRipple type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain"
-                        (click)="toggleBtnMenu($event,rowData)"></button>
-
-                        <!-- <button pButton pRipple type="button" icon="pi pi-ellipsis-h" class="p-button-rounded p-button-text p-button-plain"
+            <!-- <button pButton pRipple type="button" icon="pi pi-ellipsis-h" class="p-button-rounded p-button-text p-button-plain"
                         (click)="toggleBtnMenu2($event,rowData)" #hihi ></button> -->
-                        <!-- <button pButton pRipple type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain"
+            <!-- <button pButton pRipple type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain"
                         (click)="toggleBtnMenu($event,rowData);"></button> -->
-                        <!-- <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="toggleBtnMenu($event)"></button> -->
+            <!-- <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="toggleBtnMenu($event)"></button> -->
 
-                        <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData);"
+            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData);"
                             [disabled]="rowData['detailFlag'] == false">
                             <span class="fa fa-edit">{{'button.detail' | translate}}</span>
                         </button> -->
-                        <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);"
+            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);"
                             [disabled]="rowData['updateFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.edit' | translate}}</span>
                         </button> -->
 
-                        <!-- <button *ngIf="rowData['pauseVisible']" type="button" class="btn btn-deta mr-5"
+            <!-- <button *ngIf="rowData['pauseVisible']" type="button" class="btn btn-deta mr-5"
                             (click)="changePage('pause',rowData);"
                             [disabled]="rowData['pauseFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.pause' | translate}}</span>
@@ -117,46 +173,302 @@
                             <span class="fa fa-edit">{{'button.history'|translate}}</span>
                         </button> -->
 
-
-                      <!-- <p-overlayPanel #op  [style]="{'padding': '0px!important', 'background-color': 'darkolivegreen'}"> -->
-                      <p-overlayPanel #op  styleClass="tpi-op" >
-                          <ng-template pTemplate >
-                            <p-menu [popup]="false" [model]="btnData"></p-menu>
-                          </ng-template>
-                      </p-overlayPanel>
-
-                    </td>
-                </tr>
-
-            </ng-template>
-            <ng-template pTemplate="footer" let-columns>
-                <tr *ngIf="scheduleListRowcount">
-                    <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
-                        <span style="vertical-align: middle;">{{'row_count' | translate}}: {{scheduleListRowcount}}</span>
-                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+            <!-- <p-overlayPanel #op  [style]="{'padding': '0px!important', 'background-color': 'darkolivegreen'}"> -->
+            <p-overlayPanel #op styleClass="tpi-op">
+              <ng-template pTemplate>
+                <p-menu [popup]="false" [model]="btnData"></p-menu>
+              </ng-template>
+            </p-overlayPanel>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-columns>
+        <tr *ngIf="scheduleListRowcount">
+          <td [attr.colspan]="columns.length + 1" style="color: #b7b7b7">
+            <span style="vertical-align: middle"
+              >{{ "row_count" | translate }}: {{ scheduleListRowcount }}</span
+            >
+            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
                             (click)="moreScheduleList();">{{'button.more'|translate}}</button> -->
 
-                            <!-- 查詢更多 -->
-                            <button  type="button" class="btn tpi-header-return" (click)="moreScheduleList()">{{ 'button.more'| translate}}
-                            <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
-                            </button>
+            <!-- 查詢更多 -->
+            <button
+              type="button"
+              class="btn tpi-header-return"
+              (click)="moreScheduleList()"
+            >
+              {{ "button.more" | translate }}
+              <i class="fas fa-angle-double-right" style="margin-left: 5px"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+          <td [attr.colspan]="columns.length + 1">
+            {{ "no_rec" | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <!-- 建立(明細、更新、暫停、啟動、略過一次、作廢)週期排程 -->
+  <div *ngIf="pageNum == 2" class="card card-body bg-light mt-3">
+    <form [formGroup]="form">
+      <div class="form-group row">
 
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage" let-columns>
-                <tr>
-                    <td [attr.colspan]="columns.length+1">
-                        {{'no_rec' | translate}}
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
-    <!-- 建立(明細、更新、暫停、啟動、略過一次、作廢)週期排程 -->
-    <div *ngIf="pageNum == 2" class="card card-body bg-light mt-3">
-        <form [formGroup]="form">
-            <table class="w-100" style="table-layout: fixed;word-break: break-word;">
+        <!-- 任務名稱 -->
+        <div class="col-6 form-group">
+          <label class="control-label" id="rjobName_label" for="rjobName">
+            {{ "task_name" | translate }}
+          </label>
+          <input type="text" class="form-control" formControlName="rjobName" />
+          <div *ngIf="rjobName.invalid && (rjobName.dirty || rjobName.touched)" class="text-danger">
+            <small class="form-text">{{ rjobName.errors.isRequired }}</small>
+            <small class="form-text">{{
+              rjobName.errors.maxlength | translate
+              }}</small>
+          </div>
+        </div>
+        <!-- 備註 -->
+        <div class="col-6">
+          <label class="control-label" id="remark_label" for="remark">
+            {{ "memo" | translate }}
+          </label>
+          <input type="text" class="form-control" formControlName="remark" id="remark" />
+          <div *ngIf="remark.invalid && (remark.dirty || remark.touched)" class="text-danger">
+            <small class="form-text">{{
+              remark.errors.maxlength | translate
+              }}</small>
+          </div>
+        </div>
+
+
+        <!-- 頻率 -->
+        <div class="col-12">
+          <label class="required control-label" id="cronJson_label">
+            {{ "repeating_time" | translate }}
+            <i
+              class="far fa-question-circle"
+              pTooltip="{{ scheduleDetailData.cronExpression }}"
+              [escape]="false"
+              *ngIf="currentAction == 'detail'"
+            >
+            </i>
+          </label>
+        </div>
+        <!-- 每天 -->
+        <div class="col-12 felid-flex-start" style="min-height: 40px;">
+          <p-radioButton
+            formControlName="frequency"
+            value="0"
+            inputId="frequency0"
+          ></p-radioButton>
+          <label for="frequency0" class="mb-0">{{
+            "everyday" | translate
+          }}</label>
+          <ng-container *ngIf="frequency.value == '0'">
+            <div *ngTemplateOutlet="time"></div>
+          </ng-container>
+        </div>
+        <!-- 每周 -->
+        <div class="col-12 felid-flex-start" style="min-height: 40px;">
+          <p-radioButton
+            formControlName="frequency"
+            value="2"
+            inputId="frequency2"
+          ></p-radioButton>
+          <label for="frequency2" class="mb-0">{{
+            "every_week" | translate
+          }}</label>
+          <ng-container *ngIf="frequency.value == '2'">
+            <app-datepicker
+              id="weekRange"
+              [dateType]="'week'"
+              formControlName="weekRange"
+            ></app-datepicker>
+            <div *ngTemplateOutlet="time"></div>
+          </ng-container>
+
+          <div
+            *ngIf="frequency.invalid && (frequency.dirty || frequency.touched)"
+            class="text-danger"
+          >
+            <small class="form-text">{{
+              frequency.errors.required | translate
+            }}</small>
+          </div>
+        </div>
+        <!-- 每月 -->
+        <div class="col-12 felid-flex-start" style="min-height: 40px;">
+          <p-radioButton
+            formControlName="frequency"
+            value="1"
+            inputId="frequency1"
+          ></p-radioButton>
+          <label for="frequency1" class="mb-0">
+            {{ "every_month" | translate }}</label
+          >
+          <ng-container *ngIf="frequency.value == '1'">
+            <app-datepicker
+              id="dayRange"
+              [dateType]="'month'"
+              formControlName="dayRange"
+            ></app-datepicker>
+            <div *ngTemplateOutlet="time"></div>
+          </ng-container>
+        </div>
+
+        <!-- <div class="col-10 d-flex align-items-center">
+          每月
+          <app-datepicker
+            id="dayRange"
+            *ngIf="frequency.value == '1'"
+            [dateType]="'month'"
+            formControlName="dayRange"
+          ></app-datepicker>
+          每周
+          <app-datepicker
+            id="weekRange"
+            *ngIf="frequency.value == '2'"
+            [dateType]="'week'"
+            formControlName="weekRange"
+          ></app-datepicker>
+          <div *ngTemplateOutlet="time"></div>
+        </div> -->
+        <ng-template #time>
+          <p-dropdown [options]="hourOption" formControlName="hour">
+          </p-dropdown>
+          <label class="control-label mb-0">:</label>
+          <div
+            *ngIf="hour.invalid && (hour.dirty || hour.touched)"
+            class="text-danger"
+          >
+            <small class="form-text">{{
+              hour.errors.required | translate
+            }}</small>
+          </div>
+          <p-dropdown [options]="minuteOption" formControlName="minute">
+          </p-dropdown>
+          <!-- <label class="control-label mb-0">{{ "minute" | translate }}</label> -->
+          <div
+            *ngIf="minute.invalid && (minute.dirty || minute.touched)"
+            class="text-danger"
+          >
+            <small class="form-text">{{
+              minute.errors.required | translate
+            }}</small>
+          </div>
+        </ng-template>
+        <div class="col-12 felid-flex-start" style="min-height: 40px;">
+          <!-- 每十分鐘 -->
+          <!-- <div class="p-form-check-line form-group"> -->
+            <div class="p-form-check">
+              <p-radioButton
+                formControlName="frequency"
+                value="3"
+                inputId="frequency3"
+              ></p-radioButton>
+              <label for="frequency3" class="ml-2 mb-0">
+                {{ "every_ten_minutes" | translate }}</label
+              >
+            </div>
+            <!-- 每半小時 -->
+            <div class="p-form-check">
+              <p-radioButton
+                formControlName="frequency"
+                value="4"
+                inputId="frequency4"
+              ></p-radioButton>
+              <label for="frequency4" class="ml-2 mb-0">
+                {{ "every_halt_hour" | translate }}</label
+              >
+            </div>
+            <!-- 每一小時 -->
+            <div class="p-form-check">
+              <p-radioButton
+                formControlName="frequency"
+                value="5"
+                inputId="frequency5"
+              ></p-radioButton>
+              <label for="frequency5" class="ml-2 mb-0">
+                {{ "every_hour" | translate }}</label
+              >
+            </div>
+            <!-- 每二小時 -->
+            <div class="p-form-check">
+              <p-radioButton
+                formControlName="frequency"
+                value="6"
+                inputId="frequency6"
+              ></p-radioButton>
+              <label for="frequency6" class="ml-2 mb-0">
+                {{ "every_two_hours" | translate }}</label
+              >
+            </div>
+            <!-- 每六小時 -->
+            <div class="p-form-check">
+              <p-radioButton
+                formControlName="frequency"
+                value="7"
+                inputId="frequency7"
+              ></p-radioButton>
+              <label for="frequency7" class="ml-2 mb-0">
+                {{ "every_six_hours" | translate }}</label
+              >
+            </div>
+            <!-- 每十二小時 -->
+            <div class="p-form-check">
+              <p-radioButton
+                formControlName="frequency"
+                value="8"
+                inputId="frequency8"
+              ></p-radioButton>
+              <label for="frequency8" class="ml-2 mb-0">
+                {{ "every_twelve_hours" | translate }}</label
+              >
+            </div>
+          <!-- </div> -->
+        </div>
+        <!-- 開始時間 -->
+        <div class="col-6">
+          <label class="control-label" id="effDateTime_label" for="effDateTime">
+            {{ "start_time" | translate }}
+          </label>
+          <p-calendar
+            [style]="{ width: '100%' }"
+            [inputStyle]="{ width: '95%' }"
+            appendTo="body"
+            formControlName="effDateTime"
+            dateFormat="yy/mm/dd"
+            [showIcon]="true"
+            showTime="true"
+            [minDate]="minDate"
+            [showButtonBar]="true"
+          >
+          </p-calendar>
+        </div>
+        <!-- 結束時間 -->
+        <div class="col-6">
+          <label class="control-label" id="invDateTime_label" for="invDateTime">
+            {{ "end_time" | translate }}
+          </label>
+          <p-calendar
+            [style]="{ width: '100%' }"
+            [inputStyle]="{ width: '95%' }"
+            appendTo="body"
+            formControlName="invDateTime"
+            dateFormat="yy/mm/dd"
+            [showIcon]="true"
+            showTime="true"
+            [minDate]="minDate"
+            [showButtonBar]="true"
+          >
+          </p-calendar>
+        </div>
+      </div>
+
+      <!-- <table class="w-100" style="table-layout: fixed;word-break: break-word;">
                 <caption></caption>
                 <tbody>
                     <tr>
@@ -327,95 +639,142 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>
+            </table> -->
 
-            <app-schedule-content formControlName="rjobItems" [action]='currentAction'></app-schedule-content>
-            <hr>
-            <div class="form-group row">
-                <div class="col-12 col-lg-12">
-                    <button *ngIf="currentAction != 'detail'" type="button" class="btn tpi-btn tpi-second float-left mr-3"
-                        [disabled]="form.invalid || rjobItems.value.length == 0 || !isInvalid"
-                        (click)="saveScheduleSetting();">{{btnName}}</button>
-                    <button type="button" class="btn tpi-btn tpi-primary float-left"
-                        (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div [hidden]="pageNum != 3" class="card card-body bg-light mt-3">
-        <form *ngIf="scheduleHistoryData">
-            <div class="form-group row">
-                <div class="col-12 col-xl-12 col-lg-12">
-                    <label class="control-label">{{'cycle_schedule_uid'|translate}}</label>：
-                    <label>{{scheduleHistoryData.apptRjobId}}</label>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-12 col-xl-12 col-lg-12">
-                    <label class="control-label">{{'name'|translate}}</label>：
-                    <label>{{scheduleHistoryData.rjobName}}</label>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-12 col-xl-12 col-lg-12">
-                    <label class="control-label">{{'memo'|translate}}</label>：
-                    <label>{{scheduleHistoryData.remark}}</label>
-                </div>
-            </div>
-            <p-table *ngIf="scheduleHistoryCols" [columns]="scheduleHistoryCols" styleClass="p-datatable-striped"
-                [value]="scheduleHistoryData.historyList" selectionMode="single" [style]="{'word-break':'break-word'}">
-                <ng-template pTemplate="colgroup" let-columns>
-                    <colgroup>
-                        <col *ngFor="let col of columns" [style.width]="col.width">
-                    </colgroup>
-                </ng-template>
-                <ng-template pTemplate="header" let-columns>
-                    <tr>
-                        <th *ngFor="let col of columns" scope="col">
-                            {{col.header}}
-                        </th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-rowData let-columns="columns">
-                    <tr>
-                        <td *ngFor="let col of columns" [style.width]="col.width">
-                            {{rowData[col.field]}}
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="footer" let-columns>
-                    <tr *ngIf="scheduleHistoryDataRowcount">
-                        <td [attr.colspan]="columns.length" style="color: #b7b7b7;">
-                            <span style="vertical-align: middle;">{{'row_count' | translate}}: {{scheduleHistoryDataRowcount}}</span>
-                            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+      <!-- <p>123</p> -->
+      <!-- <app-datepicker [dateType]="'month'" formControlName="dayRange"></app-datepicker>
+            <app-datepicker [dateType]="'week'" formControlName="weekRange"></app-datepicker> -->
+
+      <app-schedule-content
+        formControlName="rjobItems"
+        [action]="currentAction"
+      ></app-schedule-content>
+      <hr />
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button
+            *ngIf="currentAction != 'detail'"
+            type="button"
+            class="btn tpi-btn tpi-second float-left mr-3"
+            [disabled]="
+              form.invalid || rjobItems.value.length == 0 || !isInvalid
+            "
+            (click)="saveScheduleSetting()"
+          >
+            {{ btnName }}
+          </button>
+          <button
+            type="button"
+            class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query')"
+          >
+            {{ "button.return_to_list" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div [hidden]="pageNum != 3" class="card card-body bg-light mt-3">
+    <form *ngIf="scheduleHistoryData">
+      <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <label class="control-label">{{
+            "cycle_schedule_uid" | translate
+          }}</label
+          >：
+          <label>{{ scheduleHistoryData.apptRjobId }}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <label class="control-label">{{ "name" | translate }}</label
+          >：
+          <label>{{ scheduleHistoryData.rjobName }}</label>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 col-xl-12 col-lg-12">
+          <label class="control-label">{{ "memo" | translate }}</label
+          >：
+          <label>{{ scheduleHistoryData.remark }}</label>
+        </div>
+      </div>
+      <p-table
+        *ngIf="scheduleHistoryCols"
+        [columns]="scheduleHistoryCols"
+        styleClass="p-datatable-striped"
+        [value]="scheduleHistoryData.historyList"
+        selectionMode="single"
+        [style]="{ 'word-break': 'break-word' }"
+      >
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" scope="col">
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr>
+            <td *ngFor="let col of columns" [style.width]="col.width">
+              {{ rowData[col.field] }}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+          <tr *ngIf="scheduleHistoryDataRowcount">
+            <td [attr.colspan]="columns.length" style="color: #b7b7b7">
+              <span style="vertical-align: middle"
+                >{{ "row_count" | translate }}:
+                {{ scheduleHistoryDataRowcount }}</span
+              >
+              <!-- <button type="button" class="btn btn-warning pull-right ml-3"
                                 (click)="moreScheduleHistoryData();">{{'button.more'|translate}}</button> -->
 
-                                <!-- 查詢更多 -->
-                              <button  type="button" class="btn tpi-header-return" (click)="moreScheduleHistoryData()">{{ 'button.more'| translate}}
-                                <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
-                                </button>
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage" let-columns>
-                    <tr>
-                        <td [attr.colspan]="columns.length">
-                            {{'no_rec' | translate}}
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-            <hr>
-            <div class="form-group row">
-                <div class="col-12 col-lg-12">
-                    <button type="button" class="btn tpi-btn tpi-primary float-left"
-                        (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
-                </div>
-            </div>
-        </form>
-    </div>
+              <!-- 查詢更多 -->
+              <button
+                type="button"
+                class="btn tpi-header-return"
+                (click)="moreScheduleHistoryData()"
+              >
+                {{ "button.more" | translate }}
+                <i
+                  class="fas fa-angle-double-right"
+                  style="margin-left: 5px"
+                ></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length">
+              {{ "no_rec" | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <hr />
+      <div class="form-group row">
+        <div class="col-12 col-lg-12">
+          <button
+            type="button"
+            class="btn tpi-btn tpi-primary float-left"
+            (click)="changePage('query')"
+          >
+            {{ "button.return_to_list" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </app-container>
-<p-toast [style]="{marginTop: '60px'}" position="top-left"></p-toast>
+<p-toast [style]="{ marginTop: '60px' }" position="top-left"></p-toast>
 <!-- <p-toast position="center" key="confirm" (onClose)="onReject()" [baseZIndex]="5000">
     <ng-template let-message pTemplate="message">
         <div style="text-align: center">
@@ -435,20 +794,33 @@
         </div>
     </ng-template>
 </p-toast> -->
-<p-confirmDialog #cd [style]="{width: '50vw'}" icon="pi pi-exclamation-triangle" styleClass="cHeader cContent cIcon">
+<p-confirmDialog
+  #cd
+  [style]="{ width: '50vw' }"
+  icon="pi pi-exclamation-triangle"
+  styleClass="cHeader cContent cIcon"
+>
   <ng-template pTemplate="footer">
-    <div class="row" style="justify-content: center;">
-      <button type="button" pButton icon="pi pi-check" [ngStyle]="{backgroundColor:'var(--red-300)','border-color':'var(--red-300)'}" label="{{'button.confirm' | translate}}" (click)="cd.accept()"></button>
-      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" label="{{'button.cancel' | translate}}" (click)="cd.reject()"></button>
+    <div class="row" style="justify-content: center">
+      <button
+        type="button"
+        pButton
+        icon="pi pi-check"
+        [ngStyle]="{
+          backgroundColor: 'var(--red-300)',
+          'border-color': 'var(--red-300)'
+        }"
+        label="{{ 'button.confirm' | translate }}"
+        (click)="cd.accept()"
+      ></button>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-times"
+        class="p-button-secondary"
+        label="{{ 'button.cancel' | translate }}"
+        (click)="cd.reject()"
+      ></button>
     </div>
   </ng-template>
 </p-confirmDialog>
-
-
-
-
-
-
-
-
-

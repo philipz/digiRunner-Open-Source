@@ -33,7 +33,7 @@ public class GtwIdPMockJSLoginUiController {
 	@Autowired
 	private TsmpTAEASKHelper tsmpTAEASKHelper;
 	
-	@CrossOrigin
+
 	@GetMapping(value = "/dgrv4/mockac/gtwidp/{idPType}/loginui")
 	public ResponseEntity<?> loginUi(@RequestHeader HttpHeaders headers, 
 			HttpServletRequest httpReq,

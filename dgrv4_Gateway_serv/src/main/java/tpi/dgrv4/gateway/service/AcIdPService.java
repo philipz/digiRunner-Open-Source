@@ -2,6 +2,7 @@ package tpi.dgrv4.gateway.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +17,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tpi.dgrv4.common.constant.AuditLogEvent;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.service.DgrAuditLogService;
 import tpi.dgrv4.dpaa.service.TptokenService;
@@ -122,31 +124,36 @@ public class AcIdPService {
 
 		ResponseEntity<?> respObj = getOAuthTokenService().getToken(httpRes, formData, authorization, "/oauth/token");
 		Object bodyObj = respObj.getBody();
-		
+		int statusCode = respObj.getStatusCode().value();
+
+		if (bodyObj == null) return new ResponseEntity<OAuthTokenErrorResp2>(getTokenHelper().getOAuthTokenErrorResp2(
+				TokenHelper.invalid_request, "getOAuthTokenService().getToken(...) response body is null"), HttpStatus.BAD_REQUEST);
+
+
 		String token_loginState = "";
 		String tokenJti = null;
 		String userName = null;
 		String idPType = null;
 		String idPSub = null;
-		int statusCode = respObj.getStatusCode().value();
+
 		
 		TsmpAuthorization auth = null;
 		String lineNumber = null;
-		if(bodyObj instanceof OAuthTokenResp) {
+		if(bodyObj instanceof OAuthTokenResp oAuthTokenResp) {
 			token_loginState = "SUCCESS";
-			OAuthTokenResp oAuthTokenResp = (OAuthTokenResp) respObj.getBody();
+
 			tokenJti = oAuthTokenResp.getJti();
-			
+
 			String accessTokenJwtStr = oAuthTokenResp.getAccessToken();
 			TsmpAuthorizationParser authorizationParser = new TsmpAuthorizationParserFactory()
 					.getParser("Bearer " + accessTokenJwtStr);
 			auth = authorizationParser.parse();
 			InnerInvokeParam iip = getDgrAuditLogService().getInnerInvokeParam(auth, apiUrl, userIp, userHostname,
 					txnUid);
-			
+
 			//寫入 Audit Log M,登入成功
 			lineNumber = StackTraceUtil.getLineNumber();
-			getDgrAuditLogService().createAuditLogMForLogin(iip, lineNumber, eventNo, apiUrl, 
+			getDgrAuditLogService().createAuditLogMForLogin(iip, lineNumber, eventNo, apiUrl,
 					userName, clientId, userIp, userHostname, token_loginState, statusCode+"", txnUid, tokenJti);
 			return respObj;
 			

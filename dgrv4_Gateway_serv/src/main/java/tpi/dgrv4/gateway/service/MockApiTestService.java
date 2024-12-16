@@ -61,7 +61,7 @@ public final class MockApiTestService {
 			int tokenPayload, TsmpApiLogReq dgrReqVo, TsmpApiLogReq dgrReqVo_rdb, Boolean cApiKeySwitch) throws Exception {
 
 		Map<String, List<String>> header = getCommForwardProcService().getConvertHeader(httpReq, httpHeaders,
-				tokenPayload, cApiKeySwitch, uuid);
+				tokenPayload, cApiKeySwitch, uuid, false);
 		String reqMbody = "";
 		HttpRespData respObj = callForwardApi(header, httpRes, srcUrl, dgrReqVo, reqMbody, uuid, false);
 

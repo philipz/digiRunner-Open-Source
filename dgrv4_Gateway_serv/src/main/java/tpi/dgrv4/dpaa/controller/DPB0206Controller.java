@@ -23,7 +23,7 @@ public class DPB0206Controller {
 	@Autowired
 	private DPB0206Service service;
 
-	@CrossOrigin
+	
 	@PostMapping(value = "/dgrv4/11/DPB0206", //
 			consumes = MediaType.APPLICATION_JSON_VALUE, //
 			produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,172 +1,187 @@
-<div class="login-page" >
-  <div class="container" style="min-width: 600px; max-width: 600px" [hidden]="path['type'] ==='errMsg' || (path['action'] =='consent' && apiNodes.length==0)">
-    <div class="row align-items-center w-100 h-100" style="margin-top: 30%;">
-      <div class="w-100 h-100 border border-black center">
+<div class="login-center-page" *ngIf="show">
+  <div class="form-wrapper">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+      <div class="form-header">
+        <h1 style="font-weight: bold">
+          <img [src]="imgSrc" />
+          {{ title }}
+        </h1>
+      </div>
+      <hr />
+      <div class="form-body">
+        <div class="line" [hidden]="path['action'] == 'consent'" [hidden]="idpType !== 'LDAP'" >
+          <label>{{ "adldap_login" | translate }}</label>
+        </div>
 
-        <div>
-          <form [formGroup]="form" (ngSubmit)="submitForm()">
-            <div>
-              <h1 style="font-weight: bold;">
-                <img [src]="imgSrc">
-                {{title}}
-              </h1>
-            </div>
-            <!-- <div class="logo_top">
-              <img src="assets/images/DigiFusion_digiRunner_logo_horizontal.png" alt="" title="">
-            </div> -->
-            <hr>
-            <div class="line" [hidden]="path['action'] =='consent'" [hidden]="idpType!=='LDAP'">
-              <label style="color:#EF622D; font-weight: 600; font-size: 24px;">{{'adldap_login'|translate}}</label>
-            </div>
-            <div class="form-group ml-4" [hidden]="path['action'] !='consent'">
-              <!-- <label class="col-4 control-label">{{'authority_time'|translate}}</label>
-              <div class="col-8 row">
-                <input class="form-control" formControlName="validityTime">
-                <p-dropdown [options]="timeUnit" formControlName="timeUnit" [style]="{'width':'100%'}"></p-dropdown>
-              </div> -->
-              <label class="form-inline" style="font-weight: bolder;float: left;">{{'authority_time'|translate}}
-                <input type="text" class="form-control ml-2" formControlName="validityTime">
-                <p-dropdown [options]="timeUnit" formControlName="timeUnit" [style]="{'width':'100%'}"></p-dropdown>
-              </label>
-            </div>
-
-
-
-            <div class="sign_box" [hidden]="path['action'] =='consent'">
-              <label for="uname" class="control-label float-left">{{'user_name'|translate}}</label>
-              <div class="sign_row" style="position: relative">
-                <span style="position: absolute;left:7px;">
-                  <img src="assets/images/i_user.png" alt="number">
-                </span>
-                <input type="text" #username class="form-control" formControlName="uname"
-                  [placeholder]=" 'user_name'|translate" />
-              </div>
-              <label for="uname" class="control-label float-left">{{'user_password'|translate}}</label>
-              <div class="sign_row" style="position: relative">
-                <span style="margin-left: 8px;position: absolute;left:7px;">
-
-                  <img src="assets/images/i_pwd.png" alt="pass" style="width: 25px; height: 30px;">
-                </span>
-                <input type="password" class="form-control" formControlName="pwd"
-                  [placeholder]=" 'user_password'|translate" />
-              </div>
-              <div class="sign_row">
-                <button type="submit" class="btn btn-login">{{'login' | translate}}</button>
-              </div>
-            </div>
-
-          </form>
-          <form [formGroup]="formApi">
-
-            <div class="col-12 row mx-0 px-0" [hidden]="path['action'] !='consent'">
-
-              <div class="row" style="display: block;width: inherit;">
-                <div class="col">
-                  <ul class="list-group list-group-flush" *ngFor="let groups of apiNodes">
-                    <li class="list-group-item px-0">
-
-                      <div class="form-inline row col-12 mx-1">
-                        <input type="checkbox" value="" (change)="menuChange($event, groups)"
-                          [formControlName]="groups.key">
-                        <div>
-                          <a class="btn collapsed" data-toggle="collapse" [href]="'#mains'+groups.vgroupAliasShowUi"
-                            role="button" aria-expanded="true">
-                            <label class="mt-3">{{groups.vgroupAliasShowUi}}({{groups.vgroupId}})</label>
-                            <span class="mr-3"></span>
-                          </a>
-                        </div>
-                      </div>
-
-
-
-
-                      <div class="collapse text-left ml-5" [id]="'mains'+groups.vgroupAliasShowUi"
-                        *ngIf="groups.apiDataList && groups.apiDataList.length">
-
-                        <div class="form-check" class="list-group-item mb-3" *ngFor="let sub of groups.apiDataList">
-
-                          <input type="checkbox" (change)="menuChange($event, sub)" class="form-check-input"
-                            [id]="sub.key" [formControlName]="sub.key">
-                          <div class="col" style="margin-left:10px;position:absolute;top:15px;">
-                            <div>
-                              <label class="form-check-label" [for]="sub.apiNameShowUi">
-                                {{sub.apiNameShowUi}} ({{sub.groupId}})
-                              </label>
-                            </div>
-                            <div>
-                              <label class="form-check-label" [for]="sub.apiDesc">
-                                {{sub.apiDesc}}
-                              </label>
-                            </div>
-
-                          </div>
-
-                        </div>
-
-
-                      </div>
-                      <hr>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </form>
-          <div class="sign_row px-2" [hidden]="path['action'] !='consent'">
-            {{ 'gtwidp_alert'|translate:{title:title} }}
+        <div class="form-area" [hidden]="path['action'] == 'consent'">
+          <div class="felid-flex-start" [hidden]="path['action'] != 'consent'">
+            <label class="mb-0">{{ "authority_time" | translate }}</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="validityTime"
+                style="width: 100px;"
+              />
+              <p-dropdown
+                [options]="timeUnit"
+                formControlName="timeUnit"
+                [style]="{ width: '100%' }"
+              ></p-dropdown>
           </div>
-
-          <div class="sign_row " [hidden]="path['action'] !='consent'">
-
-            <button type="button" class="btn tpi-btn tpi-primary mr-3"
-              (click)="apiConfirm();">{{'button.confirm'|translate}}</button>
-            <button type="button" class="btn tpi-btn tpi-night"
-              (click)="apiCancel();">{{'button.cancel'|translate}}</button>
-
+          <div class="input-line">
+            <label for="uname">{{ "user_name" | translate }}</label>
+            <div class="input-sign-wrapper">
+              <span class="sign">
+                <img src="assets/images/login/i_user.png" alt="number" />
+              </span>
+              <input
+                type="text"
+                #username
+                class="form-control"
+                formControlName="uname"
+                [placeholder]="'user_name' | translate"
+              />
+            </div>
+          </div>
+          <div class="input-line">
+            <label for="uname">{{ "user_password" | translate }}</label>
+            <div class="input-sign-wrapper">
+              <span class="sign">
+                <img src="assets/images/login/i_pwd.png" alt="number" />
+              </span>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="pwd"
+                [placeholder]="'user_password' | translate"
+              />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-login">
+              {{ "login" | translate }}
+            </button>
           </div>
         </div>
       </div>
+    </form>
+    <form [formGroup]="formApi">
+      <div class="col-12 row mx-0 px-0" [hidden]="path['action'] != 'consent'">
+        <div class="row" style="display: block; width: inherit">
+          <div class="col">
+            <ul
+              class="list-group list-group-flush"
+              style="max-height: 60vh;overflow-y: auto;overflow-x:hidden;"
+              *ngFor="let groups of apiNodes"
+            >
+              <li class="list-group-item px-0">
+                <div class="checkbox">
+                  <div *ngIf="groups.apiDataList && groups.apiDataList.length>0">
+                    <input type="checkbox" value="" (change)="menuChange($event, groups)" [formControlName]="groups.key"  >
+                    <a class="btn" [ngClass]="{'collapsed':!isCollapsed}" data-toggle="collapse" [href]="'#mains' + groups.vgroupAliasShowUi" role="button"
+                      [aria-expanded]="isCollapsed">
+                      <label >{{ isValidStringStartWith_dp_(groups.vgroupAliasShowUi)? ("all"|translate) : (groups.vgroupAliasShowUi + "(" +  groups.vgroupId + ")")  }}
+                        </label>
+                        <span class="mr-3"></span>
+                    </a>
+                  </div>
+                  <div *ngIf="!groups.apiDataList || groups.apiDataList.length==0">
+                    <i class="fa fa-circle mr-2" ></i>
+                    <label >{{ isValidStringStartWith_dp_(groups.vgroupAliasShowUi)? ("all"|translate) : (groups.vgroupAliasShowUi + "(" +  groups.vgroupId + ")")  }}
+                    </label>
+                  </div>
+                </div>
+                <div
+                  class="collapse text-left" [ngClass]="{'show':isCollapsed}"
+                  [id]="'mains' + groups.vgroupAliasShowUi"
+                  *ngIf="groups.apiDataList && groups.apiDataList.length"
+                >
+                  <div
+                    class="form-check"
+                    class="list-group-item mb-3"
+                    *ngFor="let sub of groups.apiDataList"
+                  >
+                    <input
+                      type="checkbox"
+                      (change)="menuChange($event, sub)"
+                      class="form-check-input"
+                      [id]="sub.key"
+                      [formControlName]="sub.key"
+                    />
+                    <div
+                      class="col"
+                      style="margin-left: 10px; position: absolute; top: 15px"
+                    >
+                      <div>
+                        <label
+                          class="form-check-label"
+                          [for]="sub.apiNameShowUi"
+                        >
+                          {{ sub.apiNameShowUi }} ({{ sub.groupId }})
+                        </label>
+                      </div>
+                      <div *ngIf="sub.apiDesc">
+                        <label class="form-check-label" [for]="sub.apiDesc">
+                          {{ sub.apiDesc }}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr />
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="p-2 mx-5" [hidden]="path['action'] != 'consent'">
+      <p>{{ "gtwidp_alert" | translate : { title: title } }}</p>
+      <div class="felid-flex-center" >
+        <button
+        type="button"
+        class="btn tpi-btn tpi-primary"
+        (click)="apiConfirm()"
+        >
+        {{ "button.confirm" | translate }}
+      </button>
+      <button type="button" class="btn tpi-btn tpi-night" (click)="apiCancel()">
+        {{ "button.cancel" | translate }}
+      </button>
+    </div>
     </div>
   </div>
-
-  <div class="row col-12 h-100 p-0" [hidden]="path['type'] !=='errMsg'">
-    <div class="col-7 h-100">
-      <!-- <div class="login_bg w-100 h-100 m-0"></div> -->
-      <img src="assets/images/login_left_base.png" alt="" class="w-100 h-100 login-base">
-      <img src="assets/images/img_login_visual.png" alt="" class="w-100 h-100 login-visual">
+  <div class="login-page" [hidden]="path['type'] !== 'errMsg'"
+    style="position: absolute; top: 0; left: 0; background: white;">
+    <div class="image-panel">
+      <img class="img-building" src="assets/images/img_login_visual.png" />
     </div>
-    <div class="col-5 h-100 ">
-      <div class="row justify-content-md-center bg " style="padding-top: 15vh;">
-        <!--上下置中 align-items-center -->
-        <div style="width:380px;">
-
-          <section class="login_section ">
-            <div class="logo_top">
-              <img src="assets/images/DigiFusion_digiRunner_logo_horizontal.png" alt="" title="v202102251030-v3">
-            </div>
-            <div class="line" >
-              <label style="color:#EF622D; font-weight: 600; font-size: 24px;">{{msg}}</label>
+    <div class="loading-panel">
+      <div  style="width: 380px">
+          <section class="loading-section">
+              <img
+              class="img-logo"
+              src="assets/images/DigiFusion_digiRunner_logo_horizontal.png"
+              alt=""
+              title="v202102251030-v3"
+            />
+            <div class="line">
+              <label>{{ msg }}</label>
               <!-- <p-progressBar mode="indeterminate" *ngIf="processShow"></p-progressBar> -->
             </div>
 
-            <div class="sign_box">
-              <div class="sign_row">
-                <button type="button" class="btn btn-login" (click)="returnToLogin()">
-                  {{'button.return'|translate}}
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              class="btn btn-login"
+              (click)="returnToLogin()"
+            >
+              {{ "button.return" | translate }}
+            </button>
           </section>
-
-        </div>
       </div>
     </div>
+    <footer class="login-footer">
+      <span>Copyright© TPIsoftware. All Rights Reserved.</span>
+    </footer>
   </div>
-  <footer class="footer">
-    <div class="container">
-      <span>Copyright© TPIsoftware. All Rights Reserved. </span>
-    </div>
-  </footer>
-
-
 </div>

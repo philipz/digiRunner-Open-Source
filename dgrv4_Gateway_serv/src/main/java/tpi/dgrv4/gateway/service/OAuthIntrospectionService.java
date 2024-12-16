@@ -1,20 +1,14 @@
 package tpi.dgrv4.gateway.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.IdTokenUtil;
 import tpi.dgrv4.codec.utils.IdTokenUtil.IdTokenData;
@@ -35,6 +29,9 @@ import tpi.dgrv4.gateway.vo.OAuthIntrospectionResp;
 import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp;
 import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp2;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class OAuthIntrospectionService {
@@ -194,17 +191,12 @@ public class OAuthIntrospectionService {
 
 		String idPType = JsonNodeUtil.getNodeAsText(payloadJsonNode, "idp_type");
 
-		// 對外公開的域名或IP
-		String dgrPublicDomain = getTsmpSettingService().getVal_DGR_PUBLIC_DOMAIN();
-		// 對外公開的Port
-		String dgrPublicPort = getTsmpSettingService().getVal_DGR_PUBLIC_PORT();
-
 		boolean isAcIdPFlow = TokenHelper.isAcIdPFlow(tokenUserName, idPType);
 		boolean isGtwIdPFlow = TokenHelper.isGtwIdPFlow(tokenUserName, idPType);
 
 		String userNameForQuery = TsmpAuthorization.getUserNameForQuery(tokenUserName);
 
-		String issuer = getIssuer(dgrPublicDomain, dgrPublicPort, idPType, isGtwIdPFlow);
+		String issuer = getIssuer(idPType, isGtwIdPFlow);
 		String userAlias = getUserAlias(tokenTypeHint, idPType, jti, ati, userNameForQuery, isAcIdPFlow, isGtwIdPFlow);
 
 		OAuthIntrospectionResp resp = new OAuthIntrospectionResp();
@@ -232,13 +224,21 @@ public class OAuthIntrospectionService {
 	 * 2. 其他流程: <br>
 	 * https://127.0.0.1:8080/dgrv4 <br>
 	 */
-	private String getIssuer(String dgrPublicDomain, String dgrPublicPort, String idPType, boolean isGtwIdPFlow) {
+	private String getIssuer(String idPType, boolean isGtwIdPFlow) {
+		// 對外公開的域名或IP
+		String dgrPublicDomain = getTsmpSettingService().getVal_DGR_PUBLIC_DOMAIN();
+		// 對外公開的Port
+		String dgrPublicPort = getTsmpSettingService().getVal_DGR_PUBLIC_PORT();
+
+		String schemeAndDomainAndPort = GtwIdPWellKnownService.getSchemeAndDomainAndPort(dgrPublicDomain,
+				dgrPublicPort);
+		
 		String issuer = null;
 		if (isGtwIdPFlow) {// for GTW IdP
-			issuer = GtwIdPWellKnownService.getIssuer(dgrPublicDomain, dgrPublicPort, idPType);
+			issuer = GtwIdPWellKnownService.getIssuer(schemeAndDomainAndPort, idPType);
 
 		} else {// 其他
-			issuer = String.format("https://%s:%s/dgrv4", dgrPublicDomain, dgrPublicPort);
+			issuer = String.format("%s/dgrv4", schemeAndDomainAndPort);
 		}
 
 		return issuer;

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.ReportDateTimeRangeTypeEnum;
 import tpi.dgrv4.common.constant.ReportTypeEnum;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.entity.jpql.TsmpReportData;
@@ -63,8 +64,7 @@ public class HandleReportDataByMinuteService {
 
 		// 現在區間的日期
 		Date nowIntervalDate = this.getNowIntervalDate(execDate);
-		TPILogger.tl.debug("nowIntervalDate = "
-				+ DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).get());
+		TPILogger.tl.debug("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
 
 
 		TPILogger.tl.debug("reqList.size = " + reqList.size());
@@ -117,26 +117,26 @@ public class HandleReportDataByMinuteService {
 	}
 
 	private Date getNowIntervalDate(Date nowDate) {
-		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).get();
+		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		strDate = strDate.substring(0, 15);
 		strDate = strDate + "0:00.000";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 
 	}
 
 	private Date getHistoryDeleteDate(Date nowDate, int day) {
-		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分秒).get();
+//		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分秒).get();
 
 		Calendar nowTime = Calendar.getInstance();
 		nowTime.setTime(nowDate);
 		nowTime.add(Calendar.DATE, day);
 		nowDate = nowTime.getTime();
-		strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分秒).get();
+		String strDate = DateTimeUtil.dateTimeToString(nowDate, DateTimeFormatEnum.西元年月日時分秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 		strDate = strDate + ".000";
-		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).get();
+		Date nowIntervalDate = DateTimeUtil.stringToDateTime(strDate, DateTimeFormatEnum.西元年月日時分秒毫秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing);
 
 		return nowIntervalDate;
 

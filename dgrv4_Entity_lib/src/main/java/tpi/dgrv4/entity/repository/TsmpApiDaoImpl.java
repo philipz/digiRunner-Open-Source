@@ -1,5 +1,7 @@
 package tpi.dgrv4.entity.repository;
 
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Map;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import jakarta.persistence.Query;
 import tpi.dgrv4.common.constant.TsmpDpPublicFlag;
 import tpi.dgrv4.entity.entity.TsmpApi;
 import tpi.dgrv4.entity.entity.TsmpApiId;
@@ -15,6 +18,47 @@ import tpi.dgrv4.entity.vo.AA0301SearchCriteria;
 import tpi.dgrv4.entity.vo.DPB0018SearchCriteria;
 
 public class TsmpApiDaoImpl extends BaseDao {
+
+	public int deleteNonSpecifiedContent(List<AbstractMap.SimpleEntry<String, String>> list) {
+
+		if (list == null) {
+			return 0;
+		}
+
+		Map<String, Object> params = new HashMap<>();
+
+		StringBuffer sb = new StringBuffer();
+
+		sb.append(" DELETE FROM TsmpApi a ");
+		sb.append(" WHERE NOT ( a.apiKey = '' AND  a.moduleName ='' ");
+
+		for (int i = 0; i < list.size(); i++) {
+
+			SimpleEntry<String, String> entry = list.get(i);
+			String apiKey = entry.getKey();
+			String moduleName = entry.getValue();
+
+			String paramsApiKey = "apiKey" + i;
+			String paramsModuleName = "moduleName" + i;
+
+			sb.append(" OR ( a.apiKey =:" + paramsApiKey);
+			sb.append(" AND a.moduleName =:" + paramsModuleName + " )");
+
+			params.put(paramsApiKey, apiKey);
+			params.put(paramsModuleName, moduleName);
+		}
+
+		sb.append(" )");
+
+		Query query = getEntityManager().createQuery(sb.toString());
+
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			query.setParameter(param.getKey(), param.getValue());
+		}
+
+		return query.executeUpdate();
+	}
+
 	// add custom methods here
 
 	public List<TsmpApi> query_dpb0018Service(DPB0018SearchCriteria cri) {
@@ -659,8 +703,7 @@ public class TsmpApiDaoImpl extends BaseDao {
 			}
 			sb.append(" 	) ");
 		}
-		
-		
+
 		if (orderBySb == null || "".equals(orderBySb.toString())) {
 			orderBySb = getAA0301OrderBy(cri);
 			sb.append(orderBySb.toString());
@@ -936,7 +979,7 @@ public class TsmpApiDaoImpl extends BaseDao {
 				sb.append(" ) ");
 				params.put("publicFlag", "E");
 			}
-		} 
+		}
 
 		if (words != null && words.length > 0) {
 			sb.append(" AND ( 1 = 2 ");
@@ -1026,69 +1069,68 @@ public class TsmpApiDaoImpl extends BaseDao {
 		sb.append(" SELECT DISTINCT LOWER(tsmpApi.label5) ");
 		sb.append(" FROM TsmpApi tsmpApi ");
 		sb.append(" WHERE 1=1 ");
-	
+
 		sb.append(" AND tsmpApi.label5 IS NOT NULL");
 //		sb.append(" AND tsmpApi.label5 <> ''");
 		if (apiSrc != null && apiSrc.size() > 0) {
 			sb.append(" AND tsmpApi.apiSrc IN :apiSrc ");
 			params.put("apiSrc", apiSrc);
 		}
-	
+
 		return doQuery(sb.toString(), params, String.class);
 	}
-	
-	public List<TsmpApi>  query_AA0428Service(AA0301SearchCriteria cri) {
-	    Map<String, Object> params = new HashMap<>();
 
-	    StringBuffer sb = new StringBuffer();
-	    StringBuffer orderBySb = new StringBuffer();
-	    sb.append(" SELECT A ");
-	    sb.append(" FROM TsmpApi A ");
+	public List<TsmpApi> query_AA0428Service(AA0301SearchCriteria cri) {
+		Map<String, Object> params = new HashMap<>();
 
-	    sb.append(" WHERE 1=1 ");
+		StringBuffer sb = new StringBuffer();
+		StringBuffer orderBySb = new StringBuffer();
+		sb.append(" SELECT A ");
+		sb.append(" FROM TsmpApi A ");
 
-	    // client的組織與子組織，找出關聯的TsmpApi資料
-	    if (cri.getOrgList() != null && cri.getOrgList().size() > 0) {
-	        sb.append(" AND (A.orgId IN :orgList or A.orgId is Null or LENGTH(A.orgId) = 0)");
-	        params.put("orgList", cri.getOrgList());
-	    }
+		sb.append(" WHERE 1=1 ");
 
-	    // 分頁
-	    if ("Y".equals(cri.getPaging())) {
-	        if (cri.getLastTsmpApi() != null) {
-	            orderBySb = getAA0301PagingSQL(cri, sb, params);
-	        }
-	    }
-	    List<String> labelList = cri.getLabeList();
-		if (labelList != null && labelList.size() > 0) {
-			  sb.append(" AND ( ");
-		        sb.append("		1=2 ");
-		       
-		            sb.append(" 	OR LOWER(A.label1) IN :labelList" );
-		            sb.append(" 	OR LOWER(A.label2) IN :labelList" );
-		            sb.append(" 	OR LOWER(A.label3) IN :labelList" );
-		            sb.append(" 	OR LOWER(A.label4) IN :labelList");
-		            sb.append(" 	OR LOWER(A.label5) IN :labelList" );
-					params.put("labelList", labelList);
-		        
-		        sb.append(" 	) ");
+		// client的組織與子組織，找出關聯的TsmpApi資料
+		if (cri.getOrgList() != null && cri.getOrgList().size() > 0) {
+			sb.append(" AND (A.orgId IN :orgList or A.orgId is Null or LENGTH(A.orgId) = 0)");
+			params.put("orgList", cri.getOrgList());
 		}
-	    
-	    if (orderBySb == null || "".equals(orderBySb.toString())) {
-	        orderBySb = getAA0301OrderBy(cri);
-	        sb.append(orderBySb.toString());
-	    } else {
-	        sb.append(orderBySb.toString());
-	    }
-	    
-	    
-	    if ("Y".equals(cri.getPaging())) {
-	        return doQuery(sb.toString(), params, TsmpApi.class, cri.getPageSize());
-	    } else {
-	        return doQuery(sb.toString(), params, TsmpApi.class);
 
-	    }
-		
+		// 分頁
+		if ("Y".equals(cri.getPaging())) {
+			if (cri.getLastTsmpApi() != null) {
+				orderBySb = getAA0301PagingSQL(cri, sb, params);
+			}
+		}
+		List<String> labelList = cri.getLabeList();
+		if (labelList != null && labelList.size() > 0) {
+			sb.append(" AND ( ");
+			sb.append("		1=2 ");
+
+			sb.append(" 	OR LOWER(A.label1) IN :labelList");
+			sb.append(" 	OR LOWER(A.label2) IN :labelList");
+			sb.append(" 	OR LOWER(A.label3) IN :labelList");
+			sb.append(" 	OR LOWER(A.label4) IN :labelList");
+			sb.append(" 	OR LOWER(A.label5) IN :labelList");
+			params.put("labelList", labelList);
+
+			sb.append(" 	) ");
+		}
+
+		if (orderBySb == null || "".equals(orderBySb.toString())) {
+			orderBySb = getAA0301OrderBy(cri);
+			sb.append(orderBySb.toString());
+		} else {
+			sb.append(orderBySb.toString());
+		}
+
+		if ("Y".equals(cri.getPaging())) {
+			return doQuery(sb.toString(), params, TsmpApi.class, cri.getPageSize());
+		} else {
+			return doQuery(sb.toString(), params, TsmpApi.class);
+
+		}
+
 	}
 
 	public List<TsmpApi> query_AA0423Service(List<String> labelList) {
@@ -1099,7 +1141,7 @@ public class TsmpApiDaoImpl extends BaseDao {
 		sb.append(" FROM TsmpApi A ");
 
 		sb.append(" WHERE 1=1 ");
-		//只搜尋註冊API
+		// 只搜尋註冊API
 		sb.append(" AND ( ");
 		sb.append("		A.apiSrc = 'R' ");
 		sb.append(" 	) ");

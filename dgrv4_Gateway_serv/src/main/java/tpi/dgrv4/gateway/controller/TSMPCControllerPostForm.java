@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.gateway.filter.GatewayFilter;
@@ -21,10 +22,10 @@ public class TSMPCControllerPostForm {
 	
 	@Autowired
 	private TSMPCServicePostForm service;
- 
+	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
 	@RequestMapping(value = {"/tsmpc/*/*/**", "/tsmpg/*/*/**"}, 
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, // 使用 Form Data 格式
-			produces = MediaType.APPLICATION_JSON_VALUE)
+			produces = MediaType.ALL_VALUE)
 	public Callable dispatch(HttpServletRequest httpReq, 
 			HttpServletResponse httpRes, 
 			@RequestHeader HttpHeaders headers){

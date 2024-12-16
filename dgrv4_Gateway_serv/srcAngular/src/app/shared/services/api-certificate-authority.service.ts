@@ -13,6 +13,13 @@ import { ResDPB0088, DPB0088Req, ReqDPB0088 } from 'src/app/models/api/Certifica
 import { DPB0089Req, ResDPB0089, ReqDPB0089 } from 'src/app/models/api/CertificateAuthorityService/dpb0089.interface';
 import { ResDPB0119 } from 'src/app/models/api/CertificateAuthorityService/dpb0119.interface';
 import { ResDPB0120 } from 'src/app/models/api/CertificateAuthorityService/dpb0120.interface';
+import { RespDPB0229 } from 'src/app/models/api/ServerService/dpb0229.interface';
+import { DPB0225Req, DPB0225RespBefore, RespDPB0225, RespDPB0225RespBefore } from 'src/app/models/api/ServerService/dpb0225.interface';
+import { DPB0226Req, DPB0226RespBefore, RespDPB0226, RespDPB0226RespBefore } from 'src/app/models/api/ServerService/dpb0226.interface';
+import { DPB0228Req, RespDPB0228 } from 'src/app/models/api/ServerService/dpb0228.interface';
+import { DPB0227Req, RespDPB0227 } from 'src/app/models/api/ServerService/dpb0227.interface';
+import { DPB0230Req, RespDPB0230 } from 'src/app/models/api/ServerService/dpb0230.interface';
+import { DPB0231Req, RespDPB0231 } from 'src/app/models/api/ServerService/dpb0231.interface';
 
 @Injectable({
     providedIn: 'root'
@@ -160,6 +167,93 @@ export class ClientCAService {
         //     ResHeader:{"txSN":"1210317141343ZiMvGr","txDate":"20210317T141343+0800","txID":"DPB0083","rtnCode":"1100","rtnMsg":null},
         //     RespBody:{isCusEnable : 'Y'}
         // } as ResDPB0120)
+    }
+
+    //查詢站台
+    querySiteList(): Observable<RespDPB0229> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.querySiteList)
+      };
+      const path = `${this.basePath}/DPB0229`;
+      return this.api.excuteNpPost<RespDPB0229>(path, body);
+    }
+
+    // 新增站台
+    createSite(ReqBody:DPB0225Req): Observable<RespDPB0225> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.createSite),
+          ReqBody: ReqBody,
+      };
+      const path = `${this.basePath}/DPB0225`;
+      return this.api.excuteNpPost<RespDPB0225>(path, body);
+    }
+
+    createSite_before(): Observable<DPB0225RespBefore> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.createSite),
+          ReqBody: {},
+      };
+      const path = `${this.basePath}/DPB0225?before`;
+      return this.api.excuteNpPost<DPB0225RespBefore>(path, body);
+    }
+
+    // 修改站台
+    updateSite(ReqBody:DPB0226Req): Observable<RespDPB0226> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.updateSite),
+          ReqBody: ReqBody,
+      };
+      const path = `${this.basePath}/DPB0226`;
+      return this.api.excuteNpPost<RespDPB0226>(path, body);
+    }
+
+    updateSite_before(): Observable<DPB0226RespBefore> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.createSite),
+          ReqBody: {},
+      };
+      const path = `${this.basePath}/DPB0226?before`;
+      return this.api.excuteNpPost<DPB0226RespBefore>(path, body);
+    }
+
+    // 刪除站台
+    deleteSite(ReqBody:DPB0227Req): Observable<RespDPB0227> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.deleteSite),
+          ReqBody: ReqBody,
+      };
+      const path = `${this.basePath}/DPB0227`;
+      return this.api.excuteNpPost<RespDPB0227>(path, body);
+    }
+
+    // 查詢站台明細
+    queryOneSite(ReqBody:DPB0228Req): Observable<RespDPB0228> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.queryOneSite),
+          ReqBody: ReqBody,
+      };
+      const path = `${this.basePath}/DPB0228`;
+      return this.api.excuteNpPost<RespDPB0228>(path, body);
+    }
+
+    // 啟動 / 停用站台
+    enableSite(ReqBody:DPB0230Req): Observable<RespDPB0230> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.enableSite),
+          ReqBody: ReqBody,
+      };
+      const path = `${this.basePath}/DPB0230`;
+      return this.api.excuteNpPost<RespDPB0230>(path, body);
+    }
+
+    // mtls測試連線
+    checkMtlsConnection(ReqBody:DPB0231Req): Observable<RespDPB0231> {
+      let body = {
+          ReqHeader: this.api.getReqHeader(TxID.checkMtlsConnection),
+          ReqBody: ReqBody,
+      };
+      const path = `${this.basePath}/DPB0231`;
+      return this.api.excuteNpPost<RespDPB0231>(path, body);
     }
 
 }

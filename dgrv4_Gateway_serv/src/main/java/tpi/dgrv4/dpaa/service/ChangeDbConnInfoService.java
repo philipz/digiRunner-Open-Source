@@ -30,9 +30,7 @@ public class ChangeDbConnInfoService {
 			if (StringUtils.hasLength(pw) && StringUtils.hasLength(un)) {
 				// 只要pw或un有值 就要更新
 				// 從applicationContext取出使用中的DataSource 更換
-				// 印log 也要隱個碼
-				String logPw = pw.substring(0, 3) + "***" + pw.substring(pw.length() - 3);
-				TPILogger.tl.info("Apply to switch the connection to username= " + un + ", mima= " + logPw);
+				TPILogger.tl.info("Apply to switch the connection to username= " + un );
 				HikariDataSource hikaridataSource = (HikariDataSource) applicationContext
 						.getBean(HikariDataSource.class);
 

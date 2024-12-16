@@ -1,13 +1,9 @@
 package tpi.dgrv4.dpaa.service;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
@@ -21,7 +17,12 @@ import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Optional;
+
 @Service
+@Scope("prototype")
 public class AA0510Service {
 
 	private TPILogger logger = TPILogger.tl;
@@ -33,7 +34,7 @@ public class AA0510Service {
 	private TsmpSettingDao tsmpSettingDao;
 	
 	@Autowired
-	private LicenseUtilBase util;
+	private LicenseUtilBase licenseUtil;
 
 	public AA0510Resp getAcConf(TsmpAuthorization authorization, AA0510Req req) {
 		AA0510Resp resp = new AA0510Resp();
@@ -73,8 +74,8 @@ public class AA0510Service {
 			resp.setDcPrefix("N/A");
 			
 			String key = getTsmpSettingService().getVal_TSMP_LICENSE_KEY();
-			util.initLicenseUtil(key, null);
-			resp.setEdition(util.getEdition(key));
+			getLicenseUtil().initLicenseUtil(key, null);
+			resp.setEdition(getLicenseUtil().getEdition(key));
 			
 			String logoutUrl="";
 			try {
@@ -88,17 +89,17 @@ public class AA0510Service {
 			}
 			resp.setLogoutUrl(logoutUrl);
 			
-			LocalDate expiryDateLd = util.getExpiryDate(getTsmpSettingService().getVal_TSMP_LICENSE_KEY());	
+			LocalDate expiryDateLd = getLicenseUtil().getExpiryDate(getTsmpSettingService().getVal_TSMP_LICENSE_KEY());
 			Optional<String> opt_dateStr = DateTimeUtil.dateTimeToString(expiryDateLd, DateTimeFormatEnum.西元年月日_2);
 			if (!opt_dateStr.isPresent()) {
 				throw TsmpDpAaRtnCode._1295.throwing();
 			}
 			resp.setExpiryDate(opt_dateStr.get());
 			
-			String account = util.getAccount(getTsmpSettingService().getVal_TSMP_LICENSE_KEY());
+			String account = getLicenseUtil().getAccount(getTsmpSettingService().getVal_TSMP_LICENSE_KEY());
 			resp.setAccount(account);
 			
-			String env =  util.getValue(getTsmpSettingService().getVal_TSMP_LICENSE_KEY(),LicenseType.env);
+			String env =  getLicenseUtil().getValue(getTsmpSettingService().getVal_TSMP_LICENSE_KEY(),LicenseType.env);
 			resp.setEnv(env);
 			
 		} catch (TsmpDpAaException e) {
@@ -108,6 +109,10 @@ public class AA0510Service {
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 		return resp;
+	}
+
+	protected LicenseUtilBase getLicenseUtil(){
+		return this.licenseUtil;
 	}
 
 	protected TsmpSettingDao getTsmpSettingDao() {

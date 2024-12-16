@@ -1,5 +1,6 @@
 package tpi.dgrv4.gateway.TCP.Packet;
 
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -8,19 +9,20 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections4.ArrayStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -34,21 +36,18 @@ import tpi.dgrv4.codec.utils.MaskUtil;
 import tpi.dgrv4.codec.utils.TimeZoneUtil;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.utils.DateTimeUtil;
-import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.entity.jpql.DgrNodeLostContact;
 import tpi.dgrv4.entity.repository.DgrNodeLostContactDao;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.ClientKeeper;
 import tpi.dgrv4.gateway.vo.ComposerInfoData;
-import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.tcp.utils.communication.CommunicationServer;
 import tpi.dgrv4.tcp.utils.communication.LinkerClient;
 import tpi.dgrv4.tcp.utils.communication.LinkerServer;
 import tpi.dgrv4.tcp.utils.packets.sys.Packet_i;
 
 public class RequireAllClientListPacket implements Packet_i {
-
 	private static Logger logger = LoggerFactory.getLogger(RequireAllClientListPacket.class);
 
 	LinkedList<ClientKeeper> allClientList = new LinkedList<ClientKeeper>();
@@ -59,6 +58,11 @@ public class RequireAllClientListPacket implements Packet_i {
 
 	public final static Object waitKey = new Object();
 
+	private long lastUpdateTimeClient = -1;
+	private long lastUpdateTimeAPI = -1;
+	private long lastUpdateTimeSetting = -1;
+	private long lastUpdateTimeToken = -1;
+
 	public RequireAllClientListPacket() {
 //		super();
 	}
@@ -68,6 +72,11 @@ public class RequireAllClientListPacket implements Packet_i {
 		try {
 			lc.paramObj.put("allClientList", allClientList);
 			lc.paramObj.put(allComposerListStr, allComposerList);
+
+			TPILogger.updateTimestamp(TPILogger.lastUpdateTimeAPI, lastUpdateTimeAPI);
+			TPILogger.updateTimestamp(TPILogger.lastUpdateTimeClient, lastUpdateTimeClient);
+			TPILogger.updateTimestamp(TPILogger.lastUpdateTimeSetting, lastUpdateTimeSetting);
+			TPILogger.updateTimestamp(TPILogger.lastUpdateTimeToken, lastUpdateTimeToken);
 
 			// allClientList.forEach((c)->{
 			// System.out.println("...allClientList:" + c);1
@@ -186,6 +195,21 @@ public class RequireAllClientListPacket implements Packet_i {
 					c.setFqdn(nodeInfoData.get(NodeInfoPacket.fqdnInfo));
 					c.setEsQueue(nodeInfoData.get(NodeInfoPacket.esQueue));
 					c.setRdbQueue(nodeInfoData.get(NodeInfoPacket.rdbQueue));
+
+					String lastUpdateTimeAPIInfo = nodeInfoData.get(NodeInfoPacket.lastUpdateTimeAPIInfo);
+					String lastUpdateTimeClientInfo = nodeInfoData.get(NodeInfoPacket.lastUpdateTimeClientInfo);
+					String lastUpdateTimeSettingInfo = nodeInfoData.get(NodeInfoPacket.lastUpdateTimeSettingInfo);
+					String lastUpdateTimeTokenInfo = nodeInfoData.get(NodeInfoPacket.lastUpdateTimeTokenInfo);
+
+					lastUpdateTimeAPI = Math.max(lastUpdateTimeAPI, Long.valueOf(lastUpdateTimeAPIInfo));
+					lastUpdateTimeClient = Math.max(lastUpdateTimeClient, Long.valueOf(lastUpdateTimeClientInfo));
+					lastUpdateTimeSetting = Math.max(lastUpdateTimeSetting, Long.valueOf(lastUpdateTimeSettingInfo));
+					lastUpdateTimeToken = Math.max(lastUpdateTimeToken, Long.valueOf(lastUpdateTimeTokenInfo));
+
+					c.setLastUpdateTimeAPI(lastUpdateTimeAPIInfo);
+					c.setLastUpdateTimeClient(lastUpdateTimeClientInfo);
+					c.setLastUpdateTimeSetting(lastUpdateTimeSettingInfo);
+					c.setLastUpdateTimeToken(lastUpdateTimeTokenInfo);
 				}
 			}
 
@@ -293,7 +317,11 @@ public class RequireAllClientListPacket implements Packet_i {
 			}
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			logger.error("", e);
 		}
+
+		// 將有效的 ExternalDgrInfoPacket 物件加入到列表中。
+		insertExternalDgrInfoToList();
 
 		ls.send(this);
 	}
@@ -307,6 +335,116 @@ public class RequireAllClientListPacket implements Packet_i {
 		Instant now = Instant.now();
 		Duration duration = Duration.between(updateTimeInstant, now);
 		return duration.getSeconds() > 10;
+	}
+
+	/**
+	 * 將有效的 ExternalDgrInfoPacket 物件加入到列表中。
+	 */
+	private void insertExternalDgrInfoToList() {
+		// 檢查 CommunicationServer 或其 ExternalDgrInfoMap 是否為 null，若是則直接返回
+		if (CommunicationServer.cs == null || CommunicationServer.cs.ExternalDgrInfoMap == null) {
+			return;
+		}
+
+		// 從 CommunicationServer 獲取 ExternalDgrInfoMap
+		ConcurrentHashMap<String, Packet_i> map = CommunicationServer.cs.ExternalDgrInfoMap;
+		// 處理 map 中的所有封包
+		processPackets(map);
+	}
+
+	/**
+	 * 遍歷並處理每一個封包。
+	 * 
+	 * @param map 存儲封包的 ConcurrentHashMap
+	 */
+	private void processPackets(ConcurrentHashMap<String, Packet_i> map) {
+		// 獲取 map 的迭代器
+		Iterator<Map.Entry<String, Packet_i>> iterator = map.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<String, Packet_i> entry = iterator.next();
+			// 處理當前封包
+			handlePacket(entry, iterator);
+		}
+	}
+
+	/**
+	 * 處理單一封包，判斷是否為 ExternalDgrInfoPacket 並檢查是否過期。
+	 * 
+	 * @param entry    當前正在處理的 Map.Entry
+	 * @param iterator map 的迭代器，用於移除過期或無效的封包
+	 */
+	private void handlePacket(Map.Entry<String, Packet_i> entry, Iterator<Map.Entry<String, Packet_i>> iterator) {
+		// 獲取 Map.Entry 的值
+		Packet_i packet = entry.getValue();
+		// 判斷該值是否為 ExternalDgrInfoPacket 類型
+		if (!(packet instanceof ExternalDgrInfoPacket)) {
+			// 若不是，則從 map 中移除
+			iterator.remove();
+			return;
+		}
+
+		// 向下轉型為 ExternalDgrInfoPacket
+		ExternalDgrInfoPacket externalDgrInfoPacket = (ExternalDgrInfoPacket) packet;
+		// 檢查封包是否過期
+		if (isPacketExpired(externalDgrInfoPacket)) {
+			// 若過期，則從 map 中移除
+			addLostDgrInfo(externalDgrInfoPacket);
+			iterator.remove();
+		} else {
+			// 若未過期，則加入到 allClientList 列表中
+			allClientList.add(externalDgrInfoPacket.getClientKeeper());
+		}
+	}
+
+	/**
+	 * 新增失去聯繫的 DGR 節點資訊
+	 * 
+	 * @param externalDgrInfoPacket 外部 DGR 資訊封包
+	 */
+	private void addLostDgrInfo(ExternalDgrInfoPacket externalDgrInfoPacket) {
+		// 檢查外部 DGR 資訊封包及其 ClientKeeper 是否為 null
+		if (externalDgrInfoPacket == null || externalDgrInfoPacket.getClientKeeper() == null) {
+			return;
+		}
+
+		// 從 TPILogger 的參數物件中取得 DgrNodeLostContactDao 實例
+		DgrNodeLostContactDao dgrNodeLostContactDao = (DgrNodeLostContactDao) TPILogger.lc.paramObj
+				.get(TPILogger.dgrNodeLostContactDaoStr);
+
+		// 取得外部 DGR 資訊封包中的 ClientKeeper
+		ClientKeeper clientKeeper = externalDgrInfoPacket.getClientKeeper();
+
+		// 取得當前時間戳記
+		Long timestamp = System.currentTimeMillis();
+		// 建立 DgrNodeLostContact 物件
+		DgrNodeLostContact vo = new DgrNodeLostContact();
+		// 設定失去聯繫節點的 IP
+		vo.setIp(clientKeeper.getIp());
+		// 將時間戳記轉換為 UTC 字串並設定為失去聯繫時間
+		vo.setLostTime(TimeZoneUtil.long2UTCstring(timestamp));
+		// 設定失去聯繫節點的名稱
+		vo.setNodeName(clientKeeper.getUsername());
+		// 設定失去聯繫節點的埠號
+		vo.setPort(clientKeeper.getPort());
+		// 設定建立時間戳記
+		vo.setCreateTimestamp(timestamp);
+		// 儲存 DgrNodeLostContact 物件到資料庫並立即更新
+		dgrNodeLostContactDao.saveAndFlush(vo);
+	}
+
+	/**
+	 * 判斷封包是否過期。
+	 * 
+	 * @param packet 要檢查的 ExternalDgrInfoPacket 封包
+	 * @return 封包是否過期
+	 */
+	private boolean isPacketExpired(ExternalDgrInfoPacket packet) {
+		// 獲取封包的最後更新時間
+		long lastUpdateTime = packet.getLastUpdateTime();
+		// 獲取當前時間
+		long currentTime = System.currentTimeMillis();
+		// 判斷當前時間是否大於封包最後更新時間 10 秒
+		return currentTime - lastUpdateTime > 10000; // 10000 毫秒等於 10 秒
 	}
 
 	/**

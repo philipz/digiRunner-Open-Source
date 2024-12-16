@@ -1,0 +1,12 @@
+
+<div class="form-group felid-flex-start" [formGroup]="form">
+  <div class="col-4 px-0">
+    <input type="text" class="form-control"  formControlName="id" >
+  </div>
+  <div class="col-6 px-0">
+    <input type="text" class="form-control"  formControlName="rule" >
+  </div>
+  <button type="button" class="btn tpi-primary ml-1" (click)="delete($event)" style="border-radius: 50%">
+    <i class="fa fa-minus"></i>
+  </button>
+</div>

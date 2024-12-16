@@ -186,7 +186,7 @@ public class DpaaAlertDetectorJobSystemBasic extends DpaaAlertDetectorJob<DpaaAl
 		}
 		
 		boolean recentAlert = params.isRecentAlert();
-		long diffInSecs = calDurationBetween(params.getRecentDetectDate().get(), currentDetectSDt);
+		long diffInSecs = calDurationBetween(params.getRecentDetectDate().orElse(null), currentDetectSDt);
 		return (isAlert && recentAlert && (diffInSecs >= duration));
 	}
 

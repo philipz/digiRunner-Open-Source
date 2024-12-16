@@ -30,6 +30,7 @@ import tpi.dgrv4.entity.repository.TsmpGroupDao;
 import tpi.dgrv4.entity.repository.TsmpVgroupAuthoritiesMapDao;
 import tpi.dgrv4.entity.repository.TsmpVgroupDao;
 import tpi.dgrv4.entity.repository.TsmpVgroupGroupDao;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 
 @Service
@@ -67,6 +68,9 @@ public class AA0225Service {
 		try {
 			checkParams(req);
 			updateTables(req);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.CLIENT.value());
 			
 		} catch (TsmpDpAaException e) {
 			throw e;

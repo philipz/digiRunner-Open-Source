@@ -1235,3 +1235,48 @@ CREATE TABLE IF NOT EXISTS tsmp_dp_mail_log (
 	PRIMARY KEY (maillog_id)
 );
 
+-- 20240718 , 第三方 AC IDP INFO , Kevin Cheng
+CREATE TABLE IF NOT EXISTS dgr_ac_idp_info_cus (
+    ac_idp_info_cus_id     BIGINT          NOT NULL,                -- ID
+	ac_idp_info_cus_name   NVARCHAR(200),                           -- 第三方可識別名稱  
+    cus_status             VARCHAR(1)      NOT NULL DEFAULT 'Y',    -- Cus 狀態
+    cus_login_url          VARCHAR(4000)   NOT NULL,                -- 第三方前端頁面 URL
+    cus_backend_login_url  VARCHAR(4000)   NOT NULL,                -- 第三方後端 URL
+    cus_user_data_url      VARCHAR(4000)   NOT NULL,                -- 第三方使用者資料 URL
+    create_date_time       DATETIME        DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user            NVARCHAR(1000)   DEFAULT 'SYSTEM',        -- 建立人員
+    update_date_time       DATETIME,                                -- 更新日期
+    update_user            NVARCHAR(1000),                           -- 更新人員
+    version                INT             DEFAULT 1,               -- 版號
+    PRIMARY KEY (ac_idp_info_cus_id)
+);
+
+-- 20240902 , CUS GATE IDP INFO , Kevin Cheng
+CREATE TABLE IF NOT EXISTS dgr_gtw_idp_info_cus (
+    gtw_idp_info_cus_id    BIGINT          NOT NULL,                -- ID
+    client_id              VARCHAR(40)     NOT NULL,                -- digiRunner 的 client_id
+    status                 VARCHAR(1)      NOT NULL DEFAULT 'Y',    -- 狀態
+    cus_login_url          VARCHAR(4000)   NOT NULL,                -- CUS 登入 URL
+    cus_user_data_url      VARCHAR(4000)   NOT NULL,                -- CUS 使用者資料 URL
+    icon_file              VARCHAR(4000),                           -- 登入頁圖示檔案
+    page_title             NVARCHAR(400),                           -- 登入頁標題
+    create_date_time       DATETIME        DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user            NVARCHAR(1000)   DEFAULT 'SYSTEM',        -- 建立人員
+    update_date_time       DATETIME,                                -- 更新日期
+    update_user            NVARCHAR(1000),                           -- 更新人員
+    version                INT             DEFAULT 1,               -- 版號
+    PRIMARY KEY (gtw_idp_info_cus_id)
+);
+
+-- 20241022 , DGR_BOT_DETECTION , Kevin Cheng
+CREATE TABLE IF NOT EXISTS dgr_bot_detection (
+    bot_detection_id   BIGINT          NOT NULL,                -- ID
+    bot_detection_rule VARCHAR(4000)   NOT NULL,                -- 規則
+    type               VARCHAR(1)      NOT NULL DEFAULT 'W',    -- 名單種類
+    create_date_time   DATETIME        DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+    create_user        NVARCHAR(1000)  DEFAULT 'SYSTEM',        -- 建立人員
+    update_date_time   DATETIME,                                -- 更新日期
+    update_user        NVARCHAR(1000),                           -- 更新人員
+    version            INT             DEFAULT 1,               -- 版號
+    PRIMARY KEY (bot_detection_id)
+);

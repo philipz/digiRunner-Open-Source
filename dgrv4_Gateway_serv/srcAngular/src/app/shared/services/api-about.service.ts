@@ -1,17 +1,27 @@
 
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Injectable } from "@angular/core";
 import { ApiBaseService } from './api-base.service';
 import { environment } from 'src/environments/environment';
 import { ResDPB0032, ReqDPB0032 } from 'src/app/models/api/AboutService/dpb0032.interface';
 import { TxID } from 'src/app/models/common.enum';
 import { DPB0031Req, ResDPB0031, ReqDPB0031 } from 'src/app/models/api/AboutService/dpb0031.interface';
-import { ResDPB0118 } from 'src/app/models/api/AboutService/dpb0118.interface';
+import { DPB0118Resp, ResDPB0118 } from 'src/app/models/api/AboutService/dpb0118.interface';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AboutService {
+
+
+    moduleVersionSubject:Subject<DPB0118Resp> = new Subject();
+    setModuleVersionData(value:any){
+      this.moduleVersionSubject.next(value);
+    }
+
+    getModuleVersionData() {
+      return this.moduleVersionSubject.asObservable();
+    }
 
     public get basePath(): string {
       return environment.isv4 ? 'dgrv4/11' : 'tsmpdpaa/11';

@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -89,8 +90,8 @@ public class DPB0044Service {
 			
 			// 檢查日期邏輯
 			// 使用DateTimeUtil轉出來的Date, 時間都是00:00:00
-			final Date dpb0044_startDate = dpb0044_opt_s.get();
-			Date endDate = opt_e.get();
+			final Date dpb0044_startDate = dpb0044_opt_s.orElse(null);
+			Date endDate = opt_e.orElse(null);
 			if (dpb0044_startDate.compareTo(endDate) > 0) {
 				throw TsmpDpAaRtnCode._1295.throwing();
 			} else {
@@ -103,12 +104,14 @@ public class DPB0044Service {
 			
 			this.logger.debug(String.format("DPB0044Service: %s ~ %s", debugDate(dpb0044_startDate), debugDate(endDate)));
 			
-			String nowDateStr = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日_2).get();
-			Optional<Date> opt_n = DateTimeUtil.stringToDateTime(nowDateStr, DateTimeFormatEnum.西元年月日_2);
-			if(!opt_n.isPresent()) {
-				throw TsmpDpAaRtnCode._1295.throwing();
-			}
-			Date nowDate = opt_n.get();
+//			String nowDateStr = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日_2);
+//
+//
+//			Optional<Date> opt_n = DateTimeUtil.stringToDateTime(nowDateStr, DateTimeFormatEnum.西元年月日_2);
+//			if(opt_n.isEmpty()) {
+//				throw TsmpDpAaRtnCode._1295.throwing();
+//			}
+			Date nowDate = DateTimeUtil.now();
 			nowDate = plusDay(nowDate, 1);//加一天
 			
 			
@@ -118,7 +121,7 @@ public class DPB0044Service {
 			List<TsmpDpNews> news = getTsmpDpNewsDao().queryLike(lastRecord, words, dpb0044_startDate, endDate, nowDate, 
 					typeItemNo,	enFlag, fbType, getPageSize());
 
-			if (news == null || news.size() == 0) {
+			if (CollectionUtils.isEmpty(news)) {
 				throw TsmpDpAaRtnCode._1198.throwing();
 			}
 
@@ -141,7 +144,7 @@ public class DPB0044Service {
 	}
 
 	private String debugDate(Date dt) {
-		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).get();
+		return DateTimeUtil.dateTimeToString(dt, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
 	}
 	
 	private TsmpDpNews getLastRecordFromPrevPage(Long newsId) {

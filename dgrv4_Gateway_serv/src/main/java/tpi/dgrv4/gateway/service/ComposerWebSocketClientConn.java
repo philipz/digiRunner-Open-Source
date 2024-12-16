@@ -30,8 +30,6 @@ import tpi.dgrv4.httpu.utils.HttpUtil;
 @Component
 @DependsOn("staticResourceInitializer")
 public class ComposerWebSocketClientConn {
-	
-	private static TPILogger logger = TPILogger.tl;
 
 	public static Session session;
 	
@@ -57,9 +55,9 @@ public class ComposerWebSocketClientConn {
     public void startWS() {
         try {
         	
-        	logger.debug("prepare composer ws client connection to server");
+        	TPILogger.tl.debug("prepare composer ws client connection to server");
             if (ComposerWebSocketClientConn.session != null && ComposerWebSocketClientConn.session.isOpen()) {
-            	logger.debug("composer websocket client already open");
+            	TPILogger.tl.debug("composer websocket client already open");
                 return;
             	 //WebSocketClient.session.close();
             }
@@ -72,7 +70,7 @@ public class ComposerWebSocketClientConn {
     		}
             
     		if(composerAddress == null) {
-    			logger.error("TsmpSetting TSMP_COMPOSER_ADDRESS is empty, no websocket");
+    			TPILogger.tl.error("TsmpSetting TSMP_COMPOSER_ADDRESS is empty, no websocket");
     			return;
     		}
             
@@ -206,11 +204,12 @@ public class ComposerWebSocketClientConn {
             		new PojoEndpointClient(WebSocketClientHandler.class, new ArrayList<>()),
                     clientEndpointConfig,
                     URI.create(uri));*/
-         
+            TPILogger.tl.debug("composer ws uri:" + uri);
             container.connectToServer(ComposerWebSocketClientHandler.class,  clientEndpointConfig, URI.create(uri));
+            TPILogger.tl.debug("setting composer ws connect to server OK");
             
         } catch (Exception e) {
-        	logger.error(StackTraceUtil.logStackTrace(e));
+        	TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
         }
     }
     
@@ -218,12 +217,12 @@ public class ComposerWebSocketClientConn {
     	try {
 	    	if (ComposerWebSocketClientConn.session != null && ComposerWebSocketClientConn.session.isOpen()) {
 	            ComposerWebSocketClientConn.session.close();
-	            logger.debug("composer websocket client close");
+	            TPILogger.tl.debug("composer websocket client close");
 	            ComposerWebSocketClientConn.session = null;
 	        }
 	    	this.startWS();
     	}catch(Exception e) {
-    		logger.error(StackTraceUtil.logStackTrace(e));
+    		TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
     	}
     }
 

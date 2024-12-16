@@ -43,25 +43,25 @@ import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 public class AA0003Service {
 
 	private TPILogger logger = TPILogger.tl;
-	
+
 	@Autowired
 	private TsmpOrganizationDao tsmpOrganizationDao;
 
 	@Autowired
 	private TsmpUserDao tsmpUserDao;
-	
+
 	@Autowired
 	private UsersDao usersDao;
-	
+
 	@Autowired
 	private AuthoritiesDao authoritiesDao;
-	
+
 	@Autowired
 	private TsmpRoleDao tsmpRoleDao;
 
 	@Autowired
 	private TsmpDpItemsCacheProxy tsmpDpItemsCacheProxy;
-	
+
 	@Autowired
 	private DgrAcIdpUserDao dgrAcIdpUserDao;
 
@@ -71,101 +71,102 @@ public class AA0003Service {
 		try {
 			String userId = ServiceUtil.nvl(req.getUserID());
 			String userName = ServiceUtil.nvl(req.getUserName());
-			
-			if("null".equalsIgnoreCase(userId) 
-					&& StringUtils.hasText(userName) 
+
+			if ("null".equalsIgnoreCase(userId) && StringUtils.hasText(userName)
 					&& userName.toLowerCase().indexOf("b64.") == 0) {
 				// 若userId為字串"null",且userName為"b64."開頭
 				// 1.以 SSO AC IdP 的方式登入
 				resp = new AA0003Resp();
 				String idPType = auth.getIdpType();
 				resp.setIdPType(idPType);
-				
+
 				if (DgrIdPType.LDAP.equals(idPType) // LDAP
 						|| DgrIdPType.MLDAP.equals(idPType) // MLDAP
-						|| DgrIdPType.API.equals(idPType)) // API
+						|| DgrIdPType.API.equals(idPType) // API
+						|| DgrIdPType.CUS.equals(idPType)) // CUS
 				{
 					String userNameForQuery = auth.getUserNameForQuery();
-					DgrAcIdpUser idpUser = getDgrAcIdpUserDao().findFirstByUserNameAndIdpType(userNameForQuery,idPType);
+					DgrAcIdpUser idpUser = getDgrAcIdpUserDao().findFirstByUserNameAndIdpType(userNameForQuery,
+							idPType);
 					resp = getIdpUserData(idpUser, userNameForQuery, resp);
 
 				} else {// GOOGLE 或 MS
 					resp.setIdTokenJwtstr(auth.getIdTokenJwtstr());
 				}
-				
-			}else {
+
+			} else {
 				// 2.以 AC 方式登入
-				if(!StringUtils.hasLength(userId) || !StringUtils.hasLength(userName)) {
+				if (!StringUtils.hasLength(userId) || !StringUtils.hasLength(userName)) {
 					// 1296:缺少必填參數
 					throw TsmpDpAaRtnCode._1296.throwing();
 				}
-					
+
 				resp = qureyTUserByPk(userId, userName, reqHeader.getLocale());
 			}
-			
-		}catch (TsmpDpAaException e){
+
+		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
 			this.logger.error(StackTraceUtil.logStackTrace(e));
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
-		
+
 		return resp;
 	}
-	
-	public AA0003Resp qureyTUserByPk(String userId ,String userName, String locale) throws Exception {
+
+	public AA0003Resp qureyTUserByPk(String userId, String userName, String locale) throws Exception {
 		AA0003Resp resp = null;
-		TsmpUser tsmpUser = getTsmpUserDao().findFirstByUserName( userName);
-		
-		// 用"userID"與"userName"對TSMP_USER資料表(USER_ID與USER_NAME欄位)做查詢，若沒有找到資料就throw RTN CODE 1231。
-		if(tsmpUser == null) {
+		TsmpUser tsmpUser = getTsmpUserDao().findFirstByUserName(userName);
+
+		// 用"userID"與"userName"對TSMP_USER資料表(USER_ID與USER_NAME欄位)做查詢，若沒有找到資料就throw RTN
+		// CODE 1231。
+		if (tsmpUser == null) {
 			throw TsmpDpAaRtnCode._1231.throwing();
-		}else {
+		} else {
 			resp = getAA0003Data(tsmpUser, locale);
 		}
-		
+
 		return resp;
 	}
-	
-	private AA0003Resp getAA0003Data(TsmpUser tsmpUser, String locale){
+
+	private AA0003Resp getAA0003Data(TsmpUser tsmpUser, String locale) {
 		AA0003Resp resp = new AA0003Resp();
-		String orgName ="";
+		String orgName = "";
 		String userName = "";
 		String createDateStr = "";
-		String logonDateStr ="";
-		
+		String logonDateStr = "";
+
 		Date createDate = tsmpUser.getCreateTime();
 		Date logonDate = tsmpUser.getLogonDate();
 		Optional<String> createDateOpt = DateTimeUtil.dateTimeToString(createDate, null);
 		Optional<String> logonDateOpt = DateTimeUtil.dateTimeToString(logonDate, null);
-		
-		if(createDateOpt.isPresent())
+
+		if (createDateOpt.isPresent())
 			createDateStr = createDateOpt.get();
-		
-		if(logonDateOpt.isPresent())
+
+		if (logonDateOpt.isPresent())
 			logonDateStr = logonDateOpt.get();
-		
+
 		Optional<TsmpOrganization> orgOpt = getTsmpOrganizationDao().findById(tsmpUser.getOrgId());
-		if(orgOpt.isPresent())
+		if (orgOpt.isPresent())
 			orgName = orgOpt.get().getOrgName();
-		
+
 		String status = getItemsParam("ENABLE_FLAG", tsmpUser.getUserStatus(), locale);
-		
+
 		userName = tsmpUser.getUserName();
-		
-		
-		Map<String,List<String>> map = getRoleData(userName);
+
+		Map<String, List<String>> map = getRoleData(userName);
 		List<String> roleIdList = map.get("roleIdList");
 		List<String> roleAliasList = map.get("roleAliasList");
-		
+
 		resp.setUserID(tsmpUser.getUserId());
 		resp.setUserName(tsmpUser.getUserName());
-		resp.setUserAlias(tsmpUser.getUserAlias());	
+		resp.setUserAlias(tsmpUser.getUserAlias());
 		resp.setOrgName(orgName);
-	
+
 		resp.setRoleID(roleIdList);
 
-		resp.setRoleAlias(roleAliasList);	//角色名稱
+		resp.setRoleAlias(roleAliasList); // 角色名稱
 		resp.setUserMail(ServiceUtil.nvl(tsmpUser.getUserEmail()));
 		resp.setLogonDate(logonDateStr);
 		resp.setCreateDate(createDateStr);
@@ -173,10 +174,10 @@ public class AA0003Service {
 		resp.setStatusName(status);
 		resp.setPwdFailTimes(ServiceUtil.nvl(tsmpUser.getPwdFailTimes()));
 		resp.setOrgId(tsmpUser.getOrgId());
-		
+
 		return resp;
 	}
-	
+
 	private AA0003Resp getIdpUserData(DgrAcIdpUser idpUser, String locale, AA0003Resp resp) {
 		if (idpUser == null) {
 			throw TsmpDpAaRtnCode._1231.throwing();
@@ -201,7 +202,7 @@ public class AA0003Service {
 		}
 		return resp;
 	}
-	
+
 	private String getItemsParam(String itemNo, String param1, String locale) {
 		TsmpDpItems dpItem = getTsmpDpItemsCacheProxy().findByItemNoAndParam1AndLocale(itemNo, param1, locale);
 		if (dpItem == null) {
@@ -210,31 +211,31 @@ public class AA0003Service {
 		String subitemName = dpItem.getSubitemName();
 		return subitemName;
 	}
-	
-	private Map<String,List<String>> getRoleData(String userName){
-		Map<String,List<String>> map = new HashMap<>();
+
+	private Map<String, List<String>> getRoleData(String userName) {
+		Map<String, List<String>> map = new HashMap<>();
 		List<String> roleIdList = new ArrayList<>();
 		List<String> roleAliasList = new ArrayList<>();
-		
-		//迴圈裡面再跑query 資料庫 ->效率會不好,但是因為有做分頁所以跑的資料量不會太多+JAP有一級快取的功能所以在分頁做此動作可接受
-		//一級快取 -> 在還沒有commit之前 有搜尋過的資料會存在快取
+
+		// 迴圈裡面再跑query 資料庫 ->效率會不好,但是因為有做分頁所以跑的資料量不會太多+JAP有一級快取的功能所以在分頁做此動作可接受
+		// 一級快取 -> 在還沒有commit之前 有搜尋過的資料會存在快取
 		List<Authorities> authUserName = getAuthoritiesDao().findByUsername(userName);
-		authUserName.forEach((auth) ->{
+		authUserName.forEach((auth) -> {
 			String authId = auth.getAuthority();
 			Optional<TsmpRole> optRole = getTsmpRoleDao().findById(authId);
-			if(optRole.isPresent()) {
+			if (optRole.isPresent()) {
 				roleIdList.add(optRole.get().getRoleId());
 				String roleAlias = optRole.get().getRoleAlias();
-				if(StringUtils.hasLength(roleAlias)) {
+				if (StringUtils.hasLength(roleAlias)) {
 					roleAliasList.add(roleAlias);
-					
-				}else {
+
+				} else {
 					String msg = "unknow:" + optRole.get().getRoleName();
 					roleAliasList.add(msg);
 				}
 			}
 		});
-		
+
 		map.put("roleIdList", roleIdList);
 		map.put("roleAliasList", roleAliasList);
 		return map;
@@ -247,23 +248,23 @@ public class AA0003Service {
 	protected TsmpDpItemsCacheProxy getTsmpDpItemsCacheProxy() {
 		return tsmpDpItemsCacheProxy;
 	}
-	
+
 	protected TsmpRoleDao getTsmpRoleDao() {
 		return this.tsmpRoleDao;
 	}
-	
+
 	protected AuthoritiesDao getAuthoritiesDao() {
 		return this.authoritiesDao;
 	}
-	
+
 	protected TsmpUserDao getTsmpUserDao() {
 		return this.tsmpUserDao;
 	}
-	
+
 	protected UsersDao getUsersDao() {
 		return this.usersDao;
 	}
-	
+
 	protected DgrAcIdpUserDao getDgrAcIdpUserDao() {
 		return dgrAcIdpUserDao;
 	}

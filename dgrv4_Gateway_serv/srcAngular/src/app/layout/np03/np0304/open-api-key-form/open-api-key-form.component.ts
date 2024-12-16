@@ -68,8 +68,8 @@ export class OpenApiKeyFormComponent extends BaseComponent implements OnInit {
       { field: 'apiName', header: dict['api_name'] },
       { field: 'apiDesc', header: dict['api_desc'] },
       { field: 'orgName', header: dict['dept'] },
-      { field: 'themeDatas', header: dict['theme_name'] },
-      { field: 'fileName', header: dict['api_doc'] }
+      // { field: 'themeDatas', header: dict['theme_name'] },
+      // { field: 'fileName', header: dict['api_doc'] }
     ];
     this.roleService.queryRTMapByUk({ txIdList: ['DPB0065'] } as DPB0115Req).subscribe(res => {
       if (this.tool.checkDpSuccess(res.ResHeader)) {

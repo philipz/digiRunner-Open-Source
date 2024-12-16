@@ -56,7 +56,7 @@ public class CusTokenCheck implements ICheck {
 	@Value("${server.port}")
 	private String serverPort;
 	
-	@Value("${cus.whitelist:{}}")
+	@Value("${cus.whitelist}")
 	private String cusWhitelistProperties;
 	
 	private Map<String, Whitelist> whitelistMap = new ConcurrentHashMap<>();
@@ -71,12 +71,12 @@ public class CusTokenCheck implements ICheck {
 	 */
 	public boolean check(HttpServletRequest req) {
 		try {
-
+			// 客製包打主包之判斷方法, 於 header 中粗略判斷三個 header
 			boolean fromCustomPackage = isCus(req);
 			if (fromCustomPackage) {
 
 				CusContentCachingRequestWrapper request = (CusContentCachingRequestWrapper) req;
-
+				// 以下是 '精確' 判斷, header 值是否合法
 				// 1.檢核cApikey
 				String cuuid = request.getHeader("cuuid");
 				String cApikey = request.getHeader("capi-key");
@@ -90,7 +90,7 @@ public class CusTokenCheck implements ICheck {
 				String uri = request.getRequestURI();
 				String username = request.getHeader("username");
 				String ipAddress = request.getRemoteAddr();
-				TPILogger.tl.debug("Customized ip is "+ipAddress);
+				TPILogger.tl.trace("Customized ip is " + ipAddress);
 				if (!checkCusWhiteList(username, ipAddress, uri)) {
 					TPILogger.tl.error("Customized package not in propreties whitelist");
 					return true;
@@ -110,8 +110,7 @@ public class CusTokenCheck implements ICheck {
 				// 4.取AccessToken
 				String token = getAccessToken(username);
 
-				// 5.加入快取
-//				cusTokenCache.put(username, token);
+				// 5.加入 Header 'Authorization'
 				request.setToken(token);
 			}
 		} catch (Exception e) {
@@ -132,6 +131,7 @@ public class CusTokenCheck implements ICheck {
 	}
 	
 	private boolean checkCusWhiteList(String username, String ipAddress, String api) {
+		//TPILogger.tl.debug("cus.whitelist properties is"+ cusWhitelistProperties);
 	    //把白名單轉成map
 	    if (!StringUtils.hasLength(cusWhitelistProperties)) {
 	    	TPILogger.tl.error("cus.whitelist properties is null");

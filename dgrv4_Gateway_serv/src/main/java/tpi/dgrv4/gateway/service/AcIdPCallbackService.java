@@ -215,6 +215,7 @@ public class AcIdPCallbackService {
 		
 		// 4.打 IdP(GOOGLE / MS) 的 token API, 取得 Access Token 和 ID Token
 		// 從 cookies 取得 codeVerifier 的值
+		String apiResp = null;
 		String codeVerifierForOauth2 = GtwIdPHelper.getStateFromCookies(httpReq, GtwIdPHelper.COOKIE_CODE_VERIFIER);
 		TokenData tokenData = getIdPTokenHelper().getTokenData(idPType, idPClientId, idPClientMima, idPAccessTokenUrl,
 				dgrCallbackUrl, idPAuthCode, codeVerifierForOauth2, reqUri);
@@ -235,6 +236,7 @@ public class AcIdPCallbackService {
 		String idTokenJwtstr = tokenData.idToken;
 		String accessTokenJwtstr = tokenData.accessToken;
 		String refreshTokenJwtstr = tokenData.refreshToken;
+		apiResp = tokenData.apiResp;
  
 		if(!StringUtils.hasLength(idTokenJwtstr)) {
     		// 缺少必填參數 '%s'
@@ -321,7 +323,7 @@ public class AcIdPCallbackService {
 		
 		// 7.依 User 狀態,寄信通知審核者 或 建立 dgRcode 重新導向到前端,以登入AC
 		getAcIdPHelper().sendMailOrCreateDgRcode(httpReq, httpResp, idPType, userName, userAlias, userEmail, idTokenJwtstr,
-				accessTokenJwtstr, refreshTokenJwtstr, reqUri, userIp, userHostname, txnUid, acIdPMsgUrl);
+				accessTokenJwtstr, refreshTokenJwtstr, reqUri, userIp, userHostname, txnUid, acIdPMsgUrl, apiResp);
 	}
  
 	/**

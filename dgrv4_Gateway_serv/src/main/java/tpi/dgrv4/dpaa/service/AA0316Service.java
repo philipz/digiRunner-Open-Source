@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,6 +28,7 @@ import tpi.dgrv4.entity.entity.jpql.TsmpRegModule;
 import tpi.dgrv4.entity.repository.*;
 import tpi.dgrv4.gateway.component.FileHelper;
 import tpi.dgrv4.gateway.component.job.JobHelper;
+import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -133,8 +133,10 @@ public class AA0316Service {
 			
 			// 清除快取
 			clearAPICache();
-			
 			resp.setRegModuleId(regModuleId);
+
+			// in-memory, 用列舉的值傳入值
+			TPILogger.updateTime4InMemory(DgrDataType.API.value());
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
@@ -337,7 +339,7 @@ public class AA0316Service {
 		
 		Set<String> set = new HashSet<>();
 		methods.forEach((method) -> {
-			if (!set.contains(method) && (HttpMethod.valueOf(method.toUpperCase()) != null)) {
+			if (!set.contains(method) && (SafeHttpMethod.resolve(method.toUpperCase()) != null)) {
 				set.add(method);
 			} else {
 				this.logger.debug("Invalid methods: " + methods);
