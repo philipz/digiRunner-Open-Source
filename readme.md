@@ -1,5 +1,15 @@
-# digiRunner: Your API Gateway for Microservices
+[![][tpi-logo]][tpi-url]
+# Your API Gateway for Microservices
+[TPI.dev](https://tpi.dev/home) | [Documentation](https://docs.tpi.dev/) | [Blog](https://tpi.dev/blog)
+## Table of contents
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Create a Simple Api Proxy](#create-a-simple-api-proxy)
+- [Documentation](#documentation)
+- [Build Your Own JAR](#build-your-own-jar)
+- [Run digiRunner in a Local Container Registry](#run-digirunner-in-a-local-container-registry)
 
+## Overview
 digiRunner is an application-layer API gateway that acts as a central hub for communication between clients and your backend services in a microservices architecture. It simplifies frontend development by providing a unified API endpoint, streamlining interactions with your distributed backend services.
 
 ## Key Features:
@@ -173,11 +183,11 @@ spec:
 
 ## Create a Simple API Proxy
 
-- [Documentation/create_a_simple_api_proxy](#)
+- [Documentation/create_a_simple_api_proxy](https://docs.tpi.dev/get-started/registering-your-first-apis-with-digirunner)
 
 ## Documentation
 
-- [Docs on gitbook](#)
+- [Documentation](https://docs.tpi.dev/)
 
 ## Build Your Own JAR
 
@@ -219,7 +229,6 @@ docker run -p 18080:18080 digirunner
 
 Open your browser and navigate to: http://localhost:18080/dgrv4/login
 
-
 ## Makefile
 
 You can also build your own jar using the `make` command
@@ -234,4 +243,8 @@ tasks:
 - `java-run`: run digiRunner-v4.2.25.jar using java -jar command
 - `build-image`: build docker image
 - `run-container`: run docker container
+
+
+[tpi-url]: https://tpi.dev/home
+[tpi-logo]: https://www.tpisoftware.com/images/products/digirunner/aws/v2/logo01@2x.png
 
