@@ -246,5 +246,5 @@ tasks:
 
 
 [tpi-url]: https://tpi.dev/home
-[tpi-logo]: https://www.tpisoftware.com/images/products/digirunner/aws/v2/logo01@2x.png
+[tpi-logo]: /digiRunner.png
 
