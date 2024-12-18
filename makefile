@@ -1,3 +1,6 @@
+FE_LICENSE_REPORT_FILE := .tmp/fe-license-report.html
+BE_LICENSE_REPORT_FILE := .tmp/be-license-report.html
+
 help:
 	@echo "Usage:"
 	@echo "make [task]"
@@ -8,16 +11,29 @@ help:
 	@echo "    - build-image: build docker image"
 	@echo "    - run-container: run docker container"
 license-report:
-	@rm -f .tmp/license-report.html || true
+	@echo "========== Generate BE License Report =========="
+	@rm -f $(BE_LICENSE_REPORT_FILE) || true
+	@rm -f $(FE_LICENSE_REPORT_FILE) || true
 	@rm -rf build/licenses || true
 	@echo '{"allowedLicenses": []}' | jq > .tmp/allowed-licenses.json
 	@sh gradlew -p . checkLicense || true
 	@cat build/licenses/dependencies-without-allowed-license.json | jq '.dependenciesWithoutAllowedLicenses[].moduleLicense' | sort | uniq | jq --slurp '.' | jq '{allowedLicenses:[{moduleLicense:.[],moduleName:".*"}]}' > .tmp/allowed-licenses.json
 	@sh gradlew -p . checkLicense
 	@rm .tmp/allowed-licenses.json
-	@mv build/licenses/index.html .tmp/license-report.html
+	@mv build/licenses/index.html $(BE_LICENSE_REPORT_FILE)
 	@rm -rf build/licenses
-	@echo "output file: $(shell realpath .tmp/license-report.html)"
+	@echo "---------- BE License Report Generated ----------"
+	@echo "BE License Report file: $(shell realpath $(BE_LICENSE_REPORT_FILE))"
+	@echo "========== Generate FE License Report =========="
+	@cp dgrv4_Gateway_serv/srcAngular/package.json .
+	@npm install --force
+	@license-report --output=html > $(FE_LICENSE_REPORT_FILE)
+	@echo "---------- FE License Report Generated ----------"
+	@echo "FE License Report file: $(shell realpath $(FE_LICENSE_REPORT_FILE))"
+	@rm -rf node_modules
+	@rm -f package.json
+	@rm -f package-lock.json
+
 build-jar:
 	@sh gradlew :dgrv4_Gateway_serv:clean
 	@sh gradlew :dgrv4_Gateway_serv:build
