@@ -12,6 +12,7 @@ public class DgrApplication extends SpringBootServletInitializer {
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		// version: v4.2.25
 		return application.sources(DgrApplication.class);
 	}
 
