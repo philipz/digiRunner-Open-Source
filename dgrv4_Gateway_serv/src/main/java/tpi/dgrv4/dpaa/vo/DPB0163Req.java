@@ -5,7 +5,9 @@ import java.util.List;
 
 import tpi.dgrv4.common.component.validator.BeforeControllerRespItemBuilderSelector;
 import tpi.dgrv4.common.component.validator.ReqValidator;
+import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.vo.BeforeControllerRespItem;
+import tpi.dgrv4.dpaa.util.ServiceUtil;
 
 public class DPB0163Req extends ReqValidator{
 
@@ -78,6 +80,14 @@ public class DPB0163Req extends ReqValidator{
 	public void setRoleIdList(List<String> roleIdList) {
 		this.roleIdList = roleIdList;
 	}
+	
+	public void switchCusIdpTypeUserName() {
+
+		if (DgrIdPType.CUS.equalsIgnoreCase(this.idpType)) {
+			this.userName = ServiceUtil.encodeBase64URL(this.userName);
+		}
+	}
+	
 	@Override
 	protected List<BeforeControllerRespItem> provideConstraints(String locale) {
 		return Arrays.asList(new BeforeControllerRespItem[] {

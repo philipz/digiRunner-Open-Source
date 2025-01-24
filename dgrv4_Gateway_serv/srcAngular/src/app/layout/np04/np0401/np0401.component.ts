@@ -22,7 +22,6 @@ import { Observable } from 'rxjs';
 import { DPB0069Req, DPB0069Resp } from 'src/app/models/api/RequisitionService/dpb0069.interface';
 import { FormParams } from 'src/app/models/api/form-params.interface';
 import { ApiOnOffComponent } from '../../np03/np0301/api-on-off/api-on-off.component';
-import { ClientRegisteredComponent } from '../../np03/np0302/client-registered/client-registered.component';
 import { ClientAuthorizeApiComponent } from '../../np03/np0303/client-authorize-api/client-authorize-api.component';
 import { RequisitionFormComponent } from './requisition-form/requisition-form.component';
 import { DPB0071Req } from 'src/app/models/api/ApiSignOffService/dpb0071.interface';
@@ -304,13 +303,13 @@ export class Np0401Component extends BaseComponent implements OnInit {
                                   }
                                 }
                             }
-                            console.log(res.RespBody.reqType)
+
                             switch (res.RespBody.reqType) {
                                 case 'API_ON_OFF':
                                     this._dialog.open(ApiOnOffComponent, data);
                                     break;
                                 case 'CLIENT_REG':
-                                    this._dialog.open(ClientRegisteredComponent, data);
+                                    //已移除
                                     break;
                                 case 'API_APPLICATION':
                                     // this._dialog.open(ClientAuthorizeApiComponent, data);

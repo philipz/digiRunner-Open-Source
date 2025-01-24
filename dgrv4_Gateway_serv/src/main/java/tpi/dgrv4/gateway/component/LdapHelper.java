@@ -161,8 +161,12 @@ public class LdapHelper {
 				return ldapAdAuthData;
 			}
  
+			//checkmarx, LDAP Injection
+			String filter = "sAMAccountName={0}";
+			Object[] filterArgs = new Object[] { reqUserName };
+			
 			SearchControls searchControls = getSearchControls();
-			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, "sAMAccountName=" + reqUserName,
+			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, filterArgs,
 					searchControls);
 
             if (answer.hasMore()) {

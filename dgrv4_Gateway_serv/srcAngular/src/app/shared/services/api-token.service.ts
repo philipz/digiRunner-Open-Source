@@ -51,7 +51,7 @@ export class TokenService {
 
     }
 
-    auth(username:string , password: string, grant_type: GrantType = GrantType.password, appendUrl: string = "")
+    auth(username:string , mima: string, grant_type: GrantType = GrantType.mima, appendUrl: string = "")
     {
         try {
             let refresh_token= sessionStorage.getItem('refresh_token')??'';
@@ -72,16 +72,16 @@ export class TokenService {
             // console.log(grant_type);
             switch (grant_type) {
 
-                case GrantType.password:
+                case GrantType.mima:
                     body.append('username', username);
-                    body.append('password', password);
+                    body.append('password', mima);
                     break;
                 case GrantType.refresh_token:
                     body.append('refresh_token', sessionStorage.getItem('refresh_token')??'');
 
                     break;
                 case GrantType.client_credentials:
-                    let data = username + ":" + password;
+                    let data = username + ":" + mima;
                     this.headers = this.headers.append("Authorization", "Basic " + btoa(data));
                     // this.headers = this.headers.append("Content-Type", "application/x-www-form-urlencoded");
                     break;
@@ -117,11 +117,11 @@ export class TokenService {
         return throwError(()=> handleError);
     }
 
-    public authBytestApi(clientid: string, clientpassword: string, username?: string, password?: string, grant_type: GrantType = GrantType.password) {
+    public authBytestApi(clientid: string, clientmima: string, username?: string, mima?: string, grant_type: GrantType = GrantType.mima) {
         try {
             let body = new FormData;
             // this.headers = new HttpHeaders()
-            let data = clientid + ":" + clientpassword;
+            let data = clientid + ":" + clientmima;
             // let testHeader = new  HttpHeaders();
             // testHeader = testHeader.append("Authorization_chad", "Basic " + btoa(data));
             // testHeader = testHeader.append("Authorization", "Basic " + btoa(data));
@@ -134,9 +134,9 @@ export class TokenService {
 
             body.append('grant_type', grant_type);
             switch (grant_type) {
-                case GrantType.password:
+                case GrantType.mima:
                     body.append('username', username??'');
-                    body.append('password', password??'');
+                    body.append('password', mima??'');
                     break;
                 case GrantType.refresh_token:
                     break;
@@ -160,7 +160,7 @@ export class TokenService {
     }
 
 
-    getSsotoken(grant_type: GrantType = GrantType.password, username?: string, codeVerifier?: string, userMail?:string , refresh_token ?: string ) {
+    getSsotoken(grant_type: GrantType = GrantType.mima, username?: string, codeVerifier?: string, userMail?:string , refresh_token ?: string ) {
         try {
             let body = new FormData;
             this.headers = new HttpHeaders();
@@ -168,7 +168,7 @@ export class TokenService {
             body.append('grant_type', grant_type);
 
             switch (grant_type) {
-                case GrantType.password:
+                case GrantType.mima:
                     body.append('username', username??'');
                     body.append('codeVerifier', codeVerifier??'');
                     body.append('userMail', userMail??'');

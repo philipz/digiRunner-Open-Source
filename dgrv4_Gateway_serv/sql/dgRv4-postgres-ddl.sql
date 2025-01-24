@@ -3478,3 +3478,10 @@ CREATE TABLE IF NOT EXISTS dgr_bot_detection
     version            INT                    DEFAULT 1,                 -- 版號
     CONSTRAINT BOT_DETECTION_PK PRIMARY KEY (bot_detection_id)
 );
+
+-- 20250120 , TSMP Token 歷史紀錄, Mini Lee
+ALTER TABLE tsmp_token_history ALTER COLUMN api_resp TYPE TEXT;
+-- 20250120 , SSO AC IdP授權碼記錄檔, Mini Lee
+ALTER TABLE dgr_ac_idp_auth_code ALTER COLUMN api_resp TYPE TEXT;
+-- 20250120 , Gateway IdP授權碼記錄檔, Mini Lee
+ALTER TABLE dgr_gtw_idp_auth_code ALTER COLUMN api_resp TYPE TEXT;

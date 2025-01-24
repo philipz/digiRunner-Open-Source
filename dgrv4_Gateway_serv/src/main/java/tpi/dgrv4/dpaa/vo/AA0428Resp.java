@@ -8,7 +8,7 @@ public class AA0428Resp {
 	private Map<String, String> sortBy;
 	
 	/** 資料清單	*/
-	private List<AA0428Item> dataList;
+	private List<AA0301Item> dataList;
 
 	public Map<String, String> getSortBy() {
 		return sortBy;
@@ -18,11 +18,11 @@ public class AA0428Resp {
 		this.sortBy = sortBy;
 	}
 
-	public List<AA0428Item> getDataList() {
+	public List<AA0301Item> getDataList() {
 		return dataList;
 	}
 
-	public void setDataList(List<AA0428Item> dataList) {
+	public void setDataList(List<AA0301Item> dataList) {
 		this.dataList = dataList;
 	}
 }

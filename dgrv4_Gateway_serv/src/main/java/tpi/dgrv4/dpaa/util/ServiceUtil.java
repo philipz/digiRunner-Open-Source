@@ -1,5 +1,6 @@
 package tpi.dgrv4.dpaa.util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.SHA256Util;
+import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.constant.LocaleType;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -29,6 +31,7 @@ import tpi.dgrv4.dpaa.constant.RegexpConstant;
 import tpi.dgrv4.dpaa.vo.ConvertTimeUnitRst;
 import tpi.dgrv4.entity.component.cache.proxy.TsmpDpItemsCacheProxy;
 import tpi.dgrv4.entity.component.cache.proxy.TsmpRtnCodeCacheProxy;
+import tpi.dgrv4.entity.entity.DgrAcIdpUser;
 import tpi.dgrv4.entity.entity.TsmpDpItems;
 import tpi.dgrv4.entity.entity.TsmpRtnCode;
 import tpi.dgrv4.gateway.keeper.TPILogger;
@@ -41,6 +44,7 @@ public class ServiceUtil {
 	private static TsmpDpItemsCacheProxy tsmpDpItemsCacheProxy;
 	private static TsmpRtnCodeCacheProxy tsmpRtnCodeCacheProxy;
 	private static TPILogger logger = TPILogger.tl;
+
 	/**
 	 * 取代多個分隔字元為單一字元，並依分隔字元切割字串
 	 * 
@@ -89,7 +93,7 @@ public class ServiceUtil {
 //
 //		return toReturn;
 //	}
-	
+
 	/**
 	 * 計算 SHA-256 值後轉成 base64 URL 無後綴 字串
 	 * 
@@ -98,18 +102,18 @@ public class ServiceUtil {
 	 */
 	public static String getSHA256ToBase64UrlEncodeWithoutPadding(String input) {
 		String toReturn = null;
-		
+
 		try {
 			byte[] input_byte = SHA256Util.getSHA256(input.getBytes());
 			toReturn = Base64Util.base64URLEncode(input_byte);
- 
+
 		} catch (Exception e) {
 			TPILogger.tl.debug("getSHA256ToBase64UrlEncodeWithoutPadding error: " + StackTraceUtil.logStackTrace(e));
 		}
-		
+
 		return toReturn;
 	}
-	
+
 	/**
 	 * 計算 SHA-512值後轉成 base64 字串
 	 * 
@@ -118,14 +122,14 @@ public class ServiceUtil {
 	 */
 	public static String getSHA512ToBase64(String input) {
 		String toReturn = null;
-		
+
 		try {
 			byte[] input_byte = SHA256Util.getSHA512(input.getBytes());
 			toReturn = Base64Util.base64EncodeWithoutPadding(input_byte);
 		} catch (Exception e) {
 			TPILogger.tl.debug("getSHA512ToBase64 error: " + e);
 		}
-		
+
 		return toReturn;
 	}
 
@@ -144,6 +148,7 @@ public class ServiceUtil {
 
 	/**
 	 * base 64解密
+	 * 
 	 * @param base64EncodedStr
 	 * @return
 	 */
@@ -221,12 +226,41 @@ public class ServiceUtil {
 //		return exp;
 //	}
 
-	public static <T> T deepCopy (T source, Class<T> clazz) {
+	public static String decodeBase64URL(String input) {
+
+		try {
+
+			byte[] inputByte = Base64Util.base64URLDecode(input);
+			input = new String(inputByte, StandardCharsets.UTF_8);
+
+		} catch (Exception e) {
+			TPILogger.tl.debug("The Input : " + input);
+			TPILogger.tl.debug("Decode Base64URL Error: " + e.getMessage());
+		}
+
+		return input;
+	}
+
+	public static String encodeBase64URL(String input) {
+
+		try {
+
+			input = Base64Util.base64URLEncode(input.getBytes(StandardCharsets.UTF_8));
+
+		} catch (Exception e) {
+			TPILogger.tl.debug("The Input : " + input);
+			TPILogger.tl.debug("Encode Base64URL Error: " + e.getMessage());
+		}
+
+		return input;
+	}
+
+	public static <T> T deepCopy(T source, Class<T> clazz) {
 		try {
 			ObjectMapper om = new ObjectMapper();
 			return om.readValue( //
-				om.writeValueAsString(source), //
-				clazz //
+					om.writeValueAsString(source), //
+					clazz //
 			);
 		} catch (Exception e) {
 			TPILogger.tl.debug("deepCopy error: " + StackTraceUtil.logStackTrace(e));
@@ -285,18 +319,18 @@ public class ServiceUtil {
 //		return sb.toString();
 //	}
 
-	public static boolean isChainedExceptionMessagesContainIgnoreCase(Throwable t, String ...inputs) {
+	public static boolean isChainedExceptionMessagesContainIgnoreCase(Throwable t, String... inputs) {
 		if (inputs == null || inputs.length == 0) {
 			return true;
 		}
 
 		String detailMessage = null;
-		while(t != null) {
+		while (t != null) {
 			detailMessage = t.getMessage();
 			if (StringUtils.hasLength(detailMessage)) {
 				detailMessage = detailMessage.toLowerCase();
-				
-				for(String input : inputs) {
+
+				for (String input : inputs) {
 					if (StringUtils.hasLength(input)) {
 						input = input.toLowerCase();
 						if (detailMessage.contains(input)) {
@@ -311,23 +345,23 @@ public class ServiceUtil {
 	}
 
 	public static boolean isValueTooLargeException(Throwable t) {
-		return isChainedExceptionMessagesContainIgnoreCase(t, 
-			"Value too long",					// H2
-			"value too large", "ORA-12899",		// Oracle
-			"Data too long",					// MySQL
-			"Text was truncated", "會被截斷",	// SQLServer
-			"value too long");					// PostgreSQL
+		return isChainedExceptionMessagesContainIgnoreCase(t, "Value too long", // H2
+				"value too large", "ORA-12899", // Oracle
+				"Data too long", // MySQL
+				"Text was truncated", "會被截斷", // SQLServer
+				"value too long"); // PostgreSQL
 	}
 
 	/**
 	 * 如果 input 為 null, 則返回 alternatives 中第一個非 null 的值;<br>
 	 * 若 alternatives 為空值, 則返回 Integer.MIN_VALUE
+	 * 
 	 * @param input
 	 * @param alternatives
 	 * @return
 	 * @throws Exception
 	 */
-	public static Integer nvl(Integer input, Integer ... alternatives) {
+	public static Integer nvl(Integer input, Integer... alternatives) {
 		return nvl(Integer.class, () -> {
 			return Integer.MIN_VALUE;
 		}, (i) -> {
@@ -338,12 +372,13 @@ public class ServiceUtil {
 	/**
 	 * 如果 input 為 null, 則返回 alternatives 中第一個非 null 的值;<br>
 	 * 若 alternatives 為空值, 則返回空字串
+	 * 
 	 * @param input
 	 * @param alternatives
 	 * @return
 	 * @throws Exception
 	 */
-	public static String nvl(String input, String ... alternatives) {
+	public static String nvl(String input, String... alternatives) {
 		return nvl(String.class, () -> {
 			return new String();
 		}, (s) -> {
@@ -352,7 +387,8 @@ public class ServiceUtil {
 	}
 
 	@SafeVarargs
-	private static <R> R nvl(Class<R> clazz, Supplier<R> initializer, Function<R, R> caster, R input, R ... alternatives) {
+	private static <R> R nvl(Class<R> clazz, Supplier<R> initializer, Function<R, R> caster, R input,
+			R... alternatives) {
 		if (input == null) {
 			if (alternatives == null || alternatives.length == 0) {
 				return initializer.get();
@@ -365,25 +401,26 @@ public class ServiceUtil {
 
 		return caster.apply(input);
 	}
-	
+
 	/**
 	 * 使用正則表示式檢查字串
 	 * 
 	 * @param input 需被檢查
-	 * @param rule  
+	 * @param rule
 	 * @return
 	 */
 	public static boolean checkDataByPattern(String input, String rule) {
 		Pattern p = Pattern.compile(rule);
-		if(input==null) {input="";}
-		Matcher m = p.matcher(input); // 不接受 null 
+		if (input == null) {
+			input = "";
+		}
+		Matcher m = p.matcher(input); // 不接受 null
 		return m.matches();
-			
+
 	}
-	
+
 	/**
-	 * 檢查email格式
-	 * 可以多個mail,以「,」分隔
+	 * 檢查email格式 可以多個mail,以「,」分隔
 	 * 
 	 * @param input
 	 * @return
@@ -391,9 +428,9 @@ public class ServiceUtil {
 	public static boolean checkEmail(String input) {
 		String rule = RegexpConstant.EMAIL;
 		return checkDataByPattern(input, rule);
-			
+
 	}
-	
+
 	/**
 	 * 只能輸入數字英文
 	 * 
@@ -403,7 +440,7 @@ public class ServiceUtil {
 	public static boolean isNumericOrAlphabetic(String input) {
 		String rule = RegexpConstant.ENGLISH_NUMBER;
 		return checkDataByPattern(input, rule);
-			
+
 	}
 
 	/**
@@ -415,7 +452,7 @@ public class ServiceUtil {
 	public static boolean isNumericOrAlphabeticOrWhitespace(String input) {
 		String rule = RegexpConstant.ENGLISH_NUMBER_WHITESPACE;
 		return checkDataByPattern(input, rule);
-			
+
 	}
 
 	public static String join(CharSequence delimiter, Integer... elements) {
@@ -423,8 +460,8 @@ public class ServiceUtil {
 		Objects.requireNonNull(elements);
 		// Number of elements not likely worth Arrays.stream overhead.
 		StringJoiner joiner = new StringJoiner(delimiter);
-		for (Integer i: elements) {
-		    joiner.add(String.valueOf(i));
+		for (Integer i : elements) {
+			joiner.add(String.valueOf(i));
 		}
 		return joiner.toString();
 	}
@@ -466,61 +503,109 @@ public class ServiceUtil {
 			return Locale.getDefault();
 		}
 	}
-	
-	/**
-	 * 計算傳入時間(秒)是否可以進位成單一單位(ex: N小時、N分鐘)
-	 * <br>若無法完整進位(ex: N小時N分鐘、N分鐘N秒), 則不進位, 單位預設為"秒"，並前綴 "大約" 字樣；若可完整進位，則此欄位填入空字串
-	 * 
-	 * 		<li>ex : 輸入59秒
-	 * 		<li>輸出結果 : 
-	 * 		<table border="1">
-	 * 		<tbody>
-	 * 			<tr><td>ConvertTimeUnitRst.time </td><td> 59</td></tr>
-	 *			<tr><td>ConvertTimeUnitRst.timeUnit </td><td> s</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.timeUnitName </td><td> 秒</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.approximateTimeUnit </td><td></td></tr>
-	 *      </tbody>
-	 *      </table>
-	 *      <br>
-	 * 		<li>ex : 輸入120秒 (2分鐘)
-	 * 		<li>輸出結果 : 
-	 * 		<table border="1">
-	 * 		<tbody>
-	 * 			<tr><td>ConvertTimeUnitRst.time </td><td> 2</td></tr>
-	 *			<tr><td>ConvertTimeUnitRst.timeUnit </td><td> m</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.timeUnitName </td><td> 分鐘</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.approximateTimeUnit </td><td></td></tr>
-	 * 		</tbody>
-	 * 		</table>
-	 * 		<br>
-	 * 		<li>ex : 輸入5400秒 (1小時30分鐘)
-	 * 		<li>輸出結果 : 
-	 * 		<table border="1">
-	 * 		<tbody>
-	 * 			<tr><td>ConvertTimeUnitRst.time </td><td> 90</td></tr>
-	 *			<tr><td>ConvertTimeUnitRst.timeUnit </td><td> m</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.timeUnitName </td><td> 分鐘</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.approximateTimeUnit </td><td>大約 1 小時</td></tr>
-	 * 		</tbody>
-	 * 		</table>
-	 * 		<br>
-	 * 		<li>ex : 輸入5500秒 (1小時32分鐘30秒)
-	 * 		<li>輸出結果 : 
-	 * 		<table border="1">
-	 * 		<tbody>
-	 * 			<tr><td>ConvertTimeUnitRst.time </td><td> 5500</td></tr>
-	 *			<tr><td>ConvertTimeUnitRst.timeUnit </td><td> s</td></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.timeUnitName </td><td> 秒</th></tr>
-	 * 			<tr><td>ConvertTimeUnitRst.approximateTimeUnit </td><td>大約 1 小時</td></tr>
-	 * 		</tbody>
-	 * 		</table>
 
-	 * @param seconds	
+	/**
+	 * 計算傳入時間(秒)是否可以進位成單一單位(ex: N小時、N分鐘) <br>
+	 * 若無法完整進位(ex: N小時N分鐘、N分鐘N秒), 則不進位, 單位預設為"秒"，並前綴 "大約" 字樣；若可完整進位，則此欄位填入空字串
+	 * 
+	 * <li>ex : 輸入59秒
+	 * <li>輸出結果 :
+	 * <table border="1">
+	 * <tbody>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.time</td>
+	 * <td>59</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnit</td>
+	 * <td>s</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnitName</td>
+	 * <td>秒</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.approximateTimeUnit</td>
+	 * <td></td>
+	 * </tr>
+	 * </tbody>
+	 * </table>
+	 * <br>
+	 * <li>ex : 輸入120秒 (2分鐘)
+	 * <li>輸出結果 :
+	 * <table border="1">
+	 * <tbody>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.time</td>
+	 * <td>2</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnit</td>
+	 * <td>m</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnitName</td>
+	 * <td>分鐘</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.approximateTimeUnit</td>
+	 * <td></td>
+	 * </tr>
+	 * </tbody>
+	 * </table>
+	 * <br>
+	 * <li>ex : 輸入5400秒 (1小時30分鐘)
+	 * <li>輸出結果 :
+	 * <table border="1">
+	 * <tbody>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.time</td>
+	 * <td>90</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnit</td>
+	 * <td>m</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnitName</td>
+	 * <td>分鐘</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.approximateTimeUnit</td>
+	 * <td>大約 1 小時</td>
+	 * </tr>
+	 * </tbody>
+	 * </table>
+	 * <br>
+	 * <li>ex : 輸入5500秒 (1小時32分鐘30秒)
+	 * <li>輸出結果 :
+	 * <table border="1">
+	 * <tbody>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.time</td>
+	 * <td>5500</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnit</td>
+	 * <td>s</td>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.timeUnitName</td>
+	 * <td>秒</th>
+	 * </tr>
+	 * <tr>
+	 * <td>ConvertTimeUnitRst.approximateTimeUnit</td>
+	 * <td>大約 1 小時</td>
+	 * </tr>
+	 * </tbody>
+	 * </table>
+	 * 
+	 * @param seconds
 	 * @return ConvertTimeUnitRst
 	 * @throws IllegalArgumentException
 	 * 
 	 */
-	
+
 	public static ConvertTimeUnitRst convertTimeUnit(int seconds, String locale) throws IllegalArgumentException {
 		if (seconds < 0) {
 			throw new IllegalArgumentException("Param(" + seconds + ") is no less than 0 ");
@@ -539,7 +624,8 @@ public class ServiceUtil {
 				object.setTimeUnit(nvl(unit));
 				object.setTimeUnitName(getTimeUnitName(timeUnitList, unit));
 			} else {
-				TsmpRtnCode trn = getTsmpRtnCodeCacheProxy().findById(TsmpDpAaRtnCode._2012.getCode(), locale).orElse(null);
+				TsmpRtnCode trn = getTsmpRtnCodeCacheProxy().findById(TsmpDpAaRtnCode._2012.getCode(), locale)
+						.orElse(null);
 				String msg = "";
 				if (trn == null) {
 					msg = "Approximately";
@@ -559,38 +645,38 @@ public class ServiceUtil {
 		return object;
 	}
 
-	private static Map<String, Integer> convertTimeUnit(List<TsmpDpItems> timeUnitList, int time, int currentTimeUnitIndex) {
+	private static Map<String, Integer> convertTimeUnit(List<TsmpDpItems> timeUnitList, int time,
+			int currentTimeUnitIndex) {
 		Map<String, Integer> allowDays = null;
 		int nextTimeUnitIndex = currentTimeUnitIndex + 1;
 		if (timeUnitList.size() > nextTimeUnitIndex) {
 			TsmpDpItems nextTimeUnit = timeUnitList.get(nextTimeUnitIndex);
-			
+
 			int basic = Integer.valueOf(nextTimeUnit.getParam1());
-			
-			int q = time / basic;	//quotient  商數
-			int r = time % basic;	//remainder 餘數
+
+			int q = time / basic; // quotient 商數
+			int r = time % basic; // remainder 餘數
 			if (q > 0 && r == 0) {
 				allowDays = convertTimeUnit(timeUnitList, q, nextTimeUnitIndex);
 			} else {
 				TsmpDpItems currentTimeUnit = timeUnitList.get(currentTimeUnitIndex);
 				allowDays = new LinkedHashMap<>();
 				allowDays.put(currentTimeUnit.getSubitemNo(), time);
-				if(q > 0) {
+				if (q > 0) {
 					Map<String, Integer> ballParkMap = convertTimeUnit(timeUnitList, q, nextTimeUnitIndex);
 					allowDays.putAll(ballParkMap);
 				}
-				
+
 			}
 		} else {
 			TsmpDpItems currentTimeUnit = timeUnitList.get(currentTimeUnitIndex);
 			allowDays = new HashMap<>();
 			allowDays.put(currentTimeUnit.getSubitemNo(), time);
 		}
-		
-		
+
 		return allowDays;
 	}
-	
+
 	private static String getTimeUnitName(List<TsmpDpItems> timeUnitList, String subItemNo) {
 		String subitemName = "";
 		Optional<TsmpDpItems> result = timeUnitList.stream().filter(obj -> obj.getSubitemNo().equals(subItemNo))
@@ -601,41 +687,41 @@ public class ServiceUtil {
 
 		return subitemName;
 	}
-	
+
 	/**
-     * 文字打碼,只顯示前後N個字,中間其餘隱藏加星號(*) <br>
-     * 引數異常直接返回""
-     *
-     * @param str		要處理的資料文字
-     * @param front     需要顯示前幾位
-     * @param end       需要顯示末幾位
-     * @return 處理完成的資料
-     */
-    public static String dataMask(String str, int front, int end) {
-        //資料不能為空
-        if (!StringUtils.hasLength(str)) {
-            return "";
-        }
-        //需要擷取的長度不能大於資料
-        if ((front + end) > str.length()) {
-            return "";
-        }
-        //需要擷取的不能小於0
-        if (front < 0 || end < 0) {
-            return "";
-        }
-        //計算*的數量
-        int asteriskCount = str.length() - (front + end);
-        StringBuffer asteriskStr = new StringBuffer();
-        for (int i = 0; i < asteriskCount; i++) {
-            asteriskStr.append("*");
-        }
-        String regex = "(.{" + String.valueOf(front) + "})(.+)(.{" + String.valueOf(end) + "})";
-        String replacement = "$1" + asteriskStr + "$3";
-        String mark = str.replaceAll(regex, replacement);
-        return mark;
-    }
-    
+	 * 文字打碼,只顯示前後N個字,中間其餘隱藏加星號(*) <br>
+	 * 引數異常直接返回""
+	 *
+	 * @param str   要處理的資料文字
+	 * @param front 需要顯示前幾位
+	 * @param end   需要顯示末幾位
+	 * @return 處理完成的資料
+	 */
+	public static String dataMask(String str, int front, int end) {
+		// 資料不能為空
+		if (!StringUtils.hasLength(str)) {
+			return "";
+		}
+		// 需要擷取的長度不能大於資料
+		if ((front + end) > str.length()) {
+			return "";
+		}
+		// 需要擷取的不能小於0
+		if (front < 0 || end < 0) {
+			return "";
+		}
+		// 計算*的數量
+		int asteriskCount = str.length() - (front + end);
+		StringBuffer asteriskStr = new StringBuffer();
+		for (int i = 0; i < asteriskCount; i++) {
+			asteriskStr.append("*");
+		}
+		String regex = "(.{" + String.valueOf(front) + "})(.+)(.{" + String.valueOf(end) + "})";
+		String replacement = "$1" + asteriskStr + "$3";
+		String mark = str.replaceAll(regex, replacement);
+		return mark;
+	}
+
 	/**
 	 * 取得後面有加特殊字0x80,再經 Base64Encode 的 字串
 	 * 
@@ -643,14 +729,14 @@ public class ServiceUtil {
 	 */
 	public static String getAdd0x80ToBase64Encoede(String origStr) {
 		byte[] data1 = origStr.getBytes();
-		byte[] data2 = new byte[data1.length+1];
-		System.arraycopy(data1, 0, data2, 0, data1.length);//陣列複製:參數分別是來源陣列、來源起始索引、目的陣列、目的起始索引、複製長度
-		data2[data2.length-1] = (byte)0x80;//加入特殊字0x80
+		byte[] data2 = new byte[data1.length + 1];
+		System.arraycopy(data1, 0, data2, 0, data1.length);// 陣列複製:參數分別是來源陣列、來源起始索引、目的陣列、目的起始索引、複製長度
+		data2[data2.length - 1] = (byte) 0x80;// 加入特殊字0x80
 		String base64EnStr = base64Encode(data2);
-		
+
 		return base64EnStr;
 	}
-	
+
 	/**
 	 * Locale 修改成符合資料表中的資料格式, ex. zh-TW
 	 * 
@@ -659,28 +745,29 @@ public class ServiceUtil {
 	 */
 	public static String getLocale(String locale) {
 		try {
-			//若傳入值為空,則取得系統的 locale
-			if(!StringUtils.hasText(locale)) {
+			// 若傳入值為空,則取得系統的 locale
+			if (!StringUtils.hasText(locale)) {
 				// 不使用 Locale.getDefault(), 因為 pipelines 測試主機取出來的語系不一定存在TsmpRtnCode
 				locale = LocaleType.ZH_TW;
-			};
- 
-			//修改成符合DB中的資料格式, ex.zh-TW
-			if(StringUtils.hasText(locale)) {
-				locale = locale.replace("_", "-"); 
 			}
-			
+			;
+
+			// 修改成符合DB中的資料格式, ex.zh-TW
+			if (StringUtils.hasText(locale)) {
+				locale = locale.replace("_", "-");
+			}
+
 			String[] arr = locale.split("-");
-			if(StringUtils.hasText(arr[0])) { //language
+			if (StringUtils.hasText(arr[0])) { // language
 				arr[0] = arr[0].toLowerCase();
 			}
-			
-			if(StringUtils.hasText(arr[1])) { //country
+
+			if (StringUtils.hasText(arr[1])) { // country
 				arr[1] = arr[1].toUpperCase();
 			}
-			
+
 			locale = arr[0].concat("-").concat(arr[1]);
-			
+
 			// 若不是EN_US、ZH_CN或ZH_TW，預設為EN_US
 			if (!LocaleType.EN_US.matches(locale) && !LocaleType.ZH_TW.matches(locale)
 					&& !LocaleType.ZH_CN.matches(locale)) {
@@ -689,9 +776,10 @@ public class ServiceUtil {
 		} catch (Exception e) {
 			TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));
 		}
-		
+
 		return locale;
 	}
+
 //	
 //	public static void main(String[] args) {
 //		boolean b = isIpInNetwork( //
@@ -701,19 +789,18 @@ public class ServiceUtil {
 //	}
 //	
 	/**
-	 * 判斷IP是否在網段中
-	 * 例如:
-	 * "192.168.1.127", "192.168.1.64/26" 
+	 * 判斷IP是否在網段中 例如: "192.168.1.127", "192.168.1.64/26"
 	 */
 	public static boolean isIpInNetwork(String ip, String cidr) {
 		try {
 			// 不限網域
-			if("0.0.0.0/0".equals(cidr)) return true;
-			
+			if ("0.0.0.0/0".equals(cidr))
+				return true;
+
 			String[] ips = ip.split("\\.");
 			int ipAddr = (Integer.parseInt(ips[0]) << 24) | (Integer.parseInt(ips[1]) << 16)
 					| (Integer.parseInt(ips[2]) << 8) | Integer.parseInt(ips[3]);
-			//這段 Regex 已被 Tom Review 過了, 故取消 hotspot 標記
+			// 這段 Regex 已被 Tom Review 過了, 故取消 hotspot 標記
 			int type = Integer.parseInt(cidr.replaceAll(".*/", "")); // NOSONAR
 			int mask = 0xFFFFFFFF << (32 - type);
 			String cidrIp = cidr.replaceAll("/.*", "");
@@ -721,17 +808,17 @@ public class ServiceUtil {
 			int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24) | (Integer.parseInt(cidrIps[1]) << 16)
 					| (Integer.parseInt(cidrIps[2]) << 8) | Integer.parseInt(cidrIps[3]);
 			return (ipAddr & mask) == (cidrIpAddr & mask);
-			
+
 		} catch (Exception e) {
 			logger.debug(String.format("ip: %s, cidr: %s", ip, cidr));
-			logger.debug("isIpInNetwork error: "+ e);
+			logger.debug("isIpInNetwork error: " + e);
 			return false;
 		}
 	}
 
 	public static String buildContent(String template, Map<String, String> params) {
 		String value;
-		for(String key : params.keySet()) {
+		for (String key : params.keySet()) {
 			value = "";
 			if (params.get(key) != null) {
 				value = params.get(key);
@@ -745,13 +832,15 @@ public class ServiceUtil {
 	 * 將{X}轉成{p},呼叫時fromIndex固定帶0
 	 */
 	public static String replaceParameterToP(String str) {
-		Pattern p = Pattern.compile("\\{[^\\{\\}/]*\\}"); 
-		if(str==null) {str="";}
-		Matcher m = p.matcher(str); // 不接受 null 
+		Pattern p = Pattern.compile("\\{[^\\{\\}/]*\\}");
+		if (str == null) {
+			str = "";
+		}
+		Matcher m = p.matcher(str); // 不接受 null
 		str = m.replaceAll("{p}");
 		return str;
 	}
-	
+
 	public static TsmpDpItemsCacheProxy getTsmpDpItemsCacheProxy() {
 		return tsmpDpItemsCacheProxy;
 	}
@@ -759,7 +848,7 @@ public class ServiceUtil {
 	public static void setTsmpDpItemsCacheProxy(TsmpDpItemsCacheProxy tsmpDpItemsCacheProxy) {
 		ServiceUtil.tsmpDpItemsCacheProxy = tsmpDpItemsCacheProxy;
 	}
-	
+
 	public static TsmpRtnCodeCacheProxy getTsmpRtnCodeCacheProxy() {
 		return tsmpRtnCodeCacheProxy;
 	}

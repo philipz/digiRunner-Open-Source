@@ -24,7 +24,7 @@ public class DoSetUserName implements Packet_i {
 
 	@Override
 	public void runOnClient(LinkerClient lc) {
-		logger.debug("...runOnClient 2:完成名稱設定:" + name);
+		logger.info("\n\n...runOnClient 2: SET NAME OK :" + name + "\n");
 		synchronized (DoSetUserName.waitKey) {
 			DoSetUserName.waitKey.notify();
 		}
@@ -33,7 +33,7 @@ public class DoSetUserName implements Packet_i {
 	@Override
 	public void runOnServer(LinkerServer ls) {
 		ls.userName = name;
-		logger.debug("...runOnServer 1:完成名稱設定:" + name);
+		logger.info("\n\n...runOnServer 1: SET NAME OK :" + name + "\n");
 		ls.send(this);
 	}
 }

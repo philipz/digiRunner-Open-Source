@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS tsmp_role_func (
 );
 
 -- TSMP 參數表
-CREATE TABLE IF NOT EXISTS  tsmp_setting (
+CREATE TABLE IF NOT EXISTS tsmp_setting (
    id				nvarchar(255) NOT NULL,
    value			nvarchar(max) DEFAULT (NULL),	-- 參數內容
    memo				varchar(512) DEFAULT (NULL),
@@ -1435,8 +1435,8 @@ CREATE TABLE IF NOT EXISTS dp_api_version (
 );
 
 -- 20230105, v4 修改 dp_app 欄位型態 , min
-ALTER TABLE dp_app MODIFY COLUMN application_name NVARCHAR(50);
-ALTER TABLE dp_app MODIFY COLUMN application_desc NVARCHAR(500);
+ALTER TABLE dp_app ALTER COLUMN application_name NVARCHAR(50);
+ALTER TABLE dp_app ALTER COLUMN application_desc NVARCHAR(500);
  
 -- 20230906, Gateway IdP授權碼記錄檔, 增加欄位, Mini Lee
 ALTER TABLE DGR_GTW_IDP_AUTH_CODE ADD API_RESP NVARCHAR(4000);
@@ -1514,7 +1514,7 @@ CREATE TABLE IF NOT EXISTS dgr_rdb_connection (
     idle_timeout    INT NOT NULL DEFAULT 600000,    -- 空閒連線的存活時間(ms)
     max_lifetime    INT NOT NULL DEFAULT 1800000,    -- 連線的最大存活時間(ms)
     data_source_property    VARCHAR(4000),    -- DataSourceProperty的設定
-    create_date_time TIMESTAMP AS CURRENT_TIMESTAMP,      -- 建立日期
+    create_date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,      -- 建立日期
     create_user VARCHAR(255) DEFAULT 'SYSTEM',            -- 建立人員
     update_date_time TIMESTAMP,                           -- 更新日期
     update_user VARCHAR(255),                             -- 更新人員
@@ -1624,7 +1624,9 @@ ALTER TABLE TSMP_API_IMP ADD LABEL5 nvarchar(20) NULL;
 ALTER TABLE dp_user ADD dp_user_name NVARCHAR(400) NOT NULL DEFAULT 'NULL';
 UPDATE dp_user SET dp_user_name = user_name;
 ALTER TABLE dp_user ALTER COLUMN user_name DROP NOT NULL;
-ALTER TABLE dp_app CHANGE user_name dp_user_name NVARCHAR(400);
+ALTER TABLE dp_app  ADD dp_user_name NVARCHAR(400);
+UPDATE dp_app SET dp_user_name = user_name;
+ALTER TABLE dp_app DROP COLUMN user_name;
 --20231130, SRC_URL 拿掉NOT NULL ,Zoe Lee
 ALTER TABLE TSMP_API_REG ALTER COLUMN SRC_URL DROP NOT NULL;
 
@@ -2094,3 +2096,10 @@ CREATE TABLE IF NOT EXISTS dgr_bot_detection (
     version            INT             DEFAULT 1,               -- 版號
     PRIMARY KEY (bot_detection_id)
 );
+
+-- 20250120 , TSMP Token 歷史紀錄, Mini Lee
+ALTER TABLE TSMP_TOKEN_HISTORY ALTER COLUMN API_RESP TEXT;
+-- 20250120 , SSO AC IdP授權碼記錄檔, Mini Lee
+ALTER TABLE DGR_AC_IDP_AUTH_CODE ALTER COLUMN API_RESP TEXT;
+-- 20250120 , Gateway IdP授權碼記錄檔, Mini Lee
+ALTER TABLE DGR_GTW_IDP_AUTH_CODE ALTER COLUMN API_RESP TEXT;

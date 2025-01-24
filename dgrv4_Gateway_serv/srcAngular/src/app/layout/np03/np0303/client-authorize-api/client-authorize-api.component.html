@@ -59,9 +59,6 @@
                     class="control-label">{{'application_file'|translate}}</label>
                 <label *ngIf="config.data.operate != formOperate.create"
                     class="control-label">{{'new_application_file'|translate}}</label>：
-
-                <!-- <input type="file" id="file" (change)="fileChange($event.target.files)"> -->
-                
                 <div class="ui-inputgroup">
                     <input type="file" id="file" style="display: none;"  (change)="fileChange($event.target.files)">
                     <input type="text" class="form-control" value="{{fileName}}" readOnly

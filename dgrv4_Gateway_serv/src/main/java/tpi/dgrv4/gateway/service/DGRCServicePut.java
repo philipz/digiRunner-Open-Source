@@ -332,11 +332,11 @@ public class DGRCServicePut implements IApiCacheService{
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Backend For Cache】--\n");
 			
 			//第二組ES REQ
-			TsmpApiLogReq dgrcPutBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
+			TsmpApiLogReq dgrcPutBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 			HttpRespData respObj = getHttpRespData(vo.getHttpMethod(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 			respObj.fetchByte(maskInfo); // because Enable inputStream
 			sb.append(respObj.getLogStr());
@@ -347,7 +347,7 @@ public class DGRCServicePut implements IApiCacheService{
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 			
 			//第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPutBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPutBackendReqVo, contentLength);
 			
 			return respObj;
 		}catch(Exception e) {
@@ -368,16 +368,16 @@ public class DGRCServicePut implements IApiCacheService{
 		// 印出第二,三道log
 		StringBuffer dgrcPut_sb = new StringBuffer();
 		if (isFixedCache) {
-			dgrcPut_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend For Fixed Cache】" + tryNumLog + "--");
+			dgrcPut_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend For Fixed Cache】" + tryNumLog + "--");
 			dgrcPut_sb
-					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend For Fixed Cache】" + tryNumLog + "--\n");
+					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend For Fixed Cache】" + tryNumLog + "--\n");
 		} else {
-			dgrcPut_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend】" + tryNumLog + "--");
-			dgrcPut_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend】" + tryNumLog + "--\n");
+			dgrcPut_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend】" + tryNumLog + "--");
+			dgrcPut_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend】" + tryNumLog + "--\n");
 		}
 		
 		// 第二組ES REQ
-		TsmpApiLogReq dgrcPutBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
+		TsmpApiLogReq dgrcPutBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
 				reqMbody);
 		HttpRespData respObj = getHttpRespData(httpReq.getMethod(), header, srcUrl, reqMbody);
 		respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -391,7 +391,7 @@ public class DGRCServicePut implements IApiCacheService{
 		int contentLength = (httpArray == null) ? 0 : httpArray.length;
 		
 		//第二組ES RESP
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPutBankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPutBackendReqVo, contentLength);
 		
 		return respObj;
 	}

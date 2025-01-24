@@ -1,24 +1,16 @@
 package tpi.dgrv4.gateway.config;
 
-import io.undertow.UndertowOptions;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.stereotype.Component;
 
+import io.undertow.UndertowOptions;
+import tpi.dgrv4.dpaa.vo.UndertowConfigInfo;
+
 @Component
 public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> {
-	
-	// 設定伺服器的空閒超時時間，在指定的時間內沒有接收到客戶端的任何請求或數據,連接將被關閉。
-	@Value("${undertow.idle.timeout:61000}")
-	private int idleTimeout;
-    
-	// 請求的超時時間,以毫秒為單位。超過此時間的請求將被中止,以防止無回應的請求占用伺服器資源。
-	@Value("${undertow.no.request.timeout:60000}")
-	private int noRequestTimeout;
-	
-	@Override
+
+    @Override
     public void customize(UndertowServletWebServerFactory factory) {
         factory.addBuilderCustomizers(builder -> {
             // 是否啟用 HTTP/2 協議。如果啟用,Server將支援 HTTP/2,提供更好的性能。
@@ -28,10 +20,10 @@ public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<Under
             int maxParameters = 10000;
 
             // 請求中允許的最大Header數量。超過此限制的請求將被拒絕,以防止過多的頭部導致的性能問題。
-            int maxHeaders = 200;
+            int maxHeaders = 2048;
 
             // 請求中允許的最大 Cookie 數量。超過此限制的請求將被拒絕,以防止過多的 Cookie 導致的性能問題。
-            int maxCookies = 200;
+            int maxCookies = 2048;
 
             // 是否允許 URL 中包含非轉義的字符。啟用此選項可能導致安全風險,建議禁用。
             boolean allowUnescapedCharactersInUrl = true;
@@ -48,17 +40,17 @@ public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<Under
             // 是否允許 Cookie 值中包含等號。啟用此選項可能導致安全風險,建議禁用。
             boolean allowEqualsInCookieValue = true;
 
-            // 請求的超時時間,以毫秒為單位。超過此時間的請求將被中止,以防止無回應的請求占用伺服器資源。
-            //int noRequestTimeout = 60 * 1000;
-
             // 是否啟用伺服器的統計功能。啟用此選項可以提供有關伺服器性能和使用情況的統計資訊。
             boolean enableStatistics = false;
 
-            // 設定伺服器的空閒超時時間，在指定的時間內沒有接收到客戶端的任何請求或數據,連接將被關閉。
-            //int idleTimeout = 61000;
-
             // 服務器監聽的Port number。客戶端需要連接到此端口才能與伺服器通訊。
             int port = factory.getPort();
+
+            // 獲取CPU核心數
+            int cpuCores = Runtime.getRuntime().availableProcessors();
+			String freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB";
+			String totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB";
+			String maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB";
 
             builder.setServerOption(UndertowOptions.ENABLE_HTTP2, enableHttp2);
             builder.setServerOption(UndertowOptions.MAX_PARAMETERS, maxParameters);
@@ -69,9 +61,7 @@ public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<Under
             builder.setServerOption(UndertowOptions.ALWAYS_SET_DATE, alwaysSetDate);
             builder.setServerOption(UndertowOptions.RECORD_REQUEST_START_TIME, recordRequestStartTime);
             builder.setServerOption(UndertowOptions.ALLOW_EQUALS_IN_COOKIE_VALUE, allowEqualsInCookieValue);
-            builder.setServerOption(UndertowOptions.NO_REQUEST_TIMEOUT, noRequestTimeout);
             builder.setServerOption(UndertowOptions.ENABLE_STATISTICS, enableStatistics);
-            builder.setServerOption(UndertowOptions.IDLE_TIMEOUT, idleTimeout);
 
             // SSL 是否啟用。如果啟用,服務器將支援 HTTPS,提供更安全的通訊。
             boolean sslEnabled = factory.getSsl() != null;
@@ -89,15 +79,16 @@ public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<Under
                             + " - Always Set Date: %b\n"
                             + " - Record Request Start Time: %b\n"
                             + " - Allow Equals in Cookie Value: %b\n"
-                            + " - No Request Timeout: %d\n"
                             + " - Enable Statistics: %b\n"
-                            + " - IDLE Timeout: %d\n",
+                            + " - CPU runtime core: %d\n"
+                            + " - Memory(free/total/Max): %s / %s / %s\n",
                     enableHttp2, sslInfo, port, maxParameters, maxHeaders, maxCookies,
                     allowUnescapedCharactersInUrl, alwaysSetKeepAlive, alwaysSetDate,
-                    recordRequestStartTime, allowEqualsInCookieValue, noRequestTimeout,
-                    enableStatistics, idleTimeout
+                    recordRequestStartTime, allowEqualsInCookieValue,
+                    enableStatistics, cpuCores, freeMemory, totalMemory, maxMemory
             );
 
+            UndertowConfigInfo.setUndertowInfo(cfg);
             System.out.println(cfg);
         });
     }

@@ -1,0 +1,7 @@
+1.將uuid_generate_v4 () 改成 gen_random_uuid ()。
+
+2.不可用NVARCHAR，請改成varchar。
+
+3.不需要db name space，例如dgr_dev.tsmp_api，請改成tsmp_api即可。
+
+4.時間欄位改為TIMESTAMP

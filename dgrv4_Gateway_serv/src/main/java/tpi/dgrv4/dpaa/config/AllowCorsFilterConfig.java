@@ -91,20 +91,21 @@ public class AllowCorsFilterConfig implements Filter {
 		}
 		
 		// 當值為空時，使用預設值 "*"
-		if (!StringUtils.hasText(dgrCspVal)) {
-			dgrCspVal = "*";
+		if (StringUtils.hasText(dgrCspVal) && !"*".equals(dgrCspVal.trim())) {
+			httpServletResponse.setHeader("Content-Security-Policy", dgrCspVal);
 		}
-		String cspVal = String.format(GatewayFilter.cspDefaultVal, dgrCspVal);
+//		String cspVal = String.format(GatewayFilter.cspDefaultVal, dgrCspVal);
 
 		httpServletResponse.setHeader("Access-Control-Allow-Origin", acao);
 		httpServletResponse.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,PATCH,DELETE");
 		httpServletResponse.setHeader("Access-Control-Max-Age", "3600");
 		//httpServletResponse.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, SignCode, Language");
 		httpServletResponse.setHeader("Access-Control-Allow-Headers", corsAllowHeaders); //"1. corsAllowHeaders = " + corsAllowHeaders
-		httpServletResponse.setHeader("Content-Security-Policy", cspVal);
+
 		httpServletResponse.setHeader("X-Frame-Options", "sameorigin");
 		httpServletResponse.setHeader("X-Content-Type-Options", "nosniff");
-		httpServletResponse.setHeader("Strict-Transport-Security", "max-age=31536000; preload; includeSubDomains");
+		//checkmarx, Missing HSTS Header,從preload; includeSubDomains改為includeSubDomains; preload, 已通過中風險
+		httpServletResponse.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 		httpServletResponse.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		httpServletResponse.setHeader("Cache-Control", "no-cache");
 		httpServletResponse.setHeader("Pragma", "no-cache");

@@ -5,6 +5,8 @@ server {
     ssl_certificate_key ${sslKeyPath};
     error_page 497  301 =307 https://$host:$server_port$request_uri;
     </#if>
+
+    client_max_body_size ${maxBodySize};
     location / {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

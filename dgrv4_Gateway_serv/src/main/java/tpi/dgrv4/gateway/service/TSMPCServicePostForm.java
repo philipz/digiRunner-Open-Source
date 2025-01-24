@@ -276,11 +276,11 @@ public class TSMPCServicePostForm implements IApiCacheService {
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start TSMPC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End TSMPC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start TSMPC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End TSMPC-from-Backend For Cache】--\n");
 
 			// 第二組ES REQ
-			TsmpApiLogReq tsmpcPostFormBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(),
+			TsmpApiLogReq tsmpcPostFormBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(),
 					vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 
 			HttpRespData respObj = getHttpRespData(vo.getHttpMethod(), vo.getHeader(), vo.getParamMap(), vo.getSrcUrl(),
@@ -295,7 +295,7 @@ public class TSMPCServicePostForm implements IApiCacheService {
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 
 			// 第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, tsmpcPostFormBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, tsmpcPostFormBackendReqVo, contentLength);
 
 			return respObj;
 		} catch (Exception tsmpcPostForm_e) {
@@ -311,18 +311,18 @@ public class TSMPCServicePostForm implements IApiCacheService {
 
 		StringBuffer tsmpcPostForm_sb = new StringBuffer();
 		if (isFixedCache) {
-			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Bankend For Fixed Cache】--");
-			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Bankend For Fixed Cache】--\n");
+			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Backend For Fixed Cache】--");
+			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Backend For Fixed Cache】--\n");
 		} else {
-			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Bankend】--");
-			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Bankend】--\n");
+			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Backend】--");
+			tsmpcPostForm_sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Backend】--\n");
 		}
 
 		var partsInfo = getCommForwardProcService().fetchFormDataPartsInfo(httpReq);
 
 
 		// 第二組ES REQ
-		TsmpApiLogReq tsmpcPostFormBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header,
+		TsmpApiLogReq tsmpcPostFormBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header,
 				srcUrl, reqMbody);
 		HttpRespData respObj = getHttpRespData(httpReq.getMethod(), header, partsInfo.getB(), srcUrl,
 				partsInfo.getA());
@@ -338,7 +338,7 @@ public class TSMPCServicePostForm implements IApiCacheService {
 		int contentLength = (httpArray == null) ? 0 : httpArray.length;
 
 		// 第二組ES RESP
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, tsmpcPostFormBankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, tsmpcPostFormBackendReqVo, contentLength);
 
 		return respObj;
 	}
@@ -569,12 +569,12 @@ public class TSMPCServicePostForm implements IApiCacheService {
 			return mockForwardTo(httpReq, httpRes, httpHeaders, srcUrl, uuid, tokenPayload, dgrReqVo, dgrReqVo_rdb,
 					null);
 		} else {
-			// 5. 【Start TSMPC-to-Bankend】
-			// 6. 【End TSMPC-from-Bankend】
+			// 5. 【Start TSMPC-to-Backend】
+			// 6. 【End TSMPC-from-Backend】
 			tsmpcPostForm_log = new StringBuffer();
 			writeLogger(tsmpcPostForm_log, //
-					"--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Bankend】--\n" + "--【LOGUUID】【" + uuid
-							+ "】【End TSMPC-from-Bankend】--");
+					"--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Backend】--\n" + "--【LOGUUID】【" + uuid
+							+ "】【End TSMPC-from-Backend】--");
 
 			// ===== ↓ NOTHING TO DO WITH LOGGER ↓ =====
 
@@ -583,7 +583,7 @@ public class TSMPCServicePostForm implements IApiCacheService {
 
 			String httpMethod = httpReq.getMethod();
 			// 第二組ES REQ
-			TsmpApiLogReq bankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
+			TsmpApiLogReq backendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
 					reqMbody);
 			HttpRespData respObj = forwardWithFile(srcUrl, httpMethod, header, boundary, formBody, formBody2Hex);
 			respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -609,7 +609,7 @@ public class TSMPCServicePostForm implements IApiCacheService {
 			String httpRespStr = (String) convertResponseBodyMap.get("httpRespStr");
 			int content_Length = (httpArray == null) ? 0 : httpArray.length;
 			// 第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, bankendReqVo, content_Length);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, backendReqVo, content_Length);
 
 			if (httpArray != null) {
 				content_Length = httpArray.length;

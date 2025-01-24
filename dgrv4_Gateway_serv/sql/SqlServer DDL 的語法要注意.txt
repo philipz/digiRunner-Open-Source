@@ -1,0 +1,1 @@
+1.原欄位為NOT NULL, 在ALTER長度時也是要補上NOT NULL, 要不然會變成允許NULL(ADD不用, MODIFY再加)

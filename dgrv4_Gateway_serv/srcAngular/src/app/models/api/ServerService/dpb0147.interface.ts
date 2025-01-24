@@ -17,6 +17,7 @@ export interface DPB0147Req {
   newStatus: string;
   newUserEmail?: string;
   newIdpType: string;
+  idpType: string;
 }
 
 export interface RespDPB0147 extends BaseRes {

@@ -16,7 +16,7 @@ public class DgrWebsiteTableInitializer {
 	public List<DgrWebsiteVo> insertDgrWebsite() {
 		try {
 
-			createDgrWebsiteVo(1L, "Y", "dp_api", "The API for the Developer Portal", "Y", "/version,/DPF0052,/DPF0084,/DPF0085,/DPF0086,/onlineConsole2/**");
+			createDgrWebsiteVo(1L, "Y", "dp_api", "The API for the Developer Portal", "Y", "/version,/DPF0052,/DPF0073/**,/DPF0084,/DPF0085,/DPF0086,/onlineConsole2/**");
 			createDgrWebsiteVo(2L, "Y", "dp", "The HTML for the Developer Portal", "N", null);
 
 		} catch (Exception e) {

@@ -120,7 +120,11 @@ public class JobHelperImpl implements JobHelper {
 		return Collections.emptyList();
 	}
 
-	ExecutorService executor1st = Executors.newSingleThreadExecutor();
+	ExecutorService executor1st = Executors.newSingleThreadExecutor(r -> {
+	    Thread thread = new Thread(r);
+	    thread.setName("Job-1st-runner");
+	    return thread;
+	});
 	protected void take1stJob(DeferrableJobManager jm) {
 		executor1st.execute(() -> {
 			jm.take1stJob();

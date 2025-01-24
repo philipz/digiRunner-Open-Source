@@ -20,7 +20,11 @@ public enum CusAcLoginStateStore {
 	private final ConcurrentHashMap<String, Pair<Long, DgrAcIdpInfoCus>> store = new ConcurrentHashMap<>();
 
 	// 用於執行定期清理任務的執行器
-	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(r -> {
+	    Thread thread = new Thread(r);
+	    thread.setName("CusAcLoginStateStoreThread");
+	    return thread;
+	});
 
 	// 過期時間設置，默認為 1 分鐘
 	private long expirationTime = 1;

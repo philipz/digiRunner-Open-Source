@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.HexStringUtils;
 import tpi.dgrv4.codec.utils.JWEcodec;
@@ -159,6 +158,7 @@ public class TokenHelper {
 	public static String ORG_ID = "orgId";
 	public static String JTI = "jti";
 	public static String NO_AUTH = "noAuth";
+	public static String SSOTOKEN = "ssotoken";
 
 	public static String Authorization_does_not_have_the_word = "Authorization does not have the word: ";
 	public static String Authorization_has_no_value = "Authorization has no value";
@@ -177,7 +177,9 @@ public class TokenHelper {
 	public static String Internal_Server_Error = "Internal Server Error";
 	public static String The_client_was_not_found = "The client(application) was not found. client_id: ";
 	public static String The_jti_was_not_found = "The jti was not found. token_jti: %s, idp_type: %s";
-	public static String User_password_decryption_failed = "User password decryption failed.";
+	public static String The_jti_was_not_found2 = "The jti was not found. token_jti: %s";
+	public static String The_id_token_was_not_found = "The ID token was not found. token_jti: %s";
+	public static String JWE_expired = "JWE expired: ";// JWE 過期
 
 	// 設定檔缺少參數 '%s'
 	public static String The_profile_is_missing_parameters = "The profile is missing parameters: ";
@@ -396,7 +398,7 @@ public class TokenHelper {
 	/**
 	 * 檢查 無 client 或 client 帳密不對
 	 */
-	public ResponseEntity<?> checkClientSecret(String clientId, String clientPw, String apiUrl) {
+	public ResponseEntity<?> checkClientMima(String clientId, String clientPw, String apiUrl) {
 		// 沒有 clientId 或 clientPw
 		if (!StringUtils.hasText(clientId) || !StringUtils.hasText(clientPw)) {
 			TPILogger.tl.debug("No clientId or clientPw");// 沒有 clientId 或 clientPw
@@ -490,12 +492,13 @@ public class TokenHelper {
 				} else {
 					String errMsg = null;
 					if (!ipList.contains(dn) && dn != null) {
-						errMsg = "fqdn(" + dn + ") does not match host list, the clientId is " + clientId;
+						errMsg = "fqdn(" + dn + ") does not match host list, the clientId is '" + clientId + "'";
 					} else {
-						errMsg = "ip(" + ip + ") does not match host list, the clientId is " + clientId;
+						errMsg = "ip(" + ip + ") does not match host list, the clientId is '" + clientId + "'";
 					}
 
-					TPILogger.tl.debug(errMsg);
+					String errmsg2 = "Host list: " + ipList;
+					TPILogger.tl.debug(errMsg + "\n" + errmsg2);
 
 					return new ResponseEntity<OAuthTokenErrorResp>(
 							getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
@@ -1599,7 +1602,6 @@ public class TokenHelper {
 		if (hasBearer) {
 			respEntity = verifyApiForBearer(authorization, apiId, moduleName, reqUri, httpReq);
 			if (respEntity != null) {
-
 				return respEntity;
 			} else {
 				return null;
@@ -1649,7 +1651,7 @@ public class TokenHelper {
 		}
 
 		// 3.沒有 clientId 或 clientPw, 查無 client 或 client 帳密不對
-		respEntity = checkClientSecret(clientId, clientPw, apiUrl);
+		respEntity = checkClientMima(clientId, clientPw, apiUrl);
 		if (respEntity != null) {// 資料驗證有錯誤
 			return respEntity;
 		}
@@ -1701,7 +1703,7 @@ public class TokenHelper {
 	/**
 	 * 驗證打 API 的 authorization, Bearer 格式 (token)
 	 */
-	protected ResponseEntity<?> verifyApiForBearer(String authorization, String apiId, String moduleName, String apiUrl,
+	public ResponseEntity<?> verifyApiForBearer(String authorization, String apiId, String moduleName, String apiUrl,
 			HttpServletRequest httpReq) {
 		try {
 			String tokenStr = authorization.substring(TokenHelper.BEARER.length());
@@ -1727,7 +1729,7 @@ public class TokenHelper {
 			boolean isSkipForMemory = false;// for in-memory
 			if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole())) {
 				// 若角色為 Memory, 為 In-Memory GTW 流程
-				// 1.先取DB資料判斷是否已撤銷
+				// (1).先取DB資料判斷是否已撤銷
 				respEntity = checkJtiHasValue(jti);
 				if (respEntity != null) {// 資料有錯誤
 					return respEntity;
@@ -1735,7 +1737,7 @@ public class TokenHelper {
 
 				TsmpTokenHistory tsmpTokenHistory = getTsmpTokenHistoryCacheProxy().findFirstByTokenJti(jti);
 				
-				// 2.若查無資料,則略過檢查狀態及 quota
+				// (2).若查無資料,則略過檢查狀態及 quota
 				if (tsmpTokenHistory == null) {// 查無資料
 					// Table [TSMP_TOKEN_HISTORY] 查不到資料
 					TPILogger.tl.debug("Table [TSMP_TOKEN_HISTORY] can't find data, token_jti:" + jti);
@@ -1750,61 +1752,69 @@ public class TokenHelper {
 				}
 			}
 
-			// 4.檢查 client 狀態
 			String clientId = JsonNodeUtil.getNodeAsText(payloadJsonNode, "client_id");
-			respEntity = checkClientStatus(clientId, apiUrl);
-			if (respEntity != null) {// 資料有錯誤
-				return respEntity;
-			}
-
-			// 5.檢查主機清單
-			respEntity = checkHostList(clientId, apiUrl, httpReq);
-			if (respEntity != null) {// 資料驗證有錯誤
-				return respEntity;
-			}
-
-			// 6.檢查 client 用戶啟日/迄日 & 每日服務時間
-			respEntity = checkClientStartEndDateAndServiceTime(clientId, apiUrl);
-			if (respEntity != null) {// 資料驗證有錯誤
-				return respEntity;
-			}
-
-			// 7.檢查 user 狀態
 			String idpType = JsonNodeUtil.getNodeAsText(payloadJsonNode, "idp_type");
 			String userName = JsonNodeUtil.getNodeAsText(payloadJsonNode, "user_name");
 			String orgId = JsonNodeUtil.getNodeAsText(payloadJsonNode, "org_id");
-			if (StringUtils.hasLength(idpType)) {// 當 grant_type 為 "delegate_auth",會有 idp_type
-				// 不檢查IdP user狀態,以減少DB存取
+			
+			if (TokenHelper.SSOTOKEN.equals(apiId)) {
+				// 若為 dgR 特殊 API,不檢查
+				// 例如: /dgrv4/ssotoken/gtwidp/v2/userInfo
+				
 			} else {
-				respEntity = checkUserStatus(userName, apiUrl);
+				
+				// 4.檢查 client 狀態
+				respEntity = checkClientStatus(clientId, apiUrl);
 				if (respEntity != null) {// 資料有錯誤
 					return respEntity;
 				}
-			}
-
-			// 8.檢查 access token 的 scope 是否有權限打 API
-			JsonNode scopeArray = payloadJsonNode.get("scope");// 取得 token 的 scope(group id)
-			List<String> tokenScopeList = JsonNodeUtil.convertJsonArrayToList(scopeArray);
-			respEntity = checkTokenScope(apiId, moduleName, tokenScopeList, apiUrl);
-			if (respEntity != null) {// 資料有錯誤
-				return respEntity;
-			}
-
-			// 9.檢查 client API 可用量 和 打 API 成功後, API 使用量加1
-			respEntity = checkClientApiQuota(clientId, apiUrl);
-			if (respEntity != null) {// 資料驗證有錯誤
-				return respEntity;
-			}
-
-			// 10.檢查 access token 可用量 和 打 API 成功後, access token 使用量加1
-			if (isSkipForMemory) {// 查無資料,則略過檢查狀態及 quota
-				// 不檢查可用量,
-				// 但當角色為 Memory, 先用 Map 儲存 token 的使用量
-				addTokenUsedMap4InMemory(jti);
-			} else {
-				respEntity = checkClientAccessTokenQuota(jti, apiUrl);
+				
+				// 5.檢查主機清單
+				respEntity = checkHostList(clientId, apiUrl, httpReq);
 				if (respEntity != null) {// 資料驗證有錯誤
 					return respEntity;
+				}
+				
+				// 6.檢查 client 用戶啟日/迄日 & 每日服務時間
+				respEntity = checkClientStartEndDateAndServiceTime(clientId, apiUrl);
+				if (respEntity != null) {// 資料驗證有錯誤
+					return respEntity;
+				}
+				
+				// 7.檢查 user 狀態
+				if (StringUtils.hasLength(idpType)) {// 當 grant_type 為 "delegate_auth",會有 idp_type
+					// 不檢查IdP user狀態,以減少DB存取
+				} else {
+					respEntity = checkUserStatus(userName, apiUrl);
+					if (respEntity != null) {// 資料有錯誤
+						return respEntity;
+					}
+				}
+				
+				// 8.檢查 access token 的 scope 是否有權限打 API
+				JsonNode scopeArray = payloadJsonNode.get("scope");// 取得 token 的 scope(group id)
+				List<String> tokenScopeList = JsonNodeUtil.convertJsonArrayToList(scopeArray);
+				respEntity = checkTokenScope(apiId, moduleName, tokenScopeList, apiUrl);
+				if (respEntity != null) {// 資料有錯誤
+					return respEntity;
+				}
+				
+				// 9.檢查 client API 可用量 和 打 API 成功後, API 使用量加1
+				respEntity = checkClientApiQuota(clientId, apiUrl);
+				if (respEntity != null) {// 資料驗證有錯誤
+					return respEntity;
+				}
+				
+				// 10.檢查 access token 可用量 和 打 API 成功後, access token 使用量加1
+				if (isSkipForMemory) {// 查無資料,則略過檢查狀態及 quota
+					// 不檢查可用量,
+					// 但當角色為 Memory, 先用 Map 儲存 token 的使用量
+					addTokenUsedMap4InMemory(jti);
+				} else {
+					respEntity = checkClientAccessTokenQuota(jti, apiUrl);
+					if (respEntity != null) {// 資料驗證有錯誤
+						return respEntity;
+					}
 				}
 			}
  
@@ -1818,6 +1828,7 @@ public class TokenHelper {
 				TPILogger.tl.error("client(application) input clientId");
 				httpReq.setAttribute(TokenHelper.CLIENT_ID, clientId);
 			}
+			
 			httpReq.setAttribute(TokenHelper.USER_NAME, userName);
 			httpReq.setAttribute(TokenHelper.ORG_ID, orgId);
 			httpReq.setAttribute(TokenHelper.JTI, jti);
@@ -2330,11 +2341,29 @@ public class TokenHelper {
 		TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 		return getUnauthorizedErrorResp(apiUrl, errMsg2);// 401
 	}
+	
+	public ResponseEntity<?> getFindTsmpTokenHistoryError(String accessTokenJti, String apiUrl) {
+		// Table [TSMP_TOKEN_HISTORY] 查不到資料
+		String errMsg1 = "Table [TSMP_TOKEN_HISTORY] can't find. token_jti: " + accessTokenJti;
+		String errMsg2 = String.format(The_jti_was_not_found2, accessTokenJti);
+		TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
+		return getUnauthorizedErrorResp(apiUrl, errMsg2);// 401
+	}
 
+	public ResponseEntity<?> getBadRequestErrorResp(String reqUri, String errMsg1, String errMsg2) {
+		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(errMsg1, errMsg2),
+				HttpStatus.BAD_REQUEST);// 400
+	}
+	
 	public ResponseEntity<?> getUnauthorizedErrorResp(String apiUrl, String errMsg) {
 		return new ResponseEntity<OAuthTokenErrorResp>(
 				getOAuthTokenErrorResp(TokenHelper.Unauthorized, errMsg, HttpStatus.UNAUTHORIZED.value(), apiUrl),
 				setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
+	}
+	
+	public ResponseEntity<?> getForbiddenErrorResp(String reqUri, String errMsg) {
+		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.Forbidden, errMsg),
+				HttpStatus.FORBIDDEN);// 403
 	}
 
 	public ResponseEntity<?> getInternalServerErrorResp(String apiUrl, String errMsg) {

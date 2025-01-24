@@ -20,7 +20,7 @@ import { DPB0223Req } from 'src/app/models/api/ServerService/dpb0223.interface';
 @Component({
   selector: 'app-ac0021',
   templateUrl: './ac0021.component.html',
-  styleUrls: ['./ac0021.component.css'],
+  styleUrls: ['./ac0021.component.scss'],
   providers: [MessageService, ConfirmationService],
 })
 export class Ac0021Component extends BaseComponent implements OnInit {
@@ -177,7 +177,7 @@ export class Ac0021Component extends BaseComponent implements OnInit {
             this.serverService.updateIdPInfo_cus_before().subscribe(resValid=> {
               if (this.toolService.checkDpSuccess(resValid.ResHeader)) {
                 this.addFormValidator(this.formEdit, resValid.RespBody.constraints);
-                this.currentTitle += `> ${dict['button.detail']}`
+                this.currentTitle += `> ${dict['button.update']}`
                 this.pageNum = 2;
                 this.cusId.setValue(res.RespBody.cusId);
                 this.cusName.setValue(res.RespBody.cusName);

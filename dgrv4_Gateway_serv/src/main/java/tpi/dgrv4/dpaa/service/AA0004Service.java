@@ -53,7 +53,7 @@ import tpi.dgrv4.entity.repository.TsmpRoleDao;
 import tpi.dgrv4.entity.repository.TsmpTokenHistoryDao;
 import tpi.dgrv4.entity.repository.TsmpUserDao;
 import tpi.dgrv4.entity.repository.UsersDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.cache.proxy.AuthoritiesCacheProxy;
 import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;

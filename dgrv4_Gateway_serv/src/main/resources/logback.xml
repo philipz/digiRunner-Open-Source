@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
 
+    <!-- 關閉 Logback 內部日誌 -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 	<property name="Charset" value="UTF-8" />
 	<property name="FileName" value="dgr" />
 	<property name="LogsLocation" value="logs" />
@@ -30,7 +32,7 @@
             <level>DEBUG</level>
         </filter>
 	</appender>
-	<appender name="fileerr" class="ch.qos.logback.core.rolling.RollingFileAppender">
+<!--<appender name="fileerr" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.err.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
@@ -58,14 +60,12 @@
 			<charset>${Charset}</charset>
 		</encoder>
 	    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">      
-	      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator"> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
-	        <expression>return message.contains("LOGUUID");</expression>
-	      </evaluator>
+	      <evaluator class="tpi.dgrv4.gateway.filter.CustomUuidEventEvaluator" />
 	      <OnMismatch>DENY</OnMismatch>
 	      <OnMatch>ACCEPT</OnMatch>
 	    </filter>
 	</appender>
-
+-->
 	<appender name="file_sys_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.file_sys_info.log</fileNamePattern>
@@ -78,23 +78,7 @@
 			<charset>${Charset}</charset>
 		</encoder>
 	    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">      
-	      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator"> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
-	        <expression>
-	        boolean logStartFlag = message.matches(".*Starting DgrApplication( vv\\d+\\.\\d+\\.\\d+)? using Java.*")
-	        || message.contains("Running with Spring Boot")
-	        || message.contains("profile is active");
-			if (logStartFlag) {
-				tpi.dgrv4.gateway.keeper.TPILogger.logStartingMsg.add(message);
-			}
-	        
-	        return 
-	        logStartFlag
-	        || message.contains("dgr-keeper server [go LIVE]")
-	        || message.contains("This Client Connect to dgr-keeper server")
-	        || message.contains("dgRv4 web server info")
-	        || false;
-	        </expression>
-	      </evaluator>
+	      <evaluator class="tpi.dgrv4.gateway.filter.CustomEventEvaluator" />
 	      <OnMismatch>DENY</OnMismatch>
 	      <OnMatch>ACCEPT</OnMatch>
 	    </filter>

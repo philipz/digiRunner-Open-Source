@@ -1,0 +1,11 @@
+<div class="p-2">
+    <app-api-detail [apiDetail]="apiDetail" [srcUrlPool]="srcUrlPool" [ipSrcUrl]="ipSrcUrl" [apiGroupList]="apiGroupList"
+    [detailCols]="detailCols" (getApiGroupListEvt)="getApiGroupListEvt($event)"></app-api-detail>
+    <div class="form-group row">
+      <div class="col-12 text-center">
+        <button type="button" class="btn tpi-btn tpi-primary" (click)="close()">
+          {{ "button.return_to_list" | translate }}
+        </button>
+      </div>
+    </div>
+</div>

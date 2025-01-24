@@ -24,6 +24,7 @@ import tpi.dgrv4.gateway.component.BotDetectionRuleValidator;
 import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.ComposerWebSocketClientConn;
+import tpi.dgrv4.gateway.service.KibanaService2;
 import tpi.dgrv4.gateway.util.InnerInvokeParam;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -103,7 +104,10 @@ public class DPB9903Service {
 
 			// in-memory, 用列舉的值傳入值
 			TPILogger.updateTime4InMemory(DgrDataType.SETTING.value());
+			if (KibanaService2.cacheMap != null)
+				KibanaService2.cacheMap.clear();
 
+			this.logger.info("Clear Kibana cache");
 			return new DPB9903Resp();
 		} catch (TsmpDpAaException e) {
 			throw e;

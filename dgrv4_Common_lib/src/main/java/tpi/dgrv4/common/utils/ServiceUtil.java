@@ -1,12 +1,5 @@
 package tpi.dgrv4.common.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.util.StringUtils;
-import tpi.dgrv4.common.constant.LocaleType;
-import tpi.dgrv4.common.constant.RegexpConstant;
-import tpi.dgrv4.common.keeper.ITPILogger;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -14,11 +7,26 @@ import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+import tpi.dgrv4.common.constant.LocaleType;
+import tpi.dgrv4.common.constant.RegexpConstant;
+import tpi.dgrv4.common.keeper.ITPILogger;
 
 public class ServiceUtil {
 
@@ -601,4 +609,15 @@ public class ServiceUtil {
 		} 
 		return result;
 	}
+	
+	public static String getMemoryInfo() {
+		StringBuilder sb = new StringBuilder();
+		String freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB";
+		String totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB";
+		String maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB";
+		sb.append("\n...Memory(free/total/Max): "+freeMemory + " / " + totalMemory + " / " + maxMemory  + "\n");
+
+		return sb.toString();
+	}
+	
 }

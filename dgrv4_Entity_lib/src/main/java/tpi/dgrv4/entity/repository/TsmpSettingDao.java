@@ -265,9 +265,17 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 
 		public static final String CHECK_BOT_DETECTION = "CHECK_BOT_DETECTION";
 		public static final String BOT_DETECTION_LOG = "BOT_DETECTION_LOG";
+		
+		public static final String APIM_DEFAULT_DB_ENABLED = "APIM_DEFAULT_DB_ENABLED";
 
 		// CUS
 		public static final String CUS_LOGIN_URL = "CUS_LOGIN_URL";
+
+		public static final String LOG_RETENTION_DAYS = "LOG_RETENTION_DAYS";
+		
+		public static final String REQUEST_URI_ENABLED = "REQUEST_URI_ENABLED";
+		
+		public static final String HIGHWAY_THRESHOLD = "HIGHWAY_THRESHOLD";
 	}
 
 	public List<TsmpSetting> findByIdLike(String id);

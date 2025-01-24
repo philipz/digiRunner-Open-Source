@@ -950,7 +950,7 @@
   "user_password": "User password",
   "user_roles": "User role list",
   "validation": {
-    "confirm_password": "Password does not matched.",
+    "confirm_mima": "Password does not matched.",
     "ipaddress": "This IP address is not valid for this field.",
     "mailFormat": "Mail format error",
     "maxlength": "Please enter no more than {{value}} characters.",
@@ -1309,6 +1309,10 @@
   "auth_client": "Authorized client",
   "redirectURItip":"Please abide by the following rules when entering the URI:\n\n1. The URI must start with a protocol\n2. If it starts with `http://` or `https://`, it must be a legal and complete URL format and cannot contain * \n e.g. https://www.example.com\n3. If it starts with other protocols, it must include *\n e.g. myapp://example/*\n\n## Error example: \n- www.example. com (missing protocol)\n- https://www.example.com/* (* not allowed)\n- https:// (incomplete)\n- myapp://example/ (missing *)",
   "rule":"Rule",
-  "whitelist_rule_tip": "Enter regular expressions and the User-Agent header will be checked",
-  "api_count": "API Count"
+  "allowlist_rule_tip": "Enter regular expressions and the User-Agent header will be checked",
+  "api_count": "API Count",
+  "view_mode": {
+    "0":"Manage View",
+    "1":"Audit review"
+  }
 }

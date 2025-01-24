@@ -1,0 +1,6 @@
+1. 不要用int型態，要改用NUMBER(正確長度)。
+2. NVARCHAR要改為NVARCHAR2
+3. NVARCHAR改為NVARCHAR2時如果欄位長度為4000要減為2000
+4. 時間欄位改為TIMESTAMP
+5.欄位有預設值且不得為NULL時，必須先寫預設值再寫NOT NULL，舉例:
+  status              VARCHAR(1)      DEFAULT 'Y' NOT NULL,

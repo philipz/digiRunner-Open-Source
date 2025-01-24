@@ -23,10 +23,14 @@ public class ComposerInfoPacket implements Packet_i{
 	public void runOnServer(LinkerServer ls) {
 		try {
 			if (ls.paramObj.containsKey(composerInfo) == false) {
+				//因為使用ConcurrentHashMap有發生封包不完全,造成資料錯亂的情況
 				ls.paramObj.put(composerInfo, new HashMap<String, ComposerInfoData>());
 			}
 			HashMap<String, ComposerInfoData> composerInfoHM = (HashMap<String, ComposerInfoData>) ls.paramObj.get(composerInfo);
-			composerInfoHM.put(composerInfoData.getComposerID(), composerInfoData);
+			synchronized (composerInfoHM) {
+				composerInfoHM.put(composerInfoData.getComposerID(), composerInfoData);
+			}
+			
 		}catch(Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 		}

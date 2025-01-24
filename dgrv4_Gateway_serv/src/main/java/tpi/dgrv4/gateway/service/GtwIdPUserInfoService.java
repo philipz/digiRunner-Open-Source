@@ -41,7 +41,7 @@ public class GtwIdPUserInfoService {
 		ResponseEntity<?> respEntity = null;
 		try {
 			String idTokenJwtstr = httpReq.getParameter("id_token");
-			return getUserInfo(idTokenJwtstr);
+			return getUserInfo(idTokenJwtstr, reqUri);
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
@@ -52,9 +52,9 @@ public class GtwIdPUserInfoService {
 		}
 	}
 	
-	protected ResponseEntity<?> getUserInfo(String idTokenJwtstr) throws Exception {
-		// 1.驗簽章
-		ResponseEntity<?> respEntity = getGtwIdPVerifyService().verify(idTokenJwtstr);
+	protected ResponseEntity<?> getUserInfo(String idTokenJwtstr, String reqUri) throws Exception {
+		// 1.驗 ID token 的簽章、期限, 並取得 ID token 內容
+		ResponseEntity<?> respEntity = getGtwIdPVerifyService().verify(idTokenJwtstr, null, reqUri);
 		
 		// 2.用 ID token (JWT) 搜尋 token history
 		TsmpTokenHistory tsmpTokenHistory = getTsmpTokenHistoryDao().findFirstByIdTokenJwtstr(idTokenJwtstr);

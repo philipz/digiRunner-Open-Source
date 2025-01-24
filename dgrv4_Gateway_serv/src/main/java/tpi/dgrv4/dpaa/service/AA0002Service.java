@@ -36,8 +36,8 @@ public class AA0002Service {
 			if (DgrIdPType.LDAP.equals(idPType) // LDAP
 					|| DgrIdPType.MLDAP.equals(idPType) // MLDAP
 					|| DgrIdPType.API.equals(idPType) // API
-				|| DgrIdPType.CUS.equals(idPType)) // CUS
-			{
+					|| DgrIdPType.CUS.equals(idPType) // CUS
+			) {
 				// 1.以 SSO AC IdP (LDAP / MLDAP / API)的方式登入
 				String userNameForQuery = auth.getUserNameForQuery();
 				DgrAcIdpUser dgrAcIdpUser = getDgrAcIdpUserDao()
@@ -52,9 +52,11 @@ public class AA0002Service {
 					resp.setUserAlias(userName);
 				}
 
-			} else if (DgrIdPType.GOOGLE.equals(idPType) 
-					|| DgrIdPType.MS.equals(idPType)) {
-				// 2.以 SSO AC IdP (GOOGLE / MS)的方式登入
+			} else if (DgrIdPType.GOOGLE.equals(idPType) //
+					|| DgrIdPType.MS.equals(idPType) //
+					|| DgrIdPType.OIDC.equals(idPType) //
+			) {
+				// 2.以 SSO AC IdP (GOOGLE / MS / OIDC)的方式登入
 				resp.setIdTokenJwtstr(auth.getIdTokenJwtstr());
 
 			} else {

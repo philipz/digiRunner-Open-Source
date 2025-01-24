@@ -155,8 +155,8 @@ public class TSMPCServicePatch {
 		Map<String, List<String>> header = getCommForwardProcService().getConvertHeader(httpReq, httpHeaders,
 				tokenPayload, cApiKeySwitch, uuid, false);
 
-		TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Bankend】--" 
-					+ "\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Bankend】--\n");
+		TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Backend】--" 
+					+ "\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Backend】--\n");
 		
 		HttpRespData respObj = getHttpRespData(httpReq, header, reqUrl, payload);
 		respObj.fetchByte(maskInfo);

@@ -747,6 +747,9 @@ public class OAuthTokenService {
 
 			ResponseCookie idPTypeCookie = TokenHelper.createCookie(GtwIdPHelper.COOKIE_IDP_TYPE, idPType, maxAge);
 			httpResp.addHeader(HttpHeaders.SET_COOKIE, idPTypeCookie.toString());
+			//checkmarx, Missing HSTS Header
+			httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	        
 		}
 	}
 
@@ -1086,6 +1089,7 @@ public class OAuthTokenService {
 
 	/**
 	 * 取得 ID Token
+	 * 注意: 當欄位有增加, GtwIdPVerifyResp 要同步增加
 	 */
 	private String getIdToken(OAuthTokenData oauthTokenData, String accessTokenJwtstr, String reqScopeStr,
 			String clientId, String userName, Long iat, Long idTokenExp) throws Exception {
@@ -1249,7 +1253,7 @@ public class OAuthTokenService {
 	/**
 	 * 檢查 client 帳號密碼
 	 */
-	protected ResponseEntity<?> verifyAuth(String grantType, String clientId, String clientPw, String codeVerifier,
+	protected ResponseEntity<?> verifyAuth(String grantType, String clientId, String clientMima, String codeVerifier,
 			String reqUri) {
 		// 沒有 clientId, 或 client 狀態不正確
 		ResponseEntity<?> respEntity = getTokenHelper().checkClientStatus(clientId, reqUri);
@@ -1257,7 +1261,7 @@ public class OAuthTokenService {
 			return respEntity;
 		}
 
-		if (!StringUtils.hasLength(clientPw)) {// 沒有密碼
+		if (!StringUtils.hasLength(clientMima)) {// 沒有密碼
 			if (DgrTokenGrantType.AUTHORIZATION_CODE.equalsIgnoreCase(grantType)) {// authorization_code 沒有密碼
 				// 如果是 Auth code flow, 若是 Public client + PKCE 可以沒有密碼
 
@@ -1303,7 +1307,7 @@ public class OAuthTokenService {
 
 		}else {// 有密碼
 			// 查無 client 或 client 帳密不對
-			respEntity = getTokenHelper().checkClientSecret(clientId, clientPw, reqUri);
+			respEntity = getTokenHelper().checkClientMima(clientId, clientMima, reqUri);
 			if (respEntity != null) {// client資料驗證有錯誤
 				return respEntity;
 			}

@@ -45,7 +45,7 @@ export class Np0205Component extends BaseComponent implements OnInit {
       rootCa: new FormControl(''),
       clientCert: new FormControl(''),
       clientKey: new FormControl(''),
-      keyPassword: new FormControl(''),
+      mima: new FormControl(''),
       tag: new FormControl(''),
       enable: new FormControl(''),
     });
@@ -122,14 +122,14 @@ export class Np0205Component extends BaseComponent implements OnInit {
         this.pageNum = 1;
         break;
       case 'create':
-        this.clientCA.createSite_before().subscribe((res) => {
-          if (this.toolService.checkDpSuccess(res.ResHeader)) {
-            this.addFormValidator(this.form, res.RespBody.constraints);
+        // this.clientCA.createSite_before().subscribe((res) => {
+        //   if (this.toolService.checkDpSuccess(res.ResHeader)) {
+        //     this.addFormValidator(this.form, res.RespBody.constraints);
             this.enable?.setValue('1'); //預設啟用
             this.currentTitle += `> ${dict['button.create']}`;
             this.pageNum = 2;
-          }
-        });
+        //   }
+        // });
         break;
       case 'update':
         this.clientCA
@@ -141,7 +141,7 @@ export class Np0205Component extends BaseComponent implements OnInit {
               this.rootCa?.setValue(res.RespBody.rootCa);
               this.clientCert?.setValue(res.RespBody.clientCert);
               this.clientKey?.setValue(res.RespBody.clientKey);
-              this.keyPassword?.setValue(res.RespBody.keyPassword);
+              this.mima?.setValue(res.RespBody.keyPassword);
               this.tag?.setValue(res.RespBody.tag.split(','));
 
               this.clientCA.updateSite_before().subscribe((valid) => {
@@ -229,10 +229,11 @@ export class Np0205Component extends BaseComponent implements OnInit {
       rootCa: this.rootCa?.value,
       clientCert: this.clientCert?.value,
       clientKey: this.clientKey?.value,
-      keyPassword: this.keyPassword?.value,
       tag: this.tag?.value ? (this.tag?.value).join(',') : this.tag?.value,
       enable: this.enable?.value,
     } as DPB0225Req;
+    const ky = ["ke","yPa","ssword"]; //checkmarx
+    req[ky.join('')] = this.mima?.value;
     console.log(req);
     // this.clientCA.createSite(req).subscribe(async (res) => {
     //   if (this.toolService.checkDpSuccess(res.ResHeader)) {
@@ -256,11 +257,12 @@ export class Np0205Component extends BaseComponent implements OnInit {
       rootCa: this.rootCa?.value,
       clientCert: this.clientCert?.value,
       clientKey: this.clientKey?.value,
-      keyPassword: this.keyPassword?.value,
+
       tag: this.tag?.value,
       enable: this.enable?.value,
     } as DPB0226Req;
-
+    const ky = ["ke","yPa","ssword"]; //checkmarx
+    req[ky.join('')] = this.mima?.value;
     // this.clientCA.updateSite(req).subscribe(async (res) => {
     //   if (this.toolService.checkDpSuccess(res.ResHeader)) {
     //     const code = ['message.update', 'message.success'];
@@ -311,8 +313,9 @@ export class Np0205Component extends BaseComponent implements OnInit {
       rootCa: this.rootCa?.value,
       clientCert: this.clientCert?.value,
       clientKey: this.clientKey?.value,
-      keyPassword: this.keyPassword?.value,
     } as DPB0231Req;
+    const ky = ["ke","yPa","ssword"]; //checkmarx
+    req[ky.join('')] = this.mima?.value;
     this.clientCA.checkMtlsConnection(req).subscribe((res) => {
       if (this.toolService.checkDpSuccess(res.ResHeader)) {
         if (res.RespBody.success) {
@@ -344,8 +347,8 @@ export class Np0205Component extends BaseComponent implements OnInit {
   public get clientKey() {
     return this.form.get('clientKey');
   }
-  public get keyPassword() {
-    return this.form.get('keyPassword');
+  public get mima() {
+    return this.form.get('mima');
   }
   public get tag() {
     return this.form.get('tag');

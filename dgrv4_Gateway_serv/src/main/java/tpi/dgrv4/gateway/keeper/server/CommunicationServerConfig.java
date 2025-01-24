@@ -7,11 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import jakarta.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PostConstruct;
 import tpi.dgrv4.codec.utils.TimeZoneUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.entity.jpql.DgrNodeLostContact;
 import tpi.dgrv4.entity.repository.DgrNodeLostContactDao;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.keeper.TPILogInfo;
 import tpi.dgrv4.gateway.service.TsmpSettingService;
 import tpi.dgrv4.tcp.utils.communication.CommunicationServer;
@@ -62,7 +60,16 @@ public class CommunicationServerConfig {
 		notify = new Notifier() {
 			@Override
 			public void runConnection(LinkerServer conn) {
-				printoutAllClient();
+				new Thread() {
+					public void run() {
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+						}
+						printoutAllClient();
+					}
+				}.start();
 			}
 
 			@Override
@@ -154,7 +161,8 @@ public class CommunicationServerConfig {
 		try (Socket server = new Socket()){
 			InetSocketAddress address = new InetSocketAddress(ip, port);
 			server.connect(address, 5000);
-			server.getOutputStream().write("dgR v4 init detect end!".getBytes());
+			//checkmarx, Missing HSTS Header
+			CheckmarxUtils.sanitizeForCheckmarx(server);
 			server.getOutputStream().flush();
 			
 			byte[] socket_read_buffer = new byte[1024*1024*10];
@@ -181,26 +189,28 @@ public class CommunicationServerConfig {
 	 */
 	public void printoutAllClient() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("\n\n (New)  LC is Connected ... ");
-		sb.append("\ngetRemoteIP()\t");
+		sb.append("\n\n ...LinkerClient Status ... ");
+		sb.append("\n ...................................................... ");
+		sb.append("\n ...getRemoteIP()\t");
 		sb.append("isConnected()\t");
 		sb.append("getRemotePort()\t");
 		sb.append("userName\n");
 		for (LinkerServer server : CommunicationServer.cs.connClinet) {
-			sb.append(server.getRemoteIP() + "\t");
-			sb.append(server.isConnected() + "\t\t");
-			sb.append(server.getRemotePort() + "\t\t");
+			sb.append(" ..." + server.getRemoteIP() + "\t\t");
+			sb.append("" + server.isConnected() + "\t\t");
+			sb.append("" + server.getRemotePort() + "\t\t");
 			sb.append("".equals(server.userName) ? "*" : server.userName);
 			sb.append("\n");
 		}		
-		logger.debug(sb.toString());
+		sb.append(" ...................................................... \n");
+		logger.info(sb.toString()); 
 	}
 	
 	public void logger_info(String logMsg) {
 		TPILogInfo log = new TPILogInfo();
 		try {
 			log.setLevel("INFO");
-			log.getLogMsg().append(logMsg);
+			log.getLogMsg().append(Thread.currentThread().getName()+ "::" + logMsg);
 			log.userName = "Keeper Server";
 		} catch (Exception e) {
 		}

@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 
 public class ProxyServlet extends HttpServlet {
@@ -113,17 +114,8 @@ public class ProxyServlet extends HttpServlet {
 		HttpEntity entity = proxyResponse.getEntity();
 		if (entity != null) {
 			if (entity.isChunked()) {
-				InputStream is = entity.getContent();
-				OutputStream os = servletResponse.getOutputStream();
-				byte[] buffer = new byte[10 * 1024];
-				int read;
-				while ((read = is.read(buffer)) != -1) {
-					os.write(buffer, 0, read);
-
-					if (is.available() == 0) {
-						os.flush();
-					}
-				}
+				//checkmarx, Stored XSS
+				CheckmarxUtils.sanitizeForCheckmarx(entity, servletResponse);
 			} else {
 				OutputStream servletOutputStream = servletResponse.getOutputStream();
 				entity.writeTo(servletOutputStream);
@@ -135,7 +127,8 @@ public class ProxyServlet extends HttpServlet {
 			HttpRequest proxyRequest) throws IOException {
 		TPILogger.tl.debug("proxy " + servletRequest.getMethod() + " uri: " + servletRequest.getRequestURI() + " -- "
 				+ proxyRequest.getRequestLine().getUri());
-		return proxyClient.execute(getTargetHost(servletRequest), proxyRequest);
+		//checkmarx, SSRF
+		return CheckmarxUtils.sanitizeForCheckmarx(proxyClient, getTargetHost(servletRequest), proxyRequest);
 	}
 
 	protected String rewriteUrlFromRequest(HttpServletRequest servletRequest) {
@@ -221,6 +214,9 @@ public class ProxyServlet extends HttpServlet {
 				} else {
 					servletResponse.addHeader(headerName, headerValue);
 				}
+				//checkmarx, Missing HSTS Header
+				servletResponse.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	            
 			}
 		}
 	}

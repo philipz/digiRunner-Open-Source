@@ -1,6 +1,7 @@
 package tpi.dgrv4.gateway.controller;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,18 +23,21 @@ public class DGRCControllerPostRaw {
 	@SuppressWarnings("java:S3752") // allow all methods for sonarqube scan
 	@RequestMapping(value = "/dgrc/**", 
 			produces = MediaType.ALL_VALUE)
-	public Callable dispatch(HttpServletRequest httpReq, 
-			HttpServletResponse httpRes,
-			@RequestHeader HttpHeaders headers, 
-			@RequestBody(required = false) String payload) {
-		
-		return () -> {
-			ResponseEntity<?> resp = service.forwardToPostRawData(headers, httpReq, httpRes, payload);
-			
-			// 計算API每秒轉發吞吐量
-			GatewayFilter.setApiRespThroughput();
+	public CompletableFuture<ResponseEntity<?>> dispatch(HttpServletRequest httpReq,
+														 HttpServletResponse httpRes,
+														 @RequestHeader HttpHeaders headers,
+														 @RequestBody(required = false) String payload) throws Exception {
 
-			return resp;
-		};
-	}
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+        CompletableFuture<ResponseEntity<?>> resp;
+        if (selectWorkThread.equals(GatewayFilter.fast)) {
+            resp = service.forwardToPostRawDataAsyncFast(headers, httpReq, httpRes, payload);
+        } else { // "slow"
+            resp = service.forwardToPostRawDataAsync(headers, httpReq, httpRes, payload);
+        }
+        GatewayFilter.setApiRespThroughput();
+        return resp;
+
+
+    }
 }

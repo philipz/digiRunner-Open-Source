@@ -193,7 +193,9 @@ public class AcIdPAuthService {
 		ResponseCookie codeVerifierCookie = TokenHelper.createCookie(GtwIdPHelper.COOKIE_CODE_VERIFIER,
 				codeVerifierForOauth2, maxAge);
 		httpResp.addHeader(HttpHeaders.SET_COOKIE, codeVerifierCookie.toString());
-		
+		//checkmarx, Missing HSTS Header
+		httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
 		String redirectUrl = IdPHelper.getRedirectUrl(idPClientId, idPAuthUrl, idPScopeStr, dgrCallbackUrl,
 				codeVerifierForOauth2);
 

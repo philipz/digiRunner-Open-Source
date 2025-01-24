@@ -20,7 +20,7 @@ public class DataEncryptionService {
 		String data = req.getData();
 		String ciphertext = "";
 		if (!StringUtils.hasLength(data)) {
-			resp.setCiphertext(ciphertext);
+			resp.setText(ciphertext);
 			return resp;
 		}
 
@@ -31,7 +31,7 @@ public class DataEncryptionService {
 			TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));
 		}
 
-		resp.setCiphertext(ciphertext);
+		resp.setText(ciphertext);
 		return resp;
 	}
 

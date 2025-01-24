@@ -1,6 +1,7 @@
 package tpi.dgrv4.gateway.controller;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,17 +23,20 @@ public class DGRCControllerGet {
 	private DGRCServiceGet service;
 	
 	@GetMapping(value = "/dgrc/**")
-	public  Callable dispatch(@RequestHeader HttpHeaders httpHeaders, 
-			HttpServletRequest httpReq, 
-			HttpServletResponse httpRes) {
+	public CompletableFuture<ResponseEntity<?>> dispatch(@RequestHeader HttpHeaders httpHeaders,
+														 HttpServletRequest httpReq,
+														 HttpServletResponse httpRes) throws Exception {
 		
-		return () -> {
-			 ResponseEntity<?> resp = service.forwardToGet(httpHeaders, httpReq, httpRes);
-			
-			// 計算API每秒轉發吞吐量
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		if (selectWorkThread.equals(GatewayFilter.fast)) {
+			var resp = service.forwardToGetAsyncFast(httpHeaders, httpReq, httpRes);
 			GatewayFilter.setApiRespThroughput();
-
 			return resp;
-		};
+		} else { // "slow"
+			var resp = service.forwardToGetAsyncSlow(httpHeaders, httpReq, httpRes);
+			GatewayFilter.setApiRespThroughput();
+			return resp;
+		}
+
 	}
 }

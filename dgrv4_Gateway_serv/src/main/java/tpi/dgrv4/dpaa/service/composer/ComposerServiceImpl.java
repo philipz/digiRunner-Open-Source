@@ -117,9 +117,9 @@ public class ComposerServiceImpl implements ComposerService {
 		try {
 			String uuidForCapiKey = UUID.randomUUID().toString();
 			String cuuid = uuidForCapiKey.toUpperCase();
-			String capi_key = CApiKeyUtils.signCKey(cuuid);
+			String capikey = CApiKeyUtils.signCKey(cuuid);
 						
-			response = notifyNodeV4(url, method, body, null, cuuid, capi_key);
+			response = notifyNodeV4(url, method, body, null, cuuid, capikey);
 
 			if (response != null) {
 				int code = response.statusCode;
@@ -220,7 +220,7 @@ public class ComposerServiceImpl implements ComposerService {
 	}
 	
 	private HttpRespData notifyNodeV4(String reqUrl, String method, String rawData, Map<String, String> httpHeader,
-			String cuuid, String capi_key) //
+			String cuuid, String capikey) //
 			throws IOException {
 		if(httpHeader == null) {
 			httpHeader = new HashMap<String, String>();
@@ -229,7 +229,7 @@ public class ComposerServiceImpl implements ComposerService {
 		httpHeader.put("Accept", MediaType.APPLICATION_JSON_VALUE);
 		httpHeader.put("Content-type", MediaType.APPLICATION_JSON_VALUE);
 		httpHeader.put("cuuid", cuuid);
-		httpHeader.put("capi_key", capi_key);
+		httpHeader.put("capi-key", capikey);
 		
 		HttpRespData response = HttpUtil.httpReqByRawData(reqUrl, method, rawData, httpHeader, false);
 		this.logger.debug("Response Str : " + response.respStr);

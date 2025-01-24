@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +17,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -39,7 +41,7 @@ import tpi.dgrv4.gateway.vo.FixedCacheVo;
 import tpi.dgrv4.gateway.vo.TsmpApiLogReq;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
-@Deprecated
+
 @Service
 public class DGRCServiceDelete implements IApiCacheService{
 	
@@ -69,6 +71,22 @@ public class DGRCServiceDelete implements IApiCacheService{
 	
 	private  Map<String, String> maskInfo ;
 
+	@Async("async-workers-highway")
+	public CompletableFuture<ResponseEntity<?>> forwardToDeleteAsyncFast(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
+																	 String payload) throws Exception {
+		var response = forwardToDelete(httpHeaders, httpReq, httpRes, payload);
+		GatewayFilter.fetchUriHistoryAfter(httpReq);
+		return CompletableFuture.completedFuture(response);
+	}
+
+	@Async("async-workers")
+	public CompletableFuture<ResponseEntity<?>> forwardToDeleteAsync(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
+			String payload) throws Exception {
+		var response = forwardToDelete(httpHeaders, httpReq, httpRes, payload);
+		GatewayFilter.fetchUriHistoryAfter(httpReq);
+		return CompletableFuture.completedFuture(response);
+	}
+
 	public ResponseEntity<?> forwardToDelete(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
 			String payload) throws Exception {
 		try {
@@ -80,6 +98,11 @@ public class DGRCServiceDelete implements IApiCacheService{
 			String reqUrl = httpReq.getRequestURI();
 			
 			TsmpApiReg apiReg = null;
+
+			if (null == httpReq.getAttribute(GatewayFilter.moduleName)) {
+				throw new Exception("TSMP_API_REG module_name is null");
+			}
+
 			String dgrcDel_moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
 			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
 			TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, dgrcDel_moduleName);
@@ -331,11 +354,11 @@ public class DGRCServiceDelete implements IApiCacheService{
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Backend For Cache】--\n");
 			
 			//第二組ES REQ
-			TsmpApiLogReq dgrcDelBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
+			TsmpApiLogReq dgrcDelBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 			
 			HttpRespData respObj = getHttpRespData(vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 			respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -347,7 +370,7 @@ public class DGRCServiceDelete implements IApiCacheService{
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 
 			// 第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcDelBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcDelBackendReqVo, contentLength);
 			
 			return respObj;
 
@@ -367,16 +390,16 @@ public class DGRCServiceDelete implements IApiCacheService{
 		
 		StringBuffer dgrcDel_sb = new StringBuffer();
 		if (isFixedCache) {
-			dgrcDel_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend For Fixed Cache】" + tryNumLog + "--");
+			dgrcDel_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend For Fixed Cache】" + tryNumLog + "--");
 			dgrcDel_sb
-					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend For Fixed Cache】" + tryNumLog + "--\n");
+					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend For Fixed Cache】" + tryNumLog + "--\n");
 		} else {
-			dgrcDel_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend】" + tryNumLog + "--");
-			dgrcDel_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend】" + tryNumLog + "--\n");
+			dgrcDel_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend】" + tryNumLog + "--");
+			dgrcDel_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend】" + tryNumLog + "--\n");
 		}
 		
 		//第二組ES REQ
-		TsmpApiLogReq dgrcDelBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl, payload);
+		TsmpApiLogReq dgrcDelBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl, payload);
 		HttpRespData respObj = getHttpRespData(header, srcUrl, payload);
 		respObj.fetchByte(maskInfo); // because Enable inputStream
 		dgrcDel_sb.append(respObj.getLogStr());
@@ -389,7 +412,7 @@ public class DGRCServiceDelete implements IApiCacheService{
 		int contentLength = (httpArray == null) ? 0 : httpArray.length;
 		
 		//第二組ES RESP
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcDelBankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcDelBackendReqVo, contentLength);
 		
 		return respObj;
 	}

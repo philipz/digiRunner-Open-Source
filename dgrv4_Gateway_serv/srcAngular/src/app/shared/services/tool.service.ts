@@ -5,7 +5,7 @@ import { from, Subject } from 'rxjs';
 import { TimeRange } from './../../models/common.enum';
 import { TokenService } from './api-token.service';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 // import { ResToken } from 'src/app/models/api/TokenService/token.interface';
 import { GrantType } from 'src/app/models/common.enum';
 import { concatMap, tap, catchError, map } from 'rxjs/operators';
@@ -35,14 +35,10 @@ import { Menu } from 'src/app/models/menu.model';
 // import { AA0101func } from 'src/app/models/api/FuncService/aa0101.interface';
 // import { LdapEnvItem } from 'src/app/models/api/LoginService/ldaplogin.interface';
 
-
-
-
 export const TOKEN = 'access_token';
 
 @Injectable()
 export class ToolService {
-
   /*
    * 每當執行Api則更新此參數
    */
@@ -52,25 +48,22 @@ export class ToolService {
   clearExpiredTimeout = new Subject();
 
   /*自定義base64/base64url encoder and decoder */
-  b64c = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"   // base64 dictionary
-  b64u = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"   // base64url dictionary
-  b64pad = '='
-
-
+  b64c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; // base64 dictionary
+  b64u = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'; // base64url dictionary
+  b64pad = '=';
 
   constructor(
     private http: HttpClient,
     private jwtHelper: JwtHelperService,
     private tokenService: TokenService,
     private translate: TranslateService,
-    public router: Router,
+    public router: Router
   ) {
     dayjs.extend(utc);
-    dayjs.extend(timezone)
+    dayjs.extend(timezone);
   }
 
   Base64Encoder(str: string) {
-
     return window.btoa(unescape(encodeURIComponent(str))); // For URL Encoder UTF-8 convert
     // return window.btoa(str);
   }
@@ -81,98 +74,103 @@ export class ToolService {
   }
 
   /*
-  *  自定義base64/base64url encoder and decoder
-  *  參考source https://simplycalc.com/base64-source.php
-  *  開始---------------------
-  */
+   *  自定義base64/base64url encoder and decoder
+   *  參考source https://simplycalc.com/base64-source.php
+   *  開始---------------------
+   */
   base64_encode_data(data: string, len: number, b64x: string) {
-    let dst: string = "";
+    let dst: string = '';
     let i: number = 0;
 
     for (i = 0; i <= len - 3; i += 3) {
-      dst += b64x.charAt(data.charCodeAt(i) >>> 2)
-      dst += b64x.charAt(((data.charCodeAt(i) & 3) << 4) | (data.charCodeAt(i + 1) >>> 4))
-      dst += b64x.charAt(((data.charCodeAt(i + 1) & 15) << 2) | (data.charCodeAt(i + 2) >>> 6))
-      dst += b64x.charAt(data.charCodeAt(i + 2) & 63)
+      dst += b64x.charAt(data.charCodeAt(i) >>> 2);
+      dst += b64x.charAt(
+        ((data.charCodeAt(i) & 3) << 4) | (data.charCodeAt(i + 1) >>> 4)
+      );
+      dst += b64x.charAt(
+        ((data.charCodeAt(i + 1) & 15) << 2) | (data.charCodeAt(i + 2) >>> 6)
+      );
+      dst += b64x.charAt(data.charCodeAt(i + 2) & 63);
     }
 
     if (len % 3 == 2) {
-      dst += b64x.charAt(data.charCodeAt(i) >>> 2)
-      dst += b64x.charAt(((data.charCodeAt(i) & 3) << 4) | (data.charCodeAt(i + 1) >>> 4))
-      dst += b64x.charAt(((data.charCodeAt(i + 1) & 15) << 2))
-      dst += this.b64pad
-    }
-    else if (len % 3 == 1) {
-      dst += b64x.charAt(data.charCodeAt(i) >>> 2)
-      dst += b64x.charAt(((data.charCodeAt(i) & 3) << 4))
+      dst += b64x.charAt(data.charCodeAt(i) >>> 2);
+      dst += b64x.charAt(
+        ((data.charCodeAt(i) & 3) << 4) | (data.charCodeAt(i + 1) >>> 4)
+      );
+      dst += b64x.charAt((data.charCodeAt(i + 1) & 15) << 2);
+      dst += this.b64pad;
+    } else if (len % 3 == 1) {
+      dst += b64x.charAt(data.charCodeAt(i) >>> 2);
+      dst += b64x.charAt((data.charCodeAt(i) & 3) << 4);
       dst += this.b64pad;
       dst += this.b64pad;
     }
 
-    return dst
+    return dst;
   }
 
   /* base64_encode
-  * Encode a JavaScript string to base64.
-  * Specified string is first converted from JavaScript UCS-2 to UTF-8.
-  */
+   * Encode a JavaScript string to base64.
+   * Specified string is first converted from JavaScript UCS-2 to UTF-8.
+   */
   base64_encode(str: string) {
-    var utf8str = unescape(encodeURIComponent(str))
-    return this.base64_encode_data(utf8str, utf8str.length, this.b64c)
+    var utf8str = unescape(encodeURIComponent(str));
+    return this.base64_encode_data(utf8str, utf8str.length, this.b64c);
   }
 
   /* base64url_encode
-  * Encode a JavaScript string to base64url.
-  * Specified string is first converted from JavaScript UCS-2 to UTF-8.
-  */
+   * Encode a JavaScript string to base64url.
+   * Specified string is first converted from JavaScript UCS-2 to UTF-8.
+   */
   base64url_encode(str) {
-    var utf8str = unescape(encodeURIComponent(str))
-    return this.base64_encode_data(utf8str, utf8str.length, this.b64u)
+    var utf8str = unescape(encodeURIComponent(str));
+    return this.base64_encode_data(utf8str, utf8str.length, this.b64u);
   }
 
   /* base64_charIndex
- * Internal helper to translate a base64 character to its integer index.
- */
+   * Internal helper to translate a base64 character to its integer index.
+   */
   base64_charIndex(c: string) {
-    if (c == "+") return 62
-    if (c == "/") return 63
-    return this.b64u.indexOf(c)
+    if (c == '+') return 62;
+    if (c == '/') return 63;
+    return this.b64u.indexOf(c);
   }
 
   /* base64_decode
-  * Decode a base64 or base64url string to a JavaScript string.
-  * Input is assumed to be a base64/base64url encoded UTF-8 string.
-  * Returned result is a JavaScript (UCS-2) string.
-  */
+   * Decode a base64 or base64url string to a JavaScript string.
+   * Input is assumed to be a base64/base64url encoded UTF-8 string.
+   * Returned result is a JavaScript (UCS-2) string.
+   */
   base64_decode(data: string) {
-    let dst: string = ""
-    let i: number, a: number, b: number, c: number, d: number, z: number
+    let dst: string = '';
+    let i: number, a: number, b: number, c: number, d: number, z: number;
 
     for (i = 0; i < data.length - 3; i += 4) {
-      a = this.base64_charIndex(data.charAt(i + 0))
-      b = this.base64_charIndex(data.charAt(i + 1))
-      c = this.base64_charIndex(data.charAt(i + 2))
-      d = this.base64_charIndex(data.charAt(i + 3))
+      a = this.base64_charIndex(data.charAt(i + 0));
+      b = this.base64_charIndex(data.charAt(i + 1));
+      c = this.base64_charIndex(data.charAt(i + 2));
+      d = this.base64_charIndex(data.charAt(i + 3));
 
-      dst += String.fromCharCode((a << 2) | (b >>> 4))
+      dst += String.fromCharCode((a << 2) | (b >>> 4));
       if (data.charAt(i + 2) != this.b64pad)
-        dst += String.fromCharCode(((b << 4) & 0xF0) | ((c >>> 2) & 0x0F))
+        dst += String.fromCharCode(((b << 4) & 0xf0) | ((c >>> 2) & 0x0f));
       if (data.charAt(i + 3) != this.b64pad)
-        dst += String.fromCharCode(((c << 6) & 0xC0) | d)
+        dst += String.fromCharCode(((c << 6) & 0xc0) | d);
     }
 
-    dst = decodeURIComponent(escape(dst))
-    return dst
+    dst = decodeURIComponent(escape(dst));
+    return dst;
   }
 
   /* base64url_sniff
-  * Check whether specified base64 string contains base64url specific characters.
-  * Return true if specified string is base64url encoded, false otherwise.
-  */
+   * Check whether specified base64 string contains base64url specific characters.
+   * Return true if specified string is base64url encoded, false otherwise.
+   */
   base64url_sniff(base64) {
-    if (base64.indexOf("-") >= 0) return true
-    if (base64.indexOf("_") >= 0) return true
-    return false
+    if (base64.indexOf('-') >= 0) return true;
+    if (base64.indexOf('_') >= 0) return true;
+    return false;
   }
 
   /*結束--------------------------------------*/
@@ -180,7 +178,6 @@ export class ToolService {
   BcryptEncoder(item_no: string) {
     // SELECT * FROM (SELECT ITEM_NO, MIN(SORT_BY) as SORT_BY FROM TSMP_DP_ITEMS group by ITEM_NO) t order by t.SORT_BY;
     return bcrypt.hashSync(item_no, 4);
-
   }
 
   // getLanguageCodes() {
@@ -211,21 +208,23 @@ export class ToolService {
   }
 
   getUserName() {
-    const userName = sessionStorage.getItem('decode_token') ? JSON.parse(sessionStorage.getItem('decode_token')!)['user_name'] : '';
+    const userName = sessionStorage.getItem('decode_token')
+      ? JSON.parse(sessionStorage.getItem('decode_token')!)['user_name']
+      : '';
     return userName;
   }
 
   getOrgId() {
-    const org_id = sessionStorage.getItem('decode_token') ? JSON.parse(sessionStorage.getItem('decode_token')!)['org_id'] : '';
+    const org_id = sessionStorage.getItem('decode_token')
+      ? JSON.parse(sessionStorage.getItem('decode_token')!)['org_id']
+      : '';
     return org_id;
   }
 
   getAuthorities(): Array<string> {
     let decode_token = sessionStorage.getItem('decode_token');
-    if (decode_token)
-      return JSON.parse(decode_token)['authorities'];
-    else
-      return [];
+    if (decode_token) return JSON.parse(decode_token)['authorities'];
+    else return [];
   }
 
   setTokenInfo(r: ResToken) {
@@ -244,9 +243,9 @@ export class ToolService {
   isTokenExpired(token: string = TOKEN): boolean {
     let jwtStr = sessionStorage.getItem(token) ?? undefined;
     if (jwtStr) {
-      return this.jwtHelper.isTokenExpired(jwtStr);  // token expired?
+      return this.jwtHelper.isTokenExpired(jwtStr); // token expired?
     } else {
-      return true;        // no token
+      return true; // no token
     }
   }
 
@@ -255,7 +254,7 @@ export class ToolService {
       concatMap((r) => {
         this.setTokenInfo(r);
         this.writeToken(r.access_token);
-        this.writeToken(JSON.stringify(this.decodeToken()), "decode_token");
+        this.writeToken(JSON.stringify(this.decodeToken()), 'decode_token');
         return of(r);
       })
     );
@@ -266,7 +265,7 @@ export class ToolService {
   }
 
   getSignBlock(): string {
-    return sessionStorage.getItem("signBlock") ?? '';
+    return sessionStorage.getItem('signBlock') ?? '';
   }
 
   writeSignBlock(block: string) {
@@ -274,14 +273,15 @@ export class ToolService {
   }
 
   writeAcConf(acConf: string): void {
-    sessionStorage.setItem("AcConf", acConf);
+    sessionStorage.setItem('AcConf', acConf);
   }
 
   getAcConf(): AA0510Resp {
     // console.log(sessionStorage.getItem("AcConf"))
     // return sessionStorage.getItem("AcConf") ? JSON.parse(sessionStorage.getItem("AcConf")!) as AA0510Resp : '';
-    return sessionStorage.getItem("AcConf") ? JSON.parse(sessionStorage.getItem("AcConf")!) : '';
-
+    return sessionStorage.getItem('AcConf')
+      ? JSON.parse(sessionStorage.getItem('AcConf')!)
+      : '';
   }
 
   // write(key: string, value: string) {
@@ -327,25 +327,33 @@ export class ToolService {
   }
 
   getDecodeToken() {
-    return this.jwtHelper.decodeToken(sessionStorage.getItem('access_token') ?? '');
+    return this.jwtHelper.decodeToken(
+      sessionStorage.getItem('access_token') ?? ''
+    );
   }
 
   removeAll() {
     sessionStorage.clear();
   }
 
-  deleteProperties(object: { [key: string]: string | undefined }, exceptions?: string[]) {
+  deleteProperties(
+    object: { [key: string]: string | undefined },
+    exceptions?: string[]
+  ) {
     for (var key in object) {
       if (object.hasOwnProperty(key)) {
         if (exceptions && exceptions.includes(key)) {
           continue;
         } else {
-          if (object[key] === null || object[key] == undefined || object[key] === '')
+          if (
+            object[key] === null ||
+            object[key] == undefined ||
+            object[key] === ''
+          )
             delete object[key];
         }
-
       }
-    };
+    }
     return object;
   }
 
@@ -386,7 +394,6 @@ export class ToolService {
     return date ? dayjs(date).format(format) : '';
   }
 
-
   // formateUTCData(date:Date):string {
   // return dayjs(date).tz()
   // }
@@ -398,15 +405,15 @@ export class ToolService {
   //   }
 
   addYear(date: Date, num: number) {
-    return dayjs(date).add(num, 'year').toDate()
+    return dayjs(date).add(num, 'year').toDate();
   }
 
   addDay(date: Date, num: number) {
-    return dayjs(date).add(num, 'day').toDate()
+    return dayjs(date).add(num, 'day').toDate();
   }
 
   addMonth(date: Date, num: number) {
-    return dayjs(date).add(num, 'month').toDate()
+    return dayjs(date).add(num, 'month').toDate();
   }
 
   getLocale() {
@@ -445,7 +452,9 @@ export class ToolService {
   }
 
   getRoleFuncCodeList(): Array<string> {
-    return sessionStorage.getItem('roleFuncCodeList') ? sessionStorage.getItem('roleFuncCodeList')!.split(',') : [];
+    return sessionStorage.getItem('roleFuncCodeList')
+      ? sessionStorage.getItem('roleFuncCodeList')!.split(',')
+      : [];
   }
 
   setFuncList(funcDetailList: Array<AA0101func>): any {
@@ -454,7 +463,9 @@ export class ToolService {
 
   // getFuncList(): Array<AA0101func> {
   getFuncList() {
-    return sessionStorage.getItem('func_list') ? JSON.parse(sessionStorage.getItem('func_list')!) : undefined;
+    return sessionStorage.getItem('func_list')
+      ? JSON.parse(sessionStorage.getItem('func_list')!)
+      : undefined;
   }
 
   //   /**
@@ -477,20 +488,20 @@ export class ToolService {
     len = str.length;
     for (var i = 0; i < len; i++) {
       c = str.charCodeAt(i);
-      if (c >= 0x010000 && c <= 0x10FFFF) {
-        bytes.push(((c >> 18) & 0x07) | 0xF0);
-        bytes.push(((c >> 12) & 0x3F) | 0x80);
-        bytes.push(((c >> 6) & 0x3F) | 0x80);
-        bytes.push((c & 0x3F) | 0x80);
-      } else if (c >= 0x000800 && c <= 0x00FFFF) {
-        bytes.push(((c >> 12) & 0x0F) | 0xE0);
-        bytes.push(((c >> 6) & 0x3F) | 0x80);
-        bytes.push((c & 0x3F) | 0x80);
-      } else if (c >= 0x000080 && c <= 0x0007FF) {
-        bytes.push(((c >> 6) & 0x1F) | 0xC0);
-        bytes.push((c & 0x3F) | 0x80);
+      if (c >= 0x010000 && c <= 0x10ffff) {
+        bytes.push(((c >> 18) & 0x07) | 0xf0);
+        bytes.push(((c >> 12) & 0x3f) | 0x80);
+        bytes.push(((c >> 6) & 0x3f) | 0x80);
+        bytes.push((c & 0x3f) | 0x80);
+      } else if (c >= 0x000800 && c <= 0x00ffff) {
+        bytes.push(((c >> 12) & 0x0f) | 0xe0);
+        bytes.push(((c >> 6) & 0x3f) | 0x80);
+        bytes.push((c & 0x3f) | 0x80);
+      } else if (c >= 0x000080 && c <= 0x0007ff) {
+        bytes.push(((c >> 6) & 0x1f) | 0xc0);
+        bytes.push((c & 0x3f) | 0x80);
       } else {
-        bytes.push(c & 0xFF);
+        bytes.push(c & 0xff);
       }
     }
     return bytes;
@@ -525,8 +536,8 @@ export class ToolService {
       isLogin: this.getUserID() ? 'true' : 'false',
       agent: navigator.userAgent,
       eventType: eventType,
-      eventMsg: eventMsg
-    }
+      eventMsg: eventMsg,
+    };
   }
 
   //   aesEncrypt(original: string, key: number[], iv: number[]): string {
@@ -551,21 +562,21 @@ export class ToolService {
   //       return decryptedText;
   //   }
 
-  setHyperLinkAuth(result: { funCode: string, canExecute: boolean }[]) {
+  setHyperLinkAuth(result: { funCode: string; canExecute: boolean }[]) {
     sessionStorage.setItem('HyperLinkAuth', JSON.stringify(result));
   }
 
-  getHyperLinkAuth(): { funCode: string, canExecute: boolean }[] {
+  getHyperLinkAuth(): { funCode: string; canExecute: boolean }[] {
     return JSON.parse(sessionStorage.getItem('HyperLinkAuth') ?? '');
   }
 
   getTimeRange() {
-    return Object.keys(TimeRange).map(key => {
+    return Object.keys(TimeRange).map((key) => {
       return {
         label: key,
-        value: TimeRange[key]
-      }
-    })
+        value: TimeRange[key],
+      };
+    });
   }
 
   padLeft(str, lenght) {
@@ -573,11 +584,13 @@ export class ToolService {
     //     return '';
     // }
     // else {
-    if (isNumber(str)) { str = str.toString(); }
+    if (isNumber(str)) {
+      str = str.toString();
+    }
     if (str.length >= lenght) {
       return str;
     } else {
-      return this.padLeft("0" + str, lenght);
+      return this.padLeft('0' + str, lenght);
     }
     // }
   }
@@ -591,15 +604,19 @@ export class ToolService {
   //   }
 
   async getDict(codes: string[], params?: object): Promise<object> {
-    return await this.translate.get(codes, params).toPromise()
+    return await this.translate.get(codes, params).toPromise();
   }
 
   getAcConfEdition() {
-    return sessionStorage.getItem('AcConf') ? JSON.parse(sessionStorage.getItem('AcConf')!)['edition'] : '';
+    return sessionStorage.getItem('AcConf')
+      ? JSON.parse(sessionStorage.getItem('AcConf')!)['edition']
+      : '';
   }
 
   getAcConfExpiryDate() {
-    return sessionStorage.getItem('AcConf') ? JSON.parse(sessionStorage.getItem('AcConf')!)['expiryDate'] : '';
+    return sessionStorage.getItem('AcConf')
+      ? JSON.parse(sessionStorage.getItem('AcConf')!)['expiryDate']
+      : '';
   }
 
   setEnvListData(item: LdapEnvItem[]) {
@@ -607,12 +624,14 @@ export class ToolService {
   }
 
   getEnvListData(): [] {
-    return sessionStorage.getItem('envList') ? JSON.parse(sessionStorage.getItem('envList')!) : [];
+    return sessionStorage.getItem('envList')
+      ? JSON.parse(sessionStorage.getItem('envList')!)
+      : [];
   }
 
   //點選api，更新標記
   setExpiredTime() {
-    this.expiredTimeEvt.next(new Date);
+    this.expiredTimeEvt.next(new Date());
   }
 
   getExpiredTime() {
@@ -622,7 +641,6 @@ export class ToolService {
   setClearExpiredTimeout() {
     this.clearExpiredTimeout = new Subject();
     this.clearExpiredTimeout.next(true);
-
   }
 
   procClearExpiredTimeout() {
@@ -630,8 +648,12 @@ export class ToolService {
   }
 
   composerUrl(composer: {
-    port: string, path: string, apiUid: string,
-    authCode: string, moduleName: string, apiKey: string
+    port: string;
+    path: string;
+    apiUid: string;
+    authCode: string;
+    moduleName: string;
+    apiKey: string;
   }) {
     // const url = `${location.protocol}//${location.hostname}:${composer.port}${composer.path}?ac=${composer.authCode}&moduleName=${composer.moduleName}&apiKey=${composer.apiKey}`;
     const url = `${location.protocol}//${location.hostname}:${location.port}/website/composer/${composer.apiUid}?ac=${composer.authCode}&moduleName=${composer.moduleName}&apiKey=${composer.apiKey}`;
@@ -639,8 +661,8 @@ export class ToolService {
   }
 
   numberComma(num) {
-    let comma = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g
-    return num.toString().replace(comma, ',')
+    let comma = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g;
+    return num.toString().replace(comma, ',');
   }
 
   /**
@@ -651,7 +673,12 @@ export class ToolService {
    * @param mask 取代後的字元
    * @returns
    */
-  maskStringByPolicy(oriString: string = '', policy: string = '1', charNum: number = 1, mask: string = '*') {
+  maskStringByPolicy(
+    oriString: string = '',
+    policy: string = '1',
+    charNum: number = 1,
+    mask: string = '*'
+  ) {
     let replacement = '';
     // console.log('oriString', oriString)
     // console.log('policy', policy)
@@ -661,34 +688,33 @@ export class ToolService {
     switch (policy) {
       case '1': //前後
         if (oriString.length <= 2 * charNum) {
-          replacement = mask.repeat(oriString.length)
+          replacement = mask.repeat(oriString.length);
         } else {
           let start = oriString.substring(0, charNum);
-          let end = oriString.substring(oriString.length - charNum)
-          let middle = mask.repeat(oriString.length - 2 * charNum)
+          let end = oriString.substring(oriString.length - charNum);
+          let middle = mask.repeat(oriString.length - 2 * charNum);
           replacement = start + middle + end;
         }
         break;
       case '2': //前
         if (oriString.length <= charNum) {
-          replacement = mask.repeat(oriString.length)
+          replacement = mask.repeat(oriString.length);
         } else {
           let start = oriString.substring(0, charNum);
-          let end = mask.repeat(oriString.length - charNum)
+          let end = mask.repeat(oriString.length - charNum);
           replacement = start + end;
         }
         break;
       case '3': //後
-      if (oriString.length <= charNum) {
-        replacement = mask.repeat(oriString.length)
-      } else {
-        let start = mask.repeat(oriString.length - charNum)
-        let end = oriString.substring(oriString.length - charNum)
-        replacement = start + end;
-      }
+        if (oriString.length <= charNum) {
+          replacement = mask.repeat(oriString.length);
+        } else {
+          let start = mask.repeat(oriString.length - charNum);
+          let end = oriString.substring(oriString.length - charNum);
+          replacement = start + end;
+        }
         break;
       default:
-
         break;
     }
     return replacement;
@@ -718,13 +744,11 @@ export class ToolService {
   //     return body == '' ?'': `"${body}":"example"`
   //   }).join(',');
 
-
   //   // bodyArr.map(data=> {
   //   //   bodyStr.
   //   // })
 
   //   return bodyStr;
-
 
   //   // switch (policy) {
   //   //   case '1': //前後
@@ -770,41 +794,58 @@ export class ToolService {
   // }
 
   /**
-     * 20220113新增
-     * 把menu(由Tsmp_func取回)的資料跟前端routes source(layout.routing.ts)的id做比對
-     * 若menu.func_code無法對應到routes的id，則移除
-     */
+   * 20220113新增
+   * 把menu(由Tsmp_func取回)的資料跟前端routes source(layout.routing.ts)的id做比對
+   * 若menu.func_code無法對應到routes的id，則移除
+   */
   validateMenusNFuncCode(menu: any) {
-    let layoutRouteData = new Array; // 用來記錄有在layout.routing.ts內註冊的頁面id
+    let layoutRouteData = new Array(); // 用來記錄有在layout.routing.ts內註冊的頁面id
     const config = this.router.config;
 
     for (let i = 0; i < config.length; i++) {
-        if ('_loadedConfig' in config[i]) {
-            if (config[i]['_loadedConfig'].routes[0].children) {
-                config[i]['_loadedConfig'].routes[0].children.forEach(childRoute => {
-                    if ('data' in childRoute) {
-                        layoutRouteData.push(childRoute.data.id.toUpperCase())
-                    }
-                });
+      if ('_loadedConfig' in config[i]) {
+        if (config[i]['_loadedConfig'].routes[0].children) {
+          config[i]['_loadedConfig'].routes[0].children.forEach(
+            (childRoute) => {
+              if ('data' in childRoute) {
+                layoutRouteData.push(childRoute.data.id.toUpperCase());
+              }
             }
+          );
         }
+      }
     }
     // console.log(layoutRouteData);
     // console.log(menu);
 
-    menu.forEach((item:Menu) => {
-        item.subs = item.subs?.filter(subitem => layoutRouteData.find(id =>{
-          return subitem.name.startsWith('ZA') || subitem.name.startsWith('AC09') || id === subitem.name
-        }))
+    menu.forEach((item: Menu) => {
+      item.subs = item.subs?.filter((subitem) =>
+        layoutRouteData.find((id) => {
+          return (
+            subitem.name.startsWith('ZA') ||
+            subitem.name.startsWith('AC09') ||
+            id === subitem.name
+          );
+        })
+      );
     });
     // console.log('menu:',menu)
 
-   menu = menu.filter((item:Menu) =>{
-      return (item.subs && item.subs.length>0) ? true: false;
-    })
+    menu = menu.filter((item: Menu) => {
+      return item.subs && item.subs.length > 0 ? true : false;
+    });
     // console.log('menu:',menu)
     return menu;
-}
+  }
 
+  validateUrl(url: string): boolean {
+    try {
+      const parsedUrl = new URL(url);
+      // 僅允許 http 和 https 協議
+      return ['http:', 'https:'].includes(parsedUrl.protocol);
+    } catch {
+      return false; // 無效的 URL
+    }
+  }
 
 }

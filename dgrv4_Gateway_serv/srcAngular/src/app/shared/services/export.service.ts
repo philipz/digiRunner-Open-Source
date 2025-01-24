@@ -1,7 +1,7 @@
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
+// import * as XLSX from 'xlsx';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
@@ -75,22 +75,26 @@ export class ExportService {
 
     private exportAsExcelFile(json: any[], fileName: string, isExcel: boolean): void {
         // console.log('json', json);
-        const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-        // console.log('worksheet', worksheet);
-        const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-        const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });     
-        this.saveFile(excelBuffer, fileName, isExcel);
+        // const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+        // // console.log('worksheet', worksheet);
+        // const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+        // const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        // //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+        // this.saveFile(excelBuffer, fileName, isExcel);
+        const data: Blob = new Blob([JSON.stringify(json)], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+        });
+        this.saveFile(data, fileName, isExcel);
     }
 
     private exportAsCsvFile(json: any[], fileName: string, isExcel: boolean): void {
         let array = typeof json != 'object' ? JSON.parse(json) : json;
         let csvStr = '';
-        let csvHeader = '';        
+        let csvHeader = '';
         for (let i = 0; i < array.length; i++) {
             let line = '';
             Object.keys(array[i]).map((tag, idx, arr) => {
-                
+
                 if (i == 0) {
                     if(idx==0)
                     {
@@ -105,13 +109,13 @@ export class ExportService {
                     line += array[i][tag] + ','
                 }
                 else{
-                    line += array[i][tag] 
-                }                
+                    line += array[i][tag]
+                }
 
-            })            
+            })
             if (i == 0) csvStr += csvHeader + '\r\n';
-            csvStr += line + '\r\n';         
-        }        
+            csvStr += line + '\r\n';
+        }
         this.saveFile(csvStr, fileName, isExcel);
     }
 

@@ -478,7 +478,7 @@ public class IdPApiHelper {
 	 * 
 	 * @param reqJson : JSON 格式的字串 <br>
 	 * 例如1. req_header<br>
-	 * [{"Authorization":"bearer N9HzPSjTCU1zlYCeo1HJZk0XKQlm7t25"},{"Dgr_mock_test":"true"}]
+	 * [{"Authorization":"bearer N9HzPSjTCU1zlYCeo1HJZk0XKQlm7t25"},{"Dgr-mock-test":"true"}]
 	 * 例如2. req_body (form data 或 x-www-form-urlencoded) <br>
 	 * [{"username":"{{$username%}}"},{"password":"{{$password%}}"},{"uid":"{{$ip%}}"},{"check":"Y"}]
 	 * 例如3. req_body (Raw) <br>

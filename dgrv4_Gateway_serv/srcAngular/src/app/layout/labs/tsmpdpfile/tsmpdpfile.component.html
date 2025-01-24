@@ -44,7 +44,7 @@
           </div>
           <div *ngIf="form.get('refId').invalid && (form.get('refId').dirty || form.get('refId').touched)"
             class="text-danger">
-            <small class="form-text">{{form.get('refId').errors.max}}</small>
+            <small class="form-text">{{refId.errors.max}}</small>
           </div>
         </div>
       </div>

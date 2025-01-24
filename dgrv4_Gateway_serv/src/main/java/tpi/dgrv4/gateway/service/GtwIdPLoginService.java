@@ -1,9 +1,9 @@
 package tpi.dgrv4.gateway.service;
 
 import java.net.URL;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.security.PrivateKey;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -12,12 +12,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import tpi.dgrv4.codec.utils.JWEcodec;
 import tpi.dgrv4.common.constant.DgrAuthCodePhase;
 import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.entity.component.cipher.TsmpCoreTokenEntityHelper;
 import tpi.dgrv4.entity.component.cipher.TsmpTAEASKHelper;
 import tpi.dgrv4.entity.entity.DgrGtwIdpAuthM;
 import tpi.dgrv4.entity.entity.DgrGtwIdpInfoA;
@@ -26,6 +31,7 @@ import tpi.dgrv4.entity.entity.DgrGtwIdpInfoL;
 import tpi.dgrv4.entity.repository.DgrGtwIdpInfoADao;
 import tpi.dgrv4.entity.repository.DgrGtwIdpInfoJdbcDao;
 import tpi.dgrv4.entity.repository.DgrGtwIdpInfoLDao;
+import tpi.dgrv4.escape.ESAPI;
 import tpi.dgrv4.gateway.component.GtwIdPHelper;
 import tpi.dgrv4.gateway.component.IdPApiHelper;
 import tpi.dgrv4.gateway.component.IdPApiHelper.ApiUserInfoData;
@@ -36,10 +42,11 @@ import tpi.dgrv4.gateway.component.LdapHelper;
 import tpi.dgrv4.gateway.component.LdapHelper.LdapAdAuthData;
 import tpi.dgrv4.gateway.component.TokenHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.util.JsonNodeUtil;
 import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp2;
 
 /**
- * 驗證User帳號、密碼 <br>
+ * 驗證傳入的User帳號、密碼 <br>
  * (LDAP / API / JDBC) <br>
  * 
  * @author Mini
@@ -92,69 +99,97 @@ public class GtwIdPLoginService {
 	@Autowired
 	private DgrGtwIdpInfoJdbcDao dgrGtwIdpInfoJdbcDao;
 
-	public static class LoginData {
+	@Autowired
+	private TsmpCoreTokenEntityHelper tsmpCoreTokenEntityHelper;
+
+	public static class UserLoginData {
 		public ResponseEntity<?> errRespEntity;
 		public String errMsg;
+		public String userName;
+		public String userMima;
 	}
-
+	
 	public ResponseEntity<?> gtwIdPLogin(HttpHeaders httpHeaders, HttpServletRequest httpReq,
 			HttpServletResponse httpResp, String idPType) throws Exception {
+		
 		TPILogger.tl.debug("...idPType: " + idPType);
+		
+		Map<String, String> parameters = new HashMap<>();
+		httpReq.getParameterMap().forEach((k, vs) -> {
+			if (vs.length != 0) {
+				String val = vs[0];
+				if ("null".equalsIgnoreCase(val)) { // 將 Query string 中的字串"null", 轉為 null
+					val = null;
+				}
+				parameters.put(k, val);
+			}
+		});
 
 		String reqUri = httpReq.getRequestURI();
 		String dgrClientRedirectUri = httpReq.getParameter("redirect_uri");
+		String userIp = ServiceUtil.getIpAddress(httpReq);
+		
+		//checkmarx, Frameable Login Page, 已通過中風險
+		httpResp.setHeader("X-Frame-Options", "sameorigin");
+		//checkmarx, Missing HSTS Header
+		httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
+		
+		ResponseEntity<?> errRespEntity = gtwIdPLogin(httpResp, parameters, reqUri, idPType, dgrClientRedirectUri,
+				userIp);
+		if (errRespEntity != null) {// 資料驗證有錯誤
+			// 轉導到前端, 顯示錯誤訊息
+			getGtwIdPHelper().redirectToShowMsg(httpResp, errRespEntity, idPType, dgrClientRedirectUri);
+		}
+		
+		return null;
+	}
+
+	protected ResponseEntity<?> gtwIdPLogin(HttpServletResponse httpResp, Map<String, String> parameters, String reqUri,
+			String idPType, String dgrClientRedirectUri, String userIp) throws Exception {
 		ResponseEntity<?> errRespEntity = null;
 		try {
-			String responseType = httpReq.getParameter("response_type");
-			String dgrClientId = httpReq.getParameter("client_id");
-			String oidcScopeStr = httpReq.getParameter("scope");
-			String state = httpReq.getParameter("state");
-			String reqUserName = httpReq.getParameter("username");
-			String reqUserMima = httpReq.getParameter("password");
-			String codeChallenge = httpReq.getParameter("code_challenge");
-			String codeChallengeMethod = httpReq.getParameter("code_challenge_method");
+		
+			String responseType = parameters.get("response_type");
+			String dgrClientId = parameters.get("client_id");
+			String oidcScopeStr = parameters.get("scope");
+			String state = parameters.get("state");
+			String reqCredential = parameters.get("credential");
+			String reqUserName = parameters.get("username");
+			String reqUserMima = parameters.get("password");
+			String codeChallenge = parameters.get("code_challenge");
+			String codeChallengeMethod = parameters.get("code_challenge_method");
 
 			// 1.檢查傳入的資料
 			errRespEntity = checkReqParam(idPType, responseType, dgrClientId, oidcScopeStr, dgrClientRedirectUri, state,
-					reqUserName, reqUserMima, codeChallenge, codeChallengeMethod, reqUri);
+					reqCredential, reqUserName, reqUserMima, codeChallenge, codeChallengeMethod, reqUri);
 			if (errRespEntity != null) {// 資料驗證有錯誤
-				getGtwIdPHelper().redirectToShowMsg(httpResp, errRespEntity, idPType, dgrClientRedirectUri);
-				return null;
+				return errRespEntity;
 			}
-
-			// 2.將 user 密碼做 AES 解密
-			String userMima = null;
-			try {
-				userMima = getTsmpTAEASKHelper().decrypt(reqUserMima);
-			} catch (Exception e) {
-				TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));
+			
+			// 2.做 AES 或 JWE 解密, 取得 user 登入資料
+			UserLoginData userLoginData = decryptAndGetUserLoginData(reqCredential, reqUserName, reqUserMima, reqUri);
+			errRespEntity = userLoginData.errRespEntity;
+			if (errRespEntity != null) {// 資料驗證有錯誤
+				return errRespEntity;
 			}
-
-			if (!StringUtils.hasLength(userMima)) {
-				// user 密碼解密失敗
-				String errMsg = TokenHelper.User_password_decryption_failed;
-				TPILogger.tl.debug(errMsg);
-				errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
-						HttpStatus.BAD_REQUEST);// 400
-				getGtwIdPHelper().redirectToShowMsg(httpResp, errRespEntity, idPType, dgrClientRedirectUri);
-				return null;
-			}
-
+			
+			String userName = userLoginData.userName;
+			String userMima = userLoginData.userMima;
+ 
 			// 3.驗證登入的資料
 			if (DgrIdPType.LDAP.equals(idPType)) {
-				errRespEntity = loginByLdap(httpReq, httpResp, idPType, responseType, dgrClientId, oidcScopeStr,
-						dgrClientRedirectUri, state, reqUserName, userMima, codeChallenge, codeChallengeMethod);
+				errRespEntity = loginByLdap(reqUri, httpResp, idPType, responseType, dgrClientId, oidcScopeStr,
+						dgrClientRedirectUri, state, userName, userMima, codeChallenge, codeChallengeMethod);
 
 			} else if (DgrIdPType.API.equals(idPType)) {
-				String userIp = ServiceUtil.getIpAddress(httpReq);
-				errRespEntity = loginByApi(httpReq, httpResp, idPType, responseType, dgrClientId, oidcScopeStr,
-						dgrClientRedirectUri, state, reqUserName, userMima, userIp, codeChallenge, codeChallengeMethod);
+				errRespEntity = loginByApi(reqUri, httpResp, idPType, responseType, dgrClientId, oidcScopeStr,
+						dgrClientRedirectUri, state, userName, userMima, userIp, codeChallenge, codeChallengeMethod);
 
 			} else if (DgrIdPType.JDBC.equals(idPType)) {
-				errRespEntity = loginByJdbc(httpReq, httpResp, idPType, responseType, dgrClientId, oidcScopeStr,
-						dgrClientRedirectUri, state, reqUserName, userMima, codeChallenge, codeChallengeMethod);
-				
+				errRespEntity = loginByJdbc(reqUri, httpResp, idPType, responseType, dgrClientId, oidcScopeStr,
+						dgrClientRedirectUri, state, userName, userMima, codeChallenge, codeChallengeMethod);
+
 			} else {
 				// 無效的 IdP Type
 				String errMsg = String.format(IdPHelper.MSG_INVALID_IDPTYPE, idPType);
@@ -163,10 +198,18 @@ public class GtwIdPLoginService {
 						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
+			
+			
+			
+			if (httpResp != null) {
+				//checkmarx, Frameable Login Page, 已通過中風險
+				httpResp.setHeader("X-Frame-Options", "sameorigin");
+				//checkmarx, Missing HSTS Header
+				httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+			}
 
 			if (errRespEntity != null) {// 資料驗證有錯誤
-				getGtwIdPHelper().redirectToShowMsg(httpResp, errRespEntity, idPType, dgrClientRedirectUri);
-				return null;
+				return errRespEntity;
 			}
 
 		} catch (Exception e) {
@@ -174,19 +217,141 @@ public class GtwIdPLoginService {
 			String errMsg = TokenHelper.Internal_Server_Error;
 			TPILogger.tl.error(errMsg);
 			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
-			getGtwIdPHelper().redirectToShowMsg(httpResp, errRespEntity, idPType, dgrClientRedirectUri);
-			return null;
+			return errRespEntity;
 		}
 
 		return null;
+	}
+	
+	/**
+	 * 做 AES 或 JWE 解密 <br>
+	 * 取得 user 登入資料
+	 */
+	protected UserLoginData decryptAndGetUserLoginData(String reqCredential, String reqUserName, String reqUserMima,
+			String reqUri) {
+		
+		String decryptType = null;
+		ResponseEntity<?> errRespEntity = null;
+		
+		UserLoginData userLoginData = new UserLoginData();
+       
+		if (StringUtils.hasLength(reqCredential)) {// 若 credential 有值
+			decryptType = "JWE";
+			
+		} else if (StringUtils.hasLength(reqUserName) //
+				&& StringUtils.hasLength(reqUserMima)) { // 若 username 和 password 有值
+			decryptType = "AES";
+		}
+		
+		TPILogger.tl.debug("...decryptType: " + decryptType);
+		
+		String userName = null;
+		String userMima = null;
+		Long exp = null;
+		if ("AES".equals(decryptType)) {
+			// 1.將 user 密碼做 AES 解密, 取得 User 密碼明文
+			userName = reqUserName;
+			userMima = getTsmpTAEASKHelper().decrypt(reqUserMima);
+			
+			// 檢查 password
+			if (!StringUtils.hasText(userMima)) {
+				// URL 參數 'password' AES 解密失敗
+				String errMsg = "URL Parameter 'password' AES decryption failed.";
+				TPILogger.tl.debug(errMsg);
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+				userLoginData.errRespEntity = errRespEntity;
+				return userLoginData;
+			}
+
+		} else if ("JWE".equals(decryptType)) {
+			// 2.做 JWE 解密, 取得 User 帳號、密碼, 以及到期時間
+			
+			// 取得 Private Key
+			PrivateKey privateKey = getTsmpCoreTokenEntityHelper().getKeyPair().getPrivate();
+			
+			// JWE 解密
+			try {
+				String payloadJsonStr = JWEcodec.jweDecryption(privateKey, reqCredential);
+				// 取得 JWE 解密後的值
+				JsonNode payloadJsonNode = new ObjectMapper().readTree(payloadJsonStr);
+				userName = JsonNodeUtil.getNodeAsText(payloadJsonNode, "username");
+				userMima = JsonNodeUtil.getNodeAsText(payloadJsonNode, "password");
+				exp = JsonNodeUtil.getNodeAsLong(payloadJsonNode, "exp");
+				
+			} catch (Exception e) {
+				TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));
+				// URL 參數 'credential' JWE解密失敗
+				String errMsg = "URL Parameter 'credential' JWE decryption failed.";
+				TPILogger.tl.debug(errMsg);
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request,
+						errMsg);// 400
+				userLoginData.errRespEntity = errRespEntity;
+				return userLoginData;
+			}
+
+			// 檢查 username
+			if (!StringUtils.hasLength(userName)) {
+				// URL 的參數 'credential' JWE 解密成功, 但缺少 'username' 值
+				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'username' value is missing.";
+				TPILogger.tl.debug(errMsg);
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request,
+						errMsg);// 400
+				userLoginData.errRespEntity = errRespEntity;
+				return userLoginData;
+			}
+
+			// 檢查 password
+			if (!StringUtils.hasLength(userMima)) {
+				// URL 的參數 'credential' JWE 解密成功, 但缺少 'password' 值
+				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'password' value is missing.";
+				TPILogger.tl.debug(errMsg);
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+				userLoginData.errRespEntity = errRespEntity;
+				return userLoginData;
+			}
+
+			// 檢查 exp 到期時間
+			if (exp == null || exp == 0) {
+				// URL 的參數 'credential' JWE 解密成功, 但缺少 'exp' 值
+				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'exp' value is missing.";
+				TPILogger.tl.debug(errMsg);
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request,
+						errMsg);// 400
+				userLoginData.errRespEntity = errRespEntity;
+				return userLoginData;
+			}
+			
+			// 檢查exp是否過期
+			if (exp < System.currentTimeMillis()) {// 已過期
+				// URL 的參數 'credential' JWE 解密成功, 但 'exp' 已過期
+				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'exp' has expired: " + exp;
+				TPILogger.tl.debug(errMsg);
+				errRespEntity = getTokenHelper().getForbiddenErrorResp(reqUri, errMsg);// 403
+				userLoginData.errRespEntity = errRespEntity;
+				return userLoginData;
+			}
+			
+		} else { 
+			// 3.其他, 不正確
+			String errMsg = TokenHelper.Internal_Server_Error + ", decrypt type '" + decryptType + "' is failed";
+			TPILogger.tl.error(errMsg);
+			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
+			userLoginData.errRespEntity = errRespEntity;
+			return userLoginData;
+		}
+
+		userLoginData.userName = userName;
+		userLoginData.userMima = userMima;
+		
+		return userLoginData;
 	}
 
 	/**
 	 * 檢查傳入的資料
 	 */
 	private ResponseEntity<?> checkReqParam(String idPType, String responseType, String dgrClientId,
-			String oidcScopeStr, String dgrClientRedirectUri, String state, String reqUserName, String reqUserMima,
-			String codeChallenge, String codeChallengeMethod, String reqUri) {
+			String oidcScopeStr, String dgrClientRedirectUri, String state, String reqCredential, String reqUserName,
+			String reqUserMima, String codeChallenge, String codeChallengeMethod, String reqUri) {
 		ResponseEntity<?> errRespEntity = getTokenHelper().checkSupportGtwIdPType(idPType);
 		if (errRespEntity != null) {// idPType 資料驗證有錯誤
 			return errRespEntity;
@@ -201,27 +366,28 @@ public class GtwIdPLoginService {
 		if (!StringUtils.hasLength(state)) {
 			String errMsg = TokenHelper.Missing_required_parameter + "state";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
-					HttpStatus.BAD_REQUEST);// 400
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
 		}
 
-		// 沒有 username
-		if (!StringUtils.hasLength(reqUserName)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "username";
+		// 檢查 (credential) or (username、password)
+		if (!StringUtils.hasLength(reqCredential) //
+				&& !StringUtils.hasLength(reqUserName) //
+				&& !StringUtils.hasLength(reqUserMima)) { // 沒有 (credential) 和 (username、password)
+			String errMsg = TokenHelper.Missing_required_parameter + "credential";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
-					HttpStatus.BAD_REQUEST);// 400
-		}
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
 
-		// 沒有 password
-		if (!StringUtils.hasLength(reqUserMima)) {
+		} else if (StringUtils.hasLength(reqUserName) //
+				&& !StringUtils.hasLength(reqUserMima)) { // 若 username 有值, 但 password 沒有值,
 			String errMsg = TokenHelper.Missing_required_parameter + "password";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
-					HttpStatus.BAD_REQUEST);// 400
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+
+		} else if (StringUtils.hasLength(reqUserMima) //
+				&& !StringUtils.hasLength(reqUserName)) {// 若 password 有值, 但 username 沒有值,
+			String errMsg = TokenHelper.Missing_required_parameter + "username";
+			TPILogger.tl.debug(errMsg);
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
 		}
 
 		// 檢查是否有 code_challenge 和 code_challenge_method
@@ -251,12 +417,11 @@ public class GtwIdPLoginService {
 	/**
 	 * 以 JDBC 登入
 	 */
-	protected ResponseEntity<?> loginByJdbc(HttpServletRequest httpReq, HttpServletResponse httpResp, String idPType,
+	protected ResponseEntity<?> loginByJdbc(String reqUri, HttpServletResponse httpResp, String idPType,
 			String responseType, String dgrClientId, String openIdScopeStr, String dgrClientRedirectUri, String state,
 			String reqUserName, String userMima, String codeChallenge, String codeChallengeMethod) throws Exception {
 
 		UserInfoData userInfoData = new UserInfoData();
-		String reqUri = httpReq.getRequestURI();
 		try {
 			ResponseEntity<?> errRespEntity = null;
 
@@ -283,14 +448,15 @@ public class GtwIdPLoginService {
 			String sqlParams = dgrGtwIdpInfoJdbc.getSqlParams();
 			String userMimaAlg = dgrGtwIdpInfoJdbc.getUserMimaAlg();
 			String userMimaColName = dgrGtwIdpInfoJdbc.getUserMimaColName();
-			
+
 			String idtSubColName = dgrGtwIdpInfoJdbc.getIdtSub();
 			String idtNameColName = dgrGtwIdpInfoJdbc.getIdtName();
 			String idtEmailColName = dgrGtwIdpInfoJdbc.getIdtEmail();
 			String idtPictureColName = dgrGtwIdpInfoJdbc.getIdtPicture();
 
-			userInfoData = getIdPJdbcHelper().checkUserAuth(connName, sqlPtmt, sqlParams, reqUserName, userMima, userMimaAlg,
-					userMimaColName, idtSubColName, idtNameColName, idtEmailColName, idtPictureColName, reqUri);
+			userInfoData = getIdPJdbcHelper().checkUserAuth(connName, sqlPtmt, sqlParams, reqUserName, userMima,
+					userMimaAlg, userMimaColName, idtSubColName, idtNameColName, idtEmailColName, idtPictureColName,
+					reqUri);
 			errRespEntity = userInfoData.errRespEntity;
 			if (errRespEntity != null) {
 				return errRespEntity;
@@ -330,6 +496,13 @@ public class GtwIdPLoginService {
 
 			// user 同意畫面
 			TPILogger.tl.debug("Redirect to URL【User Consent UI URL】: " + dgrConsentUiUrl);
+			
+			//checkmarx, Frameable Login Page, 已通過中風險
+			httpResp.setHeader("X-Frame-Options", "sameorigin");
+			//checkmarx, Missing HSTS Header
+			httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	        
+			
 			httpResp.sendRedirect(dgrConsentUiUrl);
 
 		} catch (Exception e) {
@@ -345,11 +518,10 @@ public class GtwIdPLoginService {
 	/**
 	 * 以 LDAP 登入
 	 */
-	protected ResponseEntity<?> loginByLdap(HttpServletRequest httpReq, HttpServletResponse httpResp, String idPType,
+	protected ResponseEntity<?> loginByLdap(String reqUri, HttpServletResponse httpResp, String idPType,
 			String responseType, String dgrClientId, String openIdScopeStr, String dgrClientRedirectUri, String state,
 			String reqUserName, String userMima, String codeChallenge, String codeChallengeMethod) throws Exception {
 
-		String reqUri = httpReq.getRequestURI();
 		ResponseEntity<?> errRespEntity = null;
 		try {
 
@@ -421,6 +593,12 @@ public class GtwIdPLoginService {
 			String dgrConsentUiUrl = getDgrUserConsentUiUrl(idPType, responseType, dgrClientId, openIdScopeStr,
 					dgrClientRedirectUri, state, reqUserName);
 
+			//checkmarx, Frameable Login Page, 已通過中風險
+			httpResp.setHeader("X-Frame-Options", "sameorigin");
+			//checkmarx, Missing HSTS Header
+			httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	        
+			
 			// user 同意畫面
 			TPILogger.tl.debug("Redirect to URL【User Consent UI URL】: " + dgrConsentUiUrl);
 			httpResp.sendRedirect(dgrConsentUiUrl);
@@ -438,12 +616,11 @@ public class GtwIdPLoginService {
 	/**
 	 * 以 API 登入
 	 */
-	protected ResponseEntity<?> loginByApi(HttpServletRequest httpReq, HttpServletResponse httpResp, String idPType,
+	protected ResponseEntity<?> loginByApi(String reqUri, HttpServletResponse httpResp, String idPType,
 			String responseType, String dgrClientId, String openIdScopeStr, String dgrClientRedirectUri, String state,
 			String reqUserName, String userMima, String userIp, String codeChallenge, String codeChallengeMethod)
 			throws Exception {
 
-		String reqUri = httpReq.getRequestURI();
 		ResponseEntity<?> errRespEntity = null;
 		try {
 
@@ -473,6 +650,9 @@ public class GtwIdPLoginService {
 					dgrGtwIdpInfoA, reqUri);
 			String errMsg = apiUserInfoData.errMsg;
 			if (StringUtils.hasLength(errMsg)) {
+				//checkmarx, Reflected XSS All Clients
+				errMsg = ESAPI.encoder().encodeForHTML(errMsg.toString());
+				
 				errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
 						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_user, errMsg),
 						HttpStatus.UNAUTHORIZED);// 401
@@ -502,10 +682,11 @@ public class GtwIdPLoginService {
 			String userEmail = apiUserInfoData.userEmail;
 			String userPicture = apiUserInfoData.userPicture;
 			String apiResp = apiUserInfoData.apiResp;
-			String	idtLightId=	apiUserInfoData.idtLightId ;
-			String idtRoleName= apiUserInfoData.idtRoleName;
+			String idtLightId = apiUserInfoData.idtLightId;
+			String idtRoleName = apiUserInfoData.idtRoleName;
 			getGtwIdPCallbackService().createDgrGtwIdpAuthCode(state, null, DgrAuthCodePhase.STATE, expireDateTime,
-					idPType, dgrClientId, reqUserName, userAlias, userEmail, userPicture, null, null, null, apiResp, idtLightId, idtRoleName);
+					idPType, dgrClientId, reqUserName, userAlias, userEmail, userPicture, null, null, null, apiResp,
+					idtLightId, idtRoleName);
 
 			// 6.轉導到 user 同意畫面
 			String dgrConsentUiUrl = getDgrUserConsentUiUrl(idPType, responseType, dgrClientId, openIdScopeStr,
@@ -513,6 +694,13 @@ public class GtwIdPLoginService {
 
 			// user 同意畫面
 			TPILogger.tl.debug("Redirect to URL【User Consent UI URL】: " + dgrConsentUiUrl);
+			
+			//checkmarx, Frameable Login Page, 已通過中風險
+			httpResp.setHeader("X-Frame-Options", "sameorigin");
+			//checkmarx, Missing HSTS Header
+			httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	        
+			
 			httpResp.sendRedirect(dgrConsentUiUrl);
 
 		} catch (Exception e) {
@@ -539,7 +727,7 @@ public class GtwIdPLoginService {
 //		String dgrConsentUiUrl = "https://localhost:8080/dgrv4/ac4/gtwidp/{idPType}/consent";
 
 		// TODO, Mini, test (前端未加入畫面前測試用)
-//		String dgrConsentUiUrl = "https://localhost:8080/dgrv4/mockac/gtwidp/{idPType}/consentui";
+//		String dgrConsentUiUrl = "https://localhost:18080/dgrv4/mockac/gtwidp/{idPType}/consentui";
 
 		dgrConsentUiUrl = dgrConsentUiUrl.replace("{idPType}", idPType);
 
@@ -613,5 +801,9 @@ public class GtwIdPLoginService {
 
 	protected DgrGtwIdpInfoJdbcDao getDgrGtwIdpInfoJdbcDao() {
 		return dgrGtwIdpInfoJdbcDao;
+	}
+
+	protected TsmpCoreTokenEntityHelper getTsmpCoreTokenEntityHelper() {
+		return tsmpCoreTokenEntityHelper;
 	}
 }

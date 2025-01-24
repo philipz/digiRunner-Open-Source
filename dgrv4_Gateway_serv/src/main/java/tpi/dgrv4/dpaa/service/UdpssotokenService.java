@@ -217,6 +217,9 @@ public class UdpssotokenService{
 		}
 		if(res != null) {
 			res.addHeader("udpLoginUrl", udpLoginUrl);
+			//checkmarx, Missing HSTS Header
+            res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+            
 		}
 		
 		// 判斷User IP,是否在可登入此伺服器環境的網段中	

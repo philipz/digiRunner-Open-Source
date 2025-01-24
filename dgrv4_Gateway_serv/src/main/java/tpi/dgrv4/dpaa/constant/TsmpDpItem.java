@@ -3,8 +3,6 @@ package tpi.dgrv4.dpaa.constant;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.janino.Java.ForEachStatement;
-
 public enum TsmpDpItem {
 
 	ENABLE_FLAG("ENABLE_FLAG", ""), //

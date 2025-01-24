@@ -1,6 +1,5 @@
 package tpi.dgrv4.gateway.TCP.Packet;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import tpi.dgrv4.common.utils.StackTraceUtil;

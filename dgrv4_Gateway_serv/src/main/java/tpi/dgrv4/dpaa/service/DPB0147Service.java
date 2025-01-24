@@ -52,31 +52,33 @@ public class DPB0147Service {
 
 	@Autowired
 	private TsmpRoleDao tsmpRoleDao;
-	
+
 	@Autowired
 	private DgrAuditLogService dgrAuditLogService;
-	
+
 	@Autowired
 	private TsmpUserDao tsmpUserDao;
-	
+
 	@Autowired
 	private TsmpTokenHistoryDao tsmpTokenHistoryDao;
-	
+
 	@Autowired
 	private TsmpSettingService tsmpSettingService;
-	
+
 	@Autowired
 	private DaoGenericCacheService daoGenericCacheService;
-	
+
 	@Autowired
 	private AuthoritiesCacheProxy authoritiesCacheProxy;
-	
+
 	@Transactional
 	public DPB0147Resp updateIdPUser(TsmpAuthorization auth, DPB0147Req req, InnerInvokeParam iip) {
 		DPB0147Resp resp = new DPB0147Resp();
 		try {
 
-			//寫入 Audit Log M
+			req.switchCusIdpTypeUserName();
+
+			// 寫入 Audit Log M
 			String lineNumber = StackTraceUtil.getLineNumber();
 			getDgrAuditLogService().createAuditLogM(iip, lineNumber, AuditLogEvent.UPDATE_IDP_USER.value());
 
@@ -86,7 +88,6 @@ public class DPB0147Service {
 			if (userVo == null) {
 				throw TsmpDpAaRtnCode._1231.throwing();
 			}
-			
 
 			String userName = req.getUserName();
 			String newUserName = req.getNewUserName();
@@ -98,7 +99,7 @@ public class DPB0147Service {
 			boolean tokenFlag = false;
 			String authName = auth.getUserNameForQuery();
 			checkPermissions(authName, userName);
-			
+
 			if (!newOrgId.equals(orgId)) {
 				tokenFlag = true;
 				userVo.setOrgId(newOrgId);
@@ -110,28 +111,28 @@ public class DPB0147Service {
 				if (tsmpUser != null) {
 					throw TsmpDpAaRtnCode._1540.throwing();
 				}
-				
+
 				userVo.setUserName(newUserName);
-				deleteAuthorities(userName,iip);   //先刪除舊username角色對應
-				createAuthorities(newUserName, newRoleIdList, iip);  //新增新角色對應
+				deleteAuthorities(userName, iip); // 先刪除舊username角色對應
+				createAuthorities(newUserName, newRoleIdList, iip); // 新增新角色對應
 
 			} else {
 				if (this.isRoleIdDiffer(roleIdList, newRoleIdList)) {
 					tokenFlag = true;
-					deleteAuthorities(userName, iip);//先刪除舊角色對應
+					deleteAuthorities(userName, iip);// 先刪除舊角色對應
 
-					createAuthorities(userName, newRoleIdList, iip);//新增新角色對應
+					createAuthorities(userName, newRoleIdList, iip);// 新增新角色對應
 				}
 				userVo.setUserName(userName);
 			}
 			updateIdPUserTable(auth, userVo, req, iip);
-			
+
 //			(若ROFILEUPDATE_INVALIDATE_TOKEN為true && 有異動到TSMP_USER資料)則要註銷Token
 			boolean settingFalg = getTsmpSettingService().getVal_PROFILEUPDATE_INVALIDATE_TOKEN();
 			if (settingFalg && tokenFlag) {
 				invalidateToken(userName);
 			}
-			
+
 			return resp;
 		} catch (TsmpDpAaException e) {
 			throw e;
@@ -140,12 +141,11 @@ public class DPB0147Service {
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 	}
-	
+
 	protected void checkPermissions(String authName, String userName) {
 		boolean settingFlag = getTsmpSettingService().getVal_USER_UPDATE_BY_SELF();
 		List<Authorities> authoritiesList = getAuthoritiesCacheProxy().findByUsername(authName);
-		boolean roleFlag = authoritiesList.stream()
-			    .anyMatch(authorities -> "1000".equals(authorities.getAuthority()));
+		boolean roleFlag = authoritiesList.stream().anyMatch(authorities -> "1000".equals(authorities.getAuthority()));
 		// ADMIN角色可修改自己 &&是否允許修正自身帳號(預設是可以) && 自己不可異動自己的資訊
 		if (!roleFlag && settingFlag && authName.equals(userName)) {
 			throw TsmpDpAaRtnCode._1219.throwing();
@@ -165,7 +165,7 @@ public class DPB0147Service {
 
 		});
 	}
-	
+
 	private void invalidateToken(String userName) {
 		List<TsmpTokenHistory> tokenHistories = getTsmpTokenHistoryDao().findByUserName(userName);
 		Date now = DateTimeUtil.now();
@@ -173,13 +173,13 @@ public class DPB0147Service {
 		String rftRevokedStatus = null;
 		if (!CollectionUtils.isEmpty(tokenHistories)) {
 			for (TsmpTokenHistory tsmpTokenHistory : tokenHistories) {
-				
+
 				revokedStatus = tsmpTokenHistory.getRevokedStatus();
 				if (!StringUtils.hasLength(revokedStatus)) {
 					tsmpTokenHistory.setRevokedStatus("R");
 					tsmpTokenHistory.setRevokedAt(now);
 				}
-				
+
 				rftRevokedStatus = tsmpTokenHistory.getRftRevokedStatus();
 				if (!StringUtils.hasLength(rftRevokedStatus)) {
 					tsmpTokenHistory.setRftRevokedStatus("R");
@@ -187,27 +187,27 @@ public class DPB0147Service {
 				}
 
 			}
-			
+
 			getTsmpTokenHistoryDao().saveAllAndFlush(tokenHistories);
-			//清除快取
+			// 清除快取
 			getDaoGenericCacheService().clearAndNotify();
 		}
 	}
 
-	private void deleteAuthorities(String userName , InnerInvokeParam iip) {
+	private void deleteAuthorities(String userName, InnerInvokeParam iip) {
 		List<Authorities> authoritiesList = getAuthoritiesDao().findByUsername(userName);
 		getAuthoritiesDao().deleteAll(authoritiesList);
-		if(iip != null) {
+		if (iip != null) {
 			String lineNumber = StackTraceUtil.getLineNumber();
 			for (Authorities authorities : authoritiesList) {
-				String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, authorities); //舊資料統一轉成 String
-				getDgrAuditLogService().createAuditLogD(iip, lineNumber,
-						Authorities.class.getSimpleName(), TableAct.D.value(), oldRowStr, null);// D
+				String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, authorities); // 舊資料統一轉成 String
+				getDgrAuditLogService().createAuditLogD(iip, lineNumber, Authorities.class.getSimpleName(),
+						TableAct.D.value(), oldRowStr, null);// D
 			}
 		}
-		
+
 	}
-	
+
 	private void updateIdPUserTable(TsmpAuthorization auth, DgrAcIdpUser userVo, DPB0147Req req, InnerInvokeParam iip) {
 		String oldRowStr = getDgrAuditLogService().writeValueAsString(iip, userVo); // 舊資料統一轉成 String
 		userVo.setUserAlias(req.getNewUserAlias());
@@ -220,8 +220,8 @@ public class DPB0147Service {
 
 		// 寫入 Audit Log D
 		String lineNumber3 = StackTraceUtil.getLineNumber();
-		getDgrAuditLogService().createAuditLogD(iip, lineNumber3, DgrAcIdpUser.class.getSimpleName(), TableAct.U.value(),
-				oldRowStr, userVo);// U
+		getDgrAuditLogService().createAuditLogD(iip, lineNumber3, DgrAcIdpUser.class.getSimpleName(),
+				TableAct.U.value(), oldRowStr, userVo);// U
 
 	}
 
@@ -285,10 +285,11 @@ public class DPB0147Service {
 			}
 		});
 	}
+
 	protected DgrAuditLogService getDgrAuditLogService() {
 		return dgrAuditLogService;
 	}
-	
+
 	protected DgrAcIdpUserDao getDgrAcIdpUserDao() {
 		return dgrAcIdpUserDao;
 	}
@@ -304,23 +305,23 @@ public class DPB0147Service {
 	protected AuthoritiesDao getAuthoritiesDao() {
 		return this.authoritiesDao;
 	}
-	
+
 	protected TsmpUserDao getTsmpUserDao() {
 		return tsmpUserDao;
 	}
-	
+
 	protected TsmpTokenHistoryDao getTsmpTokenHistoryDao() {
 		return tsmpTokenHistoryDao;
 	}
-	
+
 	protected TsmpSettingService getTsmpSettingService() {
 		return tsmpSettingService;
 	}
-	
+
 	protected DaoGenericCacheService getDaoGenericCacheService() {
 		return daoGenericCacheService;
 	}
-	
+
 	protected AuthoritiesCacheProxy getAuthoritiesCacheProxy() {
 		return authoritiesCacheProxy;
 	}

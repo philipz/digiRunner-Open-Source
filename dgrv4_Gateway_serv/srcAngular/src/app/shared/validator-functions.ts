@@ -249,7 +249,7 @@ export function confirmPasswordForUserValidator(group: FormGroup, useUpdate: boo
             group.controls['confirmUserBlock'].setErrors(null)
             return null;
         } else {
-            return { 'confirm_password': 'validation.confirm_password' };
+            return { 'confirm_mima': 'validation.confirm_mima' };
         }
     };
 }
@@ -264,7 +264,7 @@ export function confirmPasswordForClientValidator(group: FormGroup, useUpdate: b
             group.controls['confirmClientBlock'].setErrors(null)
             return null;
         } else {
-            return { confirm_password: 'validation.confirm_password' };
+            return { 'confirm_mima': 'validation.confirm_mima' };
         }
     };
 }
@@ -278,7 +278,7 @@ export function confirmPasswordValidator(group: FormGroup,  oriField:string = ''
           group.controls[newField].setErrors(null)
           return null;
       } else {
-          return { 'confirm_password': 'validation.confirm_password' };
+          return { 'confirm_mima': 'validation.confirm_mima' };
       }
   };
 }

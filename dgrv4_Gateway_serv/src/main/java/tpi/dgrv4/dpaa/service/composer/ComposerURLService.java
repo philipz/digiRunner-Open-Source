@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import tpi.dgrv4.dpaa.service.TsmpSettingService;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 
 @Service
 public class ComposerURLService {

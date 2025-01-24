@@ -1406,4 +1406,22 @@ public class TsmpSettingService {
 		String key = getKey_CUS_LOGIN_URL();
 		return getStringVal(key);
 	}
+
+    public String getKey_REQUEST_URI_ENABLED() {
+    	return TsmpSettingDao.Key.REQUEST_URI_ENABLED;
+    }
+	
+	public boolean getVal_REQUEST_URI_ENABLED() {
+		String key = getKey_REQUEST_URI_ENABLED();
+    	return getBooleanVal(key, Boolean.TRUE);
+	}
+
+	public String getKey_HIGHWAY_THRESHOLD() {
+    	return TsmpSettingDao.Key.HIGHWAY_THRESHOLD;
+    }
+	
+	public Integer getVal_HIGHWAY_THRESHOLD() {
+		String key = getKey_HIGHWAY_THRESHOLD();
+    	return getIntegerVal(key, 1000);
+	}
 }

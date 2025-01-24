@@ -1,0 +1,524 @@
+<div>
+  <!-- 行一 -->
+  <div class="form-group row">
+    <!-- 狀態 -->
+    <div class="col-1">
+      <label class="control-label">{{ "status" | translate }}</label>
+      <label class="form-control border-line">
+        <img *ngIf="apiDetail?.apiStatus.v == '1'" style="width: 20px; height: 20px" src="assets/images/icon_acg.png"
+          alt="active" />
+        <img *ngIf="apiDetail?.apiStatus.v == '2'" style="width: 20px; height: 20px" src="assets/images/icon_acr.png"
+          alt="stop" />
+      </label>
+    </div>
+    <div class="col-2">
+      <label class="control-label">{{ "apiStatus.scheduledLaunchDate" | translate }}</label>
+      <label class="form-control border-line">
+        <app-api-status type="enableScheduledDate" [rowData]="apiDetail" readOnly="true"></app-api-status>
+      </label>
+    </div>
+    <div class="col-2">
+      <label class="control-label">{{ "apiStatus.scheduledDiscontinuationDate" | translate }}</label>
+      <label class="form-control border-line">
+        <app-api-status type="disableScheduledDate" [rowData]="apiDetail" readOnly="true"></app-api-status>
+      </label>
+    </div>
+    <!-- 屬性 -->
+    <div class="col-4" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'">
+      <label class="control-label">{{ "attribute" | translate }}</label>
+      <div class="col-12 border-topline">
+        <div class="p-form-check-line">
+
+          <div class="p-form-check" [hidden]="apiDetail.pathType =='dgrc'">
+            <p-checkbox inputId="path_param1" value="1" disabled [ngModel]="apiDetail.urlRID"
+              [ngModelOptions]="{standalone: true}"> </p-checkbox>
+            <label class="mb-0 ml-1" for="path_param1">{{"path_param" | translate}}</label>
+          </div>
+
+          <div class="p-form-check">
+            <p-checkbox disabled inputId="no_auth1" value="1" [ngModel]="apiDetail.noOAuth"
+              [ngModelOptions]="{standalone: true}"> </p-checkbox>
+            <label class="mb-0 ml-1" for="no_auth1">{{"no_auth" | translate}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [模組編號]模組名稱 -->
+    <div class="col-3">
+      <label class="control-label">[{{ "module_id" | translate }}]
+        {{ "module_name" | translate }}</label>
+      <label class="form-control border-line">
+        [{{ apiDetail?.moduleId }}]
+         <!-- {{ apiDetail?.moduleName.v }} -->
+        <!-- <a *ngIf="apiDetail?.moduleName.t == true" href="javascript:void(0)" pTooltip="{{ apiDetail.moduleName.o }}"
+          (click)="copyData(apiDetail.moduleName.o)">...{{ "show_more" | translate }}</a> -->
+          {{ apiDetail?.moduleName.o && !apiDetail?.moduleName.t ? apiDetail?.moduleName.o : apiDetail?.moduleName.v}}
+          <label class="moreless" *ngIf="apiDetail?.moduleName.o" (click)="switchOri(apiDetail.moduleName)">
+            {{apiDetail.moduleName.t ? ("show_more" | translate): '' }}
+            <i class="fas"
+              [ngClass]="[apiDetail.moduleName.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+            {{apiDetail.moduleName.t ? '' : ("show_less" | translate) }}
+          </label>
+      </label>
+    </div>
+  </div>
+  <!-- 行二 -->
+  <div class="form-group row">
+    <div class="col-sm-3">
+      <label class="control-label">{{ "api_key" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail?.apiKey.o && !apiDetail?.apiKey.t ? apiDetail?.apiKey.o : apiDetail?.apiKey.v}}
+        <label class="moreless" *ngIf="apiDetail?.apiKey.o" (click)="switchOri(apiDetail.apiKey)">
+          {{apiDetail.apiKey.t ? ("show_more" | translate): '' }}
+          <i class="fas"
+            [ngClass]="[apiDetail.apiKey.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+          {{apiDetail.apiKey.t ? '' : ("show_less" | translate) }}
+        </label>
+      </label>
+    </div>
+    <div class="col-sm-3">
+      <label class="control-label">{{ "api_name" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail?.apiName.o && !apiDetail?.apiName.t ? apiDetail?.apiName.o : apiDetail?.apiName.v}}
+        <label class="moreless" *ngIf="apiDetail?.apiName.o" (click)="switchOri(apiDetail.apiName)">
+          {{apiDetail.apiName.t ? ("show_more" | translate): '' }}
+          <i class="fas"
+            [ngClass]="[apiDetail.apiName.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+          {{apiDetail.apiName.t ? '' : ("show_less" | translate) }}
+        </label>
+      </label>
+    </div>
+    <div class="col-sm-3">
+      <label class="control-label">{{ "api_src" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail?.apiSrc.n }}
+      </label>
+    </div>
+    <div class="col-sm-3" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'">
+      <label class="control-label">{{ "data_format" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail.dataFormat.n }}
+      </label>
+    </div>
+  </div>
+  <!-- 行三 -->
+  <div class="form-group row">
+    <div class="col-3" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'">
+      <label class="control-label">API Cache</label>
+      <label class="form-control border-line">
+        {{ apiDetail.apiCacheFlag.n }}
+      </label>
+    </div>
+    <!-- 固定快取時間 -->
+    <div class="col-3" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'">
+      <label class="control-label">{{ "fixed_cache_time" | translate }}({{ 'minute'|translate }})<i
+          class="far fa-question-circle ml-2 " pTooltip="{{'fixed_cache_time_tip'|translate}}"
+          [escape]="false"></i></label>
+      <label class="form-control border-line">
+        {{ apiDetail.fixedCacheTime }}
+      </label>
+    </div>
+    <!-- JWT設定 -->
+    <div class="col-3">
+      <label class="control-label">{{ "jwt_setting" | translate }}</label>
+      <label class="form-control border-line">
+        <span>Request：{{ apiDetail?.jweFlag.n }}</span>
+        <br />
+        <span>Response：{{ apiDetail?.jweFlagResp.n }}</span>
+      </label>
+    </div>
+    <!-- Http Method -->
+    <div class="col-3">
+      <label class="control-label">{{ "http_method" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail?.methodOfJson ?? "-" }}
+      </label>
+    </div>
+
+  </div>
+
+  <!-- 行四 -->
+  <div class="form-group row">
+    <!-- 註冊主機 -->
+    <div class="col-3" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'">
+      <label class="control-label">{{ "reg_host" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail.regHostName ?? "-" }}
+      </label>
+    </div>
+    <!-- 端點 -->
+    <div class="col-6">
+      <label class="control-label">{{ "end_point" | translate }}</label>
+      <label class="form-control border-line" style="word-break: break-word;height:100%">
+        {{ originString(apiDetail?.pathOfJson) }}
+        <label class="moreless" *ngIf="apiDetail?.pathOfJson.o" (click)="switchOri(apiDetail.pathOfJson)">
+          {{apiDetail.pathOfJson.t ? ("show_more" | translate): '' }}
+          <i class="fas"
+            [ngClass]="[apiDetail.pathOfJson.t ?  'fa-angle-double-right mt-1' : 'fa-angle-double-left  mt-1 mr-1']"></i>
+          {{apiDetail.pathOfJson.t ? '' : ("show_less" | translate) }}
+        </label>
+      </label>
+    </div>
+    <!-- 組織名稱 -->
+    <div class="col-3">
+      <label class="control-label">{{ "org_name" | translate }}</label>
+      <label class="form-control border-line">
+        {{ apiDetail?.orgName ?? "-" }}
+      </label>
+    </div>
+  </div>
+
+  <!-- 行五 -->
+  <div class="form-group row">
+    <div class="col-3 col-lg-3">
+      <label class="control-label">{{'create_user'|translate}}</label>
+      <label class="form-control border-line">{{apiDetail?.createUser}}</label>
+    </div>
+    <div class="col-3 col-lg-3">
+      <label class="control-label">{{'create_date'|translate}}</label>
+      <label class="form-control border-line">{{apiDetail?.createDate}}</label>
+    </div>
+    <div class="col-3 col-lg-3">
+      <label class="control-label">{{'update_user'|translate}}</label>
+      <label class="form-control border-line">{{apiDetail?.updateUser}}</label>
+    </div>
+    <div class="col-3 col-lg-3">
+      <label class="control-label">{{'update_date'|translate}}</label>
+      <label class="form-control border-line">{{apiDetail?.updateDate}}</label>
+    </div>
+  </div>
+
+  <!-- 行六 -->
+  <div class="form-group row">
+    <div class="col-12" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'"
+      [hidden]="apiDetail.isRedirectByIp">
+      <label class="control-label" style="font-weight: bolder">{{"tar_url" | translate}}</label>
+      <table class="w-100" style="table-layout: fixed;word-break: break-word;font-size: 0.8rem;">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 80px;">{{'%'|translate}}</th>
+            <th scope="col">{{'tar_url'|translate}}</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="srcUrlPool && srcUrlPool.length>0">
+          <tr *ngFor="let item of srcUrlPool">
+            <td>
+              <label class="text-center" style="margin: 0px;">{{item.percent}}</label>
+            </td>
+            <td>
+              <lable>{{item.url}}</lable>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-12" *ngIf="apiDetail?.apiSrc.v == 'R' || apiDetail?.apiSrc.v == 'C'"
+      [hidden]="!apiDetail.isRedirectByIp">
+      <label class="control-label" style="font-weight: bolder">{{"tar_url" | translate}}</label>
+      <div class="mb-2">
+        <p-checkbox [binary]="true" [readonly]="true" [(ngModel)]="apiDetail.isRedirectByIp" name="isRediretByIp">
+        </p-checkbox>
+        <label class="mb-0 ml-1">{{'diversionSrcIP'|translate }}</label>
+      </div>
+
+      <p-table [value]="ipSrcUrl" selectionMode="single" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
+        styleClass="p-datatable-striped">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th style="width: 15%;" scope="col">Source IP</th>
+            <th scope="col" style="width: 60px;">%</th>
+            <th style="min-width: 200px;" scope="col">{{'tar_url'|translate}}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+          <tr>
+            <td [attr.rowspan]="rowData.srcUrlPool.length">{{rowData.ipForRediret}}</td>
+            <td [attr.rowspan]="1" style="text-align: right;">{{rowData.srcUrlPool[0].percent}}</td>
+            <td [attr.rowspan]="1">{{rowData.srcUrlPool[0].url}}</td>
+          </tr>
+          <ng-container *ngFor="let srcUrl of rowData.srcUrlPool; let i= index;">
+            <tr *ngIf="rowData.srcUrlPool.length>1 && i>0">
+              <td [attr.rowspan]="1" style="text-align: right;">{{srcUrl.percent}}</td>
+              <td [attr.rowspan]="1">{{srcUrl.url}}</td>
+            </tr>
+          </ng-container>
+        </ng-template>
+      </p-table>
+    </div>
+
+  </div>
+
+  <div class="form-group row" *ngIf="apiDetail?.apiSrc.v !=='C' ">
+    <div class="col-6">
+      <label id="headerMask_label" class="control-label">API Log Header Mask</label>
+      <div class="col-12 form-group ">
+        <div class="p-form-check mb-2">
+          <p-radioButton value="0" [ngModel]="apiDetail.headerMaskPolicy" disabled
+            name="headerMaskPolicy0"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 0: {{'mask.none'|translate}}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="1" [ngModel]="apiDetail.headerMaskPolicy" disabled
+            name="headerMaskPolicy1"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 1: {{
+            'mask.before_after'|translate:{num:(apiDetail.headerMaskPolicyNum?apiDetail.headerMaskPolicyNum:'1'),
+            mask:(apiDetail.headerMaskPolicySymbol?apiDetail.headerMaskPolicySymbol:'*')}
+            }}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="2" [ngModel]="apiDetail.headerMaskPolicy" disabled
+            name="headerMaskPolicy2"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 2: {{
+            'mask.before'|translate:{num:(apiDetail.headerMaskPolicyNum?apiDetail.headerMaskPolicyNum:'1'),
+            mask:(apiDetail.headerMaskPolicySymbol?apiDetail.headerMaskPolicySymbol:'*')} }}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="3" [ngModel]="apiDetail.headerMaskPolicy" disabled
+            name="headerMaskPolicy3"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 3: {{
+            'mask.after'|translate:{num:(apiDetail.headerMaskPolicyNum?apiDetail.headerMaskPolicyNum:'1'),
+            mask:(apiDetail.headerMaskPolicySymbol?apiDetail.headerMaskPolicySymbol:'*')} }}</label>
+        </div>
+        <div class="col-12 px-0 mt-2"
+          *ngIf="apiDetail.headerMaskPolicy == '1'||apiDetail.headerMaskPolicy == '2'||apiDetail.headerMaskPolicy == '3'">
+          <div class="col-12 px-0">
+            <label class="control-label">Fields</label>
+            <input type="text" class="form-control" disabled [(ngModel)]="apiDetail.headerMaskKey" name="headerMaskKey">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <label id="headerMask_label" class="control-label">API Log Body Mask Policy</label>
+      <div class="col-12 form-group ">
+        <div class="p-form-check mb-2">
+          <p-radioButton value="0" [ngModel]="apiDetail.bodyMaskPolicy" disabled name="bodyMaskPolicy0"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 0: {{'mask.none'|translate}}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="1" [ngModel]="apiDetail.bodyMaskPolicy" disabled name="bodyMaskPolicy1"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 1: {{
+            'mask.body_before_after'|translate:{num:apiDetail.bodyMaskPolicyNum?apiDetail.bodyMaskPolicyNum:'1',
+            mask:apiDetail.bodyMaskPolicySymbol?apiDetail.bodyMaskPolicySymbol:'*'}
+            }}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="2" [ngModel]="apiDetail.bodyMaskPolicy" disabled name="bodyMaskPolicy2"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 2: {{
+            'mask.body_before'|translate:{num:apiDetail.bodyMaskPolicyNum?apiDetail.bodyMaskPolicyNum:'1',
+            mask:apiDetail.bodyMaskPolicySymbol?apiDetail.bodyMaskPolicySymbol:'*'} }}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="3" [ngModel]="apiDetail.bodyMaskPolicy" disabled name="bodyMaskPolicy3"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 3: {{
+            'mask.body_after'|translate:{num:apiDetail.bodyMaskPolicyNum?apiDetail.bodyMaskPolicyNum:'1',
+            mask:apiDetail.bodyMaskPolicySymbol?apiDetail.bodyMaskPolicySymbol:'*'} }}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="4" [ngModel]="apiDetail.bodyMaskPolicy" disabled name="bodyMaskPolicy4"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 4: {{
+            'mask.body_after_regex'|translate:{num:apiDetail.bodyMaskPolicyNum?apiDetail.bodyMaskPolicyNum:'1',
+            mask:apiDetail.bodyMaskPolicySymbol?apiDetail.bodyMaskPolicySymbol:'*'} }}</label>
+        </div>
+        <div class="col-12 px-0 mt-2"
+          *ngIf="apiDetail.bodyMaskPolicy == '1'||apiDetail.bodyMaskPolicy == '2'||apiDetail.bodyMaskPolicy == '3'||apiDetail.bodyMaskPolicy == '4'">
+          <div class="col-12 px-0">
+            <label class="control-label">{{ 'keyword'|translate }}</label>
+            <input type="text" class="form-control" disabled [(ngModel)]="apiDetail.bodyMaskKeyword"
+              name="bodyMaskKeyword">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="form-group row" *ngIf="apiDetail?.apiSrc.v =='R' && apiDetail?.type == '1'">
+    <div class="col-6">
+      <label class="control-label">{{ 'fail_discovery_policy.label'| translate}}</label>
+      <div class="col-12 form-group ">
+        <div class="p-form-check mb-2">
+          <p-radioButton value="0" [ngModel]="apiDetail.failDiscoveryPolicy" disabled
+            name="failDiscoveryPolicy0"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 0: {{'fail_discovery_policy.policy_0'|translate}}</label>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <label class="control-label">{{ 'fail_handle_policy.label'| translate}}</label>
+      <div class="col-12 form-group ">
+        <div class="p-form-check mb-2">
+          <p-radioButton value="0" [ngModel]="apiDetail.failHandlePolicy" disabled
+            name="failHandlePolicy0"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 0: {{'fail_handle_policy.policy_0'|translate}}</label>
+        </div>
+        <div class="p-form-check mb-2">
+          <p-radioButton value="1" [ngModel]="apiDetail.failHandlePolicy" disabled
+            name="failHandlePolicy1"></p-radioButton>
+          <label class="ml-2 mb-0">Policy 1: {{'fail_handle_policy.policy_1'|translate}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-12">
+      <label class="control-label">{{ "headers" | translate }}：</label>
+      <span>{{ originString(apiDetail?.headersOfJson) }}
+        <a *ngIf="apiDetail?.headersOfJson.o" href="javascript:void(0)"
+          (click)="switchOri(apiDetail.headersOfJson)">{{
+          apiDetail.headersOfJson.t
+          ? "..." + ("show_more" | translate)
+          : ("show_less" | translate)
+          }}</a>
+      </span>
+      <br />
+      <label class="control-label" style="font-weight: bolder">{{ "params" | translate }}：</label>
+      <span>{{ originString(apiDetail?.paramsOfJson) }}
+        <a *ngIf="apiDetail?.paramsOfJson.o" href="javascript:void(0)" (click)="switchOri(apiDetail.paramsOfJson)">{{
+          apiDetail.paramsOfJson.t
+          ? "..." + ("show_more" | translate)
+          : ("show_less" | translate)
+          }}</a>
+      </span>
+      <br />
+      <label class="control-label" style="font-weight: bolder">{{ "content_type" | translate }}：</label>
+      <span>{{ originString(apiDetail?.consumesOfJson) }}
+        <a *ngIf="apiDetail?.consumesOfJson.o" href="javascript:void(0)"
+          (click)="switchOri(apiDetail.consumesOfJson)">{{
+          apiDetail.consumesOfJson.t
+          ? "..." + ("show_more" | translate)
+          : ("show_less" | translate)
+          }}</a>
+      </span>
+      <br />
+      <label class="control-label" style="font-weight: bolder">{{ "produces" | translate }}：</label>
+      <span>{{ originString(apiDetail?.producesOfJson) }}
+        <a *ngIf="apiDetail?.producesOfJson.o" href="javascript:void(0)"
+          (click)="switchOri(apiDetail.producesOfJson)">{{
+          apiDetail.producesOfJson.t
+          ? "..." + ("show_more" | translate)
+          : ("show_less" | translate)
+          }}</a>
+      </span>
+    </div>
+  </div>
+
+  <hr />
+  <div class="form-group row">
+    <!-- api說明 -->
+    <div class="col-12">
+      <label class="control-label">{{ "api_desc" | translate }}</label>
+      <textarea class="form-control" rows="5" style="resize: none" [innerHtml]="apiDetail.apiDesc" readonly
+        autoResize="autoResize"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <!-- Mock Status Code-->
+    <div class="col-12">
+      <label class="control-label">{{ "mockStatusCode" | translate }}</label>
+
+      <input type="text" class="form-control" [value]="apiDetail.mockStatusCode" readonly />
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <!-- Mock Headers-->
+    <div class="col-12">
+      <label class="control-label">Mock Headers</label>
+      <textarea class="form-control" rows="5" style="resize: none" [innerHtml]="apiDetail.mockHeadersOfJson"
+        readonly autoResize="autoResize"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <!-- mockBody-->
+    <div class="col-12">
+      <label class="control-label">{{ "mockBody" | translate }}</label>
+      <textarea class="form-control" rows="5" style="resize: none" [innerHtml]="apiDetail.mockBody" readonly
+        autoResize="autoResize"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-sm-12">
+      <label class="control-label">{{ "group_list" | translate }}</label>
+      <p-table *ngIf="detailCols" [columns]="detailCols" [value]="apiGroupList" selectionMode="single"
+        styleClass="p-datatable-striped" [style]="{ 'word-break': 'break-word' }" responsiveLayout="scroll">
+        <ng-template pTemplate="caption">
+          <form [formGroup]="detailForm" (ngSubmit)="queryApiGroupList()">
+
+            <div class="row col-12">
+              <span class="p-input-icon-right" style="width: 100%">
+                <i class="pi pi-search tpi-i-search" (click)="queryApiGroupList()"></i>
+                <input type="text" class="form-control tpi-i-input" id="keyword" formControlName="keyword"
+                  placeholder="{{ 'group_name' | translate }}、{{
+                    'group_alias' | translate
+                  }}、{{ 'group_desc' | translate }}" />
+              </span>
+            </div>
+          </form>
+        </ng-template>
+        <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width" />
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" scope="col">
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr [ngStyle]="{
+              'background-color': rowData['v'] == 'Y' ? '#eaeaea' : 'unset'
+            }">
+            <td *ngFor="let col of columns" [style.width]="col.width"
+              pTooltip="{{ rowData['v'] == 'Y' ? rowData['vId'] : '' }}">
+              <span *ngIf="col.field != 'name'">
+                {{ rowData[col.field] }}
+              </span>
+              <span *ngIf="col.field == 'name'">
+                {{ rowData["name"] }}({{ rowData["alias"] }})
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer" let-columns>
+          <tr *ngIf="apiGroupListRowcount">
+            <td [attr.colspan]="columns.length" style="color: #b7b7b7;">
+              <span>{{ "row_count" | translate }}:
+                {{ apiGroupListRowcount }}</span>
+              <!-- 查詢更多 -->
+              <button type="button" class="btn tpi-header-return" (click)="moreApiGroupList()">{{ 'button.more'|
+                translate}}
+                <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+          <tr>
+            <td [attr.colspan]="columns.length">
+              {{ "no_rec" | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-12">
+      <label class="control-label">{{ "label_tag" | translate }}</label>
+      <div>
+        <p-chips [(ngModel)]="apiDetail.labelList" [ngModelOptions]="{standalone: true}" disabled></p-chips>
+      </div>
+    </div>
+  </div>
+
+</div>

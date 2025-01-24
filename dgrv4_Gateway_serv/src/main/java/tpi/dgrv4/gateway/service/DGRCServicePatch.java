@@ -327,16 +327,16 @@ public class DGRCServicePatch implements IApiCacheService {
 		
 		StringBuffer dgrcPatch_sb = new StringBuffer();
 		if (isFixedCache) {
-			dgrcPatch_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend For Fixed Cache】" + tryNumLog + "--");
+			dgrcPatch_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend For Fixed Cache】" + tryNumLog + "--");
 			dgrcPatch_sb
-					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend For Fixed Cache】" + tryNumLog + "--\n");
+					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend For Fixed Cache】" + tryNumLog + "--\n");
 		} else {
-			dgrcPatch_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend】" + tryNumLog + "--");
-			dgrcPatch_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend】" + tryNumLog + "--\n");
+			dgrcPatch_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend】" + tryNumLog + "--");
+			dgrcPatch_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend】" + tryNumLog + "--\n");
 		}
 		
 		// 第二組ES REQ
-		TsmpApiLogReq dgrcPatchBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
+		TsmpApiLogReq dgrcPatchBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
 				reqMbody);
 		HttpRespData respObj = getHttpRespData(httpReq.getMethod(), header, srcUrl, reqMbody);
 		respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -350,7 +350,7 @@ public class DGRCServicePatch implements IApiCacheService {
 		int contentLength = (httpArray == null) ? 0 : httpArray.length;
 		
 		//第二組ES RESP
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPatchBankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPatchBackendReqVo, contentLength);
 		
 		return respObj;
 	}
@@ -436,11 +436,11 @@ public class DGRCServicePatch implements IApiCacheService {
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Backend For Cache】--\n");
 
 			// 第二組ES REQ
-			TsmpApiLogReq dgrcPatchBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(),
+			TsmpApiLogReq dgrcPatchBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(),
 					vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 			HttpRespData respObj = getHttpRespData(vo.getHttpMethod(), vo.getHeader(), vo.getSrcUrl(),
 					vo.getReqMbody());
@@ -453,7 +453,7 @@ public class DGRCServicePatch implements IApiCacheService {
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 
 			// 第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPatchBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPatchBackendReqVo, contentLength);
 
 			return respObj;
 		} catch (Exception e) {

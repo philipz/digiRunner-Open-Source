@@ -37,7 +37,7 @@ import tpi.dgrv4.entity.repository.TsmpDpFileDao;
 import tpi.dgrv4.entity.repository.TsmpDpReqOrderd2Dao;
 import tpi.dgrv4.entity.repository.TsmpDpReqOrderd2dDao;
 import tpi.dgrv4.entity.repository.TsmpDpThemeCategoryDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 

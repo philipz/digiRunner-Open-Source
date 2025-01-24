@@ -9,17 +9,24 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 
+import lombok.Setter;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -51,10 +58,71 @@ public class MonitorHostService {
 	@Autowired
 	private JobHelper jobHelper;
 	
+	@Setter(onMethod_ = @Autowired, onParam_ = @Qualifier("async-workers"))
+	ThreadPoolTaskExecutor asyncWorkerPool;
+
+	@Setter(onMethod_ = @Autowired, onParam_ = @Qualifier("async-workers-highway"))
+	@Qualifier("async-workers-highway")
+	ThreadPoolTaskExecutor asyncWorkerHighwayPool;
+	
 	private DpaaSystemInfoHelper dpaaSystemInfoHelper = new DpaaSystemInfoHelper();
+	
+	private long times = 0;
+	
+	private StringBuilder sb = new StringBuilder();
+	
+	@Autowired
+	private ConfigurableApplicationContext applicationContext;
 	
 	public void execMonitor() {
 		try {
+			// 取 cpu ram disk 資料
+			DpaaSystemInfo infoVo = new DpaaSystemInfo();
+			getDpaaSystemInfoHelper().setCpuUsedRateAndMem(infoVo);
+			getDpaaSystemInfoHelper().setDiskInfo(infoVo);
+			getDpaaSystemInfoHelper().setRuntimeInfo(infoVo);
+			
+			// 每 60 秒 印一次 memory...etc 狀態
+			if (times % 60 == 0) {
+				// JVM memory
+				String freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB";
+				String totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB";
+				String maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB";
+				
+				sb.setLength(0); //清空
+				
+				// append CPU / RAM
+				sb.append("\n\t" + String.format("%.2f %%", infoVo.getCpu() * 100) + "..................CPU\n\t" +
+				freeMemory + " / " + totalMemory + " / " + maxMemory + 
+				"...Memory(free/total/Max)" + "\n\t");
+				
+				// country road / highway status
+				Function<ThreadPoolTaskExecutor, String> poolInfoGen = (ThreadPoolTaskExecutor pool) -> {
+					var asyncWorkerInfoTpl = "%d threads....."+pool.getThreadNamePrefix()+"%s%n\t";
+					return "......................................................\n\t" +
+							String.format(asyncWorkerInfoTpl, pool.getActiveCount(), "activeCount") +
+							String.format(asyncWorkerInfoTpl, pool.getPoolSize(), "poolSize");
+				};
+				
+				// async worker pool
+				sb.append(poolInfoGen.apply(asyncWorkerPool));
+				sb.append(poolInfoGen.apply(asyncWorkerHighwayPool));
+				
+				// 取得 db connection 狀態
+				HikariDataSource hikaridataSource = 
+						(HikariDataSource) applicationContext.getBean(HikariDataSource.class);
+				HikariPoolMXBean poolMXBean = hikaridataSource.getHikariPoolMXBean();
+				sb.append("......................................................\n\t");
+				sb.append("(total=" + poolMXBean.getTotalConnections() + 
+						", active=" + poolMXBean.getActiveConnections() + 
+						", idle=" + poolMXBean.getIdleConnections() + 
+						", waiting=" + poolMXBean.getThreadsAwaitingConnection() + ") ..... db status \n\t");
+				
+				//HikariPool-1 - Before cleanup stats (total=5, active=0, idle=5, waiting=0)
+				TPILogger.tl.info(sb.toString());
+			}
+			times ++;
+			
 			
 			boolean isDisable = getTsmpSettingService().getVal_ES_MONITOR_DISABLE();
 			if(isDisable) {
@@ -67,11 +135,8 @@ public class MonitorHostService {
 			}
 			
 			Long currentTimestamp = System.currentTimeMillis();
-			DpaaSystemInfo infoVo = new DpaaSystemInfo();
 			
-			getDpaaSystemInfoHelper().setCpuUsedRateAndMem(infoVo);
-			getDpaaSystemInfoHelper().setDiskInfo(infoVo);
-			getDpaaSystemInfoHelper().setRuntimeInfo(infoVo);
+
 			
 			String type = getTsmpSettingService().getVal_ES_SYS_TYPE();
 			String node = TPILogger.lc.param.get(TPILogger.nodeInfo);
@@ -116,8 +181,12 @@ public class MonitorHostService {
 			
 			TPILogger.tl.trace("monitor host success");
 		}catch(Exception e) {
-			TPILogger.tl.error("monitor host fail");
-			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			StringBuffer sb = new StringBuffer();
+			sb.append("\n");
+			sb.append("monitor host fail\n");
+			sb.append(StackTraceUtil.logTpiShortStackTrace(e) + "\n");
+			sb.append("\n");
+			TPILogger.tl.error(sb.toString());
 		}
 	}
 

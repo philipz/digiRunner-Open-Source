@@ -155,7 +155,7 @@
     </div>
     <div class="form-group row">
       <div class="col-6">
-        <label class="control-label">Client ID</label>
+        <label class="control-label">dgR Client ID</label>
         <label class="form-control border-line">{{gtwIdPInfo?.clientId}}</label>
       </div>
       <div class="col-6">
@@ -219,30 +219,30 @@
 
     <div class="form-group row">
       <div class="col-6">
-        <label class="control-label">Callback URL</label>
+        <label class="control-label">dgR Callback URL</label>
         <label class="form-control border-line">{{gtwIdPInfo?.callbackUrl}}</label>
 
       </div>
       <div class="col-6">
-        <label class="control-label">Well Known URL</label>
+        <label class="control-label">IdP Well Known URL</label>
         <label class="form-control border-line">{{gtwIdPInfo?.wellKnownUrl}}</label>
       </div>
     </div>
 
     <div class="form-group row">
       <div class="col-6">
-        <label class="control-label">Auth URL</label>
+        <label class="control-label">IdP Auth URL</label>
         <label class="form-control border-line">{{gtwIdPInfo?.authUrl}}</label>
       </div>
       <div class="col-6">
-        <label class="control-label">Access Token URL</label>
+        <label class="control-label">IdP Access Token URL</label>
         <label class="form-control border-line">{{gtwIdPInfo?.accessTokenUrl}}</label>
       </div>
     </div>
 
     <div class="form-group row">
       <div class="col-6">
-        <label class="control-label">Scope</label>
+        <label class="control-label">IdP Scope</label>
         <label class="form-control border-line">{{gtwIdPInfo?.scope}}</label>
       </div>
     </div>
@@ -289,7 +289,7 @@
       <div class="form-group row">
         <div class="col-6">
           <!--Client ID -->
-          <label id="clientId_label" for="clientId" class="control-label">Client ID</label>
+          <label id="clientId_label" for="clientId" class="control-label">dgR Client ID</label>
           <input type="text" class="form-control" id="clientId" formControlName="clientId">
           <div *ngIf="clientId?.invalid && (clientId?.dirty || clientId?.touched)" class="text-danger">
             <small class="form-text">{{clientId?.errors.isRequired | translate}}</small>
@@ -374,7 +374,7 @@
 
       <div class="form-group row">
         <div class="col-6">
-          <label id="callbackUrl_label" for="callbackUrl" class="control-label">Callback URL</label>
+          <label id="callbackUrl_label" for="callbackUrl" class="control-label">dgR Callback URL</label>
           <input type="text" class="form-control" id="callbackUrl" formControlName="callbackUrl">
           <div *ngIf="callbackUrl?.invalid && (callbackUrl?.dirty || callbackUrl?.touched)" class="text-danger">
             <small class="form-text">{{callbackUrl?.errors.isRequired | translate}}</small>
@@ -382,7 +382,7 @@
           </div>
         </div>
         <div class="col-6">
-          <label id="wellKnownUrl_label" for="wellKnownUrl" class="control-label">Well Known URL</label>
+          <label id="wellKnownUrl_label" for="wellKnownUrl" class="control-label">IdP Well Known URL</label>
           <input type="text" class="form-control" id="wellKnownUrl" formControlName="wellKnownUrl">
           <div *ngIf="wellKnownUrl?.invalid && (wellKnownUrl?.dirty || wellKnownUrl?.touched)" class="text-danger">
             <small class="form-text">{{wellKnownUrl?.errors.isRequired | translate}}</small>
@@ -393,14 +393,14 @@
 
       <div class="form-group row">
         <div class="col-6">
-          <label id="authUrl_label" for="authUrl" class="control-label">Auth URL</label>
+          <label id="authUrl_label" for="authUrl" class="control-label">IdP Auth URL</label>
           <input type="text" class="form-control" id="authUrl" formControlName="authUrl">
           <div *ngIf="authUrl?.invalid && (authUrl?.dirty || authUrl?.touched)" class="text-danger">
             <small class="form-text">{{authUrl?.errors.pattern | translate}}</small>
           </div>
         </div>
         <div class="col-6">
-          <label id="accessTokenUrl_label" for="accessTokenUrl" class="control-label">Access Token URL</label>
+          <label id="accessTokenUrl_label" for="accessTokenUrl" class="control-label">IdP Access Token URL</label>
           <input type="text" class="form-control" id="accessTokenUrl" formControlName="accessTokenUrl">
           <div *ngIf="accessTokenUrl?.invalid && (accessTokenUrl?.dirty || accessTokenUrl?.touched)" class="text-danger">
             <small class="form-text">{{accessTokenUrl?.errors.pattern | translate}}</small>
@@ -410,7 +410,7 @@
 
       <div class="form-group row">
         <div class="col-6">
-          <label id="scope_label" for="scope" class="control-label">Scope</label>
+          <label id="scope_label" for="scope" class="control-label">IdP Scope</label>
           <input type="text" class="form-control" id="scope" formControlName="scope">
         </div>
       </div>

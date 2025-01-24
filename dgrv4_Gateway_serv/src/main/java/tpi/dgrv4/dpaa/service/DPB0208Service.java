@@ -33,7 +33,7 @@ import tpi.dgrv4.entity.repository.DgrXApiKeyDao;
 import tpi.dgrv4.entity.repository.DgrXApiKeyMapDao;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.entity.repository.TsmpGroupDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.TokenHelper;
 import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;

@@ -15,6 +15,16 @@ public class ComposerInfoData implements java.io.Serializable {
 	private String webLocalIP;
 	private String cpuUsage;
 	private String memoryUsage; 
+	
+	
+
+	@Override
+	public String toString() {
+		return "ComposerInfoData [remoteIP=" + remoteIP + ", remotePort=" + remotePort + ", composerID=" + composerID
+				+ ", startupTime=" + startupTime + ", keeperAPI=" + keeperAPI + ", webServerPort=" + webServerPort
+				+ ", version=" + version + ", ts=" + ts + ", tsToString=" + tsToString + ", upTime=" + upTime
+				+ ", webLocalIP=" + webLocalIP + ", cpuUsage=" + cpuUsage + ", memoryUsage=" + memoryUsage + "]";
+	}
 
 	public String getRemoteIP() {
 		return remoteIP;

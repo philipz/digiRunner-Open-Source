@@ -177,6 +177,9 @@ public class DPB9923Service {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=Items_" + nowDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
+        //checkmarx, Missing HSTS Header
+        response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
 	}
 
 	protected TsmpDpItemsDao getTsmpDpItemsDao() {

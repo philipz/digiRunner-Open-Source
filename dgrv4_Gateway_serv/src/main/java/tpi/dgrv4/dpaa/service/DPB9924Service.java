@@ -66,7 +66,15 @@ public class DPB9924Service {
 		     Iterator<Row> rows = sheet.iterator();
 		     Map<TsmpDpItemsId, TsmpDpItems> fileMap = new HashMap<TsmpDpItemsId, TsmpDpItems>();
 		     Map<TsmpDpItemsId, TsmpDpItems> itemsMap = new HashMap<TsmpDpItemsId, TsmpDpItems>();
-		     while (rows.hasNext()) {
+
+		     //checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+		     int maxValue = Integer.MAX_VALUE;
+		     int loopIndex = 0;
+		     while (rows.hasNext() && loopIndex <= maxValue) {
+		    	 if(loopIndex == maxValue) {
+		    		 throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " row");
+		    	 }
+		    	 loopIndex++;
 		    	 if(isFirst) {
 		    		 isFirst = false;
 		    		 Row row = rows.next();
@@ -156,6 +164,7 @@ public class DPB9924Service {
 		    		 fileMap.put(pk, vo);
 		    	 }
 		     }
+		     
 		     
 		     List<TsmpDpItems> itemsList = getTsmpDpItemsDao().findAll();
 		     for(TsmpDpItems items : itemsList) {

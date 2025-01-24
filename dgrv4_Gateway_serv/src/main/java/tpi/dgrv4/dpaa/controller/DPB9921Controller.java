@@ -76,5 +76,7 @@ public class DPB9921Controller {
         String version = dpb0118Resp.getMajorVersionNo() == null ? "unknown" : dpb0118Resp.getMajorVersionNo();
         String headerValue = "attachment; filename=Setting_" + nowDateTime + "_" + version + ".xlsx";
         response.setHeader(headerKey, headerValue);
+      //checkmarx, Missing HSTS Header
+      	response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 	}
 }

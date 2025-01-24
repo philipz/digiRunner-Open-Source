@@ -92,33 +92,33 @@ body {
 @import "./custom/swal2";
 
 
-.felid-flex-end {
+.field-flex-end {
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
-.felid-flex-center {
+.field-flex-center {
   --gap: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--gap);
 }
-.felid-flex-start {
+.field-flex-start {
   --gap: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: var(--gap);
 }
-.felid-flex-space-between {
+.field-flex-space-between {
   --gap: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--gap);
 }
-.felid-flex-column-center {
+.field-flex-column-center {
   --gap: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -126,7 +126,7 @@ body {
   justify-content: center;
   gap: var(--gap);
 }
-.felid-flex-column {
+.field-flex-column {
   --gap: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -1252,6 +1252,11 @@ margin-left: 0%;
   background: #434343;
   padding: 0.5rem;
 }
+.cContent.p-dialog .p-dialog-content{
+  background: #f6f6f6;
+  padding: 0.5rem;
+}
+
 
 /* :host ::ng-deep .cContent.p-confirm-dialog .p-dialog-content{
    background: #f8b7bd;

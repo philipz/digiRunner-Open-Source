@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.sql.rowset.serial.SerialException;
-import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,9 +32,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import jakarta.transaction.Transactional;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.constant.TsmpDpFileType;
+import tpi.dgrv4.common.utils.CheckmarxCommUtils;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -297,7 +298,8 @@ public class FileHelper implements IFileHelper{
 		Path targetFilePath = uploadFolder.resolve(filename);
 		if (Files.exists(targetFilePath)) {
 			this.logger.info("Downloading file from: " + targetFilePath.toAbsolutePath());
-			return Files.readAllBytes(targetFilePath);
+			//checkmarx, Absolute Path Traversal, Stored Absolute Path Traversal
+			return CheckmarxCommUtils.sanitizeForCheckmarx(targetFilePath);
 		}
 
 		return null;
@@ -340,6 +342,7 @@ public class FileHelper implements IFileHelper{
 			if (Files.notExists(uploadFolder)) {
 				return true;
 			}
+			
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(uploadFolder)) {
 				Path file;
 				boolean isSuccess;
@@ -361,6 +364,9 @@ public class FileHelper implements IFileHelper{
 				return false;
 	       }
 		} else {
+			//checkmarx, Absolute Path Traversal, 已通過中風險
+			filename = filename.replaceAll("\\.\\.", "").replaceAll("/", "").replaceAll("\\\\", "");
+			
 			Path targetFilePath = uploadFolder.resolve(filename);
 			this.logger.info("Removing file from: " + targetFilePath.toAbsolutePath());
 			boolean isSuccess = Files.deleteIfExists(targetFilePath);

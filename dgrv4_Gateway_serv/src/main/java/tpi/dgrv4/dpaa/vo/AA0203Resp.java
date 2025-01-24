@@ -2,6 +2,8 @@ package tpi.dgrv4.dpaa.vo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AA0203Resp {
 
 	/**API 配額*/
@@ -38,7 +40,9 @@ public class AA0203Resp {
 	private String owner;
 	
 	/**密碼錯誤次數*/
-	private String pwdFailTimes;
+	//checkmarx, Excessive Data Exposure
+	@JsonProperty("pwdFailTimes")
+	private String mimaFailTimes;
 	
 	/**簽呈編號*/
 	private String signupNum;
@@ -176,12 +180,12 @@ public class AA0203Resp {
 		this.owner = owner;
 	}
 
-	public String getPwdFailTimes() {
-		return pwdFailTimes;
+	public String getMimaFailTimes() {
+		return mimaFailTimes;
 	}
 
-	public void setPwdFailTimes(String pwdFailTimes) {
-		this.pwdFailTimes = pwdFailTimes;
+	public void setMimaFailTimes(String mimaFailTimes) {
+		this.mimaFailTimes = mimaFailTimes;
 	}
 
 	public String getSignupNum() {

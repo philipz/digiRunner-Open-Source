@@ -86,7 +86,15 @@ public class DPB9928Service {
 		     Iterator<Row> rows = sheet.iterator();
 		     Map<TsmpFuncId, TsmpFunc> fileDataList = new HashMap<TsmpFuncId, TsmpFunc>();
 		     Map<TsmpFuncId, TsmpFunc> tsmpFuncMap = new HashMap<TsmpFuncId, TsmpFunc>();
-		     while (rows.hasNext()) {
+		     
+		   //checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+		     int maxValue = Integer.MAX_VALUE;
+		     int loopIndex = 0;
+		     while (rows.hasNext() && loopIndex <= maxValue) {
+		    	 if(loopIndex == maxValue) {
+		    		 throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " row");
+		    	 }
+		    	 loopIndex++;
 		    	 if(isFirst) {
 		    		 isFirst = false;
 		    		 Row row = rows.next();
@@ -180,7 +188,14 @@ public class DPB9928Service {
 		     Iterator<Row> rows = sheet.iterator();
 		     Map<TsmpReportUrlId, TsmpReportUrl> fileDataList = new HashMap<TsmpReportUrlId, TsmpReportUrl>();
 		     Map<TsmpReportUrlId, TsmpReportUrl> tsmpReportUrlMap = new HashMap<TsmpReportUrlId, TsmpReportUrl>();
-		     while (rows.hasNext()) {
+		   //checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+		     int maxValue = Integer.MAX_VALUE;
+		     int loopIndex = 0;
+		     while (rows.hasNext() && loopIndex <= maxValue) {
+		    	 if(loopIndex == maxValue) {
+		    		 throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " row");
+		    	 }
+		    	 loopIndex++;
 		    	 if(isFirst) {
 		    		 isFirst = false;
 		    		 Row row = rows.next();

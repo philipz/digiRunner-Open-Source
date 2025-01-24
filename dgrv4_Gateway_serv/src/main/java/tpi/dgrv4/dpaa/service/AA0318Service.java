@@ -22,8 +22,8 @@ import tpi.dgrv4.entity.repository.TsmpApiDao;
 import tpi.dgrv4.entity.repository.TsmpApiImpDao;
 import tpi.dgrv4.entity.repository.TsmpApiRegDao;
 import tpi.dgrv4.entity.repository.TsmpDpFileDao;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.FileHelper;
-import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 

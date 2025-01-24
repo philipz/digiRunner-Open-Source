@@ -20,7 +20,7 @@ import tpi.dgrv4.entity.entity.TsmpClient;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.entity.jpql.*;
 import tpi.dgrv4.entity.repository.*;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 

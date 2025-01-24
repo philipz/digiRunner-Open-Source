@@ -27,6 +27,8 @@ import tpi.dgrv4.dpaa.vo.DPB0189Resp;
 import tpi.dgrv4.dpaa.vo.DataSourceInfoVo;
 import tpi.dgrv4.entity.entity.DgrRdbConnection;
 import tpi.dgrv4.entity.repository.DgrRdbConnectionDao;
+import tpi.dgrv4.escape.ESAPI;
+import tpi.dgrv4.escape.OracleCodec;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.CApiKeyService;
 
@@ -75,6 +77,10 @@ public class DPB0189Service {
                 DataSourceInfoVo dsVo = dataSourceMap.get(req.getConnName());
                 //預設DB
                 if(isDefaultDb) {
+                	if(!getTsmpSettingService().getVal_APIM_DEFAULT_DB_ENABLED()) {
+                		resp.setResult("APIM_DEFAULT_DB_ENABLED of Setting is false");
+                		return resp;
+                	}
                 	if (dsVo == null) {
                 		dsVo = new DataSourceInfoVo();
                 	}
@@ -148,7 +154,8 @@ public class DPB0189Service {
 
                     } catch (Exception e2) {
                     	TPILogger.tl.error(StackTraceUtil.logStackTrace(e2));
-                        dsVo.getHikariDataSource().close();
+                    	//20241122會造成發生SQL錯誤就把連線都關閉了,改成重連
+                    	dsVo.getHikariDataSource().getHikariPoolMXBean().softEvictConnections();
                         
                         resp.setResult(e.getMessage());
                     }
@@ -170,18 +177,22 @@ public class DPB0189Service {
     }
 
     private String execJdbc(HikariDataSource dataSource, DPB0189Req req) throws Exception {
+    	//checkmarx, sql injection
+    	String strSql = req.getStrSql().trim();
+    	//OracleCodec是遇到單引號為多加一個單引號
+    	strSql = ESAPI.encoder().encodeForSQL(new OracleCodec(), strSql);
+    	
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(req.getStrSql().trim())) {
+             PreparedStatement preparedStatement = connection.prepareStatement(strSql)) {
         	TPILogger.tl.debug("jdbcUrl=" + dataSource.getJdbcUrl());
         	TPILogger.tl.debug("username=" + dataSource.getUsername());
             String rsJson = null;
             boolean isQuery = false;
-            String strSql = req.getStrSql().toLowerCase().trim();
+            
             //判斷是否為查詢語法
-            if (strSql.indexOf("select") == 0) {
+            if (strSql.toLowerCase().indexOf("select") == 0) {
                 isQuery = true;
             }
-            strSql = req.getStrSql().trim();
 
             //SQL參數
             List<String> paramList = req.getParamList();

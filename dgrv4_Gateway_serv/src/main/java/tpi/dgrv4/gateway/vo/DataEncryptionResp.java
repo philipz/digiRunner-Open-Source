@@ -3,19 +3,24 @@ package tpi.dgrv4.gateway.vo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DataEncryptionResp {
+	//checkmarx, Excessive Data Exposure
 	@JsonProperty("ciphertext")
-	private String ciphertext;
+	private String text;
 
 	@Override
 	public String toString() {
-		return "DataEncryptionResp [ciphertext=" + ciphertext + "]";
+		return "DataEncryptionResp [ciphertext=" + text + "]";
 	}
 
-	public String getCiphertext() {
-		return ciphertext;
+	public String getText() {
+		return text;
 	}
 
-	public void setCiphertext(String ciphertext) {
-		this.ciphertext = ciphertext;
+	public void setText(String text) {
+		this.text = text;
 	}
+
+	
+
+	
 }

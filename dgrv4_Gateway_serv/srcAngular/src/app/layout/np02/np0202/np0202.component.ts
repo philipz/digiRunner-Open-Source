@@ -11,7 +11,6 @@ import { DPB0083Req, DPB0083RespItem } from 'src/app/models/api/CertificateAutho
 import { DPB0084certItem } from 'src/app/models/api/CertificateAuthorityService/dpb0084.interface';
 import { ClientCAService } from 'src/app/shared/services/api-certificate-authority.service';
 import { FormParams } from 'src/app/models/api/form-params.interface';
-import { ClientCAComponent } from './client-ca/client-ca.component';
 import { ClientService } from 'src/app/shared/services/api-client.service';
 import { interval, Observable, of } from 'rxjs';
 import { delay, flatMap, switchMap, tap } from 'rxjs/operators';

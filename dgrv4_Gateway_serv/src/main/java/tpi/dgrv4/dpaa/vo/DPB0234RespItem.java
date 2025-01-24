@@ -7,7 +7,9 @@ public class DPB0234RespItem {
     private String groupId;
     private String groupAlias;
     private String groupName;
-    private List<DPB0234ClientDataItem> clientDataList;
+    private List<String> clientIdList;
+    private List<String> clientNameList;
+    private List<DPB0234ApiDataItem> apiDataList;
 
     public String getGroupId() {
         return groupId;
@@ -32,21 +34,40 @@ public class DPB0234RespItem {
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
-    public List<DPB0234ClientDataItem> getClientDataList() {
-        return clientDataList;
+
+    public List<String> getClientIdList() {
+        return clientIdList;
     }
 
-    public void setClientDataList(List<DPB0234ClientDataItem> clientDataList) {
-        this.clientDataList = clientDataList;
+    public void setClientIdList(List<String> clientIdList) {
+        this.clientIdList = clientIdList;
+    }
+
+    public List<String> getClientNameList() {
+        return clientNameList;
+    }
+
+    public void setClientNameList(List<String> clientNameList) {
+        this.clientNameList = clientNameList;
+    }
+
+    public List<DPB0234ApiDataItem> getApiDataList() {
+        return apiDataList;
+    }
+
+    public void setApiDataList(List<DPB0234ApiDataItem> apiDataList) {
+        this.apiDataList = apiDataList;
     }
 
     @Override
     public String toString() {
-        return "DPB0234Resp{" +
+        return "DPB0234RespItem{" +
                 "groupId='" + groupId + '\'' +
                 ", groupAlias='" + groupAlias + '\'' +
                 ", groupName='" + groupName + '\'' +
-                ", clientDataList=" + clientDataList +
+                ", clientIdList=" + clientIdList +
+                ", clientNameList=" + clientNameList +
+                ", apiDataList=" + apiDataList +
                 '}';
     }
 
@@ -54,12 +75,12 @@ public class DPB0234RespItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DPB0234RespItem item = (DPB0234RespItem) o;
-        return Objects.equals(groupId, item.groupId) && Objects.equals(groupAlias, item.groupAlias) && Objects.equals(groupName, item.groupName) && Objects.equals(clientDataList, item.clientDataList);
+        DPB0234RespItem that = (DPB0234RespItem) o;
+        return Objects.equals(groupId, that.groupId); // 使用 groupId 作為唯一識別
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(groupId, groupAlias, groupName, clientDataList);
+        return Objects.hash(groupId);
     }
 }

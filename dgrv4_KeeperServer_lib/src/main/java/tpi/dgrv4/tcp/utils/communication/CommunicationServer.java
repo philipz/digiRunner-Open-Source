@@ -29,7 +29,11 @@ public class CommunicationServer implements Runnable {
 	public HashMap<IP_PortKey, LinkerServer> connMap = null;
 	public ArrayList<Notifier> notifiers = null;
 	public ConcurrentHashMap<String, Packet_i> ExternalDgrInfoMap;
+	public ConcurrentHashMap<String, Packet_i> ExternalUndertowMetricsInfoMap;
+	public ConcurrentHashMap<String, Packet_i> ExternalUrlStatusInfoMap;
 	public ConcurrentHashMap<String, Packet_i> httpNodeInfo;
+	public UndertowMetricsInfoMap undertowMetricsInfos = new UndertowMetricsInfoMap();
+	public UrlStatusInfoMap urlStatusInfos = new UrlStatusInfoMap();
 
 	public CommunicationServer(int port) {
 		this(port, null);

@@ -5,35 +5,39 @@ import java.util.List;
 
 import tpi.dgrv4.common.component.validator.BeforeControllerRespItemBuilderSelector;
 import tpi.dgrv4.common.component.validator.ReqValidator;
+import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.vo.BeforeControllerRespItem;
 import tpi.dgrv4.dpaa.constant.RegexpConstant;
+import tpi.dgrv4.dpaa.util.ServiceUtil;
 
-public class DPB0147Req extends ReqValidator{
-	
+public class DPB0147Req extends ReqValidator {
+
 	private String longId;
-	
+
 	private String userName;
-	
+
 	private String newUserName;
-	
+
 	private String newUserAlias;
-	
+
 	private String newStatus;
-	
+
 	private String newUserEmail;
-	
+
+	private String idpType;
+
 	private String newIdpType;
-	
+
 	/** 原角色清單 */
 	private List<String> roleIdList;
-	
+
 	/** 角色清單 */
 	private List<String> newRoleIdList;
-	
+
 	/** 原組織單位名稱 */
 	private String orgId;
-	
+
 	/** 組織單位名稱 */
 	private String newOrgId;
 
@@ -117,12 +121,31 @@ public class DPB0147Req extends ReqValidator{
 		this.newUserEmail = newUserEmail;
 	}
 
+	public String getIdpType() {
+		return idpType;
+	}
+
+	public void setIdpType(String idpType) {
+		this.idpType = idpType;
+	}
+
 	public String getNewIdpType() {
 		return newIdpType;
 	}
 
 	public void setNewIdpType(String newIdpType) {
 		this.newIdpType = newIdpType;
+	}
+
+	public void switchCusIdpTypeUserName() {
+
+		if (DgrIdPType.CUS.equalsIgnoreCase(this.idpType)) {
+			this.userName = ServiceUtil.encodeBase64URL(this.userName);
+		}
+
+		if (DgrIdPType.CUS.equalsIgnoreCase(this.newIdpType)) {
+			this.newUserName = ServiceUtil.encodeBase64URL(this.newUserName);
+		}
 	}
 
 	@Override

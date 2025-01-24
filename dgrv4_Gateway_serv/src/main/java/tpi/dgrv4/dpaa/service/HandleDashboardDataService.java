@@ -32,6 +32,7 @@ import tpi.dgrv4.common.constant.DashboardTimeTypeEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
+import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DashboardMedianAideVo;
 import tpi.dgrv4.entity.entity.TsmpApi;
 import tpi.dgrv4.entity.entity.TsmpApiId;
@@ -80,6 +81,7 @@ public class HandleDashboardDataService {
 	public void exec(Date execDate, boolean isEs, Long jobId) {
 
 		TPILogger.tl.debug("--- Begin HandleDashboardDataService ---");
+		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 
 		List<DgrDashboardLastData> lastList = getDgrDashboardLastDataDao()
 				.findByTimeTypeAndDashboardType(DashboardTimeTypeEnum.MINUTE.value(), DashboardReportTypeEnum.UNPOPULAR.value());
@@ -118,9 +120,13 @@ public class HandleDashboardDataService {
 		String lastRowId = null;
 		//因為在execClientUsageMetrics的groupBy在打包會問題,所以回傳不使用父類別(List<? extends ApiDashboardFields>)方式
 		//所以分成兩個dataList來接
+		int loopIndex = 1;
 		while(true) {
+			TPILogger.tl.info("start get month,day,minute data, Loop index is " + loopIndex);
+			TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 			if(isEs) {
 				esMonthDataList = this.getDataForEs(monthStartDate, endDate, lastRowId);
+				TPILogger.tl.debug("esMonthDataList.size = " + esMonthDataList.size());
 				//月資料給天
 				if(esMonthDataList.size() > 0) {
 					//第一筆就在天的範圍
@@ -136,7 +142,7 @@ public class HandleDashboardDataService {
 						esDayDataList = new ArrayList<>();
 					}
 				}
-				
+				TPILogger.tl.debug("esDayDataList.size = " + esDayDataList.size());
 				//天資料給分
 				if(!CollectionUtils.isEmpty(esDayDataList)) {
 					//第一筆就在分的範圍
@@ -152,8 +158,10 @@ public class HandleDashboardDataService {
 						esMinuteDataList = new ArrayList<>();
 					}
 				}
+				TPILogger.tl.debug("esMinuteDataList.size = " + esMinuteDataList.size());
 			}else {
 				rdbMonthDataList = this.getDataForRdb(monthStartDate, endDate, lastRowId);
+				TPILogger.tl.debug("rdbMonthDataList.size = " + rdbMonthDataList.size());
 				//月資料給天
 				if(rdbMonthDataList.size() > 0) {
 					//第一筆就在天的範圍
@@ -169,7 +177,7 @@ public class HandleDashboardDataService {
 						rdbDayDataList = new ArrayList<>();
 					}
 				}
-				
+				TPILogger.tl.debug("rdbDayDataList.size = " + rdbDayDataList.size());
 				//天資料給分
 				if(!CollectionUtils.isEmpty(rdbDayDataList)) {
 					//第一筆就在分的範圍
@@ -185,7 +193,11 @@ public class HandleDashboardDataService {
 						rdbMinuteDataList = new ArrayList<>();
 					}
 				}
+				TPILogger.tl.debug("rdbMinuteDataList.size = " + rdbMinuteDataList.size());
 			} 
+			
+			TPILogger.tl.info("end get month,day,minute data, Loop index is " + loopIndex);
+			TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 			
 			//月
 			//5.Bad Attempt
@@ -211,6 +223,9 @@ public class HandleDashboardDataService {
 			//12.客戶端使用指標
 			execClientUsageMetrics(lastDataMap, medianMap, rdbMinuteDataList, esMinuteDataList, isEs, DashboardTimeTypeEnum.MINUTE);
 			
+			TPILogger.tl.info("data to lastDataMap, Loop index is " + loopIndex++);
+			TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+			
 			if(isEs) {
 				if(esMonthDataList.size() < this.getPageSize()) {
 					break;
@@ -229,12 +244,16 @@ public class HandleDashboardDataService {
 				}
 			}
 		}
+
 		esMonthDataList = null;
 		rdbMonthDataList = null;
 		esDayDataList = null;
 		rdbDayDataList = null;
 		esMinuteDataList = null;
 		rdbMinuteDataList = null;
+		
+		TPILogger.tl.debug("month,day,minute data already clear, maybe garbage collection");
+		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 		
 		List<DgrDashboardLastData> monthClientLastDataList = new ArrayList<>();
 		List<DgrDashboardLastData> dayClientLastDataList = new ArrayList<>();
@@ -309,6 +328,8 @@ public class HandleDashboardDataService {
 		}
 		
 		lastDataMap = null;
+		TPILogger.tl.debug("lastDataMap already clear, maybe garbage collection");
+		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 		//月
 		//3.Success
 		execSuccess(monthClientLastDataList, DashboardTimeTypeEnum.MONTH, saveLastList);
@@ -370,6 +391,7 @@ public class HandleDashboardDataService {
 		getDgrDashboardLastDataDao().saveAll(saveLastList);
 		
 		TPILogger.tl.debug("--- Finish HandleDashboardDataService ---");
+		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 	}
 	
 	protected void checkJobStatus(Long id) {

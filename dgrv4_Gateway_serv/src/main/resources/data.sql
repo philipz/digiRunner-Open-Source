@@ -427,7 +427,7 @@ CREATE TABLE IF NOT EXISTS tsmpn_api_module (
 CREATE TABLE IF NOT EXISTS tsmpn_site (
 	site_id			BIGINT AUTO_INCREMENT NOT NULL,	-- 部署站台編號
 	site_code		NVARCHAR(30) NOT NULL,	-- 部署站台代碼, 格式: "nev." + "X.X", ex: "nev.1.0"
-	site_memo		NVARCHAR(2147483647),	-- 部署站台備註
+	site_memo		NVARCHAR(1000000000),	-- 部署站台備註
 	active			BOOLEAN NOT NULL,	-- 部署站台狀態, TRUE: Active, FALSE(Default): Inactive
 	create_user		VARCHAR(255),	-- 建立人員
 	create_time		DATETIME NOT NULL,	-- 建立日期
@@ -437,7 +437,7 @@ CREATE TABLE IF NOT EXISTS tsmpn_site (
 	binding_ip		NVARCHAR(20) NOT NULL,	-- 站台 IP	Default: localhost
 	binding_port	INT NOT NULL,	-- 站台 Port
 	app_pool		NVARCHAR(255) NOT NULL,	-- 應用程式集區, 預設使用 SITE_CODE
-	root_path		NVARCHAR(2147483647),	-- Module實體路徑
+	root_path		NVARCHAR(1000000000),	-- Module實體路徑
 	clr_version		NVARCHAR(30),	-- .Net CLR 版本
 	PRIMARY KEY (site_id)
 );
@@ -798,7 +798,7 @@ CREATE TABLE IF NOT EXISTS tsmp_report_url (
     REPORT_ID NVARCHAR(8) NOT NULL,
     TIME_RANGE CHAR(1)  NOT NULL ,
     REPORT_URL     NVARCHAR(2000)  NOT NULL,
-    UNIQUE KEY (REPORT_ID,TIME_RANGE)
+    UNIQUE (REPORT_ID,TIME_RANGE)
 );
 
 -- 常見問題-問題

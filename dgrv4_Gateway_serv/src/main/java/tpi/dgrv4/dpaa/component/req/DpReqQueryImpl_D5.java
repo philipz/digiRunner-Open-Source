@@ -22,7 +22,7 @@ import tpi.dgrv4.entity.entity.jpql.TsmpDpReqOrderm;
 import tpi.dgrv4.entity.repository.TsmpApiDao;
 import tpi.dgrv4.entity.repository.TsmpDpReqOrderd5Dao;
 import tpi.dgrv4.entity.repository.TsmpDpReqOrderd5dDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 

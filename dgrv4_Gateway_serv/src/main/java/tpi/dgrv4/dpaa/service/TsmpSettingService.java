@@ -877,4 +877,22 @@ public class TsmpSettingService {
 		String key = getKey_DEFAULT_DATA_CHANGE_ENABLED();
 		return getBooleanVal(key, false);
 	}
+	
+	public String getKey_APIM_DEFAULT_DB_ENABLED() {
+		return TsmpSettingDao.Key.APIM_DEFAULT_DB_ENABLED;
+	}
+
+	public boolean getVal_APIM_DEFAULT_DB_ENABLED() {
+		String key = getKey_APIM_DEFAULT_DB_ENABLED();
+		return getBooleanVal(key, false);
+	}
+
+	public String getKey_LOG_RETENTION_DAYS() {
+		return TsmpSettingDao.Key.LOG_RETENTION_DAYS;
+	}
+
+	public String getVal_LOG_RETENTION_DAYS() {
+		String key = getKey_LOG_RETENTION_DAYS();
+		return getStringVal(key);
+	}
 }

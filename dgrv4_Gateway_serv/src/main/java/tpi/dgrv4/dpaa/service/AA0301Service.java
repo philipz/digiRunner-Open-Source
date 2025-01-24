@@ -249,7 +249,13 @@ public class AA0301Service {
 		return decodeHostStatus;
 	}
 
-	private List<AA0301Item> setAA0301Data(List<TsmpApi> tspmApi, String locale) {
+	/**
+	 * 2024-11-18 標籤搜尋,AA0428 共用
+	 * @param tspmApi
+	 * @param locale
+	 * @return
+	 */
+	public List<AA0301Item> setAA0301Data(List<TsmpApi> tspmApi, String locale) {
 		List<AA0301Item> dataList = new ArrayList<>();
 		tspmApi.forEach((api) -> {
 			AA0301Item item = new AA0301Item();
@@ -378,6 +384,24 @@ public class AA0301Service {
 
 			item.setEnableScheduledDate(enableScheduledDate);
 			item.setDisableScheduledDate(disableScheduledDate);
+			
+			String createDateStr = "";
+			Date createDate = api.getCreateTime();
+			Optional<String> createDateOpt = DateTimeUtil.dateTimeToString(createDate, null);
+			if(createDateOpt.isPresent()) {
+				createDateStr = createDateOpt.get();
+			}
+			item.setCreateDate(createDateStr);
+			item.setCreateUser(api.getCreateUser());
+			
+			String updateDateStr = "";
+			Date updateDate = api.getUpdateTime();
+			Optional<String> updateDateOpt = DateTimeUtil.dateTimeToString(updateDate, null);
+			if(updateDateOpt.isPresent()) {
+				updateDateStr = updateDateOpt.get();
+			}
+			item.setUpdateDate(updateDateStr);
+			item.setUpdateUser(StringUtils.hasText(api.getUpdateUser()) ? api.getUpdateUser() : "");
 
 			dataList.add(item);
 		});

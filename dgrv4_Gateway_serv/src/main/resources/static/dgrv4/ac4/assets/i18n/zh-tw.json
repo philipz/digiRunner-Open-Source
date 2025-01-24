@@ -941,7 +941,7 @@
   "user_password": "使用者密碼",
   "user_roles": "使用者持有角色",
   "validation": {
-    "confirm_password": "密碼不匹配",
+    "confirm_mima": "密碼不匹配",
     "ipaddress": "請輸入IP格式的字元",
     "mailFormat": "Mail格式錯誤",
     "maxlength": "不可超過{{value}}個字元",
@@ -1300,15 +1300,19 @@
   "cusUserDataUrl":" CUS 使用者資訊 URL",
   "cusUserDataUrl_tip": "提供 DGR 獲取使用者資料的 API URL，CUS 必須提供一支 API，讓 DGR 可以獲取對應的使用者資料",
   "cusUrlExp": "請在輸入 URL 時遵守以下規則：\n\n1. URL 必須以 `http://` 或 `https://` 開頭\n2. URL 必須是合法且完整的網址格式\n\n## 正確範例：\n- https://www.example.com\n- http://subdomain.example.com/page\n- https://www.example.com/path/to/resource?param=value\n\n## 錯誤範例：\n- www.example.com（缺少協議）\n- ftp://example.com（不允許的協議）\n- https://（不完整的 URL）",
-  "clientKeyMima": "客戶端金鑰密碼",
-  "cfm_mtls_enable": "您即將啟用本站台mTLS連線！",
-  "cfm_mtls_disable": "您即將停用本站台mTLS連線！",
+  "_clientKeyMima": "客戶端金鑰密碼",
+  "_cfm_mtls_enable": "您即將啟用本站台mTLS連線！",
+  "_cfm_mtls_disable": "您即將停用本站台mTLS連線！",
   "allow_all": "允許所有",
   "xapikey_search": "X-API-Key 搜尋",
   "xapikey_name": "X-API-Key 名稱",
   "auth_client": "授權用戶端",
   "redirectURItip":"請在輸入 URI 時遵守以下規則：\n\n1. URI 必須以協議開頭\n2. 若是 `http://` 或 `https://` 開頭,必須是合法且完整的網址格式,不能包含 * \n   e.g. https://www.example.com\n3. 若為其他協議開頭,必須包含 *\n   e.g. myapp://example/*\n\n## 錯誤範例：\n- www.example.com（缺少協議）\n- https://www.example.com/*（不允許 *）\n- https://（不完整的）\n- myapp://example/ (缺少 *）",
   "rule":"規則",
-  "whitelist_rule_tip": "輸入正則表達式,將檢查 User-Agent header",
-  "api_count": "API 總數"
+  "allowlist_rule_tip": "輸入正則表達式,將檢查 User-Agent header",
+  "api_count": "API 總數",
+  "view_mode": {
+    "0":"管理檢視",
+    "1":"稽核檢視"
+  }
 }

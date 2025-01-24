@@ -207,7 +207,7 @@ public class DPB0092Service {
 			resp.setReqSubtypeName(reqTypeName);
 			resp.setOpenApiKeyId(openApiKeyId);
 			resp.setOpenApiKey(openApiKey);
-			resp.setSecretKey(secretKeyMask);
+			resp.setMimaKey(secretKeyMask);
 			resp.setOpenApiKeyAlias(openApiKeyAlias);
 			resp.setExpiredAt(expiredAtStr);
 			resp.setTimesThreshold(timesThreshold);

@@ -263,11 +263,11 @@ public class TSMPCServiceDelete implements IApiCacheService {
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start TSMPC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End TSMPC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start TSMPC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End TSMPC-from-Backend For Cache】--\n");
 
 			// 第二組ES REQ
-			TsmpApiLogReq tsmpcDelBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(),
+			TsmpApiLogReq tsmpcDelBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(),
 					vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 
 			HttpRespData respObj = getHttpRespData(vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
@@ -280,7 +280,7 @@ public class TSMPCServiceDelete implements IApiCacheService {
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 
 			// 第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, tsmpcDelBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, tsmpcDelBackendReqVo, contentLength);
 
 			return respObj;
 		} catch (Exception e) {
@@ -295,15 +295,15 @@ public class TSMPCServiceDelete implements IApiCacheService {
 
 		StringBuffer sb = new StringBuffer();
 		if (isFixedCache) {
-			sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Bankend For Fixed Cache】--");
-			sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Bankend For Fixed Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Backend For Fixed Cache】--");
+			sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Backend For Fixed Cache】--\n");
 		} else {
-			sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Bankend】--");
-			sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Bankend】--\n");
+			sb.append("\n--【LOGUUID】【" + uuid + "】【Start TSMPC-to-Backend】--");
+			sb.append("\n--【LOGUUID】【" + uuid + "】【End TSMPC-from-Backend】--\n");
 		}
 
 		// 第二組ES REQ
-		TsmpApiLogReq bankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl, payload);
+		TsmpApiLogReq backendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl, payload);
 		HttpRespData respObj = getHttpRespData(header, srcUrl, payload);
 		respObj.fetchByte(maskInfo); // because Enable inputStream
 		sb.append(respObj.getLogStr());
@@ -316,7 +316,7 @@ public class TSMPCServiceDelete implements IApiCacheService {
 		int contentLength = (httpArray == null) ? 0 : httpArray.length;
 
 		// 第二組ES RESP
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, bankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, backendReqVo, contentLength);
 
 		return respObj;
 

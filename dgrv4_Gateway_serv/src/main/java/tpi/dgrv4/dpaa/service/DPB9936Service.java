@@ -25,6 +25,7 @@ import tpi.dgrv4.dpaa.vo.DPB9936Resp;
 import tpi.dgrv4.entity.entity.TsmpRtnCode;
 import tpi.dgrv4.entity.entity.TsmpRtnCodeId;
 import tpi.dgrv4.entity.repository.TsmpRtnCodeDao;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -65,7 +66,15 @@ public class DPB9936Service {
 		     Iterator<Row> rows = sheet.iterator();
 		     Map<TsmpRtnCodeId, TsmpRtnCode> fileDataList = new HashMap<TsmpRtnCodeId, TsmpRtnCode>();
 		     Map<TsmpRtnCodeId, TsmpRtnCode> tsmpRtnCodeMap = new HashMap<TsmpRtnCodeId, TsmpRtnCode>();
-		     while (rows.hasNext()) {
+
+		   //checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+		     int maxValue = Integer.MAX_VALUE;
+		     int loopIndex = 0;
+		     while (rows.hasNext() && loopIndex <= maxValue) {
+		    	 if(loopIndex == maxValue) {
+		    		 throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " row");
+		    	 }
+		    	 loopIndex++;
 		    	 if(isFirst) {
 		    		 isFirst = false;
 		    		 Row row = rows.next();

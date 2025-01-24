@@ -77,6 +77,9 @@ public class AA0506Controller {
 				response.addHeader(HttpHeaders.SET_COOKIE, cookie);
 				cookie = getReportIdCookie(req.getBody().getReportID(), rootPath);
 				response.addHeader(HttpHeaders.SET_COOKIE, cookie);
+				//checkmarx, Missing HSTS Header
+	            response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	            
 			}
 		} catch (Exception e) {
 			throw new TsmpDpAaException(e, req.getReqHeader());

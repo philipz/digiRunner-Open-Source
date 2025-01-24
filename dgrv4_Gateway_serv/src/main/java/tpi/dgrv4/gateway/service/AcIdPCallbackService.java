@@ -47,7 +47,7 @@ public class AcIdPCallbackService {
 	private AcIdPHelper acIdPHelper;
  
     /**
-     * 以 IdP(GOOGLE/MS) 的授權碼, 取得 IdP(GOOGLE/MS) 的 token, <br>
+     * 以 IdP(GOOGLE / MS / OIDC) 的授權碼, 取得 IdP 的 token, <br>
      * 若 user 狀態為 allow, 則重新導向到前端以登入AC
      */
 	public void acIdPCallback(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpResp,
@@ -100,7 +100,7 @@ public class AcIdPCallbackService {
 		String userName = "N/A";// 此時還沒有值
 		String userAlias = null;// 此時還沒有值
 
-		// 1.取得 IdP(GOOGLE / MS) info 資料
+		// 1.取得 IdP(GOOGLE / MS / OIDC) info 資料
 		DgrAcIdpInfo dgrAcIdpInfo = getDgrAcIdpInfoDao().findFirstByIdpTypeAndClientStatusOrderByCreateDateTimeDesc(idPType, "Y");
 		if(dgrAcIdpInfo == null) {
 			// Table [DGR_AC_IDP_INFO] 查不到資料
@@ -141,7 +141,7 @@ public class AcIdPCallbackService {
     		return;
     	}
     	
-    	// 2.打 Id(GOOGLE / MS) Well Known URL, 取得 JSON 資料
+    	// 2.打 Id(GOOGLE / MS / OIDC) Well Known URL, 取得 JSON 資料
     	WellKnownData wellKnownData = getIdPWellKnownHelper().getWellKnownData(wellKnownUrl, reqUri);
 		ResponseEntity<?> errRespEntity = wellKnownData.errRespEntity;
 		if (errRespEntity != null) {
@@ -213,7 +213,7 @@ public class AcIdPCallbackService {
     		return;
 		}
 		
-		// 4.打 IdP(GOOGLE / MS) 的 token API, 取得 Access Token 和 ID Token
+		// 4.打 IdP(GOOGLE / MS / OIDC) 的 token API, 取得 Access Token 和 ID Token
 		// 從 cookies 取得 codeVerifier 的值
 		String apiResp = null;
 		String codeVerifierForOauth2 = GtwIdPHelper.getStateFromCookies(httpReq, GtwIdPHelper.COOKIE_CODE_VERIFIER);
@@ -253,7 +253,7 @@ public class AcIdPCallbackService {
     		return;
 		}
 		
-		// 5.驗證 IdP(GOOGLE / MS) ID Token
+		// 5.驗證 IdP(GOOGLE / MS / OIDC) ID Token
 		boolean isVerify = false;            
 		JWKVerifyResult jwkRs = JWKcodec.verifyJWStoken(idTokenJwtstr, jwksUri, issuer);
 		isVerify = jwkRs.verify;

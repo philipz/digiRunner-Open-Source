@@ -114,11 +114,7 @@ public class HttpUtilJob extends ApptJob {
 		}else if (HttpType.C_APIKEY.equals(type)) {
 			String UUID = java.util.UUID.randomUUID().toString().toUpperCase();
 			String ckey = CApiKeyUtils.signCKey(UUID);
-			if(isCallComposer(inParams)) {
-				header.put(HttpType.C_APIKEY_COMPOSER, ckey);
-			}else {
-				header.put(HttpType.C_APIKEY, ckey);
-			}			
+			header.put(HttpType.C_APIKEY, ckey);			
 			header.put("cuuid", UUID);
 			putHeader(inParams, header);
 		}

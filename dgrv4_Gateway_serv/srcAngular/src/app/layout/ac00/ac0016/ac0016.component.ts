@@ -45,6 +45,7 @@ export class Ac0016Component extends BaseComponent implements OnInit {
     {label:'MS', value:'MS'},
     {label:'API', value:'API'},
     {label:'CUS', value:'CUS'},
+    {label:'OIDC', value:'OIDC'},
   ];
 
   idpStatusList:{ label: string; value: string; }[] = [
@@ -256,7 +257,8 @@ export class Ac0016Component extends BaseComponent implements OnInit {
       roleIdList: this.roleIdList_u.value,
       newRoleIdList: this.newRoleIdList_u.value,
       orgId: this.orgId_u.value,
-      newOrgId: this.newOrgId_u.value
+      newOrgId: this.newOrgId_u.value,
+      idpType: this.selectItem?.idpType,
     } as DPB0147Req;
     // console.log(reqBody);
     // return;

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -69,7 +71,23 @@ public class DGRCServicePostRaw implements IApiCacheService{
 	private DgrcRoutingHelper dgrcRoutingHelper;
 
 	public  Map<String, String> maskInfo ;
-	
+
+	@Async("async-workers-highway")
+	public CompletableFuture<ResponseEntity<?>> forwardToPostRawDataAsyncFast(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
+																		  String payload) throws Exception {
+		var response = forwardToPostRawData(httpHeaders, httpReq, httpRes, payload);
+		GatewayFilter.fetchUriHistoryAfter(httpReq);
+		return CompletableFuture.completedFuture(response);
+	}
+
+	@Async("async-workers")
+	public CompletableFuture<ResponseEntity<?>> forwardToPostRawDataAsync(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
+																		  String payload) throws Exception {
+		var response = forwardToPostRawData(httpHeaders, httpReq, httpRes, payload);
+		GatewayFilter.fetchUriHistoryAfter(httpReq);
+		return CompletableFuture.completedFuture(response);
+	}
+
 	public ResponseEntity<?> forwardToPostRawData(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
 			String payload) throws Exception {
 		try {
@@ -81,6 +99,9 @@ public class DGRCServicePostRaw implements IApiCacheService{
 			String reqUrl = httpReq.getRequestURI();
 	
 			TsmpApiReg apiReg = null;
+			if (null == httpReq.getAttribute(GatewayFilter.moduleName)) {
+				throw new Exception("TSMP_API_REG module_name is null");
+			}
 			String dgrcPostRaw_moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
 			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
 			TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, dgrcPostRaw_moduleName);
@@ -342,11 +363,11 @@ public class DGRCServicePostRaw implements IApiCacheService{
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Backend For Cache】--\n");
 			
 			//第二組ES REQ
-			TsmpApiLogReq dgrcPostRawBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
+			TsmpApiLogReq dgrcPostRawBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 	
 			HttpRespData respObj = getHttpRespData(vo.getHttpMethod(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 			respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -365,7 +386,7 @@ public class DGRCServicePostRaw implements IApiCacheService{
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 					
 			// 第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPostRawBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPostRawBackendReqVo, contentLength);
 			
 			return respObj;
 		}catch(Exception e) {
@@ -386,16 +407,16 @@ public class DGRCServicePostRaw implements IApiCacheService{
 		StringBuffer dgrcPostRaw_sb = new StringBuffer();
 		if (isFixedCache) {
 			dgrcPostRaw_sb
-					.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend For Fixed Cache】" + tryNumLog + "--");
+					.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend For Fixed Cache】" + tryNumLog + "--");
 			dgrcPostRaw_sb
-					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend For Fixed Cache】" + tryNumLog + "--\n");
+					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend For Fixed Cache】" + tryNumLog + "--\n");
 		} else {
-			dgrcPostRaw_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend】" + tryNumLog + "--");
-			dgrcPostRaw_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend】" + tryNumLog + "--\n");
+			dgrcPostRaw_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend】" + tryNumLog + "--");
+			dgrcPostRaw_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend】" + tryNumLog + "--\n");
 		}
 		
 		// 第二組ES REQ
-		TsmpApiLogReq dgrcPostRawBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header,
+		TsmpApiLogReq dgrcPostRawBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header,
 				srcUrl, payload);
 		HttpRespData respObj = getHttpRespData(httpReq.getMethod(), header, srcUrl, payload);
 		respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -441,7 +462,7 @@ public class DGRCServicePostRaw implements IApiCacheService{
 //		rsMap.put("respHeader", respObj.respHeader);
 		
 		//第二組ES RESP
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPostRawBankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcPostRawBackendReqVo, contentLength);
 		
 		return respObj;
 	}

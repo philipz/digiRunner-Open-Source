@@ -168,7 +168,14 @@ public class AA1204Service {
 			if (dateTimeRangeType == ReportDateTimeRangeTypeEnum.MINUTE) {
 				Date start = aa1204_sdf.parse(startHour + ":00");
 				Date end = aa1204_sdf.parse(endHour + ":59");
-				while (!start.after(end)) {
+				//checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+				int maxValue = 145;
+				int loopIndex = 0;
+			    while (!start.after(end) && loopIndex <= maxValue) {
+			    	if(loopIndex == maxValue) {
+			    		throw TsmpDpAaRtnCode._1559.throwing("Exceed " + (maxValue*10) + " minute");
+			    	}
+			    	loopIndex++;
 					totalDates.add(aa1204_sdf.format(start));
 					Calendar aa1204_c = Calendar.getInstance();
 					aa1204_c.setTime(start);
@@ -178,13 +185,20 @@ public class AA1204Service {
 			}else {
 				Date start = aa1204_sdf.parse(startDate);
 				Date end = aa1204_sdf.parse(endDate);
-				while (!start.after(end)) {
+				//checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+				int maxValue = 367;
+				int loopIndex = 0;
+			    while (!start.after(end) && loopIndex <= maxValue) {
+			    	if(loopIndex == maxValue) {
+			    		throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " day");
+			    	}
+			    	loopIndex++;
 					totalDates.add(aa1204_sdf.format(start));
 					Calendar aa1204_c = Calendar.getInstance();
 					aa1204_c.setTime(start);
 					aa1204_c.add(Calendar.DATE, 1);
 					start = aa1204_c.getTime();
-				}
+			    }
 			}
 			
 			

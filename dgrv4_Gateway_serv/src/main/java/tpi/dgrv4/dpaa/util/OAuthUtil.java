@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.bcrypt.copy.BCryptPasswordEncoder;
 
 import tpi.dgrv4.codec.utils.Base64Util;
+import tpi.dgrv4.codec.utils.BcryptUtil;
 import tpi.dgrv4.codec.utils.SHA256Util;
 import tpi.dgrv4.common.constant.TableAct;
 import tpi.dgrv4.common.utils.ServiceUtil;
@@ -124,9 +125,8 @@ public class OAuthUtil {
 	 * @return
 	 */
 	public static String bCryptEncode(String str) {
-		// 安全層級可以在 constructor 中調整
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return passwordEncoder.encode(str);
+		//checkmarx, Spring Comparison Timing Attack, 已通過中風險
+		return BcryptUtil.encode(str);
 	}
 
 	/**

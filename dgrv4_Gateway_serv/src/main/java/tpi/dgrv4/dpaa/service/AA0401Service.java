@@ -140,6 +140,9 @@ public class AA0401Service {
 			Files.createDirectories(path);
 		}
 		
+		//checkmarx, Relative Path Traversal, 已通過中風險
+		temporaryFileName = temporaryFileName.replaceAll("\\.\\.", "").replaceAll("/", "").replaceAll("\\\\", "");
+		
 		temporaryFile = new File(fileUploadPath, temporaryFileName);
 		try (FileOutputStream fos = new FileOutputStream(temporaryFile);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);){

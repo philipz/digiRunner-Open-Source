@@ -211,35 +211,35 @@ export class ApiShelvesComponent implements OnInit {
     $('#choose-file_' + this.no).click();
   }
 
-  async upload(event) {
-    let file = event.target.files[0];
-    if (file == undefined) {
-      this.fileName!.setValue(null);
-      this.tempFileName!.setValue(null);
-      return;
-    }
-    const code = ['uploading', 'waiting', 'cfm_size', 'upload_result', 'message.success'];
-    const dict = await this.tool.getDict(code);
-    this.message.add({ severity: 'success', summary: dict['uploading'], detail: `${dict['waiting']}!` });
-    let _fileName = file.name;
-    if (file.size / 1024 / 1024 > 5) {
-      // alert 超過 5MB
-      this.message.clear();
-      this.alert.ok('Return message : ', dict['cfm_size'], undefined);
-      return;
-    }
-    let fileReader = new FileReader();
-    fileReader.onloadend = () => {
-      this.file.uploadFile2(file).subscribe(res => {
-        if (this.tool.checkDpSuccess(res.ResHeader)) {
-          this.message.add({ severity: 'success', summary: dict['upload_result'], detail: `${dict['message.success']}!` });
-          this.fileName!.setValue(_fileName);
-          this.tempFileName!.setValue(res.RespBody.tempFileName);
-        }
-      });
-    }
-    fileReader.readAsBinaryString(file);
-  }
+  // async upload(event) {
+  //   let file = event.target.files[0];
+  //   if (file == undefined) {
+  //     this.fileName!.setValue(null);
+  //     this.tempFileName!.setValue(null);
+  //     return;
+  //   }
+  //   const code = ['uploading', 'waiting', 'cfm_size', 'upload_result', 'message.success'];
+  //   const dict = await this.tool.getDict(code);
+  //   this.message.add({ severity: 'success', summary: dict['uploading'], detail: `${dict['waiting']}!` });
+  //   let _fileName = file.name;
+  //   if (file.size / 1024 / 1024 > 5) {
+  //     // alert 超過 5MB
+  //     this.message.clear();
+  //     this.alert.ok('Return message : ', dict['cfm_size'], undefined);
+  //     return;
+  //   }
+  //   let fileReader = new FileReader();
+  //   fileReader.onloadend = () => {
+  //     this.file.uploadFile2(file).subscribe(res => {
+  //       if (this.tool.checkDpSuccess(res.ResHeader)) {
+  //         this.message.add({ severity: 'success', summary: dict['upload_result'], detail: `${dict['message.success']}!` });
+  //         this.fileName!.setValue(_fileName);
+  //         this.tempFileName!.setValue(res.RespBody.tempFileName);
+  //       }
+  //     });
+  //   }
+  //   fileReader.readAsBinaryString(file);
+  // }
 
   delete() {
     this._ref.destroy();

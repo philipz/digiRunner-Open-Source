@@ -10,11 +10,11 @@ import { ToolService } from 'src/app/shared/services/tool.service';
 // import { ApiService } from 'src/app/shared/services/api-api.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BaseComponent } from 'src/app/layout/base-component';
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { FormOperate } from 'src/app/models/common.enum';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService, ConfirmationService, MenuItem } from 'primeng/api';
 import {
   AA0303Req,
   AA0303Item,
@@ -151,6 +151,27 @@ export class Ac0301Component extends BaseComponent implements OnInit {
   import_selected: Array<AA0318Item> = [];
   fileBatchNo: number = 0;
 
+
+  viewModeList: { [key: number]: Array<string> } = {
+    0: [
+      'apiDesc',
+      'moduleName',
+      'apiKey',
+      'apiSrc',
+      'JWTnLabel',
+      'enableScheduledDate',
+      'disableScheduledDate',
+    ],
+    1: [
+      'apiKey',
+      'org',
+      'createUser',
+      'createDate',
+      'updateUser',
+      'updateDate',
+    ],
+  };
+
   constructor(
     route: ActivatedRoute,
     tr: TransformMenuNamePipe,
@@ -169,7 +190,8 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     private serverService: ServerService,
     private confirmationService: ConfirmationService,
     private dialogService: DialogService, // private utilService: UtilService
-    private fileService: FileService
+    private fileService: FileService,
+    private cdRef: ChangeDetectorRef
   ) {
     super(route, tr);
 
@@ -235,6 +257,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
 
     //取得acConf
     this.acConf = this.tool.getAcConf();
+    this.loadMenu();
   }
 
   ngOnInit() {
@@ -585,10 +608,10 @@ export class Ac0301Component extends BaseComponent implements OnInit {
         field: 'enableScheduledDate',
         header: dict['apiStatus.scheduledLaunchDate'],
       },
-      {
-        field: 'disableScheduledDate',
-        header: dict['apiStatus.scheduledDiscontinuationDate'],
-      },
+      // {
+      //   field: 'disableScheduledDate',
+      //   header: dict['apiStatus.scheduledDiscontinuationDate'],
+      // },
       { field: 'updateTime', header: dict['recent_update_date'] },
     ];
     this.detailCols = [
@@ -1417,7 +1440,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     //   }
     // });
     this.dataList = tempData.sort((a, b) => {
-      switch (colum.field) {
+      switch (colum) {
         case 'apiKey':
           const apiKeyA = a.apiKey.ori ? a.apiKey.ori : a.apiKey.val;
           const apiKeyB = b.apiKey.ori ? b.apiKey.ori : b.apiKey.val;
@@ -1444,6 +1467,10 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     } else {
       this.direction = 'asc';
     }
+  }
+  getApiGroupListEvt(keyword) {
+    this.detailKeyword?.setValue(keyword);
+    this.queryApiGroupList();
   }
 
   queryApiGroupList() {
@@ -1821,6 +1848,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     this.showLabelList_tip = false;
     const code = ['button.detail', 'button.update', 'upload_reg_comp_api_file'];
     const dict = await this.tool.getDict(code);
+    this.resetFormValidator(this.detailForm);
     switch (action) {
       case 'query':
         this.currentTitle = this.title;
@@ -1828,6 +1856,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
         break;
       case 'detail':
         if (!rowData) return;
+        document.querySelector('section')?.scrollTo(0, 0);
         let detailReqBody = {
           moduleName: rowData.moduleName.ori
             ? rowData.moduleName.ori
@@ -2164,7 +2193,7 @@ export class Ac0301Component extends BaseComponent implements OnInit {
   }
 
   originStringTable(item: any) {
-    return !item.ori ? item.val : item.t ? item.val : item.ori;
+    return item ? (!item.ori ? item.val : item.t ? item.val : item.ori) : '';
   }
 
   originString(item: any) {
@@ -2411,7 +2440,6 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     const dict = await this.tool.getDict(code);
 
     if (this.import_selected.length < this.import_apiList.length) {
-
       this.confirmationService.confirm({
         header: dict['unchecked_api'],
         message: dict['cfm_import'],
@@ -2540,6 +2568,43 @@ export class Ac0301Component extends BaseComponent implements OnInit {
     this.import_selected = this.import_selected.filter(
       (item) => item.checkAct.v != 'N'
     );
+  }
+
+  viewMode: number = 0;
+  ModeItems: MenuItem[] = [
+    // {
+    //   label: '管理檢視',
+    //   command: () => this.setViewMode(0),
+    //   styleClass:'active',
+    // },
+    // {
+    //   label: '稽核檢視',
+    //   command: () => this.setViewMode(1),
+    // },
+  ];
+  loadMenu() {
+    this.translate.get(['view_mode.0', 'view_mode.1']).subscribe(translations => {
+      this.ModeItems = [
+        {
+          label: translations['view_mode.0'],
+          command: () => this.setViewMode(0),
+          styleClass:'active',
+        },
+        {
+          label: translations['view_mode.1'],
+          command: () => this.setViewMode(1),
+        },
+      ];
+    });
+  }
+  setViewMode(mode: number) {
+    this.viewMode = mode;
+    // 重新賦值 ModeItems 來觸發變化檢測
+    this.updateMenuItems(mode);
+  }
+
+  updateMenuItems(mode:number) {
+    this.ModeItems.forEach((x,i) => x.styleClass =mode===i ? "active":"")
   }
 
   public get q_jwtSetting() {

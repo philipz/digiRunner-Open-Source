@@ -1,12 +1,14 @@
 package tpi.dgrv4.gateway.keeper;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.gateway.constant.DgrDeployRole;
 
 public class TPIFileLoggerQueue {
 	private static Logger logger = LoggerFactory.getLogger(TPIFileLoggerQueue.class);
@@ -20,6 +22,8 @@ public class TPIFileLoggerQueue {
 	
 	private final static int bufferSize = 100000; // 11,574
 	public static BlockingQueue<TPIFileLoggerQueue> fileLoggerQueue = new ArrayBlockingQueue<TPIFileLoggerQueue>(bufferSize);
+	// in-memory 狀態下, 寫 file log 時, 同時也以 http 方式傳給 Landing 端
+	public static BlockingQueue<String> inMemLogQueue = new ArrayBlockingQueue<>(bufferSize);
 	public int level = -10;
 	public String msg = null;
 
@@ -30,6 +34,9 @@ public class TPIFileLoggerQueue {
 		this.msg = msg;
 	}
 	
+	//高效能的產生指定格式的時間字串
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+	
 	public static void put(int level , String msg) throws InterruptedException {
 		// ChatGPT: 生產者執行緒嘗試在阻塞佇列中加入兩個元素，但佇列的容量只有1。
 		// 因此，當它嘗試添加第二個元素時，它會被阻塞。
@@ -37,6 +44,35 @@ public class TPIFileLoggerQueue {
 		// 試著解決因為 Queue 滿了而丟出的 Exception.
 		try {
 			fileLoggerQueue.put(new TPIFileLoggerQueue(level, msg));
+			
+			// add 時要寫一個 if 去判斷 queue 是否已滿 & 它的身份(TPILogger.tlDeployRole)為  
+			// memory (DgrDeployRole.MEMORY.value())
+			// 若未滿才能 add to Queue			
+			if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(TPILogger.tlDeployRole) && inMemLogQueue.remainingCapacity() > 0) {
+				String logLevel = "";
+				switch (level) {
+				case TRACE:
+					logLevel = "TRACE";
+					break;
+				case DEBUG:
+					logLevel = "DEBUG";
+					break;
+				case INFO:
+					logLevel = "INFO";
+					break;
+				case WARN:
+					logLevel = "WARN";
+					break;
+				case ERROR:
+					logLevel = "ERROR";
+					break;
+				default:
+					logLevel = "ERROR";
+					break;
+				}
+				String timeString = "\n\t[" + LocalTime.now().format(TIME_FORMATTER) + "]";
+				inMemLogQueue.add(timeString + "\n\t[" + logLevel + "]\n\t" + msg);
+			}
 		} catch (InterruptedException e) {
 			logger.error("fileLoggerQueue.size()= " + fileLoggerQueue.size() 
 			+ "\n, Size maybe is FULL.  " + StackTraceUtil.logStackTrace(e));

@@ -217,7 +217,7 @@ public class AsyncSendNotifyLandingRequestToDgrService {
 		header.put("Content-Type", "application/json");
 		// 添加 cuuid 到頭部資訊
 		header.put("cuuid", cuuid);
-		// 添加簽名後的 capi_key 到頭部資訊
+		// 添加簽名後的 capi-key 到頭部資訊
 		header.put("capi-key", capiKey);
 
 		reqHeaderForTest = header;

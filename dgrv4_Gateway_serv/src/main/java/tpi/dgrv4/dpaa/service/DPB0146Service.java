@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DPB0146Req;
 import tpi.dgrv4.dpaa.vo.DPB0146Resp;
 import tpi.dgrv4.entity.entity.Authorities;
@@ -35,44 +37,43 @@ public class DPB0146Service {
 
 	@Autowired
 	private DgrAcIdpUserDao dgrAcIdpUserDao;
-	
+
 	@Autowired
 	private TsmpOrganizationDao tsmpOrganizationDao;
-	
+
 	@Autowired
 	private AuthoritiesDao authoritiesDao;
-	
+
 	@Autowired
 	private TsmpRoleDao tsmpRoleDao;
-	
 
 	public DPB0146Resp queryIdPUserDetail(TsmpAuthorization auth, DPB0146Req req) {
 		DPB0146Resp resp = new DPB0146Resp();
 		try {
-			
-			if(!StringUtils.hasText(req.getLongId())) {
+
+			if (!StringUtils.hasText(req.getLongId())) {
 				throw TsmpDpAaRtnCode._1296.throwing();
 			}
-			
+
 			DgrAcIdpUser userVo = getDgrAcIdpUserDao().findById(Long.valueOf(req.getLongId())).orElse(null);
-			if(userVo == null) {
+			if (userVo == null) {
 				throw TsmpDpAaRtnCode._1231.throwing();
 			}
-			
-			if(userVo.getOrgId() != null) {
+
+			if (userVo.getOrgId() != null) {
 				resp.setOrgId(userVo.getOrgId());
 				Optional<TsmpOrganization> orgOpt = getTsmpOrganizationDao().findById(userVo.getOrgId());
-				if(orgOpt.isPresent()) {
+				if (orgOpt.isPresent()) {
 					resp.setOrgName(orgOpt.get().getOrgName());
 				}
 			}
-			
-			Map<String,List<String>> map = getRoleData(userVo.getUserName());
+
+			Map<String, List<String>> map = getRoleData(userVo.getUserName());
 			List<String> roleIdList = map.get("roleIdList");
 			List<String> roleAliasList = map.get("roleAliasList");
-			
+
 			String statusName = DgrAcIdpUserStatus.getText(userVo.getUserStatus());
-			
+
 			resp.setRoleId(roleIdList);
 			resp.setRoleAlias(roleAliasList);
 			resp.setLongId(req.getLongId());
@@ -81,9 +82,11 @@ public class DPB0146Service {
 			resp.setStatusName(statusName);
 			resp.setUserAlias(userVo.getUserAlias());
 			resp.setUserName(userVo.getUserName());
+			resp.setUserNameOrig(userVo.getUserName());
 			resp.setUserEmail(userVo.getUserEmail());
-			
-			
+
+			processingBeforeResponse(resp);
+
 			return resp;
 		} catch (TsmpDpAaException e) {
 			throw e;
@@ -92,33 +95,46 @@ public class DPB0146Service {
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 	}
-	
-	public  Map<String,List<String>> getRoleData(String userName){
-		Map<String,List<String>> map = new HashMap<>();
+
+	private void processingBeforeResponse(DPB0146Resp resp) {
+
+		if (resp == null) {
+			return;
+		}
+
+		if (DgrIdPType.CUS.equalsIgnoreCase(resp.getIdpType())) {
+			String userName = ServiceUtil.decodeBase64URL(resp.getUserName());
+			resp.setUserName(userName);
+		}
+
+	}
+
+	public Map<String, List<String>> getRoleData(String userName) {
+		Map<String, List<String>> map = new HashMap<>();
 		List<String> roleIdList = new ArrayList<>();
 		List<String> roleAliasList = new ArrayList<>();
-		
-		//迴圈裡面再跑query 資料庫 ->效率會不好,但是因為有做分頁所以跑的資料量不會太多+JAP有一級快取的功能所以在分頁做此動作可接受
-		//一級快取 -> 在還沒有commit之前 有搜尋過的資料會存在快取
+
+		// 迴圈裡面再跑query 資料庫 ->效率會不好,但是因為有做分頁所以跑的資料量不會太多+JAP有一級快取的功能所以在分頁做此動作可接受
+		// 一級快取 -> 在還沒有commit之前 有搜尋過的資料會存在快取
 		List<Authorities> authUserName = getAuthoritiesDao().findByUsername(userName);
-		authUserName.forEach((auth) ->{
+		authUserName.forEach((auth) -> {
 			String authId = auth.getAuthority();
 			Optional<TsmpRole> optRole = getTsmpRoleDao().findById(authId);
-			if(optRole.isPresent()) {
+			if (optRole.isPresent()) {
 				TsmpRole tsmpRole = optRole.get();
 				roleIdList.add(tsmpRole.getRoleId());
-				
+
 				String roleAlias = tsmpRole.getRoleAlias();
-				if(StringUtils.hasLength(roleAlias)) {
+				if (StringUtils.hasLength(roleAlias)) {
 					roleAliasList.add(roleAlias);
-					
-				}else {
+
+				} else {
 					String msg = "unknow:" + tsmpRole.getRoleName();
 					roleAliasList.add(msg);
 				}
 			}
 		});
-		
+
 		map.put("roleIdList", roleIdList);
 		map.put("roleAliasList", roleAliasList);
 		return map;
@@ -131,11 +147,11 @@ public class DPB0146Service {
 	protected TsmpOrganizationDao getTsmpOrganizationDao() {
 		return this.tsmpOrganizationDao;
 	}
-	
+
 	protected TsmpRoleDao getTsmpRoleDao() {
 		return this.tsmpRoleDao;
 	}
-	
+
 	protected AuthoritiesDao getAuthoritiesDao() {
 		return this.authoritiesDao;
 	}

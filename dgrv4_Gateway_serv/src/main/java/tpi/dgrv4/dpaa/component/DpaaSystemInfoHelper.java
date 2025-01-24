@@ -14,8 +14,10 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.vo.DpaaSystemInfo;
 import tpi.dgrv4.gateway.component.FileHelper;
+import tpi.dgrv4.gateway.keeper.TPILogger;
 
 public class DpaaSystemInfoHelper {
 
@@ -50,15 +52,21 @@ public class DpaaSystemInfoHelper {
 
 	public void setCpuUsedRateAndMem(SystemInfo systemInfo, DpaaSystemInfo dpaaSystemInfo) {
 		
-		
-		OperatingSystem os = systemInfo.getOperatingSystem();
-		int processId = os.getProcessId();
-		OSProcess currentProcess = os.getProcess(processId);
-		int logicalProcessorCount = systemInfo.getHardware().getProcessor().getLogicalProcessorCount();
-		float cpu = getCpuUsedRate(currentProcess, logicalProcessorCount);
-		int mem = to1024MegaConversion(currentProcess.getResidentSetSize());
-		dpaaSystemInfo.setCpu(cpu);
-		dpaaSystemInfo.setMem(mem);
+		try {
+			OperatingSystem os = systemInfo.getOperatingSystem();
+			int processId = os.getProcessId();
+			OSProcess currentProcess = os.getProcess(processId);
+			int logicalProcessorCount = systemInfo.getHardware().getProcessor().getLogicalProcessorCount();
+			float cpu = getCpuUsedRate(currentProcess, logicalProcessorCount);
+			int mem = to1024MegaConversion(currentProcess.getResidentSetSize());
+			dpaaSystemInfo.setCpu(cpu);
+			dpaaSystemInfo.setMem(mem);
+		} catch (Exception e) {
+			dpaaSystemInfo.setCpu(0f);
+			dpaaSystemInfo.setMem(0);
+			TPILogger.tl.warn(StackTraceUtil.logStackTrace(e));
+		}
+
 		
 	}
 

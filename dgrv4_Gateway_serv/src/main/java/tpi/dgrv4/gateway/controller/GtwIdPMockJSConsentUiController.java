@@ -3,18 +3,16 @@ package tpi.dgrv4.gateway.controller;
 import java.io.IOException;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.entity.repository.TsmpClientVgroupDao;
 import tpi.dgrv4.entity.repository.TsmpVgroupDao;
@@ -69,7 +67,7 @@ public class GtwIdPMockJSConsentUiController {
 			}
 			dgrVGroupScopeStr = dgrVGroupScopeStr.trim();
 			
-			String dgrApproveUrl = "https://localhost:8080/dgrv4/ssotoken/gtwidp/" + idPType + "/approve";
+			String dgrApproveUrl = "https://localhost:18080/dgrv4/ssotoken/gtwidp/" + idPType + "/approve";
 			String redirectUrl = String.format(
 					"%s" 
 					+ "?username=%s" 

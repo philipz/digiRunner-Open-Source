@@ -85,14 +85,17 @@ public class GtwIdPAuthService {
 				return errRespEntity;
 			}
 			
-			if (DgrIdPType.GOOGLE.equals(idPType)  // GOOGLE
+			if (DgrIdPType.GOOGLE.equals(idPType) // GOOGLE
 					|| DgrIdPType.MS.equals(idPType) // MS
+					|| DgrIdPType.OIDC.equals(idPType) // OIDC
 			) {
 				long maxAge = 60L * 5L;// 以秒為單位, 設定5分鐘
 				// state 寫入 cookie
 				ResponseCookie stateCookie = TokenHelper.createCookie(GtwIdPHelper.COOKIE_STATE, state, maxAge);
 				httpResp.addHeader(HttpHeaders.SET_COOKIE, stateCookie.toString());
-
+				//checkmarx, Missing HSTS Header
+				httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+		        
 				// codeVerifier 寫入 cookie
 				String codeVerifierForOauth2 = UUID.randomUUID().toString();// for GOOGLE / MS
 				ResponseCookie codeVerifierCookie = TokenHelper.createCookie(GtwIdPHelper.COOKIE_CODE_VERIFIER,
@@ -298,7 +301,7 @@ public class GtwIdPAuthService {
 //		String dgrLoginUrl = "https://localhost:8080/dgrv4/ac4/gtwidp/{idPType}/login";
 		
 		// TODO, Mini, test (前端未加入畫面前測試用)
-//		String dgrLoginUrl = "https://localhost:8080/dgrv4/mockac/gtwidp/{idPType}/loginui";
+//		String dgrLoginUrl = "https://localhost:18080/dgrv4/mockac/gtwidp/{idPType}/loginui";
 		
 		dgrLoginUrl = dgrLoginUrl.replace("{idPType}", idPType);
 		

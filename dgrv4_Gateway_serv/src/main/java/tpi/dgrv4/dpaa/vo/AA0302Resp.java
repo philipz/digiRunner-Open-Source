@@ -126,6 +126,18 @@ public class AA0302Resp {
 
 	/** 預定停用日期 */
 	private long disableScheduledDate;
+	
+	/** 建立日期 */
+	private String createDate;
+	
+	/** 建立人員 */
+	private String createUser;
+	
+	/** 更新日期 */
+	private String updateDate;
+	
+	/** 更新人員 */
+	private String updateUser;
 
 	@Override
 	public String toString() {
@@ -146,7 +158,8 @@ public class AA0302Resp {
 				+ type + ", failDiscoveryPolicy=" + failDiscoveryPolicy + ", failHandlePolicy=" + failHandlePolicy
 				+ ", labelList=" + labelList + ", redirectByIpDataList=" + redirectByIpDataList + ", fixedCacheTime="
 				+ fixedCacheTime + ", enableScheduledDate=" + enableScheduledDate + ", disableScheduledDate="
-				+ disableScheduledDate + "]";
+				+ disableScheduledDate + ", createDate=" + createDate + ", createUser=" + createUser + ", updateDate=" 
+				+ updateDate + ", updateUser=" + updateUser +"]";
 	}
 
 	public AA0302Pair getApiStatus() {
@@ -541,4 +554,35 @@ public class AA0302Resp {
 		this.disableScheduledDate = disableScheduledDate;
 	}
 
+	public String getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
+	}
+
+	public String getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
+	}
+
+	public String getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
+
+	public String getUpdateUser() {
+		return updateUser;
+	}
+
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
+	}
 }

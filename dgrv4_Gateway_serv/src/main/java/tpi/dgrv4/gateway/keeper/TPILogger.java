@@ -1,10 +1,20 @@
 package tpi.dgrv4.gateway.keeper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaxxer.hikari.HikariDataSource;
-import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.Service;
 import org.apache.catalina.connector.Connector;
@@ -19,6 +29,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariDataSource;
+
+import jakarta.annotation.PostConstruct;
 import tpi.dgrv4.codec.utils.UUID64Util;
 import tpi.dgrv4.common.component.cache.core.DaoGenericCache;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
@@ -33,6 +50,7 @@ import tpi.dgrv4.dpaa.constant.LicenseEnvType;
 import tpi.dgrv4.dpaa.service.ChangeDbConnInfoService;
 import tpi.dgrv4.dpaa.vo.DpaaSystemInfo;
 import tpi.dgrv4.entity.entity.TsmpSetting;
+import tpi.dgrv4.entity.repository.DgrDashboardEsLogDao;
 import tpi.dgrv4.entity.repository.DgrNodeLostContactDao;
 import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.TCP.Packet.NodeInfoPacket;
@@ -51,21 +69,13 @@ import tpi.dgrv4.gateway.constant.DgrDeployRole;
 import tpi.dgrv4.gateway.filter.GatewayFilter;
 import tpi.dgrv4.gateway.keeper.server.CommunicationServerConfig;
 import tpi.dgrv4.gateway.service.*;
-
 import tpi.dgrv4.gateway.vo.ClientKeeper;
 import tpi.dgrv4.tcp.utils.communication.ClinetNotifier;
 import tpi.dgrv4.tcp.utils.communication.LinkerClient;
 import tpi.dgrv4.tcp.utils.communication.Role;
 import tpi.dgrv4.tcp.utils.packets.DoSetUserName;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import tpi.dgrv4.tcp.utils.packets.UndertowMetricsPacket;
+import tpi.dgrv4.tcp.utils.packets.UrlStatusPacket;
 
 @Component
 public class TPILogger extends ITPILogger {
@@ -77,9 +87,12 @@ public class TPILogger extends ITPILogger {
 	public static boolean error_flag = true; // 可由 LoggerFlagController 啟用/停用
 
 	public final static String nodeInfo = "nodeInfo";
-
+	
 	private static Logger logger = LoggerFactory.getLogger(TPILogger.class);
 	public static TPILogger tl;
+	
+	private static boolean isFirstConnection = true; // 第一次連完後要變為 false, 因為第一次是連 127.0.0.1
+	public static boolean hasSecondConnectionStarting = false; // 第一次連接後, 要改連 RDB 為加速需要變更為 true
 
 	public static LinkerClient lc;
 	public static LinkedList<String> logStartingMsg = new LinkedList<String>();
@@ -87,6 +100,8 @@ public class TPILogger extends ITPILogger {
 	private ClinetNotifier lcNofify;
 
 	public String loggerLevel;
+	
+	public static String lcUserName;
 
 	@Autowired
 	private TsmpSettingService tsmpSettingService;
@@ -94,6 +109,12 @@ public class TPILogger extends ITPILogger {
 	// 用來載入 @PostConstruct init()
 	@Autowired
 	private CommunicationServerConfig communicationServerConfig;
+
+	@Autowired(required = false)
+	private IUndertowMetricsService undertowMetricsService;
+	
+	@Autowired
+	private DgrDashboardEsLogDao dgrDashboardEsLogDao;
 
 	@Autowired(required = false)
 	private LicenseUtilBase util;
@@ -137,7 +158,11 @@ public class TPILogger extends ITPILogger {
 	private StringBuffer traceMsg = new StringBuffer();
 	private String delayTRACELineNumberStr = "";
 
-	public ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	public ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(r -> {
+		Thread thread = new Thread(r);
+		thread.setName("TPILogger-Thread");
+		return thread;
+	});
 
 	private HashMap<String, String> paramBefore;
 
@@ -173,6 +198,7 @@ public class TPILogger extends ITPILogger {
 
 	@Value("${digiRunner.gtw.deploy.role}")
 	private String deployRole;
+	public static String tlDeployRole;
 
 	@Value("${digiRunner.gtw.deploy.interval.ms:1000}")
 	private Long deployIntervalMs;
@@ -202,6 +228,7 @@ public class TPILogger extends ITPILogger {
 	private String cusIpPort;
 	public static String cusIpPortForBroadcast;
 	public static List<String> maskKeysArr;
+	private static long threadCreateTiem;
 
 	@Value(value = "${tomcat.Graceful}")
 	private Boolean tomcatGraceful;
@@ -230,17 +257,21 @@ public class TPILogger extends ITPILogger {
 			loggerLevel = TPILogger.tl.currentLoggerLevel();
 		}
 		TPILogger.tl.loggerLevel = loggerLevel;
-		
+
 		// onlineConsole 切換到 trace 才要啟用, 但它無法適用 HA, 一次只能切換一台
 		TPILogger.trace_flag = "TRACE".equalsIgnoreCase(loggerLevel);
-		TPILogger.debug_flag = "TRACE".equalsIgnoreCase(loggerLevel) || "DEBUG".equalsIgnoreCase(loggerLevel) || "LOGUUID".equalsIgnoreCase(loggerLevel);
-		TPILogger.info_flag =  "TRACE".equalsIgnoreCase(loggerLevel) || "DEBUG".equalsIgnoreCase(loggerLevel) || "INFO".equalsIgnoreCase(loggerLevel) || "LOGUUID".equalsIgnoreCase(loggerLevel);
-		TPILogger.warn_flag =  "TRACE".equalsIgnoreCase(loggerLevel) || "DEBUG".equalsIgnoreCase(loggerLevel) || "INFO".equalsIgnoreCase(loggerLevel) || "WARN".equalsIgnoreCase(loggerLevel) || "LOGUUID".equalsIgnoreCase(loggerLevel);
-		
+		TPILogger.debug_flag = "TRACE".equalsIgnoreCase(loggerLevel) || "DEBUG".equalsIgnoreCase(loggerLevel)
+				|| "LOGUUID".equalsIgnoreCase(loggerLevel);
+		TPILogger.info_flag = "TRACE".equalsIgnoreCase(loggerLevel) || "DEBUG".equalsIgnoreCase(loggerLevel)
+				|| "INFO".equalsIgnoreCase(loggerLevel) || "LOGUUID".equalsIgnoreCase(loggerLevel);
+		TPILogger.warn_flag = "TRACE".equalsIgnoreCase(loggerLevel) || "DEBUG".equalsIgnoreCase(loggerLevel)
+				|| "INFO".equalsIgnoreCase(loggerLevel) || "WARN".equalsIgnoreCase(loggerLevel)
+				|| "LOGUUID".equalsIgnoreCase(loggerLevel);
+
 		TPILogger.tl.error("\n<font size=18>logger level: " + loggerLevel + " </font>\n");
 	}
-	
-	public String currentLoggerLevel(){
+
+	public String currentLoggerLevel() {
 		Optional<TsmpSetting> opt_tsmpSetting = getTsmpSettingCacheProxy().findById(TsmpSettingDao.Key.LOGGER_LEVEL);
 		if (opt_tsmpSetting.isPresent()) {
 			TsmpSetting tsmpSetting = opt_tsmpSetting.get();
@@ -319,9 +350,9 @@ public class TPILogger extends ITPILogger {
 		TPILogInfo log = new TPILogInfo();
 		try {
 			log.setLevel("INFO");
-			log.getLogMsg().append(logMsg);
-			TPIFileLoggerQueue.put(TPIFileLoggerQueue.INFO,
-					"[ " + log.getLine() + "]\n\t" + log.getLogMsg().toString());
+			log.getLogMsg().append(Thread.currentThread().getName() + "::" + logMsg);
+			String msg = getLotMsg(log);
+			TPIFileLoggerQueue.put(TPIFileLoggerQueue.INFO, msg);
 		} catch (InterruptedException e) {
 			// 重新設置中斷狀態
 			Thread.currentThread().interrupt();
@@ -348,9 +379,9 @@ public class TPILogger extends ITPILogger {
 		TPILogInfo log = new TPILogInfo();
 		try {
 			log.setLevel("DEBUG");
-			log.getLogMsg().append(logMsg);
-			TPIFileLoggerQueue.put(TPIFileLoggerQueue.DEBUG,
-					"[ " + log.getLine() + "]\n\t" + log.getLogMsg().toString());
+			log.getLogMsg().append(Thread.currentThread().getName() + "::" + logMsg);
+			String msg = getLotMsg(log);
+			TPIFileLoggerQueue.put(TPIFileLoggerQueue.DEBUG, msg);
 		} catch (InterruptedException e) {
 			// 重新設置中斷狀態
 			Thread.currentThread().interrupt();
@@ -421,9 +452,9 @@ public class TPILogger extends ITPILogger {
 		TPILogInfo log = new TPILogInfo();
 		try {
 			log.setLevel("ERROR");
-			log.getLogMsg().append(logMsg);
-			TPIFileLoggerQueue.put(TPIFileLoggerQueue.ERROR,
-					"[ " + log.getLine() + "]\n\t" + log.getLogMsg().toString());
+			log.getLogMsg().append(Thread.currentThread().getName() + "::" + logMsg);
+			String msg = getLotMsg(log);
+			TPIFileLoggerQueue.put(TPIFileLoggerQueue.ERROR, msg);
 		} catch (InterruptedException e) {
 			// 重新設置中斷狀態
 			Thread.currentThread().interrupt();
@@ -445,6 +476,7 @@ public class TPILogger extends ITPILogger {
 			TPILogger.tl.executorService.schedule(() -> trace(), 4, TimeUnit.SECONDS); // 延遲 4 秒後
 		}
 
+		traceMsg.append(Thread.currentThread().getName() + "::");
 		String lineNumberStr = TPILogInfo.getLineNumber2();
 		if (delayTRACELineNumberStr.equals(lineNumberStr)) {
 			traceMsg.append("\t..." + logMsg + "\n");
@@ -471,7 +503,8 @@ public class TPILogger extends ITPILogger {
 			log.getLogMsg().append(traceMsg.toString()); // 載入 buffer
 			traceMsg.delete(0, traceMsg.length()); // 清空 buffer
 			delayTRACELineNumberStr = "";
-			TPIFileLoggerQueue.put(TPIFileLoggerQueue.TRACE, "[ " + log.getLine() + "]\n" + log.getLogMsg().toString());
+			String msg = getLotMsg(log);
+			TPIFileLoggerQueue.put(TPIFileLoggerQueue.TRACE, msg);
 		} catch (InterruptedException e) {
 			// 重新設置中斷狀態
 			Thread.currentThread().interrupt();
@@ -492,9 +525,9 @@ public class TPILogger extends ITPILogger {
 		TPILogInfo log = new TPILogInfo();
 		try {
 			log.setLevel("WARN");
-			log.getLogMsg().append(logMsg);
-			TPIFileLoggerQueue.put(TPIFileLoggerQueue.WARN,
-					"[ " + log.getLine() + "]\n\t" + log.getLogMsg().toString());
+			log.getLogMsg().append(Thread.currentThread().getName() + "::" + logMsg);
+			String msg = getLotMsg(log);
+			TPIFileLoggerQueue.put(TPIFileLoggerQueue.WARN, msg);
 		} catch (InterruptedException e) {
 			// 重新設置中斷狀態
 			Thread.currentThread().interrupt();
@@ -506,6 +539,17 @@ public class TPILogger extends ITPILogger {
 		if (getOnlineFlagByCache()) {
 			sendLogPacket(log);
 		}
+	}
+	
+	// 取得訊息內容
+	private String getLotMsg(TPILogInfo log) {
+		String userName = TPILogger.lcUserName;
+		if(DgrDeployRole.MEMORY.value().equals(getDeployRole())) {
+			userName = "["+TPILogger.lcUserName+"]";
+		}
+		
+		return  "\n\t" + userName + "::" +
+				"\n\t[" + log.getLine() + "]\n\t" + log.getLogMsg().toString() + "\n";
 	}
 
 	private void sendLogPacket(TPILogInfo log) {
@@ -545,6 +589,7 @@ public class TPILogger extends ITPILogger {
 	}
 
 	private void connect() {
+		tl.info(".............TPILogger.connection()...............");
 		while (true) {
 			try {
 				// wait 10 sec and print msg.
@@ -583,21 +628,19 @@ public class TPILogger extends ITPILogger {
 			}
 		}
 
-		// System.out.println("\n...0.Client LC 名稱設定 start... :" + prifixUserName + uuid
-		// + "\n");
-		lc.setUserName(prifixUserName + "(" + instanceId + ")-" + uuid);
+		TPILogger.tlDeployRole = deployRole;
+		TPILogger.lcUserName = prifixUserName + "(" + instanceId + ")-" + uuid;
+		lc.setUserName(TPILogger.lcUserName);
 
 		// wait()
 		myWait_DoSetUserName();
 
 		// 傳送 node Info 給 Keeper Server, 這樣才能取得 version
-		sendNodeInfo();
-//		sendDbInfo();
+		// sendNodeInfo(); 之後的程序會再做一次, 故這裡不用做了 2024/12/31 (John) 
 
 		// 取得所有的 client monitor info
 		lc.send(new RequireAllClientListPacket());
 
-//		mySleep(3000);
 		myWait_RequireAllClientListPacket();
 
 		LinkedList<ClientKeeper> allClientList = (LinkedList<ClientKeeper>) TPILogger.lc.paramObj.get("allClientList");
@@ -636,36 +679,50 @@ public class TPILogger extends ITPILogger {
 		TPILogger.lc.paramObj.put("changeDbInfo", getChangeDbConnInfoService());
 		TPILogger.lc.paramObj.put(DBINFOMAP, dbInfoMap);
 
+		if (TPILogger.isFirstConnection == true) {
+		}
+		createThreadStarter();
+		
+		// 控制後續的非首次連線
+		TPILogger.isFirstConnection = false;
+				
+	}
+
+	private void createThreadStarter() {
+		TPILogger.threadCreateTiem = System.currentTimeMillis();
 		// 定期跟 KP Server回報主機的資訊。
 		// Memory Role 不啟動
-		report2Keeper();
-
+		report2Keeper(TPILogger.threadCreateTiem);
+		
 		// tsmp_monitor_log 定期寫入 ES.
 		// Memory Role 不啟動
-		report2ESLog();
-
-		// 排程器啟動程式
-		startRunScheduler();
-
+		report2ESLog(TPILogger.threadCreateTiem);
+		
 		// 定期跟 KP Server回報website流量。
 		// Memory Role 不啟動
-		report2KeeperByWebsiteThroughput();
-
+		report2KeeperByWebsiteThroughput(TPILogger.threadCreateTiem);
+		
+		// 排程器啟動程式
+		startRunScheduler();
+		
 		// 判斷aws環境 呼叫aws 的計量API.
 		// Memory Role 不啟動
 		callAwsRegisterUsage();
-
+		
 		if (tomcatGraceful) {
 			startTomcat();
 		}
-
+		
 		// In-Memory, 系統啟動時,初始化 Landing 的最後更新時間為現在時間, 以使 GTW(In-Memory) 做同步
 		initialLandingUpdateTime();
-
+		
 		// In-Memory, 加上定期呼叫 Landing API 內容
 		// 定期呼叫 Landing API,以更新 GTW(In-Memory)的資料
 		// Landing Role 不啟動
-		inMemoryGtwRefresh2Landing();
+		if (TPILogger.isFirstConnection == false) {
+			// 首次連 keeper 時不啟動
+			inMemoryGtwRefresh2Landing(TPILogger.threadCreateTiem);
+		}
 	}
 
 	private void createLinkerClient() throws UnknownHostException, IOException {
@@ -677,56 +734,95 @@ public class TPILogger extends ITPILogger {
 
 		int dgrKeeper_port = Integer.parseInt(dgrKeeper_portStr);
 
-		// role = Memory 另外使用一個 +10 的 port
+		// role = Memory 採用 127.0.0.1
 		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
-			TPILogger.tl.info("I am [Memory] Role, DGR Keeper IP = [127.0.0.1] ");
+			TPILogger.tl.info("\n...I am [Memory] Role, DGR Keeper IP = [127.0.0.1]\n");
 			dgrKeeper_ip = "127.0.0.1";
 		}
+		
+		// role = 127db (取代客戶自建RDB,以 DGR 做為 RDB), 採用 127.0.0.1 
+//		if (DgrDeployRole.DB127.value().equalsIgnoreCase(deployRole)) {
+//			TPILogger.tl.info("I am [127db] Role, DGR Keeper IP = [127.0.0.1] ");
+//			dgrKeeper_ip = "127.0.0.1";
+//		}
 
 		// role = Memory 另外使用一個 +10 的 port
 		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
-			TPILogger.tl.info("I am [Memory] Role, DGR Keeper Port + [10] ");
+			TPILogger.tl.info("\n...I am [Memory] Role, DGR Keeper Port + [10]\n");
 			dgrKeeper_port = dgrKeeper_port + 10;
 		}
+		
+		// 第一次啟動也是採用 127.0.0.1
+		if (isFirstConnection == true) {
+			TPILogger.tl.info("\n\n...isFirstConnection == true, DGR Keeper IP = [127.0.0.1]\n\n");
+			dgrKeeper_ip = "127.0.0.1";
+		} 
 
-		lc = new LinkerClient(dgrKeeper_ip, dgrKeeper_port, Role.admin, lcNofify);
+		TPILogger.lc = new LinkerClient(dgrKeeper_ip, dgrKeeper_port, Role.admin, lcNofify);
 	}
 
 	private void wait10Sec2ConnectKPServ() throws InterruptedException {
 		for (int i = 0; i < 10; i++) {
-			if (paramBefore == null)
+			if (paramBefore == null || hasSecondConnectionStarting == true)
 				break;
 			Thread.sleep(1000);
 			System.out.println("wait SQL_RDB or KeeperServer connection...." + i);
 		}
+		
+		hasSecondConnectionStarting = false;
 	}
 
 	private Object inMemoryGtwRefresh2LandingLock = new Object();
 
-	private void inMemoryGtwRefresh2Landing() {
+	private void inMemoryGtwRefresh2Landing(long threadCreateTiem01) {
 
 		// role 不是 Memory 就不跑 Thread
 		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole) == false) {
-			TPILogger.tl.info("I am not a [Memory] Role rather than [" + deployRole + "]");
+			TPILogger.tl.info("\n...I am not a [Memory] Role rather than [" + deployRole + "]\n");
 			return;
 		}
 
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-
+				
 				// I'm Memory Role
-				TPILogger.tl.info("My role is [" + deployRole + "]");
-
+				TPILogger.tl.info("\n...My role is [" + deployRole + "]....inMemoryGtwRefresh2Landing()... \n");
+				
+				long threadCreateTiem = threadCreateTiem01 + 2500;
 				while (lc != null) {
+					if (TPILogger.threadCreateTiem > threadCreateTiem) {
+						TPILogger.tl.info("\n...inMemoryGtwRefresh2Landing()=" + Thread.currentThread().getName() + "...EXIT...");
+						return; //防止 keeper re-connection 造成之前的 Thread 仍然沒有消減
+					}
 					try {
 //						Thread.sleep(1000);
 						synchronized (inMemoryGtwRefresh2LandingLock) {
 							inMemoryGtwRefresh2LandingLock.wait(deployIntervalMs); // 取代原來的 sleep(1000), 以免阻塞;
 						}
+						
+						// 啟動第一次連線 client 後, lc 有存到資料, 才開始調用
+						if (TPILogger.lc == null) {
+							continue;
+						}
+						String port = TPILogger.lc.param.get("server.port"); // TsmpCoreTokenInitializerInit.init() 已有 put
+						if (port == null) {
+							continue;
+						}
 
 						// In-Memory 調用 Landing 的 API
-						inMemoryGtwRefresh2LandingService.landingGtw(nodeInfoPacket);
+						nodeInfoPacket = sendNodeInfo();
+						
+						String threadStatus = "...No Enterprise Service...";
+						if (undertowMetricsService != null) {
+							threadStatus = undertowMetricsService.webserverProperties();
+						}
+						UndertowMetricsPacket undertowMetricsPacket = new UndertowMetricsPacket(lc.userName, threadStatus);
+						
+						String uriStatus = GatewayFilter.fetchUriHistoryList();
+						UrlStatusPacket urlStatusPacket = new UrlStatusPacket(lc.userName, uriStatus);
+						
+						inMemoryGtwRefresh2LandingService.landingGtw(nodeInfoPacket, undertowMetricsPacket, urlStatusPacket);
 					} catch (InterruptedException e) {
 						TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 						Thread.currentThread().interrupt();
@@ -762,6 +858,13 @@ public class TPILogger extends ITPILogger {
 	private static Tomcat tomcat;
 
 	private void startTomcat() {
+
+		if (TPILogger.isFirstConnection == false) {
+			// 非首次連線
+			TPILogger.tl.info("\n...startTomcat()=" + Thread.currentThread().getName() + "...No re-start...");
+			return; //防止 keeper re-connection 產生新的 Thread
+		}
+
 		new Thread(() -> {
 			tomcat = new Tomcat();
 			tomcat.setPort(8081);
@@ -811,9 +914,12 @@ public class TPILogger extends ITPILogger {
 				}
 			}
 			// 等待未完成的
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+				Thread thread = new Thread(r);
+				thread.setName("graceful-shutdow-Thread");
+				return thread;
+			});
 			executor.submit(() -> {
-
 				tomcat.getServer().await();
 			});
 
@@ -850,11 +956,11 @@ public class TPILogger extends ITPILogger {
 	}
 
 	private void callAwsRegisterUsage() {
-//		// role 是 Memory 就不跑 Thread
-//		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
-//			TPILogger.tl.info("I am [Memory] Role, Pls don't call [AWS metering API] ");
-//			return;
-//		}
+		if (TPILogger.isFirstConnection == false) {
+			// 非首次連線
+			TPILogger.tl.info("\n...callAwsRegisterUsage()=" + Thread.currentThread().getName() + "...No re-start...");
+			return; //防止 keeper re-connection 產生新的 Thread
+		}
 
 		Boolean result = false;
 		StringBuffer msgbuf = new StringBuffer();
@@ -926,6 +1032,12 @@ public class TPILogger extends ITPILogger {
 	 * 排程器啟動程式
 	 */
 	private void startRunScheduler() {
+		if (TPILogger.isFirstConnection == false) {
+			// 非首次連線
+			TPILogger.tl.info("\n...startRunScheduler()=" + Thread.currentThread().getName() + "...No re-start...");
+			return; //防止 keeper re-connection 產生新的 Thread
+		}
+		
 		boolean isSchedulerEnabled = isSchedulerEnabled();
 		if (isSchedulerEnabled
 				&& (this.scheduler_t_refresh == null
@@ -1060,22 +1172,32 @@ public class TPILogger extends ITPILogger {
 
 	private Object report2ESLogLock = new Object();
 
-	private void report2ESLog() {
-//		// role 是 Memory 就不跑 Thread
-//		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
-//			TPILogger.tl.info("I am [Memory] Role, Pls don't startup [report 2 ES] ");
-//			return;
-//		}
+	private void report2ESLog(long threadCreateTiem01) {
 
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				long threadCreateTiem = threadCreateTiem01;
 				while (lc != null) {
+					if (TPILogger.threadCreateTiem > threadCreateTiem) {
+						TPILogger.tl.info("\n...report2ESLog()=" + Thread.currentThread().getName() + "...EXIT...");
+						return;  //防止 keeper re-connection 造成之前的 Thread 仍然沒有消減
+					}
 					try {
 //						Thread.sleep(1000);
 						synchronized (report2ESLogLock) {
 							report2ESLogLock.wait(1000); // 取代原來的 sleep(1000), 以免阻塞;
 						}
+						
+						// 啟動第一次連線 client 後, lc 有存到資料, 才開始調用
+						if (TPILogger.lc == null) {
+							continue;
+						}
+						String port = TPILogger.lc.param.get("server.port"); // TsmpCoreTokenInitializerInit.init() 已有 put
+						if (port == null) {
+							continue;
+						}
+						
 						// 監控Host,寫入ES
 						getMonitorHostService().execMonitor();
 					} catch (InterruptedException e) {
@@ -1097,27 +1219,33 @@ public class TPILogger extends ITPILogger {
 	 */
 	private Object report2KeeperLock = new Object();
 
-	private void report2Keeper() {
-//		// role 是 Memory 就不跑 Thread
-//		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
-//			TPILogger.tl.info("I am [Memory] Role, Pls don't startup [report 2 Keeper serv] ");
-//			return;
-//		}
-
+	private void report2Keeper(long threadCreateTiem01) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				long threadCreateTiem = threadCreateTiem01;
 				while (lc != null) {
+					if (TPILogger.threadCreateTiem > threadCreateTiem) {
+						TPILogger.tl.info("\n...report2Keeper()=" + Thread.currentThread().getName() + "...EXIT...");
+						return; //防止 keeper re-connection 造成之前的 Thread 仍然沒有消減
+					}
+//					TPILogger.tl.info("\nreport2Keeper: serverIP = " + lc.serverIP + "LC Ref: " + lc + "\n");
 					try {
 //						Thread.sleep(1000);
 						synchronized (report2KeeperLock) {
 							report2KeeperLock.wait(1000); // 取代原來的 sleep(1000), 以免阻塞;
 						}
-
 						// 傳送 Node Info 給 Keeper server
 						nodeInfoPacket = sendNodeInfo();
 						lc.send(nodeInfoPacket);
 						lc.send(new RequireAllClientListPacket());
+						String threadStatus = "...No Enterprise Service...";
+						if (undertowMetricsService != null) {
+							threadStatus = undertowMetricsService.webserverProperties();
+						}
+						lc.send(new UndertowMetricsPacket(lc.userName, threadStatus));
+						String uriStatus = GatewayFilter.fetchUriHistoryList();
+						lc.send(new UrlStatusPacket(lc.userName, uriStatus));
 					} catch (InterruptedException e) {
 						TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 						// Restore interrupted state...
@@ -1229,17 +1357,16 @@ public class TPILogger extends ITPILogger {
 	 */
 	private Object report2KeeperByWebsiteThroughputLock = new Object();
 
-	private void report2KeeperByWebsiteThroughput() {
-//		// role 是 Memory 就不跑 Thread
-//		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(deployRole)) {
-//			TPILogger.tl.info("I am [Memory] Role, Pls don't startup [report 2 Website TPS] ");
-//			return;
-//		}
-
+	private void report2KeeperByWebsiteThroughput(long threadCreateTiem01) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				long threadCreateTiem = threadCreateTiem01;
 				while (lc != null) {
+					if (TPILogger.threadCreateTiem > threadCreateTiem) {
+						TPILogger.tl.info("\n...report2KeeperByWebsiteThroughput()=" + Thread.currentThread().getName() + "...EXIT...");
+						return; //防止 keeper re-connection 造成之前的 Thread 仍然沒有消減
+					}
 					try {
 //						Thread.sleep(1000);
 						synchronized (report2KeeperByWebsiteThroughputLock) {

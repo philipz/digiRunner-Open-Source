@@ -9,15 +9,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.CApiKeyUtils;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
@@ -42,12 +42,16 @@ import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.entity.repository.TsmpOrganizationDao;
 import tpi.dgrv4.entity.repository.TsmpTokenHistoryDao;
 import tpi.dgrv4.gateway.TCP.Packet.ExternalDgrInfoPacket;
+import tpi.dgrv4.gateway.TCP.Packet.ExternalUndertowMetricsInfosPacket;
+import tpi.dgrv4.gateway.TCP.Packet.ExternalUrlStatusPacket;
 import tpi.dgrv4.gateway.TCP.Packet.NodeInfoPacket;
 import tpi.dgrv4.gateway.constant.DgrDataType;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.ClientKeeper;
 import tpi.dgrv4.gateway.vo.RefreshGTWReq;
 import tpi.dgrv4.gateway.vo.RefreshGTWResp;
+import tpi.dgrv4.tcp.utils.packets.UndertowMetricsPacket;
+import tpi.dgrv4.tcp.utils.packets.UrlStatusPacket;
 
 @Service
 public class RefreshGTWService {
@@ -79,6 +83,10 @@ public class RefreshGTWService {
 
 	// 預編譯的正則表達式，用於匹配協定+主機名和可選的端口
 	private final Pattern urlPattern = Pattern.compile("^(https?)://([^:/]+)(?::(\\d+))?");
+	
+	// 利用 TPILogger 把 msgLog 輸出到 Online Console, 效能問題可以利用 ThreadLocal<StringBuilder> 實作
+	// StringBuffer 的高併發替代品 StringBuilder(非同步) + ThreadLocal(多執行緒安全性)
+	private static final ThreadLocal<StringBuilder> sbBuilderHolder = ThreadLocal.withInitial(() -> new StringBuilder());
 
 	public RefreshGTWResp updateGTWInfo(RefreshGTWReq refreshGTWReq, HttpServletRequest request, HttpHeaders headers) {
 		RefreshGTWResp resp = new RefreshGTWResp();
@@ -91,14 +99,21 @@ public class RefreshGTWService {
 			String capiKey = "";
 
 			cuuid = headers.getFirst("cuuid");
-			capiKey = headers.getFirst("capi_key");
+			capiKey = headers.getFirst("capi-key");
 
 			// 驗證 CApiKey
 			boolean isValidate = CApiKeyUtils.verifyCKey(cuuid, capiKey);
 			if (!isValidate) {
-				TPILogger.tl.error("cuuid :" + cuuid);
-				TPILogger.tl.error("cApikey :" + capiKey);
-				throw TsmpDpAaRtnCode._1522.throwing();
+				StringBuffer sb = new StringBuffer();
+				sb.append("\n");
+				sb.append("requestURI: " + request.getRequestURI() + "\n");
+				sb.append("RemoteAddr: " + request.getRemoteAddr() + "\n");
+				sb.append("cuuid :" + cuuid + "\n");
+				sb.append("cApikey :" + capiKey + "\n");
+				sb.append("CApiKeyUtils.verifyCKey ==  false \n");
+				sb.append("\n");
+				TPILogger.tl.error(sb.toString());
+				throw TsmpDpAaRtnCode._1522.throwing(); // 1522 - CApiKey驗證失敗
 			}
 
 			// 把 Landing 收到的 GTW 相關資料(CPU, Mem, API每秒轉發吞吐量...等),傳送到 Keeper Server
@@ -121,7 +136,18 @@ public class RefreshGTWService {
 
 			// 匯出 Token 資料
 			resp = exportTokenData(refreshGTWReq, resp);
-
+						
+			if(refreshGTWReq.getLogMsg() != null && refreshGTWReq.getLogMsg().size() > 0) {
+				StringBuilder sb = sbBuilderHolder.get();
+				for(String msg : refreshGTWReq.getLogMsg()) {
+					sb.append(msg);
+				}
+				String result = sb.toString();
+				if(StringUtils.hasText(result)) {
+					this.logger.info(result);
+				}				
+				sb.setLength(0); // 清空
+			}			
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
@@ -130,6 +156,10 @@ public class RefreshGTWService {
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 		return resp;
+	}
+	
+	public void unload() {
+		sbBuilderHolder.remove();
 	}
 
 	/**
@@ -317,6 +347,8 @@ public class RefreshGTWService {
 	private void addExternalDgrInfoToKeeper(RefreshGTWReq refreshGTWReq, HttpServletRequest request) {
 		// 從請求物件中獲取節點資訊包
 		NodeInfoPacket nodeInfoPacket = refreshGTWReq.getNodeInfoPacket();
+		UndertowMetricsPacket undertowMetricsPacket = refreshGTWReq.getUndertowMetricsPacket();
+		UrlStatusPacket urlStatusPacket = refreshGTWReq.getUrlStatusPacket();
 		// 從請求物件中獲取 dgr 的 ID
 		String gtwID = refreshGTWReq.getGtwID();
 		// 從請求物件中獲取 dgr 的名稱，名稱格式為 "gateway-xxxx"
@@ -339,9 +371,11 @@ public class RefreshGTWService {
 		// 如果日誌記錄器的 lc 屬性非空，則發送一個包含 ClientKeeper 資訊的 ExternalDgrInfoPacket
 		if (logger.lc != null) {
 			logger.lc.send(new ExternalDgrInfoPacket(clientKeeper));
+			logger.lc.send(new ExternalUndertowMetricsInfosPacket(undertowMetricsPacket));
+			logger.lc.send(new ExternalUrlStatusPacket(urlStatusPacket));
 		} else {
 			// 若日誌記錄器的 lc 屬性為空，則記錄錯誤信息，表示無法將外部 dgr 資料發送到 Keeper 伺服器
-			this.logger.error("The program lc is null and cannot send external dgr data to the Keeper server");
+			this.logger.warn("The program lc is null and cannot send external dgr data to the Keeper server\n");
 		}
 	}
 

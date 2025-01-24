@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.entity.ContentType;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,7 @@ import tpi.dgrv4.codec.utils.SHA256Util;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.ifs.TraceCodeUtilIfs;
+import tpi.dgrv4.common.utils.CheckmarxCommUtils;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -68,6 +70,7 @@ import tpi.dgrv4.entity.entity.jpql.TsmpReqLog;
 import tpi.dgrv4.entity.entity.jpql.TsmpResLog;
 import tpi.dgrv4.entity.repository.TsmpReqLogDao;
 import tpi.dgrv4.entity.repository.TsmpResLogDao;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.component.DgrcRoutingHelper;
 import tpi.dgrv4.gateway.component.TokenHelper;
 import tpi.dgrv4.gateway.component.TokenHelper.JwtPayloadData;
@@ -94,6 +97,7 @@ import tpi.dgrv4.gateway.vo.TsmpApiLogResp;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
 
+@Slf4j
 @Service
 public class CommForwardProcService {
 	
@@ -404,8 +408,8 @@ public class CommForwardProcService {
 	}
 
 	public TsmpApi getTsmpApi(HttpServletRequest httpReq) throws Exception {
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = getAttribute(httpReq, GatewayFilter.moduleName);
+		String apiId = getAttribute(httpReq, GatewayFilter.apiId);
 
 		TsmpApi tsmpApi = null;
 		TsmpApiId tsmpApiId = new TsmpApiId(apiId, moduleName);
@@ -419,8 +423,8 @@ public class CommForwardProcService {
 	}
 
 	public TsmpApiReg getTsmpApiReg(HttpServletRequest httpReq) throws Exception {
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = getAttribute(httpReq, GatewayFilter.moduleName);
+		String apiId = getAttribute(httpReq, GatewayFilter.apiId);
 
 		TsmpApiReg tsmpApiReg = null;
 		TsmpApiRegId apiRegId = new TsmpApiRegId(apiId, moduleName);
@@ -548,10 +552,10 @@ public class CommForwardProcService {
 		String addr = srcUrl;
 
 		/* 
-		 * 1. Composer API, 則 Header 要加上 "capi_key"
+		 * 1. Composer API, 則 Header 要加上 "capi-key"
 		 * 若目標路徑有 TSMP_COMPOSER_ADDRESS 的值, 例如: https://10.20.30.88:18440,
 		 * dgrc --> Backend(Composer),
-		 * 則傳送 capi_key
+		 * 則傳送 capi-key
 		 */
 		for (String a : compAddrs) { 
 			if (addr.contains(a)) {
@@ -661,9 +665,9 @@ public class CommForwardProcService {
 		if (cApiKeySwitch) {
 			String uuidForCapiKey = UUID.randomUUID().toString();
 			String cuuid = uuidForCapiKey.toUpperCase();
-			String capi_key = CApiKeyUtils.signCKey(cuuid);
+			String capikey = CApiKeyUtils.signCKey(cuuid);
 			headers.put("cuuid", Arrays.asList(cuuid));
-			headers.put("capi_key", Arrays.asList(capi_key));
+			headers.put("capi-key", Arrays.asList(capikey));
 			headers.put("uuid", Arrays.asList(uuid));
 		}
 
@@ -730,20 +734,20 @@ public class CommForwardProcService {
 		 */
 		String dgrCspVal = getTsmpSettingService().getVal_DGR_CSP_VAL();// 例如: "*" 或 "https://10.20.30.88:18442
 																		// https://10.20.30.88:28442"
-		String cspVal = String.format(GatewayFilter.cspDefaultVal, dgrCspVal);
 
 		httpRes.setHeader("Access-Control-Allow-Origin", getTsmpSettingService().getVal_DGR_CORS_VAL()); // 從 TsmpSetting 取值，動態回傳。
 		//httpRes.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, SignCode, Language"); // CORS
 		httpRes.setHeader("Access-Control-Allow-Headers", corsAllowHeaders); //"3. corsAllowHeaders = " + corsAllowHeaders
 		httpRes.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,PATCH,DELETE"); // CORS
-
-		httpRes.setHeader("Content-Security-Policy", cspVal);
+		if (StringUtils.hasText(dgrCspVal) && !!"*".equals(dgrCspVal.trim()))
+		httpRes.setHeader("Content-Security-Policy", dgrCspVal);
 		httpRes.setHeader("X-Frame-Options", "sameorigin");
 		httpRes.setHeader("X-Content-Type-Options", "nosniff");
-		httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; preload; includeSubDomains");
 		httpRes.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		httpRes.setHeader("Cache-Control", "no-cache");
 		httpRes.setHeader("Pragma", "no-cache");
+		httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
 
 		// in the phase don't do this, then next phase will do copy RESPONSE header
 //		respObj.respHeader.forEach((k, vs)->{
@@ -768,7 +772,12 @@ public class CommForwardProcService {
 //		}
 
 		// 清空 retry 之前的 header
-		httpRes.reset(); //code, headers
+		try {
+			httpRes.reset(); //code, headers
+		} catch (Exception e) {
+			TPILogger.tl.warn("is commited:" + httpRes.isCommitted() + "|" + StackTraceUtil.logStackTrace(e));
+		}
+
 
 		httpRes.setStatus(status);
 		respHeader.remove("Transfer-Encoding"); // 它不能回傳
@@ -797,7 +806,7 @@ public class CommForwardProcService {
 		 */
 		String dgrCspVal = getTsmpSettingService().getVal_DGR_CSP_VAL();// 例如: "*" 或 "https://10.20.30.88:18442
 																		// https://10.20.30.88:28442"
-		String cspVal = String.format(GatewayFilter.cspDefaultVal, dgrCspVal);
+//		String cspVal = String.format(GatewayFilter.cspDefaultVal, dgrCspVal);
 
 		httpRes.setHeader("Access-Control-Allow-Origin", getTsmpSettingService().getVal_DGR_CORS_VAL()); // 從 TsmpSetting 取值，動態回傳。
 		//httpRes.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, SignCode, Language"); // CORS
@@ -805,13 +814,15 @@ public class CommForwardProcService {
 
 		httpRes.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,PATCH,DELETE"); // CORS
 
-		httpRes.setHeader("Content-Security-Policy", cspVal);
+		if (!"*".equals(dgrCspVal.trim()))
+			httpRes.setHeader("Content-Security-Policy", dgrCspVal);
 		httpRes.setHeader("X-Frame-Options", "sameorigin");
 		httpRes.setHeader("X-Content-Type-Options", "nosniff");
-		httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; preload; includeSubDomains");
 		httpRes.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		httpRes.setHeader("Cache-Control", "no-cache");
 		httpRes.setHeader("Pragma", "no-cache");
+		httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
 
 		respHeader.forEach((k, vs) -> {
 			vs.forEach((v) -> {
@@ -1014,123 +1025,8 @@ public class CommForwardProcService {
 	}
 
 	public String maskBody(Map<String, String> maskInfo, String mbody) {
-		if (maskInfo != null) {
-
-			String bodyMaskPolicy = maskInfo.get("bodyMaskPolicy");
-			String bodyMaskPolicySymbol = maskInfo.get("bodyMaskPolicySymbol");
-			String bodyMaskKeyword = maskInfo.get("bodyMaskKeyword");
-			if (StringUtils.hasLength(bodyMaskKeyword)) {
-				String[] bodyMaskKeywordArr = bodyMaskKeyword.split(",");
-				int bodyMaskPolicyNum = Integer.parseInt(maskInfo.get("bodyMaskPolicyNum"));
-				if (mbody.length() > (bodyMaskPolicyNum * 2)) {
-
-					if ("1".equals(bodyMaskPolicy)) {
-						for (String key : bodyMaskKeywordArr) {
-							int startIndex = 0;
-							while (mbody.indexOf(key, startIndex) >= 0) {
-								int matchIndex = mbody.indexOf(key, startIndex);
-
-								int startindex = matchIndex - bodyMaskPolicyNum;
-								if (startindex < 0) {
-									startindex = 0;
-								}
-								int endindex = matchIndex + key.length() + bodyMaskPolicyNum;
-								if (endindex > mbody.length() - 1) {
-									endindex = mbody.length();
-								}
-
-								mbody = mbody.substring(0, startindex) + bodyMaskPolicySymbol
-										+ mbody.substring(matchIndex, matchIndex + key.length()) + bodyMaskPolicySymbol
-										+ mbody.substring(endindex);
-
-								startIndex = matchIndex + key.length() + 1;
-							}
-						}
-						return mbody;
-					}
-					if ("2".equals(bodyMaskPolicy)) {
-						for (String key : bodyMaskKeywordArr) {
-							int startIndex = 0;
-							while (mbody.indexOf(key, startIndex) >= 0) {
-								int matchIndex = mbody.indexOf(key, startIndex);
-
-								int startindex = matchIndex - bodyMaskPolicyNum;
-								if (startindex < 0) {
-									startindex = 0;
-								}
-
-								mbody = mbody.substring(0, startindex) + bodyMaskPolicySymbol
-										+ mbody.substring(matchIndex);
-
-								startIndex = matchIndex + key.length() + 1;
-							}
-						}
-						return mbody;
-
-					}
-					if ("3".equals(bodyMaskPolicy)) {
-						for (String key : bodyMaskKeywordArr) {
-							int startIndex = 0;
-							while (mbody.indexOf(key, startIndex) >= 0) {
-								int matchIndex = mbody.indexOf(key, startIndex);
-
-								int endindex = matchIndex + key.length() + bodyMaskPolicyNum;
-								if (endindex > mbody.length() - 1) {
-									endindex = mbody.length();
-								}
-								mbody = mbody.substring(0, matchIndex + key.length()) + bodyMaskPolicySymbol
-										+ mbody.substring(endindex);
-
-								startIndex = matchIndex + key.length() + 1;
-							}
-						}
-						return mbody;
-					}
-					if ("4".equals(bodyMaskPolicy)) {
-						String regex = "(?<jsonField>\\\"(" + bodyMaskKeyword
-								+ ")\\\"\\s*?:)\\s*?(?<jsonvalue>(true|false|\\d+|\\\"\\{.*?\\}\\\")|\\\".*?\\\"|\\[.*?\\])|(?<xmlField><(?<fieldname>"
-								+ bodyMaskKeyword + ")>)\\s*?(?<xmlvalue>.*?)\\s*?(?<xmlEnd><\\/\\k<fieldname>>)";
-
-						Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-
-						Matcher matcher = pattern.matcher(mbody);// 不接受 null
-
-						// 遍歷所有匹配的字段，進行替換
-						StringBuffer result = new StringBuffer();
-						while (matcher.find()) {
-							String field = matcher.group("jsonField");
-
-							if (!StringUtils.hasLength(field)) {
-								field = matcher.group("xmlField");
-							}
-							String fieldValue = matcher.group("jsonvalue");
-
-							if (!StringUtils.hasLength(fieldValue))
-								fieldValue = matcher.group("xmlvalue");
-
-							if (StringUtils.hasLength(fieldValue)) {
-								String maskedField = maskField(fieldValue, bodyMaskPolicyNum, bodyMaskPolicySymbol);
-								String xmlEnd = StringUtils.hasLength(matcher.group("xmlEnd")) ? matcher.group("xmlEnd")
-										: new String();
-
-								matcher.appendReplacement(result, (field + maskedField + xmlEnd));
-							}
-						}
-						matcher.appendTail(result);
-						mbody = result.toString();
-					}
-				}
-			}
-		}
-		return mbody;
-	}
-
-	private static String maskField(String fieldValue, int bodyMaskPolicyNum, String bodyMaskPolicySymbol) {
-
-		if (fieldValue.length() > bodyMaskPolicyNum) {
-			return fieldValue.substring(0, bodyMaskPolicyNum) + bodyMaskPolicySymbol + fieldValue.charAt(fieldValue.length() - 1);
-		}
-		return fieldValue;
+		//checkmarx, Unchecked Input for Loop Condition
+		return CheckmarxCommUtils.sanitizeForCheckmarx(maskInfo, mbody);
 	}
 
 	public Map<String, List<String>> getEsHeaderMap(HttpServletRequest request) {
@@ -1155,8 +1051,9 @@ public class CommForwardProcService {
 		Map<String, String> logParams = new HashMap<>();
 		logParams.put("url", httpReq.getRequestURI());
 		logParams.put("queryString", httpReq.getQueryString());
-		logParams.put("moduleName", httpReq.getAttribute(GatewayFilter.moduleName).toString());
-		logParams.put("txid", httpReq.getAttribute(GatewayFilter.apiId).toString());
+		// 找不到 module 就改用 uri
+		logParams.put("moduleName", getAttribute(httpReq, GatewayFilter.moduleName));
+		logParams.put("txid", getAttribute(httpReq, GatewayFilter.apiId));
 		logParams.put("httpMethod", httpReq.getMethod());
 		logParams.put("orgId", httpReq.getAttribute(TokenHelper.ORG_ID) == null ? ""
 				: ((String) httpReq.getAttribute(TokenHelper.ORG_ID)));
@@ -1171,6 +1068,13 @@ public class CommForwardProcService {
 
 		Map<String, List<String>> esHeaderMap = getEsHeaderMap(httpReq);
 		return addEsTsmpApiLogReq1(uuid, logParams, esHeaderMap, mbody, entry, aType);
+	}
+
+	// 可避免 找不到 moduleName 的問題
+	private String getAttribute(HttpServletRequest httpReq, String name) {
+		Object value = httpReq.getAttribute(name);
+		if (value == null) value = httpReq.getRequestURI();
+		return value.toString();
 	}
 
 	public TsmpApiLogReq addEsTsmpApiLogReq1(String uuid, Map<String, String> logParams, //
@@ -1303,7 +1207,9 @@ public class CommForwardProcService {
 		// createIndex(arrEsUrl[index], indexName, arrIdPwd[index]);
 		// }
 
-		String strJson = getObjectMapper().writeValueAsString(reqVo);
+		//checkmarx, Excessive Data Exposure
+		String strJson = CheckmarxUtils.sanitizeForCheckmarx(objectMapper, reqVo) ;
+		
 //		String esReqUrl = arrEsUrl[index] + indexName + "/_doc";
 
 		// call es add data
@@ -1467,7 +1373,8 @@ public class CommForwardProcService {
 		reqVo2.setUrl(url);
 		reqVo2.setCreateTimestamp(createTimestamp);
 
-		String strJson = getObjectMapper().writeValueAsString(reqVo2);
+		//checkmarx, Excessive Data Exposure
+		String strJson = CheckmarxUtils.sanitizeForCheckmarx(objectMapper, reqVo2) ;
 		String esReqUrl = reqVo.getEsUrl();
 
 		// call es add data
@@ -2505,11 +2412,11 @@ public class CommForwardProcService {
 		twReqRespJweRecipientsList.add(twReqRespJweRecipients);
 
 		TWReqRespJwe twReqRespJwe = new TWReqRespJwe();
-		twReqRespJwe.setProtectedData(jweProtectedHeaderBase64UrlEnc);
-		twReqRespJwe.setTwReqRespJweRecipientsList(twReqRespJweRecipientsList);
-		twReqRespJwe.setIv(jweIvBase64UrlEnc);
-		twReqRespJwe.setCipherText(jweCipherTextBase64UrlEnc);
-		twReqRespJwe.setTag(jweTagBase64UrlEnc);
+		twReqRespJwe.setEncProtectedData(jweProtectedHeaderBase64UrlEnc);
+		twReqRespJwe.setEncTwReqRespJweRecipientsList(twReqRespJweRecipientsList);
+		twReqRespJwe.setEncIv(jweIvBase64UrlEnc);
+		twReqRespJwe.setEncCipherText(jweCipherTextBase64UrlEnc);
+		twReqRespJwe.setEncTag(jweTagBase64UrlEnc); 
 
 		String respStr = getObjectMapper().writeValueAsString(twReqRespJwe);
 		return respStr;
@@ -2522,7 +2429,9 @@ public class CommForwardProcService {
 		// set HTTP Header
 		httpRes.addHeader("javaObject", getClass().getName());
 		httpRes.addHeader("Content-Type", "application/json;charset=UTF-8");
-
+		//checkmarx, Missing HSTS Header
+		httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+		        
 		// set HTTP Resp
 		// 2023/05/03 若這裡註解打開, Response 錯誤訊息時,會有 json 重複問題
 //		String json = objectMapper.writeValueAsString(errRespEntity.getBody());
@@ -2535,8 +2444,8 @@ public class CommForwardProcService {
 			String mbody, String entry, String aType) throws Exception {
 		Map<String, String> logParams = new HashMap<>();
 		logParams.put("uri", httpReq.getRequestURI());
-		logParams.put("moduleName", httpReq.getAttribute(GatewayFilter.moduleName).toString());
-		logParams.put("txid", httpReq.getAttribute(GatewayFilter.apiId).toString());
+		logParams.put("moduleName", getAttribute(httpReq, GatewayFilter.moduleName));
+		logParams.put("txid", getAttribute(httpReq, GatewayFilter.apiId));
 		logParams.put("httpMethod", httpReq.getMethod());
 		logParams.put("orgId", httpReq.getAttribute(TokenHelper.ORG_ID) == null ? ""
 				: ((String) httpReq.getAttribute(TokenHelper.ORG_ID)));

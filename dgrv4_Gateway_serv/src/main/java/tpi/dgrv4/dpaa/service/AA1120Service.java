@@ -191,6 +191,8 @@ public class AA1120Service {
 	        String headerKey = "Content-Disposition";
 	        String headerValue = "attachment; filename=" + resp.getFileName();//匯出的檔名是前端控制的
 	        httpResp.setHeader(headerKey, headerValue);
+	        //checkmarx, Missing HSTS Header
+			httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 	        
 	        getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, resp.getData());
 	       

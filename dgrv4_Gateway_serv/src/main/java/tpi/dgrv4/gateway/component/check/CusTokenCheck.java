@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import tpi.dgrv4.codec.utils.CApiKeyUtils;
+import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.entity.TsmpRtnCode;
 import tpi.dgrv4.entity.exceptions.DgrRtnCode;

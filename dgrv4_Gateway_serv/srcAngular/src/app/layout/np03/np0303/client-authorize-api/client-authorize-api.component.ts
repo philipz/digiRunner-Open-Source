@@ -283,8 +283,11 @@ export class ClientAuthorizeApiComponent extends BaseComponent implements OnInit
         this.message.add({ severity: 'success', summary: `${dict['message.save']} ${dict['message.requisition.client_auth_api']}`, detail: `${dict['message.save']} ${dict['message.success']}!` });
         this.form.reset();
         this.form = this.fb.group(this.resetFormGroup(this.config.data.operate));
-        $('#file').after($('#file').clone().val(""));
-        $('#file').remove();
+
+        const fileInput = document.getElementById("file") as HTMLInputElement;;
+        if (fileInput) {
+          fileInput.value = ''; // 清空檔案選擇
+        }
         this.authApiList = [];
         this.rowcount = this.authApiList.length;
       }

@@ -8,6 +8,7 @@ public enum DgrDeployRole {
 
 	LANDING("Landing"),
 	MEMORY("Memory"),
+	DB127("127db"),
 	;
 	private String value;
 

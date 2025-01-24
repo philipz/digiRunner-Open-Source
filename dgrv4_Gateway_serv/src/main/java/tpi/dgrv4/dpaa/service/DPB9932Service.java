@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.transaction.Transactional;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.DateTimeUtil;
@@ -27,6 +26,7 @@ import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.vo.DPB9932Resp;
 import tpi.dgrv4.entity.entity.DgrWebSocketMapping;
 import tpi.dgrv4.entity.repository.DgrWebSocketMappingDao;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.util.DigiRunnerGtwDeployProperties;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
@@ -72,9 +72,17 @@ public class DPB9932Service {
 			 Sheet sheet = workbook.getSheetAt(0);
 			 boolean isFirst = true;
 			 DataFormatter formatter = new DataFormatter();
-		     Iterator<Row> rows = sheet.iterator();		     
+		     Iterator<Row> rows = sheet.iterator();	    
 		     Map<String, DgrWebSocketMapping> dgrWebSocketMappingMap = new HashMap<String, DgrWebSocketMapping>();
-		     while (rows.hasNext()) {
+		     
+		     //checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+		     int maxValue = Integer.MAX_VALUE;
+		     int loopIndex = 0;
+		     while (rows.hasNext() && loopIndex <= maxValue) {
+		    	 if(loopIndex == maxValue) {
+		    		 throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " row");
+		    	 }
+		    	 loopIndex++;
 		    	 if(isFirst) {
 		    		 isFirst = false;
 		    		 Row row = rows.next();

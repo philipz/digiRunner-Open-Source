@@ -4,6 +4,7 @@ public class DPB0234ApiDataItem {
     private String apiStatus;
     private String apiName;
     private String apiPath;
+    private String moduleName;
 
     public String getApiStatus() {
         return apiStatus;
@@ -29,12 +30,21 @@ public class DPB0234ApiDataItem {
         this.apiPath = apiPath;
     }
 
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
     @Override
     public String toString() {
         return "DPB0234ApiDataItem{" +
                 "apiStatus='" + apiStatus + '\'' +
                 ", apiName='" + apiName + '\'' +
                 ", apiPath='" + apiPath + '\'' +
+                ", moduleName='" + moduleName + '\'' +
                 '}';
     }
 }

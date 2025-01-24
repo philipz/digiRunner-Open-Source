@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import tpi.dgrv4.codec.utils.RandomSeqLongUtil;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
+import tpi.dgrv4.common.utils.CheckmarxCommUtils;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.vo.DPB0233Req;
@@ -103,8 +104,11 @@ public class DPB0233Service {
 			String rule = item.getRule();
 
 			// 驗證規則的正則表達式是否有效
-			Optional<Pattern> opt = isValidRegex(rule);
-			patterns.add(opt.get());
+			Pattern opt = isValidRegex(rule).orElse(null);
+			if (opt != null) {
+				patterns.add(opt);
+			}
+
 
 			Long botDetectionId = getBotDetectionId(id);
 			Optional<DgrBotDetection> dgrBotDetectionOpt = getDgrBotDetectionDao().findByBotDetectionId(botDetectionId);
@@ -136,7 +140,8 @@ public class DPB0233Service {
 		}
 
 		try {
-			return Optional.of(Pattern.compile(regex));
+			//checkmarx, ReDoS From Regex Injection
+			return CheckmarxCommUtils.sanitizeForCheckmarxRegex(regex);
 		} catch (PatternSyntaxException e) {
 			throw TsmpDpAaRtnCode._2007.throwing();
 		}
@@ -231,7 +236,7 @@ public class DPB0233Service {
 
 		List<DPB0233WhitelistItem> whitelistDataList = req.getWhitelistDataList();
 		if ("Y".equalsIgnoreCase(status) && (whitelistDataList == null || whitelistDataList.isEmpty())) {
-			throw TsmpDpAaRtnCode._2025.throwing("Whitelist Data");
+			throw TsmpDpAaRtnCode._2025.throwing("Allow List Data");
 		}
 
 		if (whitelistDataList == null) {

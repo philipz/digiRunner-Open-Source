@@ -1,0 +1,33 @@
+-- 【dgRv4.4.0 - SQL 異動】
+
+-- Kevin Cheng, 修正 item 顯示字串, 20241112
+
+UPDATE TSMP_DP_ITEMS
+	SET SUBITEM_NAME='Agree'
+	WHERE ITEM_NO='REVIEW_STATUS' AND SUBITEM_NO='ACCEPT' AND LOCALE='en-US';
+UPDATE TSMP_DP_ITEMS
+	SET SUBITEM_NAME='Disagree'
+	WHERE ITEM_NO='REVIEW_STATUS' AND SUBITEM_NO='DENIED' AND LOCALE='en-US';
+UPDATE TSMP_DP_ITEMS
+	SET SUBITEM_NAME='Return'
+	WHERE ITEM_NO='REVIEW_STATUS' AND SUBITEM_NO='RETURN' AND LOCALE='en-US';
+UPDATE TSMP_DP_ITEMS
+	SET SUBITEM_NAME='Cancelled'
+	WHERE ITEM_NO='REVIEW_STATUS' AND SUBITEM_NO='END' AND LOCALE='en-US';
+UPDATE TSMP_DP_ITEMS
+	SET SUBITEM_NAME='取消'
+	WHERE ITEM_NO='REVIEW_STATUS' AND SUBITEM_NO='END' AND LOCALE='zh-TW';
+UPDATE TSMP_DP_ITEMS
+	SET SUBITEM_NAME='Applicant'
+	WHERE ITEM_NO='CHK_LAYER' AND SUBITEM_NO='0' AND LOCALE='en-US';
+
+-- Webber, 修正 DEFAULT_DATA_CHANGE_ENABLED, 20241111
+UPDATE TSMP_SETTING
+	SET MEMO='異動系統預設資料須啟用(true/false)，影響功能如下: 1.使用者維護，禁止(manager、DpUser)刪除操作。 2.角色維護，禁止(ADMIN)刪除操作。 3.角色清單設定，禁止(Administrator)刪除操作。 4.用戶端維護，禁止(adminConsole、DpClient)刪除操作。 5.群組維護，禁止(SMS(Admin Console))刪除操作。'
+	WHERE ID='DEFAULT_DATA_CHANGE_ENABLED';
+
+-- Kevin Cheng, 更新 Mail 顯示內容 , 20241112
+
+UPDATE TSMP_DP_MAIL_TPLT
+	SET TEMPLATE_TXT='<p>Thank you for using digiRunner DP to apply for an Application. The following is the relevant information of your Application.<br /></p><p>Application Name: {{applicationName}}</p><p>client id: {{clientId}}</p><p>client secret: {{clientPw}}</p><p>DGRK API Key: {{apiKey}}</p><p>DGRK Secret Key: {{secretKey}}</p><p>X-API-KEY:</p><p>[[$D, xApiKeyMap, '''']]</p>'
+	WHERE MAILTPLT_ID=20000025;

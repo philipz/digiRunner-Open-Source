@@ -220,7 +220,7 @@ public class TsmpSettingTableInitializer {
 			createTsmpSetting((id = "DGR_HOST_HEADER"), (value = "*"), (memo = "檢查host header,以防止Host Header Injection,default為 *,可改為網域或IP,多組以逗號(,)隔開,ex:10.20.30.88:1920,10.20.30.88:2920"));
 		
 //		  -- 20230609, 將 Content-Security-Policy 的網域值加入 Setting, Mini Lee
-			createTsmpSetting((id = "DGR_CSP_VAL"), (value = "*"), (memo = "Content-Security-Policy header的值,default為 *,可改為網域或IP,多組以空格(\" \")隔開,ex:https://10.20.30.88:1920 https://10.20.30.88:2920"));
+			createTsmpSetting((id = "DGR_CSP_VAL"), (value = "*"), (memo = "Content-Security-Policy header的值,default為 *, * 為不加CSP , 若要加CSP請填入上  \"default-src * 'self' 'unsafe-inline'; img-src https://* 'self' data:;\" , default-src * 此星號可替換為網域或IP,多組以空格(\" \")隔開,ex:https://10.20.30.88:1920 https://10.20.30.88:2920"));
 //        --20230804, GatewayFilter檢查器開關 
 			createTsmpSetting((id = "CHECK_JTI_ENABLE"), (value = "true"), (memo = "當Request包含Authorization時將會檢查此jti於DB中是否過期,若不含此HTTP Header則不檢查, default檢查功能為啟用(true),反之則為停用(false)"));
 			
@@ -282,8 +282,17 @@ public class TsmpSettingTableInitializer {
 	        
 //			-- 20241107, v4 BOT_DETECTION 的設定, Kevin Cheng
 	        createTsmpSetting((id = "BOT_DETECTION_LOG"), (value = "false"), (memo = "Bot Detection 檢查器 Log 是否印出 (true/false)"));
-
+	        
+//			-- 20241114, RDB連線的APIM-default-DB是否可被使用(true/false), Tom
+	        createTsmpSetting((id = "APIM_DEFAULT_DB_ENABLED"), (value = "false"), (memo = "RDB連線的APIM-default-DB是否啟用(true/false)"));
+//          -- 20241223, Log保留天數, Zoe Lee
+			createTsmpSetting((id = "LOG_RETENTION_DAYS"), (value = "7"), (memo = "Log保留天數"));
 			
+//			-- 2024/12/25 requestURI 開關設定
+	        createTsmpSetting((id = "REQUEST_URI_ENABLED"), (value = "false"), (memo = "Obtain request URI information at the Web server entry point. (gatewayfiler.java)"));
+	        
+//	        -- 2024/12/27 HIGHWAY_THRESHOLD, Webber
+	        createTsmpSetting((id = "HIGHWAY_THRESHOLD"), (value = "1000"), (memo = "High speed channel for API requests"));
 		} catch (Exception e) {
 			StackTraceUtil.logStackTrace(e);
 			throw e;

@@ -1,6 +1,7 @@
 package tpi.dgrv4.dpaa.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,10 @@ import tpi.dgrv4.dpaa.vo.DPB0232Req;
 import tpi.dgrv4.dpaa.vo.DPB0232Resp;
 import tpi.dgrv4.dpaa.vo.DPB0232WhitelistItem;
 import tpi.dgrv4.entity.entity.DgrBotDetection;
+import tpi.dgrv4.entity.entity.TsmpSetting;
 import tpi.dgrv4.entity.repository.DgrBotDetectionDao;
 import tpi.dgrv4.entity.repository.DgrBotDetectionDao.BotDetectionType;
+import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
@@ -28,6 +31,9 @@ public class DPB0232Service {
 
 	@Autowired
 	private TsmpSettingService tsmpSettingService;
+
+	@Autowired
+	private TsmpSettingDao tsmpSettingDao;
 
 	public DPB0232Resp queryBotDetectionList(TsmpAuthorization authorization, DPB0232Req req) {
 
@@ -54,7 +60,15 @@ public class DPB0232Service {
 
 	private void checkBotDetection(DPB0232Resp resp) {
 
-		String checkBotDetection = getTsmpSettingService().getVal_CHECK_BOT_DETECTION();
+		String checkBotDetection = null;
+
+		Optional<TsmpSetting> opt = getTsmpSettingDao().findById(getTsmpSettingService().getKey_CHECK_BOT_DETECTION());
+
+		if (opt.isPresent()) {
+			TsmpSetting setting = opt.get();
+			checkBotDetection = setting.getValue();
+		}
+
 		checkBotDetection = getCheckBotDetection(checkBotDetection);
 		resp.setStatus(checkBotDetection);
 	}
@@ -103,6 +117,10 @@ public class DPB0232Service {
 
 		resp.setDataList(items);
 		return resp;
+	}
+
+	protected TsmpSettingDao getTsmpSettingDao() {
+		return tsmpSettingDao;
 	}
 
 	protected DgrBotDetectionDao getDgrBotDetectionDao() {

@@ -3,9 +3,9 @@ package tpi.dgrv4.dpaa.service;
 import static tpi.dgrv4.dpaa.util.ServiceUtil.getKeywords;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import jakarta.annotation.PostConstruct;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,7 @@ import tpi.dgrv4.entity.entity.TsmpSetting;
 import tpi.dgrv4.entity.repository.TsmpSettingDao;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.service.IAllPropertiesService;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 
 @Service
@@ -36,6 +37,9 @@ public class DPB9900Service {
 
 	private Integer pageSize;
 
+	@Autowired(required = false)
+	private IAllPropertiesService allPropertiesService;
+ 
 	public DPB9900Resp queryTsmpSettingList(TsmpAuthorization auth, DPB9900Req req) {
 		String lastId = checkLastId(req.getId());
 		String[] keywords = getKeywords(req.getKeyword(), " ");
@@ -47,6 +51,13 @@ public class DPB9900Service {
 		DPB9900Resp resp = new DPB9900Resp();
 		List<DPB9900Item> dataList = getDataList(settings);
 		resp.setDataList(dataList);
+		
+		Map<String, String> allProperties = new HashMap<>();
+		if (allPropertiesService != null) {
+			allProperties = getAllPropertiesService().getAllProperties();
+		}
+		resp.setAllProperties(allProperties);
+
 		return resp;
 	}
 
@@ -103,5 +114,8 @@ public class DPB9900Service {
 		this.pageSize = getServiceConfig().getPageSize("dpb9900");
 		return this.pageSize;
 	}
-
+	
+	protected IAllPropertiesService getAllPropertiesService() {
+		return allPropertiesService;
+	}
 }

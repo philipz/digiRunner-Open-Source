@@ -48,7 +48,7 @@ export class GtwidpComponent implements OnInit {
     this.formApi = this.fb.group([]);
     this.form = this.fb.group({
       'uname': new FormControl(''),
-      'pwd': new FormControl(''),
+      'mima': new FormControl(''),
       'timeUnit': new FormControl(),
       'validityTime': new FormControl({ value: '', disabled: true }),
     });
@@ -205,10 +205,14 @@ export class GtwidpComponent implements OnInit {
     let reqBody = {
       ReqHeader: this.api.getReqHeader(TxID.dataEncryption),
       ReqBody: {
-        data: this.pwd.value
-      }
-    }
-    const urlEncryption = `${environment.apiUrl}/dgrv4/ssotoken/dataEncryption`;
+        dataMap: {
+          password: this.mima.value,
+          username: this.uname.value,
+        },
+      },
+    };
+    // const urlEncryption = `${environment.apiUrl}/dgrv4/ssotoken/dataEncryption`;
+    const urlEncryption = `${environment.apiUrl}/dgrv4/ssotoken/jweEncryption`;
 
     this.httpClient.post(urlEncryption, reqBody, {
       observe: 'response',
@@ -216,7 +220,7 @@ export class GtwidpComponent implements OnInit {
     }).subscribe(res => {
       // console.log(res)
       if (res?.body && res?.body !== '') {
-        const mimaEncryption = res.body!['RespBody'].ciphertext;
+        const credential = res.body!['RespBody'].ciphertext;
         // console.log('mimaEncryption',mimaEncryption)
         // let headers = new HttpHeaders({
         //   'Content-Type': `application/x-www-form-urlencoded`,
@@ -235,7 +239,8 @@ export class GtwidpComponent implements OnInit {
 
         // let url = `${environment.apiUrl}/dgrv4/ssotoken/gtwidp/${this.idpType}/gtwlogin?username=${this.uname.value}&password=${mimaEncryption}&response_type=code&client_id=${this.paramsObj['client_id']}&scope=${this.paramsObj['scope']}&redirect_uri=${this.paramsObj['redirect_uri']}&state=${this.paramsObj['state']}`
         // window.location.href = url;
-        let url = `${environment.apiUrl}/dgrv4/ssotoken/gtwidp/${this.idpType}/gtwlogin?username=${this.uname.value}&password=${mimaEncryption}`;
+
+        let url = `${environment.apiUrl}/dgrv4/ssotoken/gtwidp/${this.idpType}/gtwlogin?credential=${credential}`;
         Object.keys(this.paramsObj).map(param => {
           // console.log('param=>', param ,this.paramsObj[param])
           url += `&${param}=${this.paramsObj[param]}`
@@ -323,5 +328,5 @@ export class GtwidpComponent implements OnInit {
   }
 
   public get uname() { return this.form.get('uname')!; }
-  public get pwd() { return this.form.get('pwd')!; }
+  public get mima() { return this.form.get('mima')!; }
 }

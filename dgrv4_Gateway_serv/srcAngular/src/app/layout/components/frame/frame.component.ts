@@ -115,7 +115,7 @@ export class FrameComponent implements OnInit {
             let url = '';
             switch (r.RespBody.reportType) {
               case 'SYS_RPT':
-                url = `${tarUrl}${r.RespBody.rpContentPath}/login?cuuid=${uuidObj.uuid}&capi_key=${uuidObj.capi}&reportURL=${r.RespBody.reportUrl}&embed=true`;
+                url = `${tarUrl}${r.RespBody.rpContentPath}/login?cuuid=${uuidObj.uuid}&capikey=${uuidObj.capi}&reportURL=${r.RespBody.reportUrl}&embed=true`;
                 this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
                 break;
               case 'IFRAME':

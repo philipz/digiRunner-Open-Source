@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -69,12 +71,33 @@ public class DGRCServiceGet implements IApiCacheService{
 	
 	private static Map<String, String> maskInfo ;
 
+	@Async("async-workers-highway")
+	public CompletableFuture<ResponseEntity<?>> forwardToGetAsyncFast(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes) throws Exception {
+		var response = forwardToGet(httpHeaders, httpReq, httpRes);
+		// 記錄 response 的時間
+		GatewayFilter.fetchUriHistoryAfter(httpReq);
+
+		return CompletableFuture.completedFuture(response);
+	}
+	
+	@Async("async-workers")
+	public CompletableFuture<ResponseEntity<?>> forwardToGetAsyncSlow(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes) throws Exception {
+		var response = forwardToGet(httpHeaders, httpReq, httpRes);
+		// 記錄 response 的時間
+		GatewayFilter.fetchUriHistoryAfter(httpReq);
+
+		return CompletableFuture.completedFuture(response);
+	}
+
 	public ResponseEntity<?> forwardToGet(HttpHeaders httpHeaders, HttpServletRequest httpReq, 
 			HttpServletResponse httpRes) throws Exception {
 		try {
 			String reqUrl = httpReq.getRequestURI();
 			
 			TsmpApiReg apiReg = null;
+			if (null == httpReq.getAttribute(GatewayFilter.moduleName)) {
+				throw new Exception("TSMP_API_REG module_name is null");
+			}
 			String dgrcGet_moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
 			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
 			TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, dgrcGet_moduleName);
@@ -337,11 +360,11 @@ public class DGRCServiceGet implements IApiCacheService{
 	public HttpRespData callback(AutoCacheParamVo vo) {
 		try {
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Bankend For Cache】--");
-			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Bankend For Cache】--\n");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【Start DGRC-to-Backend For Cache】--");
+			sb.append("\n--【LOGUUID】【" + vo.getUuid() + "】【End DGRC-from-Backend For Cache】--\n");
 			
 			//第二組ES REQ
-			TsmpApiLogReq dgrcGetBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
+			TsmpApiLogReq dgrcGetBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(vo.getDgrReqVo(), vo.getHeader(), vo.getSrcUrl(), vo.getReqMbody());
 	
 			HttpRespData respObj = getHttpRespData(vo.getHeader(), vo.getSrcUrl());
 			respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -353,7 +376,7 @@ public class DGRCServiceGet implements IApiCacheService{
 			int contentLength = (httpArray == null) ? 0 : httpArray.length;
 					
 			//第二組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcGetBankendReqVo, contentLength);
+			getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcGetBackendReqVo, contentLength);
 			
 			return respObj;
 		}catch(Exception e) {
@@ -373,16 +396,16 @@ public class DGRCServiceGet implements IApiCacheService{
 		
 		StringBuffer dgrcGet_sb = new StringBuffer();
 		if (isFixedCache) {
-			dgrcGet_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend For Fixed Cache】" + tryNumLog + "--");
+			dgrcGet_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend For Fixed Cache】" + tryNumLog + "--");
 			dgrcGet_sb
-					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend For Fixed Cache】" + tryNumLog + "--\n");
+					.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend For Fixed Cache】" + tryNumLog + "--\n");
 		} else {
-			dgrcGet_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Bankend】" + tryNumLog + "--");
-			dgrcGet_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Bankend】" + tryNumLog + "--\n");
+			dgrcGet_sb.append("\n--【LOGUUID】【" + uuid + "】【Start DGRC-to-Backend】" + tryNumLog + "--");
+			dgrcGet_sb.append("\n--【LOGUUID】【" + uuid + "】【End DGRC-from-Backend】" + tryNumLog + "--\n");
 		}
 
 		//第二組ES REQ
-		TsmpApiLogReq dgrcGetBankendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
+		TsmpApiLogReq dgrcGetBackendReqVo = getCommForwardProcService().addEsTsmpApiLogReq2(dgrReqVo, header, srcUrl,
 				"");
 		HttpRespData respObj = getHttpRespData(header, srcUrl);
 		respObj.fetchByte(maskInfo); // because Enable inputStream
@@ -401,7 +424,7 @@ public class DGRCServiceGet implements IApiCacheService{
 		 * 所以最終只會紀錄最後打的2,3道(因_id相同, 變成update),
 		 * 目前先維持這樣
 		 */
-		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcGetBankendReqVo, contentLength);
+		getCommForwardProcService().addEsTsmpApiLogResp2(respObj, dgrcGetBackendReqVo, contentLength);
 		
 		return respObj;
 	}

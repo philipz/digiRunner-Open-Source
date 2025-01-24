@@ -23,6 +23,7 @@ import tpi.dgrv4.entity.repository.DgrAcIdpInfoApiDao;
 import tpi.dgrv4.entity.repository.DgrAcIdpInfoLdapDao;
 import tpi.dgrv4.entity.repository.DgrAcIdpInfoMLdapDDao;
 import tpi.dgrv4.entity.repository.DgrAcIdpInfoMLdapMDao;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.component.AcIdPHelper;
 import tpi.dgrv4.gateway.component.IdPApiHelper;
 import tpi.dgrv4.gateway.component.IdPApiHelper.ApiUserInfoData;
@@ -76,7 +77,6 @@ public class AcIdPLoginService {
 		String userIp = !StringUtils.hasLength(httpHeaders.getFirst("x-forwarded-for")) ? httpReq.getRemoteAddr()
 				: httpHeaders.getFirst("x-forwarded-for");
 		String userHostname = httpReq.getRemoteHost();
-
 		String userName = httpReq.getParameter("username");
 		String userMima = httpReq.getParameter("password");
 		String acIdPMsgUrl = null;
@@ -196,7 +196,13 @@ public class AcIdPLoginService {
 		String idTokenJwtstr = null;
 		String accessTokenJwtstr = null;
 		String refreshTokenJwtstr = null;
-
+		
+		//checkmarx, Frameable Login Page, 已通過中風險
+		httpResp.setHeader("X-Frame-Options", "sameorigin");
+		//checkmarx, Missing HSTS Header
+		httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
+		
 		getAcIdPHelper().sendMailOrCreateDgRcode(httpReq, httpResp, idPType, userName, userAlias, userEmail,
 				idTokenJwtstr, accessTokenJwtstr, refreshTokenJwtstr, reqUri, userIp, userHostname, txnUid,
 				acIdPMsgUrl, apiResp);

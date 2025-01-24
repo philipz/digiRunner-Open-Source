@@ -188,7 +188,7 @@ public class AA1129Service {
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
-			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			TPILogger.tl.error(StackTraceUtil.logTpiShortStackTrace(e));
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 		return resp;

@@ -178,7 +178,7 @@ public class AA0203Service {
 		res.setEmails(tsmpClient.getEmails());
 		res.setFailTreshhold(tsmpClient.getFailTreshhold() != null ? tsmpClient.getFailTreshhold().toString() : "3");
 		res.setOwner(tsmpClient.getOwner());
-		res.setPwdFailTimes(tsmpClient.getPwdFailTimes() != null ? tsmpClient.getPwdFailTimes().toString() : "0");
+		res.setMimaFailTimes(tsmpClient.getPwdFailTimes() != null ? tsmpClient.getPwdFailTimes().toString() : "0");
 		res.setSignupNum(ServiceUtil.nvl(tsmpClient.getSignupNum()));
 		res.setStatus(tsmpClient.getClientStatus());
 		res.setTps(tsmpClient.getTps() != null ? tsmpClient.getTps().toString() : "10");

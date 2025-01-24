@@ -9,22 +9,19 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,7 +45,6 @@ import tpi.dgrv4.tcp.utils.communication.LinkerServer;
 import tpi.dgrv4.tcp.utils.packets.sys.Packet_i;
 
 public class RequireAllClientListPacket implements Packet_i {
-	private static Logger logger = LoggerFactory.getLogger(RequireAllClientListPacket.class);
 
 	LinkedList<ClientKeeper> allClientList = new LinkedList<ClientKeeper>();
 
@@ -57,6 +53,8 @@ public class RequireAllClientListPacket implements Packet_i {
 	public static final String allComposerListStr = "allComposerListStr";
 
 	public final static Object waitKey = new Object();
+	
+	public String uuid = "(__" + UUID.randomUUID().toString() + "__)";
 
 	private long lastUpdateTimeClient = -1;
 	private long lastUpdateTimeAPI = -1;
@@ -277,47 +275,58 @@ public class RequireAllClientListPacket implements Packet_i {
 			}
 
 			for (LinkerServer server : CommunicationServer.cs.connClinet) {
-				if (server.paramObj.containsKey(ComposerInfoPacket.composerInfo)) {
-					HashMap<String, ComposerInfoData> composerInfoHM = (HashMap<String, ComposerInfoData>) server.paramObj
-							.get(ComposerInfoPacket.composerInfo);
-					Object keyString[] = composerInfoHM.keySet().toArray();
-					for (int i = 0; i < keyString.length; i++) {
-						String composerID = (String) keyString[i];
-						ComposerInfoData composerInfoData = composerInfoHM.get(composerID);
-
-						GregorianCalendar composerTS = new GregorianCalendar();
-						composerTS.setTimeInMillis(composerInfoData.getTs());
-						composerTS.add(GregorianCalendar.SECOND, 10);
-
-						GregorianCalendar now = new GregorianCalendar();
-						if (now.after(composerTS)) {
-							// 移除
-							if (TPILogger.lc.paramObj.containsKey(TPILogger.dgrNodeLostContactDaoStr)) {
-								DgrNodeLostContactDao dgrNodeLostContactDao = (DgrNodeLostContactDao) TPILogger.lc.paramObj
-										.get(TPILogger.dgrNodeLostContactDaoStr);
-
-								Long timestamp = System.currentTimeMillis();
-								DgrNodeLostContact vo = new DgrNodeLostContact();
-								vo.setIp(composerInfoData.getRemoteIP());
-								vo.setLostTime(TimeZoneUtil.long2UTCstring(timestamp));
-								vo.setNodeName(composerInfoData.getComposerID());
-								vo.setPort(Integer.parseInt(composerInfoData.getWebServerPort()));
-								vo.setCreateTimestamp(timestamp);
-								dgrNodeLostContactDao.saveAndFlush(vo);
+				try {
+					//因為composer常有不明的錯誤, 所以自己try..catch
+					if (server.paramObj.containsKey(ComposerInfoPacket.composerInfo)) {
+						HashMap<String, ComposerInfoData> composerInfoHM = (HashMap<String, ComposerInfoData>) server.paramObj
+								.get(ComposerInfoPacket.composerInfo);
+						Object[] arrComposerKey = null;
+						synchronized (composerInfoHM) {
+							arrComposerKey = composerInfoHM.keySet().toArray();
+						}
+						for (Object key : arrComposerKey) {
+							ComposerInfoData composerInfoData = composerInfoHM.get((String)key);
+							if(composerInfoData == null) {
+								TPILogger.tl.debug("composerId "+ key +" is null");
+								continue;
 							}
-
-							composerInfoHM.remove(composerID);
-						} else {
-							// 保留
-
-							allComposerList.add(composerInfoData);
+							GregorianCalendar composerTS = new GregorianCalendar();
+							composerTS.setTimeInMillis(composerInfoData.getTs());
+							//注意:存活秒數有改,在CApiKeyService的getRtnTempList也要改
+							composerTS.add(GregorianCalendar.SECOND, 10);
+	
+							GregorianCalendar now = new GregorianCalendar();
+							if (now.after(composerTS)) {
+								// 移除
+								if (TPILogger.lc.paramObj.containsKey(TPILogger.dgrNodeLostContactDaoStr)) {
+									DgrNodeLostContactDao dgrNodeLostContactDao = (DgrNodeLostContactDao) TPILogger.lc.paramObj
+											.get(TPILogger.dgrNodeLostContactDaoStr);
+	
+									TPILogger.tl.debug("now_Millis="+now.getTimeInMillis() + ", composerInfoData="+composerInfoData);
+									Long timestamp = System.currentTimeMillis();
+									DgrNodeLostContact vo = new DgrNodeLostContact();
+									vo.setIp(composerInfoData.getRemoteIP());
+									vo.setLostTime(TimeZoneUtil.long2UTCstring(timestamp));
+									vo.setNodeName(composerInfoData.getComposerID());
+									vo.setPort(Integer.parseInt(composerInfoData.getWebServerPort()));
+									vo.setCreateTimestamp(timestamp);
+									dgrNodeLostContactDao.saveAndFlush(vo);
+								}
+								synchronized (composerInfoHM) {
+									composerInfoHM.remove((String)key);
+								}
+							} else {
+								// 保留
+								allComposerList.add(composerInfoData);
+							}
 						}
 					}
+				}catch(Exception e) {
+					TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 				}
 			}
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			logger.error("", e);
 		}
 
 		// 將有效的 ExternalDgrInfoPacket 物件加入到列表中。

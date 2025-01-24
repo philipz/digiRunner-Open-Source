@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,11 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +30,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import tpi.dgrv4.codec.utils.ProbabilityAlgUtils;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
+import tpi.dgrv4.common.utils.CheckmarxCommUtils;
 import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.component.cache.proxy.DgrWebsiteCacheProxy;
@@ -297,10 +296,10 @@ public class WebsiteService {
 						}
 					}
 				}
-				StringBuffer bankendLog = new StringBuffer();
+				StringBuffer backendLog = new StringBuffer();
 				if(isShowLog) {
-					bankendLog.append("\n--【LOGUUID】【" + uuid + "】【Start website-to-Bankend】--");
-					bankendLog.append("\n--【LOGUUID】【" + uuid + "】【End website-from-Bankend】--\n");
+					backendLog.append("\n--【LOGUUID】【" + uuid + "】【Start website-to-Backend】--");
+					backendLog.append("\n--【LOGUUID】【" + uuid + "】【End website-from-Backend】--\n");
 				}
 				
 				this.setTargetThroughput(websiteName, TYPE_REQ, redirectedUrl);
@@ -343,8 +342,8 @@ public class WebsiteService {
 				respObj.fetchByte(); // because Enable inputStream
 				
 				if (isShowLog) {
-					bankendLog.append(respObj.getLogStr());
-					TPILogger.tl.debug(bankendLog.toString());
+					backendLog.append(respObj.getLogStr());
+					TPILogger.tl.debug(backendLog.toString());
 				}
 				
 				
@@ -648,7 +647,7 @@ public class WebsiteService {
 		String idTokenJwtstr = authorization.substring(TokenHelper.BEARER.length());
 
 		// 驗 ID token 簽章和到期日
-		respEntity = getGtwIdPVerifyService().verify(idTokenJwtstr);
+		respEntity = getGtwIdPVerifyService().verify(idTokenJwtstr, null, null);
 		if (respEntity != null) {
 			return respEntity;
 		}
@@ -760,8 +759,9 @@ public class WebsiteService {
 
 		resourceURL = getResourceUrl(websiteName);
 
+		//checkmarx, ReDoS From Regex Injection,把replaceFirst改為replace, 已通過中風險
 		// 替換成目標網址
-		resourceURL = resourceURL + uri.replaceFirst("/website/" + websiteName + "/", "");
+		resourceURL = resourceURL + uri.replace("/website/" + websiteName + "/", "");
 
 		Enumeration<String> httpHeaderKeys = request.getHeaderNames();
 
@@ -846,6 +846,8 @@ public class WebsiteService {
 			HttpServletResponse httpRes) {
 
 		httpRes.setStatus(status);
+		//checkmarx, Missing HSTS Header
+		httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 		respHeader.forEach((k, vs) -> {
 			vs.forEach((v) -> {
 				if (k != null) {
@@ -987,7 +989,7 @@ public class WebsiteService {
 			for (String path : arrIgnoreApiPath) {
 				if (path.indexOf("**") > -1) {
 					path = path.replaceAll("\\*\\*", ".*");
-					boolean match = resourceUrl.matches(path);
+					boolean match = CheckmarxCommUtils.sanitizeForCheckmarxMatches(resourceUrl, path);
 					if (match) {
 						return true;
 					}

@@ -36,12 +36,44 @@ public class DPB0234Service {
     private static final String FLAG_X_API_KEY = "xApiKey";
 
     public static List<String> safelyConvertToStringList(Object obj) {
-        if (obj instanceof List<?>) {
-            return ((List<?>) obj).stream()
-                    .map(Object::toString)
-                    .toList();
+        if (!(obj instanceof List<?>)) {
+            throw new IllegalArgumentException("傳入的物件不是 List 類型");
         }
-        throw new IllegalArgumentException("傳入的物件不是 List 類型");
+
+        List<String> initialList = ((List<?>) obj).stream()
+                .map(Object::toString)
+                .distinct()
+                .sorted() // 排序以確保較短的字串先被處理
+                .toList();
+
+        return removePrefixDuplicates(initialList);
+    }
+
+    private static List<String> removePrefixDuplicates(List<String> input) {
+        List<String> result = new ArrayList<>();
+
+        for (String current : input) {
+            boolean shouldAdd = true;
+
+            // 檢查當前字串是否是已加入結果中的任何字串的前綴
+            for (String existing : result) {
+                if (existing.startsWith(current) || current.startsWith(existing)) {
+                    shouldAdd = false;
+                    // 如果現有的字串比較長，替換成較短的
+                    if (current.length() < existing.length()) {
+                        result.remove(existing);
+                        shouldAdd = true;
+                    }
+                    break;
+                }
+            }
+
+            if (shouldAdd) {
+                result.add(current);
+            }
+        }
+
+        return result;
     }
 
     public DPB0234Resp getApiStatusByGroup(TsmpAuthorization authorization, DPB0234Req req) {
@@ -84,14 +116,19 @@ public class DPB0234Service {
                         throw TsmpDpAaRtnCode._1298.throwing();
                     }
                 } else if (obj instanceof List) {
-                    // getByManyKeyWords
+                    // 多關鍵字確保唯一性
                     List<String> keyWordsList = safelyConvertToStringList(obj);
-                    List<DPB0234RespItem> resultList = new ArrayList<>();
-                    keyWordsList.forEach(keyword -> resultList.addAll(this.getApiStatusByOneKeyWord(keyword)));
 
-                    if (!resultList.isEmpty()) {
+                    // 保持順序並去重複
+                    Set<DPB0234RespItem> uniqueResults = new LinkedHashSet<>();
+                    for (String keyword : keyWordsList) {
+                        List<DPB0234RespItem> items = this.getApiStatusByOneKeyWord(keyword);
+                        uniqueResults.addAll(items);
+                    }
+
+                    if (!uniqueResults.isEmpty()) {
                         resp = new DPB0234Resp();
-                        resp.setDataList(resultList);
+                        resp.setDataList(new ArrayList<>(uniqueResults));
                         int totalApis = this.calculateTotalApis(resp);
                         resp.setTotalApi(Integer.toString(totalApis));
                     } else {
@@ -102,12 +139,10 @@ public class DPB0234Service {
             case FLAG_X_API_KEY:
                 //getBy xApiKey
                 xApiKey = req.getxApiKey().trim();
-                List<DPB0234RespItemFromXapiKey> dataListFromXapiKey = this.getGroupAndApiStatusByXApiKey(xApiKey);
-                if (!dataListFromXapiKey.isEmpty()) {
+                DPB0234ResponseFromXapiKey responseFromXapiKey = this.getGroupAndApiStatusByXApiKey(xApiKey);
+                if (responseFromXapiKey != null) {
                     resp = new DPB0234Resp();
-                    resp.setDataListFromXapiKey(dataListFromXapiKey);
-                    int totalApis = this.calculateTotalApis(resp);
-                    resp.setTotalApi(Integer.toString(totalApis));
+                    resp.setResponseFromXapiKey(responseFromXapiKey);
                 } else {
                     throw TsmpDpAaRtnCode._1298.throwing();
                 }
@@ -154,6 +189,20 @@ public class DPB0234Service {
                     .filter(Objects::nonNull)
                     .toList();
 
+            // 取得所有非空的 Client ID 列表
+            List<String> clientIds = clientList.stream()
+                    .map(TsmpClient::getClientId)
+                    .filter(Objects::nonNull)
+                    .filter(id -> !id.trim().isEmpty())
+                    .toList();
+
+            // 取得所有非空的 Client Name 列表
+            List<String> clientNames = clientList.stream()
+                    .map(TsmpClient::getClientName)
+                    .filter(Objects::nonNull)
+                    .filter(name -> !name.trim().isEmpty())
+                    .toList();
+
             //使用 GROUP_ID 取其API
             List<TsmpApi> tsmpApiList = getTsmpApiDao().queryByTsmpGroupAPiGroupId(groupId);
 
@@ -164,17 +213,8 @@ public class DPB0234Service {
                 item.setApiName(tsmpApiElement.getApiName());
                 item.setApiStatus(tsmpApiElement.getApiStatus());
                 item.setApiPath(tsmpApiElement.getApiKey());
+                item.setModuleName(tsmpApiElement.getModuleName());
                 apiDataList.add(item);
-            });
-
-            // clientDataList for DPB0234RespItem
-            List<DPB0234ClientDataItem> clientDataList = new ArrayList<>();
-            clientList.forEach(client -> {
-                DPB0234ClientDataItem item = new DPB0234ClientDataItem();
-                item.setClientId(client.getClientId());
-                item.setClientName(client.getClientName());
-                item.setApiDataList(new ArrayList<>(apiDataList));
-                clientDataList.add(item);
             });
 
             // DPB0234RespItem
@@ -182,7 +222,9 @@ public class DPB0234Service {
             respItem.setGroupId(group.getGroupId());
             respItem.setGroupAlias(group.getGroupAlias());
             respItem.setGroupName(group.getGroupName());
-            respItem.setClientDataList(clientDataList);
+            respItem.setClientIdList(clientIds);
+            respItem.setClientNameList(clientNames);
+            respItem.setApiDataList(apiDataList);
 
         } catch (TsmpDpAaException e) {
             throw e;
@@ -194,16 +236,32 @@ public class DPB0234Service {
         return respItem;
     }
 
-    public List<DPB0234RespItemFromXapiKey> getGroupAndApiStatusByXApiKey(String xApiKey) {
+    public DPB0234ResponseFromXapiKey getGroupAndApiStatusByXApiKey(String xApiKey) {
         try {
-            List<DPB0234RespItemFromXapiKey> resultList = new ArrayList<>();
+            DPB0234ResponseFromXapiKey response = new DPB0234ResponseFromXapiKey();
+            List<DPB0234GroupInfo> groupList = new ArrayList<>();
+            int totalApiCount = 0;
 
             // 檢查xApiKey合法性
             String xApiKeyEn = TokenHelper.getXApiKeyEn(xApiKey);
             DgrXApiKey dgrXApiKey = this.getDgrXApiKeyDao().findFirstByApiKeyEn(xApiKeyEn);
 
             if (dgrXApiKey == null) {
-                return resultList; // 返回空列表
+                throw TsmpDpAaRtnCode._1298.throwing();
+            }
+
+            // 設置基本的XApiKey資訊
+            response.setApiKeyId(dgrXApiKey.getApiKeyId().toString());
+            response.setApiKeyMask(dgrXApiKey.getApiKeyMask());
+            response.setApiKeyAlias(dgrXApiKey.getApiKeyAlias());
+            response.setEffectiveAt(dgrXApiKey.getEffectiveAt().toString());
+            response.setExpiredAt(dgrXApiKey.getExpiredAt().toString());
+            response.setClientId(dgrXApiKey.getClientId());
+
+            // 取得client資訊
+            TsmpClient client = getTsmpClientDao().findById(dgrXApiKey.getClientId()).orElse(null);
+            if (client != null) {
+                response.setClientName(client.getClientName());
             }
 
             // 透過Map取xApiKey與Group的關聯
@@ -211,38 +269,25 @@ public class DPB0234Service {
             List<DgrXApiKeyMap> xApiKeyMapList = this.getDgrXApiKeyMapDao()
                     .findByRefApiKeyId(apiKeyId);
 
-            // 取屬於xApiKey所有對應的Group
-            List<TsmpGroup> groupList = xApiKeyMapList.stream()
+            // 取得所有相關的Group
+            List<TsmpGroup> groups = xApiKeyMapList.stream()
                     .map(xApiKeyMap -> getGroupDao().findById(xApiKeyMap.getGroupId()))
                     .flatMap(Optional::stream)
-                    .distinct() // 確保Group不重複
+                    .distinct()
                     .toList();
 
-            // 為每個Group建立一個回應項目
-            for (TsmpGroup group : groupList) {
-                DPB0234RespItemFromXapiKey respItem = new DPB0234RespItemFromXapiKey();
-
-                // 設置基本的XApiKey資訊
-                respItem.setApiKeyId(dgrXApiKey.getApiKeyId().toString());
-                respItem.setApiKeyMask(dgrXApiKey.getApiKeyMask());
-                respItem.setApiKeyAlias(dgrXApiKey.getApiKeyAlias());
-                respItem.setEffectiveAt(dgrXApiKey.getEffectiveAt().toString());
-                respItem.setExpiredAt(dgrXApiKey.getExpiredAt().toString());
+            // 處理每個Group
+            for (TsmpGroup group : groups) {
+                DPB0234GroupInfo groupInfo = new DPB0234GroupInfo();
+                groupInfo.setGroupId(group.getGroupId());
+                groupInfo.setGroupName(group.getGroupName());
+                groupInfo.setGroupAlias(group.getGroupAlias());
 
                 // 取得該Group的API列表
                 List<TsmpApi> tsmpApiList = getTsmpApiDao()
                         .queryByTsmpGroupAPiGroupId(group.getGroupId())
                         .stream()
-                        .distinct() // 確保API不重複
-                        .toList();
-
-                // 取得該Group的Client列表
-                List<TsmpClient> clientList = getTsmpClientGroupDao()
-                        .findByGroupId(group.getGroupId())
-                        .stream()
-                        .map(clientGroup -> getTsmpClientDao().findById(clientGroup.getClientId()))
-                        .flatMap(Optional::stream)
-                        .distinct() // 確保Client不重複
+                        .distinct()
                         .toList();
 
                 // 建立API資料列表
@@ -252,27 +297,19 @@ public class DPB0234Service {
                             item.setApiName(api.getApiName());
                             item.setApiStatus(api.getApiStatus());
                             item.setApiPath(api.getApiKey());
+                            item.setModuleName(api.getModuleName());
                             return item;
                         }).toList();
 
-                // 建立Client資料列表
-                List<DPB0234ClientDataItem> clientDataList = clientList.stream()
-                        .map(client -> {
-                            DPB0234ClientDataItem item = new DPB0234ClientDataItem();
-                            item.setApiKeyId(dgrXApiKey.getApiKeyId().toString());
-                            item.setApiKeyMask(dgrXApiKey.getApiKeyMask());
-                            item.setApiKeyAlias(dgrXApiKey.getApiKeyAlias());
-                            item.setClientId(client.getClientId());
-                            item.setClientName(client.getClientName());
-                            item.setApiDataList(new ArrayList<>(apiDataList));
-                            return item;
-                        }).toList();
-
-                respItem.setClientDataList(clientDataList);
-                resultList.add(respItem);
+                groupInfo.setApiDataList(apiDataList);
+                groupList.add(groupInfo);
+                totalApiCount += apiDataList.size();
             }
 
-            return resultList;
+            response.setGroupList(groupList);
+            response.setTotalApi(String.valueOf(totalApiCount));
+
+            return response;
 
         } catch (TsmpDpAaException e) {
             throw e;
@@ -298,27 +335,29 @@ public class DPB0234Service {
     }
 
     public int calculateTotalApis(DPB0234Resp response) {
-        int totalApis = 0;
-
-        if (response == null){
+        if (response == null) {
             return 0;
         }
 
-        // 處理 dataList
-        if (response.getDataList() != null) {
-            totalApis += (int) response.getDataList().stream()
-                    .flatMap(group -> group.getClientDataList().stream())
-                    .mapToLong(client -> client.getApiDataList().size())
-                    .sum();
-        }
+        int totalApis = 0;
 
-        // 處理 dataListFromXapiKey
-        if (response.getDataListFromXapiKey() != null) {
-            totalApis += (int) response.getDataListFromXapiKey().stream()
-                    .flatMap(xapiKey -> xapiKey.getClientDataList().stream())
-                    .mapToLong(client -> client.getApiDataList().size())
-                    .sum();
-        }
+        // Calculate APIs from dataList (keyword search results)
+        totalApis += Optional.ofNullable(response.getDataList())
+                .stream()
+                .flatMap(List::stream)
+                .map(DPB0234RespItem::getApiDataList)
+                .filter(Objects::nonNull)
+                .mapToInt(List::size)
+                .sum();
+
+        // Calculate APIs from dataListFromXapiKey (X-API-KEY search results)
+        totalApis += Optional.ofNullable(response.getDataListFromXapiKey())
+                .stream()
+                .flatMap(List::stream)
+                .map(DPB0234RespItemFromXapiKey::getApiDataList)
+                .filter(Objects::nonNull)
+                .mapToInt(List::size)
+                .sum();
 
         return totalApis;
     }

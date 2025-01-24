@@ -16,6 +16,15 @@ public class AA0325Req {
 	private String cpuUsage;
 	private String memoryUsage;
 
+	
+	@Override
+	public String toString() {
+		return "AA0325Req [composerID=" + composerID + ", startupTime=" + startupTime + ", keeperAPI=" + keeperAPI
+				+ ", webServerPort=" + webServerPort + ", version=" + version + ", ts=" + ts + ", webLocalIP="
+				+ webLocalIP + ", httpRequestLog=" + httpRequestLog + ", sysLog=" + sysLog + ", cpuUsage=" + cpuUsage
+				+ ", memoryUsage=" + memoryUsage + "]";
+	}
+
 	public String getComposerID() {
 		return composerID;
 	}

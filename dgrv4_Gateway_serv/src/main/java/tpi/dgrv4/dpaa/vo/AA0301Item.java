@@ -39,6 +39,18 @@ public class AA0301Item {
 
 	/** 預定停用日期 */
 	private long disableScheduledDate;
+	
+	/** 建立日期 */
+	private String createDate;
+	
+	/** 建立人員 */
+	private String createUser;
+	
+	/** 更新日期 */
+	private String updateDate;
+	
+	/** 更新人員 */
+	private String updateUser;
 
 	private List<String> labelList;
 
@@ -146,12 +158,46 @@ public class AA0301Item {
 		this.disableScheduledDate = disableScheduledDate;
 	}
 
+	public String getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
+	}
+
+	public String getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
+	}
+
+	public String getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
+
+	public String getUpdateUser() {
+		return updateUser;
+	}
+
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
+	}
+
 	@Override
 	public String toString() {
 		return "AA0301Item [moduleName=" + moduleName + ", apiKey=" + apiKey + ", apiStatus=" + apiStatus + ", apiSrc="
 				+ apiSrc + ", apiName=" + apiName + ", apiDesc=" + apiDesc + ", jweFlag=" + jweFlag + ", jweFlagResp="
 				+ jweFlagResp + ", updateTime=" + updateTime + ", org=" + org + ", enableScheduledDate="
-				+ enableScheduledDate + ", disableScheduledDate=" + disableScheduledDate + "]";
+				+ enableScheduledDate + ", disableScheduledDate=" + disableScheduledDate + ", createDate=" 
+				+ createDate + ", createUser=" + createUser + ", updateDate=" + updateDate + ", updateUser=" 
+				+ updateUser + "]";
 	}
 
 }

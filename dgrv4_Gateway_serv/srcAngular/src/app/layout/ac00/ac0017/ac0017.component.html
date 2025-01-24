@@ -3,59 +3,52 @@
   <div [hidden]="pageNum !== 1">
     <div class="form-group row">
       <div class="col-12">
-        <!-- <button type="submit" class="btn btn-warning float-left mr-3">{{'button.search' | translate}}</button> -->
-        <!-- <button type="submit" class="btn tpi-btn tpi-primary float-left mr-3">{{'button.search' | translate}}</button> -->
         <button type="button" class="btn tpi-btn tpi-second float-right"
           (click)="changePage('create');">{{'button.create'|translate}}</button>
       </div>
     </div>
     <p-table [columns]="cols" [value]="acAuthList" selectionMode="single" [style]="{'word-break':'break-word'}"
       responsiveLayout="scroll" styleClass="p-datatable-striped">
-      <!-- <ng-template pTemplate="colgroup" let-columns>
-        <colgroup>
-          <col *ngFor="let col of columns" [style.width]="col.width">
-        </colgroup>
-        <colgroup style="width:200px;">Action</colgroup>
-      </ng-template> -->
       <ng-template pTemplate="header" let-columns>
         <tr>
-          <!-- <th *ngFor="let col of columns" scope="col">
-            {{col.header}}
-          </th> -->
+          <th rowspan="2" style="width: 4%;" scope="col">Enable</th>
           <th rowspan="2" style="width: 10%;" scope="col">ID</th>
-          <th rowspan="1" style="width: 10%;" scope="col">Client ID</th>
-          <th rowspan="1" style="width: 10%;" scope="col">Client Name</th>
-          <th rowspan="2" style="width: 4%;" scope="col">Client Status</th>
-          <th rowspan="1" style="width: 16%;" scope="col">Well Known URL</th>
+          <th rowspan="1" style="width: 10%;" scope="col">IdP Client ID</th>
+          <th rowspan="1" style="width: 10%;" scope="col">IdP Client Name</th>
+
+          <th rowspan="1" style="width: 16%;" scope="col">IdP Well Known URL</th>
           <th rowspan="1" style="width: 10%;" scope="col">Create User</th>
           <th rowspan="1" style="width: 10%;" scope="col">Create Time</th>
-          <th rowspan="1" style="width: 15%;" scope="col">Auth Url</th>
-          <th rowspan="2" style="width: 8%;" scope="col">Scope</th>
-          <th rowspan="2" style="width:100px" scope="col">{{'action' | translate}}</th>
+          <th rowspan="1" style="width: 15%;" scope="col">IdP Auth Url</th>
+          <th rowspan="2" style="width: 6%;" scope="col">Scope</th>
+          <th rowspan="2" style="width:120px" scope="col">{{'action' | translate}}</th>
         </tr>
         <tr>
           <th rowspan="1" scope="col">Type</th>
-          <th rowspan="1" scope="col">Client Secret</th>
-          <th rowspan="1" scope="col">Callback URL</th>
+          <th rowspan="1" scope="col">IdP Client Secret</th>
+          <th rowspan="1" scope="col">dgR Callback URL</th>
           <th rowspan="1" scope="col">Update User</th>
           <th rowspan="1" scope="col">Update Time</th>
-          <th rowspan="1" scope="col">Access Token URL</th>
+          <th rowspan="1" scope="col">IdP Access Token URL</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <!-- [pSelectableRow]="rowData" 控制高亮 -->
         <tr>
+          <td rowspan="2" class="text-center">
+              <img [alt]="rowData.clientStatus" style="width: 20px; height: 20px"
+                [src]="rowData.clientStatus ==='Y' ? 'assets/images/icon_green.png': 'assets/images/icon_red.png'" />
+          </td>
           <td rowspan="2">{{rowData.id}}</td>
           <td rowspan="1">{{rowData.clientId}}</td>
           <td rowspan="1">{{rowData.clientName}}</td>
-          <td rowspan="2" class="text-center">{{rowData.clientStatus}}</td>
           <td rowspan="1">{{rowData.idpWellKnownUrl}}</td>
           <td rowspan="1">{{rowData.createUser}}</td>
           <td rowspan="1">{{formateDate(rowData.createDateTime)}}</td>
           <td rowspan="1">{{rowData.authUrl}}</td>
           <td rowspan="2">{{rowData.scope}}</td>
 
-          <td rowspan="2" style="text-align: center;width: 100px">
+          <td rowspan="2" style="text-align: center;width: 120px">
 
             <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
               (click)="changePage('detail', rowData)" [pTooltip]="'button.detail' | translate"
@@ -108,71 +101,63 @@
     <div *ngIf="userDetail">
       <div class="form-group row">
         <div class="col-6">
-          <!-- <label>{{'user_id' | translate}}</label> -->
           <label for="">Id</label>
-          <!-- <label class="form-control border-line">{{userDetail.id}}</label> -->
           <input type="text" class="form-control" [value]="userDetail.id" readonly>
         </div>
         <div class="col-6">
-          <!-- <label for="userAlias">{{'user_alias' | translate}}</label> -->
-          <label for="">Client Id</label>
-          <!-- <label class="form-control border-line">{{userDetail.clientId}}</label> -->
+          <label for="">IdP Client Id</label>
           <input type="text" class="form-control" [value]="userDetail.clientId" readonly>
         </div>
       </div>
       <div class="form-group row">
         <div class="col-6">
-          <!-- <label>{{'role_list' | translate}}</label> -->
-          <label for="">Client Name</label>
-          <!-- <label class="form-control border-line">{{userDetail.clientName}}</label> -->
+          <label for="">IdP Client Name</label>
           <input type="text" class="form-control" [value]="userDetail.clientName" readonly>
         </div>
         <div class="col-6">
-          <!-- <label>{{'org_name' | translate}}</label> -->
-          <label for="">Client Secret</label>
-          <!-- <label class="form-control border-line">{{userDetail.clientMima}}</label> -->
+          <label for="">IdP Client Secret</label>
           <input type="text" class="form-control" [value]="userDetail.clientMima" readonly>
         </div>
       </div>
       <div class="form-group row">
         <div class="col-6">
-          <!-- <label>{{'user_name' | translate}}</label> -->
           <label for="">Type</label>
-          <!-- <label class="form-control border-line">{{userDetail.idpType}}</label> -->
           <input type="text" class="form-control" [value]="userDetail.idpType" readonly>
         </div>
         <div class="col-6">
-          <!-- <label>{{'user_email' | translate}}</label> -->
-          <label for="">Client Status</label>
-          <!-- <label class="form-control border-line">{{userDetail.clientStatus}}</label> -->
-          <input type="text" class="form-control" [value]="userDetail.clientStatus" readonly>
+          <label for="">Enable</label>
+          <!-- <input type="text" class="form-control" [value]="userDetail.clientStatus" readonly> -->
+          <div class="p-form-check-line">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton value="Y" [ngModel]="userDetail.clientStatus" disabled></p-radioButton>
+                <label class="ml-2 mb-0">Y</label>
+              </div>
+              <div class="p-form-check">
+                <p-radioButton value="N" [ngModel]="userDetail.clientStatus" disabled></p-radioButton>
+                <label class="ml-2 mb-0">N</label>
+              </div>
+            </ng-container>
+          </div>
         </div>
       </div>
       <div class="form-group row">
         <div class="col-6">
-          <!-- <label>{{'user_email' | translate}}</label> -->
-          <label for="">Well Known URL</label>
-          <!-- <label class="form-control border-line">{{userDetail.idpWellKnownUrl}}</label> -->
-          <input type="text" class="form-control" [value]="userDetail.idpWellKnownUrl" readonly>
-        </div>
-        <div class="col-6">
-          <!-- <label>{{'user_email' | translate}}</label> -->
-          <label for="">Callback URL</label>
-          <!-- <label class="form-control border-line">{{userDetail.callbackUrl}}</label> -->
+          <label for="">dgR Callback URL</label>
           <input type="text" class="form-control" [value]="userDetail.callbackUrl" readonly>
         </div>
+        <div class="col-6">
+          <label for="">IdP Well Known URL</label>
+          <input type="text" class="form-control" [value]="userDetail.idpWellKnownUrl" readonly>
+        </div>
       </div>
       <div class="form-group row">
         <div class="col-6">
-          <!-- <label>{{'user_email' | translate}}</label> -->
-          <label for="">Auth URL</label>
-          <!-- <label class="form-control border-line">{{userDetail.authUrl}}</label> -->
+          <label for="">IdP Auth URL</label>
           <input type="text" class="form-control" [value]="userDetail.authUrl" readonly>
         </div>
         <div class="col-6">
-          <!-- <label>{{'user_email' | translate}}</label> -->
-          <label for="">Access Token URL</label>
-          <!-- <label class="form-control border-line">{{userDetail.accessTokenUrl}}</label> -->
+          <label for="">IdP Access Token URL</label>
           <input type="text" class="form-control" [value]="userDetail.accessTokenUrl" readonly>
         </div>
       </div>
@@ -180,36 +165,28 @@
 
       <div *ngIf="currentAction == 'detail'" class="form-group row">
         <div class="col-6">
-          <!-- <label for="inputContactNumber">{{'logon_date' | translate}}</label> -->
           <label for="">Create User</label>
-          <!-- <label class="form-control border-line">{{userDetail.createUser}}</label> -->
           <input type="text" class="form-control" [value]="userDetail.createUser" readonly>
         </div>
         <div class="col-6">
           <label for="">Create Time</label>
-          <!-- <label for="inputContactNumber">{{'create_date' | translate}}</label> -->
-          <!-- <label class="form-control border-line">{{userDetail.createDateTime}}</label> -->
           <input type="text" class="form-control" [value]="formateDate(userDetail.createDateTime)" readonly>
         </div>
       </div>
       <div *ngIf="currentAction == 'detail'" class="form-group row">
         <div class="col-6">
-          <!-- <label>{{'status' | translate}}</label> -->
           <label for="">Update User</label>
-          <!-- <label class="form-control border-line">{{userDetail.updateUser}}</label> -->
           <input type="text" class="form-control" [value]="userDetail.updateUser" readonly>
         </div>
         <div class="col-6">
           <label for="">Update Time</label>
-          <!-- <label>{{'failed_login_attempts' | translate}}</label> -->
-          <!-- <label class="form-control border-line">{{userDetail.updateDateTime}}</label> -->
           <input type="text" class="form-control" [value]="formateDate(userDetail.updateDateTime)" readonly>
         </div>
       </div>
 
       <div class="form-group row">
         <div class="col-6">
-          <label for="">Scope</label>
+          <label for="">IdP Scope</label>
           <input type="text" class="form-control" [value]="userDetail.scope" readonly>
         </div>
       </div>
@@ -225,115 +202,12 @@
     </div>
   </div>
 
-  <!-- 建立資料  placeholder="{{'user_alias' | translate}}"-->
-  <!-- <div [hidden]="pageNum!==3">
-    <form [formGroup]="form_create" >
-      <div class="form-group row">
-        <div class="col-lg-12">
-          <label id="idpType" for="idpType" class="control-label">{{'user_alias' | translate}}</label>
-          <label for="idpType" class="required control-label">Type</label>
-          <input type="text" class="form-control" id="idpType" formControlName="idpType" placeholder="Type">
-          <div *ngIf="idpType?.invalid && (idpType?.dirty || idpType?.touched)" class="text-danger">
-            <small class="form-text">{{idpType?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{idpType?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-6 mt-2">
-          <label for="clientId" class="required control-label">Client Id</label>
-          <input type="text" class="form-control" id="clientId" formControlName="clientId" placeholder="Client Id">
-          <div *ngIf="clientId?.invalid && (clientId?.dirty || clientId?.touched)" class="text-danger">
-            <small class="form-text">{{clientId?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{clientId?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-6 mt-2">
-          <label for="clientMima" class="required control-label">Client Password</label>
-          <input type="text" class="form-control" id="clientMima" formControlName="clientMima" placeholder="Client Password">
-          <div *ngIf="clientMima?.invalid && (clientMima?.dirty || clientMima?.touched)" class="text-danger">
-            <small class="form-text">{{clientMima?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{clientMima?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-6 mt-2">
-          <label for="clientName" class="required control-label">Client Name</label>
-          <input type="text" class="form-control" id="clientName" formControlName="clientName" placeholder="Client Name">
-          <div *ngIf="clientName?.invalid && (clientName?.dirty || clientName?.touched)" class="text-danger">
-            <small class="form-text">{{clientName?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{clientName?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-6 mt-2">
-          <label for="clientStatus" class="required control-label">Client Status</label>
-          <input type="text" class="form-control" id="clientStatus" formControlName="clientStatus" placeholder="Client Status">
-          <div *ngIf="clientStatus?.invalid && (clientStatus?.dirty || clientStatus?.touched)" class="text-danger">
-            <small class="form-text">{{clientStatus?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{clientStatus?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-12 mt-2">
-          <label for="callbackUrl" class="required control-label">Callback Url</label>
-          <input type="text" class="form-control" id="callbackUrl" formControlName="callbackUrl" placeholder="Callback Url">
-          <div *ngIf="callbackUrl?.invalid && (callbackUrl?.dirty || callbackUrl?.touched)" class="text-danger">
-            <small class="form-text">{{callbackUrl?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{callbackUrl?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-12 mt-2">
-          <label for="idpWellKnownUrl" class="required control-label">IdpWellKnownUrl</label>
-          <input type="text" class="form-control" id="idpWellKnownUrl" formControlName="idpWellKnownUrl" placeholder="IdpWellKnownUrl">
-          <div *ngIf="idpWellKnownUrl?.invalid && (idpWellKnownUrl?.dirty || idpWellKnownUrl?.touched)" class="text-danger">
-            <small class="form-text">{{idpWellKnownUrl?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{idpWellKnownUrl?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-12 mt-2">
-          <label for="authUrl" class=" control-label">AuthUrl</label>
-          <input type="text" class="form-control" id="authUrl" formControlName="authUrl" placeholder="AuthUrl">
-          <div *ngIf="authUrl?.invalid && (authUrl?.dirty || authUrl?.touched)" class="text-danger">
-            <small class="form-text">{{authUrl?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{authUrl?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-12 mt-2">
-          <label for="accessTokenUrl" class=" control-label">AccessTokenUrl</label>
-          <input type="text" class="form-control" id="accessTokenUrl" formControlName="accessTokenUrl" placeholder="AccessTokenUrl">
-          <div *ngIf="accessTokenUrl?.invalid && (accessTokenUrl?.dirty || accessTokenUrl?.touched)" class="text-danger">
-            <small class="form-text">{{accessTokenUrl?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{accessTokenUrl?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-        <div class="col-lg-12 mt-2">
-          <label for="scope" class="control-label">Scope</label>
-          <input type="text" class="form-control" id="scope" formControlName="scope" placeholder="Scope">
-          <div *ngIf="scope?.invalid && (scope?.dirty || scope?.touched)" class="text-danger">
-            <small class="form-text">{{scope?.errors.maxlength | translate }}</small>
-            <small class="form-text">{{scope?.errors.pattern | translate}}</small>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <div class="col-12">
-          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
-          [disabled]="form.invalid"
-          (click)="createAcOauth();">{{'button.create'|translate}}</button>
-        <button type="button" class="btn tpi-btn tpi-primary float-left"
-          (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
-        </div>
-      </div>
-    </form>
-
-
-
-  </div> -->
-
   <!-- 建立 / 更新資料 -->
-
   <div [hidden]="pageNum!==4">
     <form [formGroup]="form" (ngSubmit)="submitForm()">
       <div class="form-group row">
         <div class="col-6">
-          <label for="clientId" class="required control-label">Client Id</label>
+          <label for="clientId" class="required control-label">IdP Client Id</label>
           <input type="text" class="form-control" id="clientId" formControlName="clientId" placeholder="">
           <div *ngIf="clientId?.invalid && (clientId?.dirty || clientId?.touched)" class="text-danger">
             <small class="form-text">{{clientId?.errors.maxlength | translate }}</small>
@@ -344,7 +218,7 @@
       </div>
       <div class="form-group row">
         <div class="col-6">
-          <label for="clientName" class="required control-label">Client Name</label>
+          <label for="clientName" class="required control-label">IdP Client Name</label>
           <input type="text" class="form-control" id="clientName" formControlName="clientName" placeholder="">
           <div *ngIf="clientName?.invalid && (clientName?.dirty || clientName?.touched)" class="text-danger">
             <small class="form-text">{{clientName?.errors.maxlength | translate }}</small>
@@ -353,7 +227,7 @@
           </div>
         </div>
         <div class="col-6">
-          <label for="clientMima" class="required control-label">Client Secret</label>
+          <label for="clientMima" class="required control-label">IdP Client Secret</label>
           <input type="text" class="form-control" id="clientMima" formControlName="clientMima" placeholder="">
           <div *ngIf="clientMima?.invalid && (clientMima?.dirty || clientMima?.touched)" class="text-danger">
             <small class="form-text">{{clientMima?.errors.maxlength | translate }}</small>
@@ -366,7 +240,10 @@
         <div class="col-6">
           <!-- <label id="idpType" for="idpType" class="control-label">{{'user_alias' | translate}}</label> -->
           <label for="idpType" class="required control-label">Type</label>
-          <input type="text" class="form-control" id="idpType" formControlName="idpType" placeholder="">
+          <!-- <input type="text" class="form-control" id="idpType" formControlName="idpType" placeholder=""> -->
+          <p-dropdown [options]="idpTypeList"
+            placeholder="{{'plz_chs' | translate}}" formControlName="idpType" [style]="{'width':'100%'}">
+          </p-dropdown>
           <div *ngIf="idpType?.invalid && (idpType?.dirty || idpType?.touched)" class="text-danger">
             <small class="form-text">{{idpType?.errors.maxlength | translate }}</small>
             <small class="form-text">{{idpType?.errors.pattern | translate}}</small>
@@ -374,8 +251,20 @@
           </div>
         </div>
         <div class="col-6">
-          <label for="clientStatus" class="required control-label">Client Status</label>
-          <input type="text" class="form-control" id="clientStatus" formControlName="clientStatus" placeholder="">
+          <label for="clientStatus" class="required control-label">Enable</label>
+          <!-- <input type="text" class="form-control" id="clientStatus" formControlName="clientStatus" placeholder=""> -->
+          <div class="p-form-check-line form-group">
+            <ng-container>
+              <div class="p-form-check">
+                <p-radioButton formControlName="clientStatus" value="Y"  inputId="statusY"></p-radioButton>
+                <label for="statusY" class="ml-2 mb-0">Y</label>
+              </div>
+              <div class="p-form-check">
+                <p-radioButton formControlName="clientStatus" value="N"  inputId="statusN"></p-radioButton>
+                <label for="statusN" class="ml-2 mb-0">N</label>
+              </div>
+            </ng-container>
+          </div>
           <div *ngIf="clientStatus?.invalid && (clientStatus?.dirty || clientStatus?.touched)" class="text-danger">
             <small class="form-text">{{clientStatus?.errors.maxlength | translate }}</small>
             <small class="form-text">{{clientStatus?.errors.pattern | translate}}</small>
@@ -386,7 +275,7 @@
 
       <div class="form-group row">
         <div class="col-6">
-          <label for="callbackUrl" class="required control-label">Callback URL</label>
+          <label for="callbackUrl" class="required control-label">dgR Callback URL</label>
           <input type="text" class="form-control" id="callbackUrl" formControlName="callbackUrl" placeholder="">
           <div *ngIf="callbackUrl?.invalid && (callbackUrl?.dirty || callbackUrl?.touched)" class="text-danger">
             <small class="form-text">{{callbackUrl?.errors.maxlength | translate }}</small>
@@ -397,7 +286,7 @@
           </div>
         </div>
         <div class="col-6">
-          <label for="idpWellKnownUrl" class="required control-label">Well Known URL</label>
+          <label for="idpWellKnownUrl" class="required control-label">IdP Well Known URL</label>
           <input type="text" class="form-control" id="idpWellKnownUrl" formControlName="idpWellKnownUrl" placeholder="">
           <div *ngIf="idpWellKnownUrl?.invalid && (idpWellKnownUrl?.dirty || idpWellKnownUrl?.touched)"
             class="text-danger">
@@ -411,7 +300,7 @@
 
       <div class="form-group row">
         <div class="col-6">
-          <label for="authUrl" class=" control-label">Auth URL</label>
+          <label for="authUrl" class=" control-label">IdP Auth URL</label>
           <input type="text" class="form-control" id="authUrl" formControlName="authUrl" placeholder="">
           <div *ngIf="authUrl?.invalid && (authUrl?.dirty || authUrl?.touched)" class="text-danger">
             <small class="form-text">{{authUrl?.errors.maxlength | translate }}</small>
@@ -420,7 +309,7 @@
           </div>
         </div>
         <div class="col-6">
-          <label for="accessTokenUrl" class=" control-label">Access Token URL</label>
+          <label for="accessTokenUrl" class=" control-label">IdP Access Token URL</label>
           <input type="text" class="form-control" id="accessTokenUrl" formControlName="accessTokenUrl" placeholder="">
           <div *ngIf="accessTokenUrl?.invalid && (accessTokenUrl?.dirty || accessTokenUrl?.touched)"
             class="text-danger">
@@ -434,7 +323,7 @@
 
       <div class="form-group row">
         <div class="col-6">
-          <label for="scope" class="control-label">Scope</label>
+          <label for="scope" class="control-label">IdP Scope</label>
           <input type="text" class="form-control" id="scope" formControlName="scope" placeholder="">
           <div *ngIf="scope?.invalid && (scope?.dirty || scope?.touched)" class="text-danger">
             <small class="form-text">{{scope?.errors.maxlength | translate }}</small>

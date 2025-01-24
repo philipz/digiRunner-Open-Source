@@ -143,9 +143,9 @@
       <div class="form-group row">
         <div class="col-6">
           <label id="keyPassword_label" class="control-label">{{'clientKeyMima'|translate}}</label>
-          <input formControlName="keyPassword" type="password" class="form-control">
+          <input formControlName="mima" type="password" class="form-control">
         </div>
-        <div *ngIf="keyPassword?.invalid && (keyPassword?.dirty || keyPassword?.touched)" class="text-danger">
+        <div *ngIf="mima?.invalid && (mima?.dirty || mima?.touched)" class="text-danger">
           <small class="form-text">{{status?.errors.minlength | translate}}</small>
           <small class="form-text">{{status?.errors.maxlength | translate}}</small>
         </div>

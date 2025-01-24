@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 
 //import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,9 @@ import tpi.dgrv4.h2.confg.ifs.IDgrv4H2Config;
  */
 @Component
 public class H2DatabaseaServerConfig {
+	
+	@Value("${digi.h2.port:9090}")
+	private String h2Port ;
 
 	@Autowired(required = false)
 	private IDgrv4H2Config dgrv4H2Config;
@@ -32,7 +36,7 @@ public class H2DatabaseaServerConfig {
 		buf.append("\n ... * [H2 Config] Lib IoC Object Status: " + dgrv4H2Config + " * ...\n");
 		
 		Object h2Server = null;
-		int port = 9090;
+		int port = Integer.parseInt(h2Port);
 		String portStr = String.valueOf(port);
 		if (isPortAvailable(port) && dgrv4H2Config!=null) {
 			h2Server = dgrv4H2Config.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", portStr, TPILogger.tl);

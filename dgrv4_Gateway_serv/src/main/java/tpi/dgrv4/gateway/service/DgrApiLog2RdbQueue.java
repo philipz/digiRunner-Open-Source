@@ -13,7 +13,7 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 
 public abstract class DgrApiLog2RdbQueue  {
 	
-	private final static int bufferSize = 300000; // 3分鐘壓測
+	private final static int bufferSize = 500; // 3分鐘壓測
 	public static BlockingQueue<DgrApiLog2RdbQueue> rdb_LoggerQueue = new ArrayBlockingQueue<DgrApiLog2RdbQueue>(bufferSize);
 
 	public abstract void run();

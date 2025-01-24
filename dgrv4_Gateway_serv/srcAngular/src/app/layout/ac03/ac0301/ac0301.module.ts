@@ -14,6 +14,7 @@ import { MockHeadersInputComponent } from './mock-headers-input/mock-headers-inp
 import { MockHeadersInputDetailComponent } from './mock-headers-input-detail/mock-headers-input-detail.component';
 import { ApiStatusComponent } from './api-status/api-status.component';
 import { ApiStatusModifyComponent } from './api-status-modify/api-status-modify.component';
+import { ApiDetailComponent } from './api-detail/api-detail.component';
 
 @NgModule({
   imports: [
@@ -25,7 +26,7 @@ import { ApiStatusModifyComponent } from './api-status-modify/api-status-modify.
     FormsModule,
 
   ],
-  declarations: [Ac0301Component,  SwaggerComponent, MockHeadersInputComponent, MockHeadersInputDetailComponent, ApiStatusComponent, ApiStatusModifyComponent ],
+  declarations: [Ac0301Component,  SwaggerComponent, MockHeadersInputComponent, MockHeadersInputDetailComponent ],
   providers:[TokenExpiredGuard]
 })
 export class Ac0301Module { }

@@ -232,7 +232,7 @@ export class SidebarService {
                     return {
                         name: f.funcCode,
                         path: `/${f.funcCode.includes(main.main) ? main.main.toLowerCase() : f.funcCode.substr(0, 4).toLowerCase()}/${f.funcCode.toLowerCase()}`,
-                        enabled: true,
+                        enabled: false,
                         funcURL: f.funcURL
                     } as SubMenu
                 })

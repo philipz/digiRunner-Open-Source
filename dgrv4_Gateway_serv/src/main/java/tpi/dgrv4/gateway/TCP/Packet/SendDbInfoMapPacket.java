@@ -98,11 +98,11 @@ public class SendDbInfoMapPacket implements Packet_i {
 		Map<String, String> header = new HashMap<>();
 		String uuidForCapiKey = UUID.randomUUID().toString();
 		String cuuid = uuidForCapiKey.toUpperCase();
-		String capi_key = CApiKeyUtils.signCKey(cuuid);
+		String capikey = CApiKeyUtils.signCKey(cuuid);
 		header.put("Accept", "application/json");
 		header.put("Content-Type", "application/json");
 		header.put("cuuid", cuuid);
-		header.put("capi-key", capi_key);
+		header.put("capi-key", capikey);
 		header.put("Authorization", token);
 		HttpRespData dbInfoResp = null;
 

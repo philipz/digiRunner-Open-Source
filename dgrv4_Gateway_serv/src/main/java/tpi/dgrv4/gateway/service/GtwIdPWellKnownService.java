@@ -3,9 +3,6 @@ package tpi.dgrv4.gateway.service;
 import java.util.Arrays;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,9 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import tpi.dgrv4.codec.utils.JWKcodec;
 import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.escape.ESAPI;
 import tpi.dgrv4.gateway.component.GtwIdPHelper;
 import tpi.dgrv4.gateway.component.TokenHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
@@ -46,6 +46,8 @@ public class GtwIdPWellKnownService {
 			}
 			
 			String respJsonStr = getGtwIdPWellKnown(idPType);
+			//checkmarx, Reflected XSS All Clients 
+			respJsonStr = ESAPI.encoder().encodeForHTML(respJsonStr);
 			return new ResponseEntity<Object>(respJsonStr, HttpStatus.OK);
 
 		} catch (Exception e) {
@@ -68,6 +70,7 @@ public class GtwIdPWellKnownService {
 		String issuer = getIssuer(schemeAndDomainAndPort, idPType);
 		String authorizationEndpoint = getAuthorizationEndpoint(schemeAndDomainAndPort, idPType);
 		String tokenEndpoint = getTokenEndpoint(schemeAndDomainAndPort);
+		String userinfoEndpoint = getUserinfoEndpoint(schemeAndDomainAndPort);
 		String jwksUri = getJwksUri(schemeAndDomainAndPort);
 		String callbackEndpoint = getCallbackEndpoint(schemeAndDomainAndPort, idPType);
 		
@@ -78,11 +81,15 @@ public class GtwIdPWellKnownService {
 		gtwIdPWellKnownResp.setIssuer(issuer);
 		gtwIdPWellKnownResp.setAuthorizationEndpoint(authorizationEndpoint);
 		gtwIdPWellKnownResp.setTokenEndpoint(tokenEndpoint);
+		gtwIdPWellKnownResp.setUserinfoEndpoint(userinfoEndpoint);
 		gtwIdPWellKnownResp.setJwksUri(jwksUri);
 		gtwIdPWellKnownResp.setIdTokenSigningAlgValuesSupported(Arrays.asList("RS256"));
 		gtwIdPWellKnownResp.setScopesSupported(scopesSupportedList);
 		
-		if (DgrIdPType.GOOGLE.equals(idPType) || DgrIdPType.MS.equals(idPType)) {
+		if (DgrIdPType.GOOGLE.equals(idPType) //
+				|| DgrIdPType.MS.equals(idPType) //
+				|| DgrIdPType.OIDC.equals(idPType) //
+		) {
 			// OAuth 2.0 的 IdP type 才需要顯示 CallbackEndpoint
 			gtwIdPWellKnownResp.setCallbackEndpoint(callbackEndpoint);
 		}
@@ -179,8 +186,19 @@ public class GtwIdPWellKnownService {
 	 */
 	public static String getTokenEndpoint(String schemeAndDomainAndPort) {
 		String tokenEndpoint = String.format("%s/oauth/token", schemeAndDomainAndPort);
-
+		
 		return tokenEndpoint;
+	}
+	
+	/**
+	 * OpenID Connect 讓 Client 取得 UserInfo 的端口 <br>
+	 * 例如: <br>
+	 * https://127.0.0.1:8080/dgrv4/ssotoken/gtwidp/v2/userInfo <br>
+	 */
+	public static String getUserinfoEndpoint(String schemeAndDomainAndPort) {
+		String userinfoEndpoint = String.format("%s/dgrv4/ssotoken/gtwidp/v2/userInfo", schemeAndDomainAndPort);
+
+		return userinfoEndpoint;
 	}
 	
 	/**

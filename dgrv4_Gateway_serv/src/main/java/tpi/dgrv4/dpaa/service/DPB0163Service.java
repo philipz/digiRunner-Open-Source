@@ -12,6 +12,7 @@ import tpi.dgrv4.common.constant.TableAct;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DPB0163Req;
 import tpi.dgrv4.dpaa.vo.DPB0163Resp;
 import tpi.dgrv4.entity.entity.Authorities;
@@ -38,6 +39,9 @@ public class DPB0163Service {
 
 	@Transactional
 	public DPB0163Resp createIdPUser(TsmpAuthorization authorization, DPB0163Req req, InnerInvokeParam iip) {
+		
+		req.switchCusIdpTypeUserName();
+		
 		DPB0163Resp resp = new DPB0163Resp();
 		// 寫入 Audit Log M
 		String lineNumber = StackTraceUtil.getLineNumber();
@@ -49,6 +53,7 @@ public class DPB0163Service {
 
 			List<DgrAcIdpUser> list = getDgrAcIdpUserDao().findByUserName(userName);
 			if (list.size() > 0) {
+				userName = ServiceUtil.decodeBase64URL(userName);
 				throw TsmpDpAaRtnCode._1353.throwing("{{userName}}", userName);
 			}
 			

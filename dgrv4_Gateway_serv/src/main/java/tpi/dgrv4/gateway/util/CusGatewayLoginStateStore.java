@@ -21,7 +21,11 @@ public enum CusGatewayLoginStateStore {
 
 	private final ConcurrentHashMap<String, Pair<Long, Map<String, String>>> store = new ConcurrentHashMap<>();
 
-	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(r -> {
+	    Thread thread = new Thread(r);
+	    thread.setName("CusGatewayLoginStateStoreThread");
+	    return thread;
+	});
 
 	private long expirationTime = 1;
 	private TimeUnit timeUnit = TimeUnit.MINUTES;

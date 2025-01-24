@@ -66,7 +66,6 @@
                 placeholder="{{'org_password' | translate}}">
               <div *ngIf="userBlock?.invalid && (userBlock?.dirty || userBlock?.touched)" class="text-danger">
                 <small class="form-text">{{userBlock.errors.maxlength | translate:newUserBlockLimitChar}}</small>
-                <!-- <small class="form-text">{{userBlock.errors.confirm_password | translate}}</small> -->
               </div>
             </div>
           </div>
@@ -77,7 +76,7 @@
                 placeholder="{{'new_password' | translate}}">
               <div *ngIf="newUserBlock?.invalid && (newUserBlock?.dirty || newUserBlock?.touched)" class="text-danger">
                 <small class="form-text">{{newUserBlock.errors.maxlength | translate:newUserBlockLimitChar}}</small>
-                <small *ngIf="confirmUserBlock.value" class="form-text">{{newUserBlock.errors.confirm_password | translate}}</small>
+                <small *ngIf="confirmUserBlock.value" class="form-text">{{newUserBlock.errors.confirm_mima | translate}}</small>
               </div>
             </div>
           </div>
@@ -89,7 +88,7 @@
               <div *ngIf="confirmUserBlock?.invalid && (confirmUserBlock?.dirty || confirmUserBlock?.touched)"
                 class="text-danger">
                 <small class="form-text">{{confirmUserBlock.errors.maxlength | translate:newUserBlockLimitChar}}</small>
-                <small class="form-text">{{confirmUserBlock.errors.confirm_password | translate}}</small>
+                <small class="form-text">{{confirmUserBlock.errors.confirm_mima | translate}}</small>
               </div>
             </div>
           </div>

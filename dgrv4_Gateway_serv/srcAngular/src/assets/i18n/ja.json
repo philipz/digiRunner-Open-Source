@@ -940,7 +940,7 @@
   "user_password": "ユーザーパスワード",
   "user_roles": "ユーザーキャラクター",
   "validation": {
-      "confirm_password": "パスワードが間違っています",
+      "confirm_mima": "パスワードが間違っています",
       "ipaddress": "IP 形式の文字を入力してください",
       "mailFormat": "メールフォーマットエラー",
       "maxlength": "文字数は{{value}}個以下にしてください",
@@ -1315,6 +1315,10 @@
   "auth_client": "認可されたクライアント",
   "redirectURItip":"URI を入力するときは、次の規則に従ってください:\n\n1. URI はプロトコルで始まる必要があります\n2. 「http://」または「https://」で始まる場合、正当な完全な URL 形式である必要があり、* \n 例: https://www.example.com\n3 を含める必要があります。他のプロトコルで始まる場合は、*\n 例: myapp://example/*\n \n## エラーの例: \n- www.example.com (プロトコルがありません)\n- https://www.example.com/* (* は許可されません)\n- https:// (不完全)\n - myapp://example/ (* がありません)",
   "ルール":"ルール",
-  "whitelist_rule_tip": "正規表現を入力すると、User-Agent ヘッダーがチェックされます",
-  "api_count": "API の総数"
+  "allowlist_rule_tip": "正規表現を入力すると、User-Agent ヘッダーがチェックされます",
+  "api_count": "API の総数",
+  "view_mode": {
+    "0":"ビューの管理",
+    "1":"監査レビュー"
+  }
 }

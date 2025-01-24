@@ -152,18 +152,48 @@
   }
   .p-listbox-list {
     .p-listbox-item {
-      &:focus{
+      &:focus {
         box-shadow: 0 0 0 0.2rem #ffac0061;
       }
       &.p-highlight {
         background: var(--tpi-primary);
       }
-      span{
+      span {
         font-size: 0.8rem;
       }
     }
   }
-  .p-listbox-empty-message{
+  .p-listbox-empty-message {
     font-size: 0.8rem;
+  }
+}
+.view-mode-menu.p-menu {
+  width: 9rem;
+  --bg: transparent;
+
+  .p-menuitem {
+    .p-menuitem-link {
+      &::before {
+        content: "";
+        border-bottom: 2px solid var(--bg);
+        border-left: 2px solid var(--bg);
+        display: block;
+        width: 12px;
+        height: 7px;
+        transform: rotate(-45deg) translateX(3px);
+        margin-right: 9px;
+      }
+
+      &:hover {
+        --bg: var(--tpi-primary);
+      }
+    }
+    &.active {
+      .p-menuitem-link {
+        &::before {
+          --bg: var(--tpi-primary);
+        }
+      }
+    }
   }
 }

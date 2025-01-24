@@ -23,7 +23,7 @@ public class TsmpSequenceDao_H2 implements TsmpSequenceDao {
 	@Override
 	public Long nextSequence(String sequenceName, Long initial, Long increment) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("SELECT " + sequenceName + ".NEXTVAL FROM dual");
+		sb.append("SELECT NEXT VALUE FOR " + sequenceName);
 
 		Query query = getEm().createNativeQuery(sb.toString());
 		Object seq = query.getSingleResult();

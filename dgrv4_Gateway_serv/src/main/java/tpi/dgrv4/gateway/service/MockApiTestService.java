@@ -37,7 +37,7 @@ import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
 @Service
 public final class MockApiTestService {
 
-	public static final String HTTP_HEADER_MOCK_TEST = "dgr_mock_test";
+	public static final String HTTP_HEADER_MOCK_TEST = "dgr-mock-test";
 
 	@Autowired
 	private CommForwardProcService commForwardProcService;
@@ -95,8 +95,8 @@ public final class MockApiTestService {
 			throws Exception {
 
 		StringBuffer sb = new StringBuffer();
-		sb.append("\n--【LOGUUID】【" + uuid + "】【Start Mock-to-Bankend】--");
-		sb.append("\n--【LOGUUID】【" + uuid + "】【End Mock-from-Bankend】--\n");
+		sb.append("\n--【LOGUUID】【" + uuid + "】【Start Mock-to-Backend】--");
+		sb.append("\n--【LOGUUID】【" + uuid + "】【End Mock-from-Backend】--\n");
 
 		// 第二組ES REQ
 		TsmpApiLogReq newApiLogReq = ServiceUtil.deepCopy(dgrReqVo, TsmpApiLogReq.class);

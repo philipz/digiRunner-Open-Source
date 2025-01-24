@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import tpi.dgrv4.common.utils.CheckmarxCommUtils;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 
@@ -36,7 +37,11 @@ public enum TempFileCleaner {
 	private final String tempDirectoryPath = System.getProperty("user.dir") + File.separator + "tempFiles";
 
 	// 用於排程的執行器服務
-	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+	    Thread thread = new Thread(r);
+	    thread.setName("temp-file-cleaner");
+	    return thread;
+	});
 
 	// 用於存儲排程的參考，以便稍後取消它
 	private Future<?> scheduledFuture;
@@ -175,11 +180,12 @@ public enum TempFileCleaner {
 		}
 
 		String uniqueFilename = UUID.randomUUID().toString() + "" + originalFilename;
-
+		
 		// 2. 依照設定的路徑把檔案存入指定路徑上
 		Path savedFilePath = Paths.get(tempDirectoryPath, uniqueFilename);
 		ensureDirectoryExists();
-		file.transferTo(savedFilePath.toFile());
+		//checkmarx, Stored Absolute Path Traversal, Input Path Not Canonicalized
+		CheckmarxCommUtils.sanitizeForCheckmarx(file, savedFilePath);
 
 		// 3. 取得現在時間戳並依照檔案大小來增加
 		long timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
@@ -192,6 +198,11 @@ public enum TempFileCleaner {
 
 		// 5. 把該檔案路徑回傳
 		return filePath;
+	}
+	
+	private String sanitizePathTraversal(String filename) {
+		Path p = Paths.get(filename);
+		return p.getFileName().toString();
 	}
 
 }

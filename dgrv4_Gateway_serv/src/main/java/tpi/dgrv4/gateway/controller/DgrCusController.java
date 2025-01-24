@@ -113,6 +113,9 @@ public class DgrCusController {
 					});
 				});
 			}
+			
+			//checkmarx, Missing HSTS Header
+			response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 
 			if (respData.statusCode != 302 && (respData.httpRespArray == null || respData.httpRespArray.length == 0)) {
 				sendError(response, HttpStatus.NOT_FOUND,
@@ -242,7 +245,8 @@ public class DgrCusController {
 			response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 			response.setHeader("Pragma", "no-cache");
 			response.setHeader("Expires", "0");
-
+			//checkmarx, Missing HSTS Header
+			response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 			if (respData.httpRespArray == null || respData.httpRespArray.length == 0) {
 				sendError(response, HttpStatus.NOT_FOUND,
 						"No data responded from " + targetCompleteUrl + "\n" + respData.getLogStr());
@@ -286,16 +290,21 @@ public class DgrCusController {
 
 	private String getTargetPath(HttpServletRequest request, String cusAppCode) {
 		String requestUri = request.getRequestURI();
-		Pattern p = Pattern.compile("^" + KEY_PATH + "/" + cusAppCode + "(.*)$");
-		Matcher m = p.matcher(requestUri);
-		if (m.matches()) {
-			requestUri = m.group(1);
-		}
+		
+		//checkmarx, ReDoS From Regex Injection, 已通過中風險
+//		Pattern p = Pattern.compile("^" + KEY_PATH + "/" + cusAppCode + "(.*)$");
+//		Matcher m = p.matcher(requestUri);
+//		if (m.matches()) {
+//			requestUri = m.group(1);
+//		}
+		int index = requestUri.indexOf(KEY_PATH) + KEY_PATH.length() + 1 + cusAppCode.length();
+		String targetPath = requestUri.substring(index);
+		
 		String queryStr = request.getQueryString();
 		if (StringUtils.hasLength(queryStr)) {
-			requestUri += "?" + queryStr;
+			targetPath += "?" + queryStr;
 		}
-		return requestUri;
+		return targetPath;
 	}
 
 	private String getTargetCompleteUrl(String reportId, String targetPath) {

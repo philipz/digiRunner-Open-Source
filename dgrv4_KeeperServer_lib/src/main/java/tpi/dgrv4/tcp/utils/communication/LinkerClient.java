@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -39,8 +40,8 @@ public class LinkerClient implements Runnable {
 	
 	public List<ClinetNotifier> cnf;
 
-	private final String keeperHeaerByte = "__K_e_E_p_er__H_ea_d_er__";
-	private final String keeperFooterByte = "__digi_9999__";
+	private final String keeperHeaerByte = "_|__K_e_E_p_er__H_ea_d_er__|_(";
+	private final String keeperFooterByte = ")_|__digi_9999__|_";
 	
 	Socket socket;
 //	Input in;
@@ -120,10 +121,14 @@ public class LinkerClient implements Runnable {
 	        while (true) {
 	            int bytesRead = socket.getInputStream().read(socket_read_buffer);
 	            if(bytesRead == -1) {
-	            		break; //socket close
+	            	break; //socket close
 	            }
-
-	            baos_4_readObj.write(socket_read_buffer, 0, bytesRead);
+	            
+	            // 只處理實際讀到的資料
+	            byte[] actualData = Arrays.copyOf(socket_read_buffer, bytesRead);
+	            
+	            // copy to ByteArrayOS
+	            baos_4_readObj.write(actualData, 0, actualData.length);
 	            baos_4_readObj.flush();
 
 	            // Kryo object
@@ -309,8 +314,7 @@ public class LinkerClient implements Runnable {
 	}
 
 	ByteArrayOutputStream baos_sendObj = new ByteArrayOutputStream();
-//	Output kryoOutput = new Output(baos_sendObj);
-	Output kryoOutput = new Output(baos_sendObj, socket_read_buffer.length);
+	Output kryoOutput = new Output(baos_sendObj, socket_read_buffer.length); 
 
 	private void sendObject() {
 		try {
@@ -321,8 +325,11 @@ public class LinkerClient implements Runnable {
 	            return;
 	        }
 	        
+//	        baos_sendObj = new ByteArrayOutputStream(); // 每次都 new 避免前後封包混肴
+//	        kryoOutput = new Output(baos_sendObj, socket_read_buffer.length); // 每次都 new 避免前後封包混肴
+	        
 	        // header added
-	        baos_sendObj.write(keeperHeaerByte .getBytes());
+	        baos_sendObj.write(keeperHeaerByte.getBytes());
 	        
 	        // BODY
 	        kryo.writeClassAndObject(kryoOutput, obj);
@@ -333,13 +340,15 @@ public class LinkerClient implements Runnable {
 	        baos_sendObj.write(keeperFooterByte.getBytes());
 	        
 	        byte[] data = baos_sendObj.toByteArray(); //網上說這是錯誤用法, 這是 kryo 與Java原生框架的區別
-//	        byte[] data = kryoOutput.toBytes();
+	        
+//	        logger.info("暫時印出來看(Client)\n..." + new String(data, "UTF-8") + "... 暫時印出來看(Client)\n");
 
 	        socket.getOutputStream().write(data);
 	        socket.getOutputStream().flush();
 	        logger.trace("\n...socket狀態: " + socket.isClosed() + "," + socket.isConnected() + "," + socket.isOutputShutdown());	        
 	        kryoOutput.reset();
 	        baos_sendObj.reset();
+	        kryo.reset();
 	        
 //	        Thread.sleep(0,2000);
 	        

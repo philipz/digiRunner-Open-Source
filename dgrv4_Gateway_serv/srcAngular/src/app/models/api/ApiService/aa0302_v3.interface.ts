@@ -46,6 +46,7 @@ export interface AA0302Resp {
   mockStatusCode?: string;
   mockHeaders?: Array<AA0313KeyVal>;
   mockBody?: string;
+  mockHeadersOfJson?: string;
   headerMaskPolicy: string;
   headerMaskPolicyNum?: number;
   headerMaskPolicySymbol?: string;
@@ -55,12 +56,18 @@ export interface AA0302Resp {
   bodyMaskPolicySymbol?: string;
   bodyMaskKeyword?: string;
   isRedirectByIp: boolean;
-  redirectByIpDataList: Array<AA0302RedirectByIpData>
+  redirectByIpDataList: Array<AA0302RedirectByIpData>;
   labelList: Array<string>;
   fixedCacheTime: number;
   type?: string;
   failDiscoveryPolicy: string;
   failHandlePolicy: string;
+  enableScheduledDate: string;
+  disableScheduledDate: string;
+  createDate: string;
+  createUser: string;
+  updateDate?: string;
+  updateUser?: string;
 }
 export interface AA0302RedirectByIpData {
   ipForRedirect: string;

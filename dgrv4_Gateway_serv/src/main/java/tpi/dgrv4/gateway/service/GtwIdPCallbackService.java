@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +15,8 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import tpi.dgrv4.codec.utils.IdTokenUtil;
 import tpi.dgrv4.codec.utils.IdTokenUtil.IdTokenData;
 import tpi.dgrv4.codec.utils.JWKcodec;
@@ -52,8 +51,8 @@ import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp2;
 
 /**
- * User在 IdP(GOOGLE / MS) 登入成功後,重新導向回來 <br>
- * (GOOGLE / MS) <br>
+ * User在 IdP(GOOGLE / MS / OIDC) 登入成功後,重新導向回來 <br>
+ * (GOOGLE / MS / OIDC) <br>
  * @author Mini_
  */
 @Service
@@ -137,6 +136,7 @@ public class GtwIdPCallbackService {
 		ResponseEntity<?> errRespEntity = null;
 		if (idPType.equals(DgrIdPType.GOOGLE) // GOOGLE
 				|| idPType.equals(DgrIdPType.MS) // MS
+				|| idPType.equals(DgrIdPType.OIDC) // OIDC
 		) {
 			String state = GtwIdPHelper.getStateFromCookies(httpReq, GtwIdPHelper.COOKIE_STATE);// 從 cookies 取得 state 的值
 			// 從 cookies 取得 codeVerifier 的值
@@ -162,7 +162,7 @@ public class GtwIdPCallbackService {
 	}
   
 	/**
-	 * for GOOGLE / MS IdP 流程
+	 * for GOOGLE / MS / OIDC IdP 流程
 	 */
 	public ResponseEntity<?> gtwIdPCallback_oauth2(HttpServletResponse httpResp, String idPType, String state,
 			String idPAuthCode, String reqUri, String userIp, String userHostname, String codeVerifierForOauth2)
@@ -241,7 +241,7 @@ public class GtwIdPCallbackService {
 			return errRespEntity;
 		}
  
-		// 4.打 IdP(GOOGLE / MS) Well Known URL, 取得 JSON 資料
+		// 4.打 IdP(GOOGLE / MS / OIDC) Well Known URL, 取得 JSON 資料
 		WellKnownData wellKnownData = getIdPWellKnownHelper().getWellKnownData(idPWellKnownUrl,
 				reqUri);
 		errRespEntity = wellKnownData.errRespEntity;
@@ -281,7 +281,7 @@ public class GtwIdPCallbackService {
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
 		
-		// 6.打 IdP(GOOGLE / MS) 的 token API, 取得 Access Token 和 ID Token
+		// 6.打 IdP(GOOGLE / MS / OIDC) 的 token API, 取得 Access Token 和 ID Token
 		TokenData tokenData = getIdPTokenHelper().getTokenData(idPType, idPClientId, idPClientMima, idPAccessTokenUrl,
 				dgrCallbackUrl, idPAuthCode, codeVerifierForOauth2, reqUri);
 		errRespEntity = tokenData.errRespEntity;
@@ -301,7 +301,7 @@ public class GtwIdPCallbackService {
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
 		
-		// 7.驗證 IdP(GOOGLE / MS) ID Token
+		// 7.驗證 IdP(GOOGLE / MS / OIDC) ID Token
 		boolean isVerify = false;            
 		JWKVerifyResult jwkRs = JWKcodec.verifyJWStoken(idTokenJwtstr, jwksUri, issuer);
 		isVerify = jwkRs.verify;

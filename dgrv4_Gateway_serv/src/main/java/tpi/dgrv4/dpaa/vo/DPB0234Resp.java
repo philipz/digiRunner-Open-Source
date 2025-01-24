@@ -5,6 +5,7 @@ import java.util.List;
 public class DPB0234Resp {
     private List<DPB0234RespItem> dataList;
     private List<DPB0234RespItemFromXapiKey> dataListFromXapiKey;
+    private DPB0234ResponseFromXapiKey responseFromXapiKey;
     private String totalApi;
 
     public List<DPB0234RespItem> getDataList() {
@@ -23,6 +24,14 @@ public class DPB0234Resp {
         this.dataListFromXapiKey = dataListFromXapiKey;
     }
 
+    public DPB0234ResponseFromXapiKey getResponseFromXapiKey() {
+        return responseFromXapiKey;
+    }
+
+    public void setResponseFromXapiKey(DPB0234ResponseFromXapiKey responseFromXapiKey) {
+        this.responseFromXapiKey = responseFromXapiKey;
+    }
+
     public String getTotalApi() {
         return totalApi;
     }
@@ -36,7 +45,8 @@ public class DPB0234Resp {
         return "DPB0234Resp{" +
                 "dataList=" + dataList +
                 ", dataListFromXapiKey=" + dataListFromXapiKey +
-                ", totalApi=" + totalApi +
+                ", responseFromXapiKey=" + responseFromXapiKey +
+                ", totalApi='" + totalApi + '\'' +
                 '}';
     }
 }

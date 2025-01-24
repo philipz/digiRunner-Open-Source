@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.service.AcIdPLoginService;
 
@@ -36,7 +37,7 @@ public class AcIdPLoginController {
 			HttpServletRequest httpReq,
 			HttpServletResponse httpResp, 
 			@PathVariable("idPType") String idPType) {
-		
+
 		login(httpHeaders, httpReq, httpResp, idPType);
 		return null;
 	}

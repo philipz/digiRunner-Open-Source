@@ -14,6 +14,9 @@ public class GtwIdPWellKnownResp {
 
 	@JsonProperty("token_endpoint")
 	private String tokenEndpoint;
+	
+	@JsonProperty("userinfo_endpoint")
+	private String userinfoEndpoint;
 
 	@JsonProperty("jwks_uri")
 	private String jwksUri;
@@ -34,9 +37,10 @@ public class GtwIdPWellKnownResp {
 	@Override
 	public String toString() {
 		return "GtwIdPWellKnownResp [issuer=" + issuer + ", authorizationEndpoint=" + authorizationEndpoint
-				+ ", tokenEndpoint=" + tokenEndpoint + ", jwksUri=" + jwksUri + ", idTokenSigningAlgValuesSupported="
-				+ idTokenSigningAlgValuesSupported + ", scopesSupported=" + scopesSupported + ", callbackEndpoint="
-				+ callbackEndpoint + ", codeChallengeMethodsSupported=" + codeChallengeMethodsSupported + "]";
+				+ ", tokenEndpoint=" + tokenEndpoint + ", userinfoEndpoint=" + userinfoEndpoint + ", jwksUri=" + jwksUri
+				+ ", idTokenSigningAlgValuesSupported=" + idTokenSigningAlgValuesSupported + ", scopesSupported="
+				+ scopesSupported + ", callbackEndpoint=" + callbackEndpoint + ", codeChallengeMethodsSupported="
+				+ codeChallengeMethodsSupported + "]";
 	}
 
 	public String getIssuer() {
@@ -61,6 +65,14 @@ public class GtwIdPWellKnownResp {
 
 	public void setTokenEndpoint(String tokenEndpoint) {
 		this.tokenEndpoint = tokenEndpoint;
+	}
+	
+	public String getUserinfoEndpoint() {
+		return userinfoEndpoint;
+	}
+
+	public void setUserinfoEndpoint(String userinfoEndpoint) {
+		this.userinfoEndpoint = userinfoEndpoint;
 	}
 
 	public String getJwksUri() {

@@ -158,7 +158,7 @@ public class OAuthIntrospectionService {
 			clientBlock = Base64Util.base64Encode(clientSecret.getBytes());
 
 			// 查無 client 或 client 帳密不對
-			respEntity = getTokenHelper().checkClientSecret(clientId, clientBlock, reqUri);
+			respEntity = getTokenHelper().checkClientMima(clientId, clientBlock, reqUri);
 			if (respEntity != null) {// client資料驗證有錯誤
 				return respEntity;
 			}

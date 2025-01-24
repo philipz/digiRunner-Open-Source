@@ -990,11 +990,11 @@ public class TsmpRtnCodeTableInitializer {
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1550"), (locale = "en-US"), (tsmpRtnMsg = "The enable date and disable date cannot be the same day"), (tsmpRtnDesc = ""));
 
 		    // 20240524, API 啟用停用上架下架相關錯誤
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "1551"), (locale = "zh-TW"), (tsmpRtnMsg = "已經啟用"), (tsmpRtnDesc = ""));
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "1551"), (locale = "en-US"), (tsmpRtnMsg = "Already enabled"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1551"), (locale = "zh-TW"), (tsmpRtnMsg = "不可包含已啟用的API"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1551"), (locale = "en-US"), (tsmpRtnMsg = "Cannot include enabled APIs"), (tsmpRtnDesc = ""));
 
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "1552"), (locale = "zh-TW"), (tsmpRtnMsg = "已經停用"), (tsmpRtnDesc = ""));
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "1552"), (locale = "en-US"), (tsmpRtnMsg = "Already disabled"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1552"), (locale = "zh-TW"), (tsmpRtnMsg = "不可包含已停用的API"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1552"), (locale = "en-US"), (tsmpRtnMsg = "Cannot include disabled APIs"), (tsmpRtnDesc = ""));
 
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1553"), (locale = "zh-TW"), (tsmpRtnMsg = "啟用日期需要大於停用日期"), (tsmpRtnDesc = ""));
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1553"), (locale = "en-US"), (tsmpRtnMsg = "The enable date needs to be greater than the disable date"), (tsmpRtnDesc = ""));
@@ -1008,11 +1008,11 @@ public class TsmpRtnCodeTableInitializer {
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1556"), (locale = "zh-TW"), (tsmpRtnMsg = "必須先移除預定停用日期"), (tsmpRtnDesc = ""));
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1556"), (locale = "en-US"), (tsmpRtnMsg = "Scheduled disable date must be removed first"), (tsmpRtnDesc = ""));
 
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "2031"), (locale = "zh-TW"), (tsmpRtnMsg = "已經上架"), (tsmpRtnDesc = ""));
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "2031"), (locale = "en-US"), (tsmpRtnMsg = "Already launched"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "2031"), (locale = "zh-TW"), (tsmpRtnMsg = "不可包含已上架的API"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "2031"), (locale = "en-US"), (tsmpRtnMsg = "Cannot include APIs that are already on the shelves"), (tsmpRtnDesc = ""));
 
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "2032"), (locale = "zh-TW"), (tsmpRtnMsg = "已經下架"), (tsmpRtnDesc = ""));
-		    createTsmpRtnCode((tsmpRtnCodeColumn = "2032"), (locale = "en-US"), (tsmpRtnMsg = "Already removed"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "2032"), (locale = "zh-TW"), (tsmpRtnMsg = "不可包含已下架的API"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "2032"), (locale = "en-US"), (tsmpRtnMsg = "Cannot include APIs that have been removed from the shelves"), (tsmpRtnDesc = ""));
 
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "2033"), (locale = "zh-TW"), (tsmpRtnMsg = "上架日期需要大於下架日期"), (tsmpRtnDesc = ""));
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "2033"), (locale = "en-US"), (tsmpRtnMsg = "The launch date needs to be greater than the removal date"), (tsmpRtnDesc = ""));

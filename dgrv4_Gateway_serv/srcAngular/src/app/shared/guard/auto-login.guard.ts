@@ -29,7 +29,7 @@ export class AutoLoginGuard implements CanActivate {
 
             if (sso != undefined && sso == 'true') {
               console.log('*auto login guard')
-                this.tokenService.auth("", "", GrantType.password, appendUrl.join("&")).subscribe((r: ResToken) => {
+                this.tokenService.auth("", "", GrantType.mima, appendUrl.join("&")).subscribe((r: ResToken) => {
                     if (r && r.access_token) {
                         this.toolService.setTokenInfo(r);
                         this.toolService.writeToken(r.access_token);

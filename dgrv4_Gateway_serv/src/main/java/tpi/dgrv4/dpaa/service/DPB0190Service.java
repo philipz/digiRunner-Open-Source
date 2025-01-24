@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import ch.qos.logback.core.joran.conditional.IfAction;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.StackTraceUtil;
@@ -25,6 +24,8 @@ public class DPB0190Service {
 	private TPILogger logger = TPILogger.tl;
 	@Autowired
 	private DgrRdbConnectionDao dgrRdbConnectionDao;
+	@Autowired
+    private TsmpSettingService tsmpSettingService;
 
 	public DPB0190Resp queryRdbConnectionInfoList(TsmpAuthorization authorization, DPB0190Req req) {
 		DPB0190Resp resp = new DPB0190Resp();
@@ -36,8 +37,12 @@ public class DPB0190Service {
 			if (info.size() == 0) {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
-
+			
+			boolean isDefaultDbEnabled = getTsmpSettingService().getVal_APIM_DEFAULT_DB_ENABLED();
 			info.forEach(i -> {
+				if(!isDefaultDbEnabled && "APIM-default-DB".equalsIgnoreCase(i.getConnectionName())){
+					return;
+				}
 				DPB0190RespItem item = new DPB0190RespItem();
 				item.setConnectionName(i.getConnectionName());
 				item.setJdbcUrl(i.getJdbcUrl());
@@ -49,6 +54,11 @@ public class DPB0190Service {
 				item.setUpdateUser(updateUser);
 				items.add(item);
 			});
+			
+			if (items.size() == 0) {
+				throw TsmpDpAaRtnCode._1298.throwing();
+			}
+			
 			resp.setInfoList(items);
 		} catch (TsmpDpAaException e) {
 			throw e;
@@ -59,8 +69,15 @@ public class DPB0190Service {
 
 		return resp;
 	}
+	
 
 	protected DgrRdbConnectionDao getDgrRdbConnectionDao() {
 		return dgrRdbConnectionDao;
 	}
+
+	protected TsmpSettingService getTsmpSettingService() {
+		return tsmpSettingService;
+	}
+	
+	
 }

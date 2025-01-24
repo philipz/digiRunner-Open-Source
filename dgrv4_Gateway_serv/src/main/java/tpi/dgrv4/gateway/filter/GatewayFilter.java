@@ -40,14 +40,21 @@ import tpi.dgrv4.gateway.vo.TsmpApiLogReq;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class GatewayFilter extends OncePerRequestFilter {
 
 	@Value("${cors.allow.headers}")
 	private String corsAllowHeaders;
+	
+	// StringBuffer 的高併發替代品 StringBuilder(非同步) + ThreadLocal(多執行緒安全性)
+	private static final ThreadLocal<StringBuilder> sbBuilderHolder = ThreadLocal.withInitial(() -> new StringBuilder());
 
-	public final static String cspDefaultVal = "default-src %s 'self' 'unsafe-inline'; img-src https://* 'self' data:;";
+	// 高併發網路流量快速通關分派裝置(記憶單元)
+	public static final Map<String, Long> apiRespTimeMap = new ConcurrentHashMap<>();
+	
+//	public final static String cspDefaultVal = "default-src %s 'self' 'unsafe-inline'; img-src https://* 'self' data:;";
 
 	public final static Object throughputObjLock = new Object();
 	public final static LinkedHashMap<Integer, Integer> apiReqThroughput = new LinkedHashMap<Integer, Integer>() {
@@ -72,6 +79,15 @@ public class GatewayFilter extends OncePerRequestFilter {
 	public final static String apiId = "apiId";
 
 	public final static String moduleName = "moduleName";
+
+	
+	// 高併發網路流量快速通關分派裝置(控制旗標)	
+	public final static String startTime = "startTime";
+	public final static String endTime = "endTime";
+	public final static String setWorkThread = "SetWorkThread";
+	public final static String fast = "fast";
+	public final static String slow = "slow";
+	
 
 	@Autowired
 	private TPILogger logger;
@@ -151,13 +167,14 @@ public class GatewayFilter extends OncePerRequestFilter {
 			// 為了可以強制更改DB帳號密碼所以保留了傳參數的方式，以防當API取不到正確的值
 			// uri 只會異動為 "dgrc"、"tsmpc"
 			String uri = request.getRequestURI();
+			String QString = request.getQueryString();
+			String remoteAdd = request.getRemoteAddr();
+			String remoteHost = request.getRemoteHost();
+			String method01 = request.getMethod();
+			
+			showSrcURI(uri, remoteAdd, remoteHost, method01, QString); // debug 顯示 URI & src IP
+			
 			// 若 Host Header 不符合安全檢查就 true, 否則 false
-
-			if (dotBotDetectionCheck.check(request)) {
-				int status = HttpServletResponse.SC_FORBIDDEN;// 403
-				throw new DgrException(status, dotBotDetectionCheck);
-			}
-
 			if (hostHeaderCheck.check(request)) {
 				int status = HttpServletResponse.SC_UNAUTHORIZED;// 401
 				throw new DgrException(status, hostHeaderCheck);
@@ -210,7 +227,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 			b = b || (uri.length() >= 10 && (uri.substring(0, 10).equals("/http-api/")));
 			b = b || (uri.length() >= 16 && (uri.substring(0, 16).equals("/_plugin/kibana/")));
 			b = b || (uri.length() >= 13 && (uri.substring(0, 13).equals("/_dashboards/"))); // AWS上的OpenSearch的URL路徑
-			b = b || (uri.length() >= 8 && (uri.substring(0, 8).equals("/kibana/")))
+			b = b || (uri.length() >= 12 && (uri.substring(0, 12).equals("/dgrliveness")));	//國壽要求一個 非/dgrv4的探針API
+			b = b || (uri.length() >= 8 && (uri.substring(0, 8).equals("/kibana/")))            
 					|| isGCPkibana(request, kibanaPrefix); // 判斷是不是走/kibana2的GCP 相關URL
 			b = !(b);
 
@@ -328,9 +346,9 @@ public class GatewayFilter extends OncePerRequestFilter {
 			 * "default-src https://10.20.30.88:18442 https://10.20.30.88:28442 'self' 'unsafe-inline'; img-src https://* 'self' data:;"
 			 * "default-src * 'self' 'unsafe-inline'; img-src https://* 'self' data:;"
 			 */
-			String cspVal = String.format(cspDefaultVal, dgrCspVal);
-
-			responseWrapper.setHeaderByForce("Content-Security-Policy", cspVal);
+//			String cspVal = String.format(cspDefaultVal, dgrCspVal);
+			if (StringUtils.hasText(dgrCspVal) && !"*".equals(dgrCspVal.trim())) //如果是星號全不加  否則依照填入內容加上
+				responseWrapper.setHeaderByForce("Content-Security-Policy", dgrCspVal);
 		}
 
 		responseWrapper.setHeaderByForce("Access-Control-Allow-Origin", getTsmpSettingService().getVal_DGR_CORS_VAL()); // CORS
@@ -345,7 +363,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 
 		responseWrapper.setHeaderByForce("X-Frame-Options", "sameorigin");
 		responseWrapper.setHeaderByForce("X-Content-Type-Options", "nosniff");
-		responseWrapper.setHeaderByForce("Strict-Transport-Security", "max-age=31536000; preload; includeSubDomains");
+		responseWrapper.setHeaderByForce("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 		responseWrapper.setHeaderByForce("Referrer-Policy", "strict-origin-when-cross-origin");
 		responseWrapper.setHeaderByForce("Cache-Control", "no-cache");
 		responseWrapper.setHeaderByForce("Pragma", "no-cache");
@@ -368,6 +386,145 @@ public class GatewayFilter extends OncePerRequestFilter {
 		// TPILogger.tl.debug("\n--【LOGUUID】【" + "No" + "】【after end】--\n");
 	}
 
+	/** Before
+	 * 高併發網路流量快速通關分派裝置(控制單元)
+	 * 記錄 Req 進入時的 startTime , URI , method
+	 *   */
+	private static void fetchUriHistoryBefore(HttpServletRequest request) {
+		long startTime = System.currentTimeMillis();
+		
+		// 以此 Request 記錄它的 startTime
+		request.setAttribute(GatewayFilter.startTime, startTime);
+//		request.setAttribute(GatewayFilter.endTime, endTime);
+		
+		// 以此 Request 記錄它的 URI Key: [GET] /aa/bb , 沒有含 QueryString
+		String keyUri = getUriKeyString(request.getMethod(), request.getRequestURI());
+		
+		// 對特定 uri 的值進行計算並更新
+		// 如果 keyUri 不存在，設為 -1
+		// 如果 keyUri 存在，也設為 v(原來的值)
+		apiRespTimeMap.compute(keyUri, (k, v) -> v == null ? 999999 : v);
+	}
+
+	/**
+	 * 高併發網路流量快速通關分派裝置(控制單元)
+	 * 依據 method URI
+	 * 截取上一次 Request 的往返時間 elapsed time
+	 * */
+	private static long fetchUriHistoryElapsed(HttpServletRequest request) {
+		String method01 = request.getMethod();
+		String keyUri = getUriKeyString(method01, request.getRequestURI());
+		long ms = apiRespTimeMap.get(keyUri);
+		return ms;
+	}
+	
+	/** After  
+	 * 高併發網路流量快速通關分派裝置(控制單元)
+	 * 記錄 Response 的時間
+	 * 計算 elapsed time 並放在 (記憶單元)
+	 * */
+	public static void fetchUriHistoryAfter(HttpServletRequest request) {
+		long endTime = System.currentTimeMillis();
+		// 以此 Request 記錄它的 startTime
+//		request.setAttribute(GatewayFilter.endTime, endTime);
+		
+		// 以此 Request 記錄它的 URI Key: [GET] /aa/bb , 沒有含 QueryString
+		long startTime = (long)request.getAttribute(GatewayFilter.startTime);
+		String method01 = request.getMethod();
+
+		String afterUri = request.getRequestURI(); // 這裡被轉換過 '/dgrc' 了
+		String srcUri = afterUri.substring(afterUri.indexOf("/", 1)); // 去除第一個 path (/dgrc)
+
+		// 計算 '耗時'
+		long elapsed = endTime - startTime;
+		String keyUri = getUriKeyString(method01, srcUri);
+		apiRespTimeMap.put(keyUri, elapsed);
+		
+		// print
+		fetchUriHistoryList();
+	}
+	
+	/**
+	 * print list
+	 * 高併發網路流量快速通關分派裝置(輸出單元)
+	 * @return
+	 */
+	public static String fetchUriHistoryList() {
+		StringBuilder sb = sbBuilderHolder.get();
+		sb.append(String.format("%40s", "").replace(' ', '-')+"\n");
+		apiRespTimeMap.forEach((key, value) -> {
+			if(key.length() > 40) {
+				for (int i = 0; i < key.length(); i += 40) {
+		            if (i + 40 < key.length()) {
+		            	sb.append(key, i, i + 40).append("\n");
+		            } else {
+		            	sb.append(String.format("%-40s", key.substring(i)));
+		            }
+		        }				
+			} else {
+				sb.append(String.format("%-40s", key));				
+			}
+			sb.append(" "+value +"ms\n");			
+		});
+		String result = sb.toString();
+		sb.setLength(0); // 清空
+//	System.err.println(result);
+		return result;
+	}
+	
+	public void unload() {
+		sbBuilderHolder.remove();
+	}
+	
+	/**
+	 * 高併發網路流量快速通關分派裝置(運算單元)
+	 * @param method01
+	 * @param uri
+	 * @return
+	 */
+	private static String getUriKeyString(String method01, String uri) {
+		String key = "[" + method01 + "] (" + uri + ")";
+		return key;
+	}
+	
+	
+	/**
+	 * 高併發網路流量快速通關分派裝置(運算單元)+(控制單元)
+	 * @param dgrcUri
+	 * @return newUri
+	 */
+	private void fetchUriHistoryRouterControl(HttpServletRequest request) {
+
+		// 開始記錄 URI 的資訊, 未來做為 '高併發網路流量快速通關分派裝置' 轉發的依據
+		fetchUriHistoryBefore(request);
+		
+		long lastTime = fetchUriHistoryElapsed(request);
+//	System.err.println("last Time=" + lastTime);
+	
+		if (lastTime < tsmpSettingService.getVal_HIGHWAY_THRESHOLD()) {
+			request.setAttribute(GatewayFilter.setWorkThread, GatewayFilter.fast);
+		} else {
+			request.setAttribute(GatewayFilter.setWorkThread, GatewayFilter.slow);
+		}
+	}
+	
+	private void showSrcURI(String uri, String remoteAddr, String remoteHost, 
+			String method01, String qString) {
+		boolean reqUriFlag = getTsmpSettingService().getVal_REQUEST_URI_ENABLED();
+		if (reqUriFlag) {
+			//...request.getRequestURI():[GET] (/dgrv4/ImGTW/refreshGTW)
+			//...request.getRemoteAddr():(remoteAdd)
+			//...request.getRemoteHost():(remoteHost)
+			StringBuilder sb = sbBuilderHolder.get(); //從 Thread 中取一個 sb 物件來用
+			sb.append("\n...request.getRequestURI():[" + method01 + "] (" + uri + ")");
+			sb.append("\n...request.getQueryString():(" + qString + ")");
+			sb.append("\n...request.getRemoteAddr():(" + remoteAddr + ")");
+			sb.append("\n...request.getRemoteHost():(" + remoteHost + ")\n");
+			TPILogger.tl.debug(sb.toString());
+			sb.setLength(0);
+		}
+	}
+
 	/**
 	 * 
 	 * @param request
@@ -378,6 +535,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 		String kibanaPrefix = getTsmpSettingService().getVal_KIBANA_REPORTURL_PREFIX();
 
 		if (isDGRCorTSMPC(uri)) {
+			fetchUriHistoryRouterControl( request); //dgrc uri 要再經過 '高併發網路流量快速通關分派裝置'
 			request = GatewayFilter.changeRequestURI(request, uri);
 		} else if (uri.contains("dgrv4")) {
 			return request;
@@ -394,13 +552,16 @@ public class GatewayFilter extends OncePerRequestFilter {
 
 	/**
 	 * 開頭是 dgrc 或是 tsmpc 的 path
+	 * @param request 
 	 */
-	private boolean isDGRCorTSMPC(String uri) {
-		return ((uri.length() >= 6 && (uri.substring(0, 6).equals("/dgrc/")))
-				|| (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpc/")))
-				|| (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpg/")))// 因為v3的noAuth要用tsmpg
-		);
+	private boolean isDGRCorTSMPC( String uri) {
+		boolean b1 = (uri.length() >= 6 && (uri.substring(0, 6).equals("/dgrc/")));
+		boolean b2 = (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpc/")));
+		// 因為v3的noAuth要用tsmpg
+		boolean b3 = (uri.length() >= 7 && (uri.substring(0, 7).equals("/tsmpg/")));
+		return (b1 || b2 || b3);
 	}
+
 
 	private boolean isGCPkibana(HttpServletRequest request, String kibanaPrefix) {
 
@@ -485,6 +646,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 		httpResponse.setHeader("Content-Type", "application/json; charset=utf-8");
 		httpResponse.setStatus(httpStatus);
 		try {
+			//checkmarx, Missing HSTS Header
+			httpResponse.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
 			httpResponse.getWriter().append(errorRespStr);
 			httpResponse.getWriter().flush();
 			httpResponse.flushBuffer();
@@ -652,9 +815,13 @@ public class GatewayFilter extends OncePerRequestFilter {
 		String moduleName = request.getAttribute(GatewayFilter.moduleName).toString();
 		String body = getStringBody(request);
 		// String locale = getLocale(request);
-		String cID = getCID(request);
-
-		boolean isSuccess = true;
+		
+		if (dotBotDetectionCheck.check(request)) {
+			int status = HttpServletResponse.SC_FORBIDDEN;// 403
+//			throw new DgrException(status, dotBotDetectionCheck);
+			return getCheckErrorResp("Bot Detection", "Permission denied (User-Agent is not allowed.)",
+					request.getRequestURI(), status);
+		}
 
 		// API開關
 		// API狀態:啟用 / 停用(TSMP_API.api_status) 啟用為true,否則就false
@@ -701,9 +868,20 @@ public class GatewayFilter extends OncePerRequestFilter {
 
 		// Traffic
 		// 取得流量上限(TSMP_CLIENT.tps)超過上限就 true, 否則就 false
-		if (StringUtils.hasText(cID) && trafficCheck.check(cID)) {
-			return getCheckErrorResp("tps", "Client requests exceeds TPS limit", request.getRequestURI(),
-					HttpStatus.TOO_MANY_REQUESTS.value());
+		TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, moduleName);
+		Optional<TsmpApiReg> tsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);
+		if (tsmpApiReg.isPresent()) {
+			String noAuth = tsmpApiReg.get().getNoOauth();
+			if ("1".equals(noAuth)) {
+				// 若有勾 no auth, 則不檢查
+			} else {
+				// 否則, 檢查
+				String cID = getCID(request); // 取得 client ID
+				if (StringUtils.hasText(cID) && trafficCheck.check(cID)) {
+					return getCheckErrorResp("tps", "Client requests exceeds TPS limit", request.getRequestURI(),
+							HttpStatus.TOO_MANY_REQUESTS.value());
+				}
+			}
 		}
 
 		return null;
@@ -732,6 +910,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 			if (!"ModeCheck".equals(simpleName))
 				writeLog(request, response, entry);
 
+			//checkmarx, Missing HSTS Header
+			response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
 			response.getWriter().append(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(vo));
 			response.getWriter().flush();
 			response.flushBuffer();
@@ -774,6 +954,10 @@ public class GatewayFilter extends OncePerRequestFilter {
 		return strBuf.toString();
 	}
 
+	/**
+	 * 取得 cid, 依表頭 Authorization 的各種格式 <br>
+	 * cid 為 v3 底層的名稱, 即 client ID <br>
+	 */
 	private String getCID(HttpServletRequest httpReq) {
 		// 解析資料
 		String auth = httpReq.getHeader(CommForwardProcService.AUTHORIZATION);
@@ -818,6 +1002,9 @@ public class GatewayFilter extends OncePerRequestFilter {
 			if (apiReg != null) {
 				apiKey = apiReg.getApiKey();
 				moduleName = apiReg.getModuleName();
+			} else {
+				// 找出為什麼是 null, 因為 request.getRequestURI()中間可能被 LB 轉換過
+				logger.error("reqUrl:" + reqUrl + ", request.getRequestURI():" + request.getRequestURI() + ", moduleName=null and apiID=null");
 			}
 		}
 
@@ -878,7 +1065,9 @@ public class GatewayFilter extends OncePerRequestFilter {
 				aType = "C";
 			}
 		} catch (Exception e) {
-			TPILogger.tl.debug(StackTraceUtil.logStackTrace(e));
+			String eMsg = "\nrequest.getRequestURI():  " + request.getRequestURI() + "\n";
+			eMsg += StackTraceUtil.logTpiShortStackTrace(e);
+			TPILogger.tl.debug(eMsg);
 		}
 		return aType;
 	}
@@ -921,6 +1110,10 @@ public class GatewayFilter extends OncePerRequestFilter {
 				GatewayFilter.apiRespThroughput.put(currentSeconds, 1);
 			}
 		}
+	}
+	
+	public static void setApiRespThroughput(HttpServletRequest httpReq) {
+		setApiRespThroughput();
 	}
 
 	public static void setApiReqThroughput() {

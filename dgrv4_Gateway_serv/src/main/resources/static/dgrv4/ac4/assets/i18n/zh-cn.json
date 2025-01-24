@@ -955,7 +955,7 @@
   "user_password": "用户密码",
   "user_roles": "用户持有角色",
   "validation": {
-    "confirm_password": "密码不匹配",
+    "confirm_mima": "密码不匹配",
     "ipaddress": "请输入IP格式的字符",
     "mailFormat": "Mail格式错误",
     "maxlength": "不可超过{{value}}个字符",
@@ -1306,6 +1306,10 @@
   "auth_client": "授权用户端",
   "redirectURItip":"请在输入URI 时遵守以下规则：\n\n1. URI 必须以协议开头\n2. 若是`http://` 或`https://` 开头,必须是合法且完整的网址格式,不能包含* \n   e.g. https://www.example.com\n3. 若为其他协议开头,必须包含*\n   e.g. myapp://example/*\n\n## 错误范例：\n - www.example.com（缺少协议）\n- https://www.example.com/*（不允许*）\n- https://（不完整的）\n- myapp://example/ (缺少*）",
   "rule":"规则",
-  "whitelist_rule_tip": "输入正则表达式,将检查 User-Agent header",
-  "api_count": "API 总数"
+  "allowlist_rule_tip": "输入正则表达式,将检查 User-Agent header",
+  "api_count": "API 总数",
+  "view_mode": {
+    "0":"管理检视",
+    "1":"稽核检视"
+  }
 }

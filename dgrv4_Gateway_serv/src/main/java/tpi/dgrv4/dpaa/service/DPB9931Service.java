@@ -120,6 +120,9 @@ public class DPB9931Service {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=WebSocket_" + nowDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
+        //checkmarx, Missing HSTS Header
+        response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
 	}
 
 	protected DgrWebSocketMappingDao getDgrWebSocketMappingDao() {

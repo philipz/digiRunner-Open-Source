@@ -3535,3 +3535,10 @@ CREATE TABLE DGR_BOT_DETECTION
     VERSION            INT                    DEFAULT 1,                 -- 版號 C/U時, 增量+1
     CONSTRAINT DGR_BOT_DETECTION_PK PRIMARY KEY (BOT_DETECTION_ID)
 );
+
+-- 20250120 , TSMP Token 歷史紀錄, Mini Lee
+ALTER TABLE tsmp_token_history ALTER COLUMN api_resp TEXT;
+-- 20250120 , SSO AC IdP授權碼記錄檔, Mini Lee
+ALTER TABLE dgr_ac_idp_auth_code ALTER COLUMN api_resp TEXT;
+-- 20250120 , Gateway IdP授權碼記錄檔, Mini Lee
+ALTER TABLE dgr_gtw_idp_auth_code ALTER COLUMN api_resp TEXT;

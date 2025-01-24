@@ -22,11 +22,11 @@ public class KibanaController {
 	//由/kibana改為走 /kibana2
 //	@GetMapping(value = "/kibana/login")
 	public void login(@RequestHeader HttpHeaders httpHeaders, @RequestParam String reportURL,
-			@RequestParam String cuuid, @RequestParam(required = false) String capi_key, HttpServletRequest request,
+			@RequestParam String cuuid, @RequestParam(required = false) String capikey, HttpServletRequest request,
 			HttpServletResponse response) throws Throwable {
 
 		httpHeaders.add("cuuid", cuuid);
-		httpHeaders.add("capi-key", capi_key);
+		httpHeaders.add("capi-key", capikey);
 		
 		service.login(httpHeaders, reportURL, request, response);
 

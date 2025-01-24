@@ -4,6 +4,7 @@ import static tpi.dgrv4.dpaa.util.ServiceUtil.nvl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
+import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.common.vo.ReqHeader;
 import tpi.dgrv4.dpaa.component.cache.proxy.TsmpOrganizationCacheProxy;
@@ -453,7 +455,25 @@ public class AA0302Service {
 		resp.setMockHeadersOfJson(api.getMockHeaders());
 		resp.setMockHeaders(getMockHeadersFromJson(mockHeaders));
 		resp.setMockBody(api.getMockBody());
-
+		
+		String createDateStr = "";
+		Date createDate = api.getCreateTime();
+		Optional<String> createDateOpt = DateTimeUtil.dateTimeToString(createDate, null);
+		if(createDateOpt.isPresent()) {
+			createDateStr = createDateOpt.get();
+		}
+		resp.setCreateDate(createDateStr);
+		resp.setCreateUser(api.getCreateUser());
+		
+		String updateDateStr = "";
+		Date updateDate = api.getUpdateTime();
+		Optional<String> updateDateOpt = DateTimeUtil.dateTimeToString(updateDate, null);
+		if(updateDateOpt.isPresent()) {
+			updateDateStr = updateDateOpt.get();
+		}
+		resp.setUpdateDate(updateDateStr);
+		resp.setUpdateUser(StringUtils.hasText(api.getUpdateUser()) ? api.getUpdateUser() : "");
+		
 		String label1 = api.getLabel1();
 		String label2 = api.getLabel2();
 		String label3 = api.getLabel3();

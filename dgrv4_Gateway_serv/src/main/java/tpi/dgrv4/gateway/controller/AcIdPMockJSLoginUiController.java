@@ -49,6 +49,11 @@ public class AcIdPMockJSLoginUiController {
 		String isPost = httpReq.getParameter("isPost");
 
 		try {
+			//checkmarx, Frameable Login Page, 已通過中風險
+			httpResp.setHeader("X-Frame-Options", "sameorigin");
+			  //checkmarx, Missing HSTS Header
+	        httpResp.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	        
 			
 			// dgrv4/ssotoken/acidp/{idPType}/acIdPLogin
 			String acIdPLoginUrl = "https://localhost:8080/dgrv4/ssotoken/acidp/" + idPType + "/acIdPLogin";

@@ -23,6 +23,12 @@ import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import {
+  DomSanitizer,
+  SafeResourceUrl,
+  SafeUrl,
+} from '@angular/platform-browser';
+import { SanitizerService } from 'src/app/shared/services/sanitizer.service';
 
 @Component({
   selector: 'app-login',
@@ -37,6 +43,7 @@ import { TranslateService } from '@ngx-translate/core';
     UserService,
     FuncService,
     ApiBaseService,
+    SanitizerService
   ],
 })
 export class LoginComponent implements OnInit, AfterViewInit {
@@ -65,7 +72,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private funcService: FuncService,
     protected route: ActivatedRoute,
     private httpClient: HttpClient,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private sanitizerService: SanitizerService
   ) {
     this.form = this.fb.group({
       uname: new FormControl(''),
@@ -112,12 +120,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   goCusPage(tarUrl: string) {
-    if (tarUrl) {
-      window.location.href = tarUrl;
+    const isMatch = this.cusIdpLoginList.some(item => item.cusLoginUrl === tarUrl);
+    if (isMatch) {
+      this.sanitizerService.navigateUrl(tarUrl)
     } else {
-      this.translate.get('noCusInfo').subscribe(res => {
-        this.alertService.ok(res,'')
-      })
+      this.translate.get('noCusInfo').subscribe((res) => {
+        this.alertService.ok(res, '');
+      });
     }
   }
 
@@ -125,11 +134,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
     // console.log('log in')
     // this.router.navigateByUrl('/dashboard')
 
-    if(this.form.get('uname')?.value == ''){
-      this.translate.get('user_name_required').subscribe(res => {
-
-        this.alertService.ok(res,'')
-      })
+    if (this.form.get('uname')?.value == '') {
+      this.translate.get('user_name_required').subscribe((res) => {
+        this.alertService.ok(res, '');
+      });
       return;
     }
 
@@ -255,9 +263,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   ssologin(type: String) {
-    // https://127.0.0.1:8080/dgrv4/ssotoken/acidp/{idPType}/acIdPAuth
-    // window.location.href = `https://10.20.30.88:18442/dgrv4/ssotoken/acidp/${type}/acIdPAuth`;
-    // console.log(`${location.protocol}//${location.host}/dgrv4/ssotoken/acidp/${type}/acIdPAuth`)
     window.location.href = `${location.protocol}//${location.host}/dgrv4/ssotoken/acidp/${type}/acIdPAuth`;
   }
 
@@ -290,4 +295,5 @@ export class LoginComponent implements OnInit, AfterViewInit {
     };
     this.router.navigate(['/ldap'], options);
   }
+
 }

@@ -26,7 +26,7 @@ import tpi.dgrv4.entity.daoService.BcryptParamHelper;
 import tpi.dgrv4.entity.entity.*;
 import tpi.dgrv4.entity.repository.TsmpDpApptRjobDDao;
 import tpi.dgrv4.entity.repository.TsmpDpApptRjobDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptRjobDispatcher;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;

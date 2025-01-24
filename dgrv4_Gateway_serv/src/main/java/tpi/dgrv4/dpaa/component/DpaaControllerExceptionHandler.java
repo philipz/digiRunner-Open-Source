@@ -30,7 +30,7 @@ import tpi.dgrv4.dpaa.vo.ResPayload;
 import tpi.dgrv4.entity.component.cache.proxy.TsmpRtnCodeCacheProxy;
 import tpi.dgrv4.entity.entity.TsmpRtnCode;
 import tpi.dgrv4.entity.repository.TsmpRtnCodeDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.ResHeader;

@@ -2,34 +2,47 @@ package tpi.dgrv4.dpaa.vo;
 
 import java.util.List;
 
+import tpi.dgrv4.common.constant.DgrIdPType;
+import tpi.dgrv4.dpaa.util.ServiceUtil;
+
 public class DPB0146Resp {
-	
+
 	private String longId;
-	
-	/** 組織名稱*/
+
+	/** 組織名稱 */
 	private String orgName = "";
-	
-	/** 角色ID清單*/
+
+	/** 角色ID清單 */
 	private List<String> roleId;
-	
-	/** 角色清單*/
+
+	/** 角色清單 */
 	private List<String> roleAlias;
-	
-	/** 組織id*/
+
+	/** 組織id */
 	private String orgId;
 
 	private String userName;
-	
+
+	private String userNameOrig;
+
 	private String userAlias;
-	
+
 	private String status;
-	
+
 	private String statusName;
-	
+
 	private String userEmail;
-	
+
 	private String idpType;
-	
+
+	public String getUserNameOrig() {
+		return userNameOrig;
+	}
+
+	public void setUserNameOrig(String userNameOrig) {
+		this.userNameOrig = userNameOrig;
+	}
+
 	public String getOrgName() {
 		return orgName;
 	}
@@ -118,5 +131,4 @@ public class DPB0146Resp {
 		this.idpType = idpType;
 	}
 
-	
 }

@@ -1,12 +1,24 @@
 package tpi.dgrv4.dpaa.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
 import tpi.dgrv4.codec.utils.TimeZoneUtil;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.LoggerLevelConstant;
@@ -20,20 +32,11 @@ import tpi.dgrv4.dpaa.vo.AA0325Resp;
 import tpi.dgrv4.dpaa.vo.AA0325SysLog;
 import tpi.dgrv4.gateway.TCP.Packet.ComposerInfoPacket;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.service.CApiKeyService;
 import tpi.dgrv4.gateway.service.TsmpSettingService;
 import tpi.dgrv4.gateway.vo.ComposerInfoData;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
-
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 public class AA0325Service {
@@ -50,6 +53,9 @@ public class AA0325Service {
 
 		AA0325Resp resp = new AA0325Resp();
 		resp.setTs(AA0325Controller.ts);
+		
+		//暫存liveComposer,防止keeper server有問題或沒開,造成驗capiKey時失敗
+		CApiKeyService.tempComposerLiveMap.put(req.getComposerID(), System.currentTimeMillis());
 
 		ComposerInfoData composerInfoData = new ComposerInfoData();
 		composerInfoData.setRemoteIP(httpReq.getRemoteAddr());
@@ -76,7 +82,7 @@ public class AA0325Service {
 		if (TPILogger.lc != null) {
 			TPILogger.lc.send(composerInfoPacket);
 		} else {
-			TPILogger.tl.error("Linker Client == null");
+			//因為不一定要啟動keeper server且這又是每秒call一次,所以不印Log了
 		}
 
 		// 是否禁止紀錄ES的LOG

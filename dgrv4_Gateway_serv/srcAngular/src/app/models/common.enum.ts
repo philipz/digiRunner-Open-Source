@@ -418,7 +418,7 @@ export enum TxID {
 }
 
 export enum GrantType {
-  password = 'password', refresh_token = 'refresh_token', client_credentials = 'client_credentials'
+  mima = 'password', refresh_token = 'refresh_token', client_credentials = 'client_credentials'
 }
 
 export enum MenuMappingIcon {

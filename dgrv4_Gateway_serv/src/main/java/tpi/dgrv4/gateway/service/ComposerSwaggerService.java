@@ -65,7 +65,9 @@ public class ComposerSwaggerService {
 						httpRes.addHeader(key, val);
 					}
 				}));
-				
+				//checkmarx, Missing HSTS Header
+				httpRes.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+		        
 				// 將內容輸出				
 				ByteArrayInputStream bi = new ByteArrayInputStream(respObj.httpRespArray);
 				IOUtils.copy(bi, httpRes.getOutputStream());

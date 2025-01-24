@@ -1,0 +1,12 @@
+-- 【dgRv4.4.1 - SQL 異動】
+
+-- Tom, 修正錯誤訊息, 20241119
+update tsmp_rtn_code set tsmp_rtn_msg='不可包含已啟用的API' where tsmp_rtn_code ='1551' and locale='zh-TW';
+update tsmp_rtn_code set tsmp_rtn_msg='Cannot include enabled APIs' where tsmp_rtn_code ='1551' and locale='en-US';
+update tsmp_rtn_code set tsmp_rtn_msg='不可包含已停用的API' where tsmp_rtn_code ='1552' and locale='zh-TW';
+update tsmp_rtn_code set tsmp_rtn_msg='Cannot include disabled APIs' where tsmp_rtn_code ='1552' and locale='en-US';
+
+update tsmp_rtn_code set tsmp_rtn_msg='不可包含已上架的API' where tsmp_rtn_code ='2031' and locale='zh-TW';
+update tsmp_rtn_code set tsmp_rtn_msg='Cannot include APIs that are already on the shelves' where tsmp_rtn_code ='2031' and locale='en-US';
+update tsmp_rtn_code set tsmp_rtn_msg='不可包含已下架的API' where tsmp_rtn_code ='2032' and locale='zh-TW';
+update tsmp_rtn_code set tsmp_rtn_msg='Cannot include APIs that have been removed from the shelves' where tsmp_rtn_code ='2032' and locale='en-US';

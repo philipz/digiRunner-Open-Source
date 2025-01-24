@@ -50,6 +50,9 @@ public class KibanaService {
 				ByteArrayInputStream bi = new ByteArrayInputStream(
 						TsmpDpAaRtnCode._1522.getDefaultMessage().getBytes());
 				response.addHeader(HttpHeaders.CONTENT_TYPE, "text/html;charset=UTF-8");
+				//checkmarx, Missing HSTS Header
+				response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+		        
 				IOUtils.copy(bi, response.getOutputStream());
 				throw TsmpDpAaRtnCode._1522.throwing();
 			}
@@ -57,6 +60,9 @@ public class KibanaService {
 			// 直接轉導 Kibana URL 不再登入
 			response.addHeader("kbn-xsrf", "true");
 			response.setStatus(HttpServletResponse.SC_FOUND);
+			//checkmarx, Missing HSTS Header
+			response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+	        
 			response.sendRedirect(reportURL);
 
 		} catch (Exception e) {

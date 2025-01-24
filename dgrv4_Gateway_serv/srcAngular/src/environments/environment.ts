@@ -1,6 +1,9 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
+const DEV_HOST = 'https://10.20.30.88';
+const DEV_PORT = '19442';  //18442 19442
+
 export const environment = {
   production: false,
   hmr: false,
@@ -17,9 +20,9 @@ export const environment = {
 
 
   // http://10.20.30.88:18442/dgrv4/
-  apiUrl: 'https://10.20.30.88:19442',
-  dpPath: 'https://10.20.30.88:19442',
-  netApiUrl: 'https://10.20.30.88:19442',
+  apiUrl: `${DEV_HOST}:${DEV_PORT}`,
+  dpPath: `${DEV_HOST}:${DEV_PORT}`,
+  netApiUrl: `${DEV_HOST}:${DEV_PORT}`,
 
   cusHostName: `${location.protocol}//${location.hostname}:3003`,
   // iframeDomain: 'http://192.168.1.149',

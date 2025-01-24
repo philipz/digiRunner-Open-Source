@@ -15,8 +15,8 @@ import tpi.dgrv4.dpaa.vo.TsmpMailFileContent;
 import tpi.dgrv4.dpaa.vo.TsmpMailJobParams;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.repository.TsmpDpFileDao;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.FileHelper;
-import tpi.dgrv4.gateway.component.MailHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptJob;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 

@@ -2835,3 +2835,80 @@ CREATE TABLE dgr_bot_detection (
     version            INT             DEFAULT 1,               -- 版號
     CONSTRAINT BOT_DETECTION_PK PRIMARY KEY (bot_detection_id)
 );
+
+-- 20250120 , TSMP Token 歷史紀錄, Mini Lee
+-- 1. 新增新欄位
+ALTER TABLE tsmp_token_history ADD api_resp_new CLOB;
+ALTER TABLE dgr_ac_idp_auth_code ADD api_resp_new CLOB;
+ALTER TABLE dgr_gtw_idp_auth_code ADD api_resp_new CLOB;
+
+-- 2. 分批更新資料（每次處理 1000 筆）
+DECLARE
+    v_total NUMBER;
+    v_processed NUMBER := 0;
+    v_batch_size NUMBER := 1000;
+BEGIN
+    -- 處理 tsmp_token_history
+    SELECT COUNT(*) INTO v_total FROM tsmp_token_history;
+    WHILE v_processed < v_total LOOP
+            UPDATE tsmp_token_history
+            SET api_resp_new = api_resp
+            WHERE ROWID IN (
+                SELECT ROWID FROM tsmp_token_history
+                WHERE api_resp_new IS NULL
+                  AND ROWNUM <= v_batch_size
+            );
+            v_processed := v_processed + SQL%ROWCOUNT;
+            COMMIT;
+        END LOOP;
+
+    -- 重設計數器
+    v_processed := 0;
+
+    -- 處理 dgr_ac_idp_auth_code
+    SELECT COUNT(*) INTO v_total FROM dgr_ac_idp_auth_code;
+    WHILE v_processed < v_total LOOP
+            UPDATE dgr_ac_idp_auth_code
+            SET api_resp_new = api_resp
+            WHERE ROWID IN (
+                SELECT ROWID FROM dgr_ac_idp_auth_code
+                WHERE api_resp_new IS NULL
+                  AND ROWNUM <= v_batch_size
+            );
+            v_processed := v_processed + SQL%ROWCOUNT;
+            COMMIT;
+        END LOOP;
+
+    -- 重設計數器
+    v_processed := 0;
+
+    -- 處理 dgr_gtw_idp_auth_code
+    SELECT COUNT(*) INTO v_total FROM dgr_gtw_idp_auth_code;
+    WHILE v_processed < v_total LOOP
+            UPDATE dgr_gtw_idp_auth_code
+            SET api_resp_new = api_resp
+            WHERE ROWID IN (
+                SELECT ROWID FROM dgr_gtw_idp_auth_code
+                WHERE api_resp_new IS NULL
+                  AND ROWNUM <= v_batch_size
+            );
+            v_processed := v_processed + SQL%ROWCOUNT;
+            COMMIT;
+        END LOOP;
+END;
+/
+
+-- 3. 驗證資料是否正確複製
+SELECT COUNT(*) FROM tsmp_token_history WHERE api_resp_new IS NULL;
+SELECT COUNT(*) FROM dgr_ac_idp_auth_code WHERE api_resp_new IS NULL;
+SELECT COUNT(*) FROM dgr_gtw_idp_auth_code WHERE api_resp_new IS NULL;
+
+-- 4. 如果確認無誤，刪除舊欄位
+ALTER TABLE tsmp_token_history DROP COLUMN api_resp;
+ALTER TABLE dgr_ac_idp_auth_code DROP COLUMN api_resp;
+ALTER TABLE dgr_gtw_idp_auth_code DROP COLUMN api_resp;
+
+-- 5. 重新命名新欄位
+ALTER TABLE tsmp_token_history RENAME COLUMN api_resp_new TO api_resp;
+ALTER TABLE dgr_ac_idp_auth_code RENAME COLUMN api_resp_new TO api_resp;
+ALTER TABLE dgr_gtw_idp_auth_code RENAME COLUMN api_resp_new TO api_resp;

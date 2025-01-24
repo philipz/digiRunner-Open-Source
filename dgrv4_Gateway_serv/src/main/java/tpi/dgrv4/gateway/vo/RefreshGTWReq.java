@@ -1,8 +1,11 @@
 package tpi.dgrv4.gateway.vo;
 
+import java.util.List;
 import java.util.Map;
 
 import tpi.dgrv4.gateway.TCP.Packet.NodeInfoPacket;
+import tpi.dgrv4.tcp.utils.packets.UndertowMetricsPacket;
+import tpi.dgrv4.tcp.utils.packets.UrlStatusPacket;
 
 public class RefreshGTWReq {
 
@@ -13,11 +16,17 @@ public class RefreshGTWReq {
 	private Long gtwLastUpdateTimeClient;
 	private Long gtwLastUpdateTimeAPI;
 	private Long gtwLastUpdateTimeSetting;
-	/* GTW 的 token 使用量 */
 	private Long gtwLastUpdateTimeToken;
+	
 	private NodeInfoPacket nodeInfoPacket;
+	private UndertowMetricsPacket undertowMetricsPacket;
+	private UrlStatusPacket urlStatusPacket;
+	
+	/* GTW 的 token 使用量 */
 	private Map<String, Long> tokenUsedMap;
 	private Map<String, Integer> apiUsedMap;
+	
+	private List<String> logMsg;
 
 	public String getKeeperApi() {
 		return keeperApi;
@@ -83,6 +92,22 @@ public class RefreshGTWReq {
 		this.nodeInfoPacket = nodeInfoPacket;
 	}
 
+	public UndertowMetricsPacket getUndertowMetricsPacket() {
+		return undertowMetricsPacket;
+	}
+
+	public void setUndertowMetricsPacket(UndertowMetricsPacket undertowMetricsPacket) {
+		this.undertowMetricsPacket = undertowMetricsPacket;
+	}
+	
+	public UrlStatusPacket getUrlStatusPacket() {
+		return urlStatusPacket;
+	}
+
+	public void setUrlStatusPacket(UrlStatusPacket urlStatusPacket) {
+		this.urlStatusPacket = urlStatusPacket;
+	}
+
 	public Long getGtwLastUpdateTimeToken() {
 		return gtwLastUpdateTimeToken;
 	}
@@ -105,5 +130,13 @@ public class RefreshGTWReq {
 
 	public void setApiUsedMap(Map<String, Integer> apiUsedMap) {
 		this.apiUsedMap = apiUsedMap;
+	}
+
+	public List<String> getLogMsg() {
+		return logMsg;
+	}
+
+	public void setLogMsg(List<String> logMsg) {
+		this.logMsg = logMsg;
 	}
 }

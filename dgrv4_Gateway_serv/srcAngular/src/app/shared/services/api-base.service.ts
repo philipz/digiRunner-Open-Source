@@ -243,7 +243,7 @@ export class ApiBaseService {
       let d = new Date();
       let date = dayjs(d).format('YYMMDDHHmmss');
       // let alphaNumber = generate({ length: 6, numbers: true });
-      let alphaNumber = this.generatePassword(6);
+      let alphaNumber = this.generateRandomString(6);
       let txDate = this.toolService.formateDate(d);
       let formData = new FormData();
       formData.append('txSN', `${serverno}${date}${alphaNumber}`);
@@ -725,7 +725,7 @@ export class ApiBaseService {
     let d = new Date();
     let date = dayjs(d).format('YYMMDDHHmmss');
     // let alphaNumber = generate({ length: 6, numbers: true });
-    let alphaNumber = this.generatePassword(6);
+    let alphaNumber = this.generateRandomString(6);
 
     let txDate = this.toolService.formateDate(d);
     let _locale = this.toolService.getLocale().split('-');
@@ -738,12 +738,12 @@ export class ApiBaseService {
     } as ReqHeader;
   }
 
-  generatePassword(passwordLength: number) {
+  generateRandomString(strLength: number) {
     var numberChars = "0123456789";
     var upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     var lowerChars = "abcdefghijklmnopqrstuvwxyz";
     var allChars = numberChars + upperChars + lowerChars;
-    var randPasswordArray = Array(passwordLength);
+    var randPasswordArray = Array(strLength);
     randPasswordArray[0] = numberChars;
     randPasswordArray[1] = upperChars;
     randPasswordArray[2] = lowerChars;

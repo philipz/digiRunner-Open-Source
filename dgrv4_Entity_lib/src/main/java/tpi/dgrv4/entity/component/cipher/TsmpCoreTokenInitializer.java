@@ -52,7 +52,7 @@ public class TsmpCoreTokenInitializer {
 	private static final String KEY_TYPE = "digiRunner.token.keyStoreType";
 
 	private static final String KEY_ALIAS = "digiRunner.token.keyAlias";
-	
+
 	@Autowired
 	private ITPILogger logger;
 
@@ -80,22 +80,35 @@ public class TsmpCoreTokenInitializer {
 	 * 並與資料庫(tsmp_dp_file)儲存的 KeyPair 比對，若資料庫無 KeyPair 或是兩者的 KeyPair hashCode
 	 * 不相符<br>
 	 * 則將 ${digiRunner.token.key-store.path} JKS 中的 KeyPair 新增/更新至資料庫
-	 * 
+	 *
 	 * @param e
 	 * @throws Exception
 	 */
 	@EventListener
 	public void init(ContextRefreshedEvent e) throws Exception {
-		
+
 		StringBuffer info = new StringBuffer();
-		if (e != null) {
-			info = tsmpCoreTokenInitializerInit.init(e, info);
-		}
-		
-		info.append("\n=== Begin Token keyPair initialization ===");
-		info.append("\n_____________________________________________");
-		info.append("\n");
-		this.logger.tl.info(info.toString());
+		final StringBuffer infoStr = info;
+		final int delayTime = 800;
+
+		// 利用時間差取得 Spring Boot 啟動完成的訊息, "Started DgrApplication in 20.436 seconds"
+		new Thread() {
+			public void run() {
+				mySleepTsmpCoreTokenInitializer(delayTime); //單純只是為 delay 一點印出 !
+				StringBuffer sb = new StringBuffer();
+				if (e != null) {
+					sb = tsmpCoreTokenInitializerInit.init(e, sb);
+				}
+				sb.append("\n=== Begin Token keyPair initialization ===");
+				sb.append("\n_____________________________________________");
+				sb.append("\n");
+				infoStr.append(sb.toString());
+				mySleepTsmpCoreTokenInitializer(delayTime); // 等待 keeper 連線
+				logger.tl.info(infoStr.toString());
+			}
+		}.start();
+
+
 		KeyPair localKeyPair = getKeyPair();
 		KeyPair remoteKeyPair = loadAndExtractKeyPair();
 
@@ -122,13 +135,23 @@ public class TsmpCoreTokenInitializer {
 
 		// 留給 {@link TsmpCoreTokenHelper} 用
 		TsmpCoreTokenInitializer.KEY_PAIR_FILE_NAME = getKeyStoreName();
-		this.logger.debugDelay2sec("=== Token keyPair initialize successfully! ===");
-		
-		StringBuffer buf = new StringBuffer();
-		buf.append(" .....................................................\n");
-		buf.append(" ..." + getProjectName() + " Started OK! version:" + getProjectVersion() + "\n");
-		buf.append(" .....................................................\n");
-		System.out.println(buf.toString());
+		logger.tl.debugDelay2sec("=== Token keyPair initialize successfully! ===");
+
+		final StringBuffer buf = new StringBuffer();
+		new Thread() {
+			public void run() {
+				mySleepTsmpCoreTokenInitializer(delayTime);
+				while (getProjectVersion() == null) {
+					mySleepTsmpCoreTokenInitializer(delayTime);// 等到有值了才能前進
+				}
+				buf.append(" .....................................................\n");
+				buf.append(infoStr.toString());
+				buf.append(" .....................................................\n");
+				buf.append(" ..." + getProjectName() + " Started OK! version:" + getProjectVersion() + "\n");
+				buf.append(" .....................................................\n");
+				System.out.println(buf.toString());
+			}
+		}.start();
 	}
 
 	private String getProjectVersion() {
@@ -144,7 +167,7 @@ public class TsmpCoreTokenInitializer {
 	 * 有時 AP 環境跟 DB 環境可能在不同系統上運行，造成目錄路徑的預設分隔符號有差異 ("/"與"\")，<br>
 	 * 這會導致使用 filePath 查詢 TSMP_DP_FILE 表時查無資料<br>
 	 * 因此利用 "KEY_PAIR" 檔案類型應該只會有一筆的特性，來查詢 keyPair
-	 * 
+	 *
 	 * @return
 	 */
 	private KeyPair getKeyPair() {
@@ -188,7 +211,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * 將 KeyPair 儲存至 TsmpDpFile 中
-	 * 
+	 *
 	 * @param keyPair
 	 * @return
 	 * @throws TsmpAsyCryptInitException
@@ -238,7 +261,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * 載入 KeyStore 並取出金鑰對
-	 * 
+	 *
 	 * @return
 	 */
 	private KeyPair loadAndExtractKeyPair() {
@@ -268,7 +291,7 @@ public class TsmpCoreTokenInitializer {
 		try (FileInputStream fis = new FileInputStream(ksURI)) {
 			keyStore.load(fis, getKeyStorePassword());
 		} catch (FileNotFoundException e) {
-			this.logger.error("KeyStore not found! " + ksURI);
+			this.logger.error("KeyStore not found!");
 		} catch (Exception e) {
 			this.logger.error("Load KeyStore error!\n" + StackTraceUtil.logStackTrace(e));
 		}
@@ -322,7 +345,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * 產生一組 KeyPair 並存到 TsmpDpFile 中
-	 * 
+	 *
 	 * @param algorithm
 	 * @param keySize   1024 or 2048
 	 * @return
@@ -345,7 +368,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * 從資料庫取得 KeyPair 的 TsmpDpFile 檔
-	 * 
+	 *
 	 * @return
 	 */
 	private TsmpDpFile getKeyPairFileEntry() {
@@ -372,7 +395,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * 確認 KeyStore 是否已載入
-	 * 
+	 *
 	 * @param keyStore
 	 * @return
 	 */
@@ -386,7 +409,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * KeyPair反序列化
-	 * 
+	 *
 	 * @param content
 	 * @return
 	 */
@@ -401,7 +424,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * KeyPair序列化
-	 * 
+	 *
 	 * @param obj
 	 * @return
 	 * @throws Exception
@@ -419,7 +442,7 @@ public class TsmpCoreTokenInitializer {
 
 	/**
 	 * 檢查公、私鑰的 Hash 值是否相同
-	 * 
+	 *
 	 * @param kp1
 	 * @param kp2
 	 * @return
@@ -432,11 +455,18 @@ public class TsmpCoreTokenInitializer {
 		return true;
 	}
 
-	
+	private void mySleepTsmpCoreTokenInitializer(long t) {
+		try {
+			Thread.sleep(t);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
 	protected IVersionService getVersionService() {
 		return versionService;
 	}
-	
+
 	protected Environment getEnvironment() {
 		return env;
 	}

@@ -31,10 +31,23 @@ public class GtwIdPVerifyResp {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String picture;
 
+	@JsonProperty("lightId")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String lightId;
+
+	@JsonProperty("roleName")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String roleName;
+
+	@JsonProperty("base64url_orig_profile")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String base64urlOrigProfile;
+
 	@Override
 	public String toString() {
 		return "GtwIdPVerifyResp [iss=" + iss + ", sub=" + sub + ", aud=" + aud + ", exp=" + exp + ", iat=" + iat
-				+ ", name=" + name + ", email=" + email + ", picture=" + picture + "]";
+				+ ", name=" + name + ", email=" + email + ", picture=" + picture + ", lightId=" + lightId
+				+ ", roleName=" + roleName + ", base64urlOrigProfile=" + base64urlOrigProfile + "]";
 	}
 
 	public String getIss() {
@@ -99,5 +112,29 @@ public class GtwIdPVerifyResp {
 
 	public void setPicture(String picture) {
 		this.picture = picture;
+	}
+
+	public String getLightId() {
+		return lightId;
+	}
+
+	public void setLightId(String lightId) {
+		this.lightId = lightId;
+	}
+
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public String getBase64urlOrigProfile() {
+		return base64urlOrigProfile;
+	}
+
+	public void setBase64urlOrigProfile(String base64urlOrigProfile) {
+		this.base64urlOrigProfile = base64urlOrigProfile;
 	}
 }

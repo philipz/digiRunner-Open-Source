@@ -129,10 +129,6 @@
               <label id="targetWs_label" for="targetWs" class="control-label">{{ 'target_ws' | translate}}</label>
             </div>
             <div class="col-8 row pr-0"  style="justify-content: end;">
-              <!-- <div>
-                <input id="noauth" type="checkbox" />
-                <label class="pl-1" for="noauth">Auth</label>
-              </div> -->
               <div class="flex align-items-center ml-3">
                 <p-checkbox [binary]="true" inputId="auth" trueValue="Y" falseValue="N" formControlName="auth"></p-checkbox>
                 <label class="mb-0 ml-2" for="auth">Auth</label>
@@ -204,7 +200,7 @@
               <label class="pl-1" for="noauth">Auth</label>
             </div> -->
             <div class="flex align-items-center ml-3">
-              <p-checkbox [binary]="true" trueValue="Y" falseValue="N" [ngModel]="selectedItem?.auth" [ngModelOptions]="{standalone: true}" [readonly]="true"></p-checkbox>
+              <p-checkbox [binary]="true" trueValue="Y" falseValue="N" [ngModel]="selectedItem?.['au'+'th']" [ngModelOptions]="{standalone: true}" [readonly]="true"></p-checkbox>
               <label class="mb-0 ml-2">Auth</label>
             </div>
           </div>

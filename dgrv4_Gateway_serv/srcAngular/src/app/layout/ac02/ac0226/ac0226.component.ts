@@ -36,6 +36,7 @@ export class Ac0226Component extends BaseComponent implements OnInit {
   idpTypeList: { label: string; value: string; }[] = [
     { label: 'GOOGLE', value: 'GOOGLE' },
     { label: 'MS', value: 'MS' },
+    { label: 'OIDC', value: 'OIDC' },
   ];
 
   constructor(

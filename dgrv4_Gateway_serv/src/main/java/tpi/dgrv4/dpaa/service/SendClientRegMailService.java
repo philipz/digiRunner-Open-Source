@@ -28,7 +28,7 @@ import tpi.dgrv4.entity.entity.jpql.TsmpDpMailTplt;
 import tpi.dgrv4.entity.repository.TsmpClientDao;
 import tpi.dgrv4.entity.repository.TsmpDpMailTpltDao;
 import tpi.dgrv4.entity.repository.TsmpUserDao;
-import tpi.dgrv4.gateway.component.MailHelper;
+import tpi.dgrv4.escape.MailHelper;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;

@@ -290,32 +290,18 @@ export class SidebarComponent extends BaseComponent {
         return data;
     }
     filterMenuItem(data: Menu[]): Observable<any> {
+
         return new Observable(obser => {
             const auths = this.tool.getAuthorities();
             if (auths) {
-                // this.userService.queryFuncByLoginUser().subscribe(res => {
-                //     if (this.tool.checkDpSuccess(res.ResHeader)) {
-                // const roleDetailList = res.Res_0012.roleDetailList;
-                //自己加權限 以後要拿掉
-                // roleDetailList[0].funcCodeList.push('AC0311');
-                // roleDetailList[0].funcCodeList.push('AC0315');
-                // for (let i = 0; i < auths.length; i++) {
-
-                //     const auth = auths[i];
-                //     let roleDetail = roleDetailList.find(a => a.roleID === auth);
-                //     // (roleDetail.funcCodeList as string[]).splice(0,1) //測試拿掉一個功能
-                //     if (roleDetail) {
                 let _roleFuncCodeList = this.tool.getRoleFuncCodeList();
 
                 data.forEach((main:Menu) => {
                     main.subs?.forEach((sub:SubMenu) => {
-                        let idx = _roleFuncCodeList.findIndex(f => f === sub.name);
-                        if (idx >= 0) sub.enabled = true;
+                      let idx = _roleFuncCodeList.findIndex(f => f === sub.name);
+                        if (idx >= 0) sub.enabled = true
                     });
                 });
-
-                //     }
-                // }
 
                 data = this.customAdjMenuPosition(data);
 
@@ -328,8 +314,7 @@ export class SidebarComponent extends BaseComponent {
                 })
 
                 obser.next(data);
-                //     }
-                // });
+
             } else {
                 // this.router.navigate(['/login']);
                 this.logoutService.logout();

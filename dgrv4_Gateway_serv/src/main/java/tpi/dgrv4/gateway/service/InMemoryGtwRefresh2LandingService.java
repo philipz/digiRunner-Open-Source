@@ -25,7 +25,6 @@ import tpi.dgrv4.dpaa.service.AA0319Service;
 import tpi.dgrv4.dpaa.service.AA1121Service;
 import tpi.dgrv4.dpaa.service.AA1128Service;
 import tpi.dgrv4.dpaa.service.AA1129Service;
-import tpi.dgrv4.dpaa.service.DPB9922Service;
 import tpi.dgrv4.dpaa.util.DpaaHttpUtil;
 import tpi.dgrv4.dpaa.vo.AA0317Data;
 import tpi.dgrv4.dpaa.vo.AA0317ReqItem;
@@ -40,8 +39,10 @@ import tpi.dgrv4.entity.constant.TsmpSequenceName;
 import tpi.dgrv4.entity.daoService.SeqStoreService;
 import tpi.dgrv4.entity.entity.TsmpTokenHistory;
 import tpi.dgrv4.entity.repository.TsmpTokenHistoryDao;
+import tpi.dgrv4.escape.DPB9922Service;
 import tpi.dgrv4.gateway.TCP.Packet.NodeInfoPacket;
 import tpi.dgrv4.gateway.constant.DgrDeployRole;
+import tpi.dgrv4.gateway.keeper.TPIFileLoggerQueue;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.RefreshGTWReq;
 import tpi.dgrv4.gateway.vo.RefreshGTWResp;
@@ -49,6 +50,8 @@ import tpi.dgrv4.gateway.vo.TsmpAuthorization;
 import tpi.dgrv4.gateway.vo.TsmpBaseResp;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
+import tpi.dgrv4.tcp.utils.packets.UndertowMetricsPacket;
+import tpi.dgrv4.tcp.utils.packets.UrlStatusPacket;
 
 @Service
 public class InMemoryGtwRefresh2LandingService {
@@ -70,6 +73,8 @@ public class InMemoryGtwRefresh2LandingService {
 	private TsmpTokenHistoryDao tsmpTokenHistoryDao;
 	@Autowired
 	private SeqStoreService seqStoreService;
+	@Autowired
+	private TsmpSettingService tsmpSettingService;
 	
 	@Value("${digiRunner.gtw.deploy.role}")
 	private String deployRole;
@@ -80,27 +85,28 @@ public class InMemoryGtwRefresh2LandingService {
 	@Value("${digiRunner.gtw.deploy.id}")
 	private String deployId;
 
-
 	@Value("${digiRunner.gtw.deploy.landing.scheme:https}")
 	private String landingScheme;
 
-	public void landingGtw(NodeInfoPacket nodeInfoPacket) {
+	public void landingGtw(NodeInfoPacket nodeInfoPacket, UndertowMetricsPacket undertowMetricsPacket, UrlStatusPacket urlStatusPacket) {
 		if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole())) {
-			doMemoryRoleWork(nodeInfoPacket);
+			doMemoryRoleWork(nodeInfoPacket, undertowMetricsPacket, urlStatusPacket);
 		} else {
 			TPILogger.tl.info("My role is [" + getDeployRole() + "]");
 		}
 	}
 
-	private void doMemoryRoleWork(NodeInfoPacket nodeInfoPacket) {
+	private void doMemoryRoleWork(NodeInfoPacket nodeInfoPacket, UndertowMetricsPacket undertowMetricsPacket,
+			UrlStatusPacket urlStatusPacket) {
 		if (StringUtils.hasText(getIpPort())) {
-			doMemoryRoleHasIpPortWork(nodeInfoPacket);
+			doMemoryRoleHasIpPortWork(nodeInfoPacket, undertowMetricsPacket, urlStatusPacket);
 		} else {
 			TPILogger.tl.info("Missing properties [ip] & [port] ");
 		}
 	}
 
-	private void doMemoryRoleHasIpPortWork(NodeInfoPacket nodeInfoPacket) {
+	private void doMemoryRoleHasIpPortWork(NodeInfoPacket nodeInfoPacket, UndertowMetricsPacket undertowMetricsPacket,
+			UrlStatusPacket urlStatusPacket) {
 		// 取得要調用 Landing 的 IP:port,若有多組會用逗號 "," 分隔
 		String[] arrIpPort = getIpPort().split(",");
 		int dataSize = arrIpPort.length;
@@ -108,7 +114,8 @@ public class InMemoryGtwRefresh2LandingService {
 		// 若打第一個 Landing API URL 失敗,就打下一個,直到成功則跳出
 		int dataIndex = 1;// 為第 N 個 Landing URL
 		for (String strIpPort : arrIpPort) {
-			boolean hasBreak = doIpPortLoopWorks(strIpPort, nodeInfoPacket, dataIndex, dataSize);
+			boolean hasBreak = doIpPortLoopWorks(strIpPort, nodeInfoPacket, dataIndex, dataSize, undertowMetricsPacket,
+					urlStatusPacket);
 			if (hasBreak) {
 				break;
 			}
@@ -117,10 +124,12 @@ public class InMemoryGtwRefresh2LandingService {
 		}
 	}
 
-	private boolean doIpPortLoopWorks(String strIpPort, NodeInfoPacket nodeInfoPacket, int dataIndex, int dataSize) {
+	private boolean doIpPortLoopWorks(String strIpPort, NodeInfoPacket nodeInfoPacket, int dataIndex, int dataSize,
+			UndertowMetricsPacket undertowMetricsPacket, UrlStatusPacket urlStatusPacket) {
 		String reqJson = null;
 		String reqUrl = null;
 		String schema = getLandingScheme();
+		String errRespStr = null;
 		try {
 			String keeperApi = schema + "://" + strIpPort;
 			reqUrl = keeperApi + "/dgrv4/ImGTW/refreshGTW";
@@ -128,12 +137,16 @@ public class InMemoryGtwRefresh2LandingService {
 			// req header, 加上 CApiKey 做安全驗證
 			Map<String, String> header = makeImGTWRefreshGTWHeader();
 
+			// 這裡的資料以 Q.drainTo(pkt, 10) 方式取出, 放入 req body
+//			TPIFileLoggerQueue.inMemLogQueue;
+			
 			// req body
-			reqJson = makeImGTWRefreshGTWBody(keeperApi, nodeInfoPacket);
+			reqJson = makeImGTWRefreshGTWBody(keeperApi, nodeInfoPacket, undertowMetricsPacket, urlStatusPacket);
 
 			// send to API
 			HttpRespData resp = HttpUtil.httpReqByRawData(reqUrl, "POST", reqJson, header, false);
-			TPILogger.tl.trace(resp.getLogStr());
+			String logstr = resp.getLogStr();
+			// TPILogger.tl.trace(logstr); 禁止印log,不然log又會進Queue,又必須印出來 loop
 
 			if (resp.statusCode > 0 && resp.statusCode < 400) {
 				// 調用完API成功, 清空 TPILogger.tokenUsedMap
@@ -147,6 +160,17 @@ public class InMemoryGtwRefresh2LandingService {
 						new TypeReference<TsmpBaseResp<RefreshGTWResp>>() {
 						});
 				RefreshGTWResp refreshGtwResp = gtwResp.getBody();
+				if (refreshGtwResp == null) {
+					errRespStr = resp.respStr;
+					StringBuffer sb = new StringBuffer();
+					sb.append("\n");
+					sb.append("reqUrl = " + reqUrl + "\n");
+					sb.append("reqJson = " + reqJson + "\n");
+					sb.append("errRespString = " + errRespStr + "\n");
+					sb.append("\n");
+					TPILogger.tl.warn(sb.toString());
+					return false;
+				}
 				String userName = "manager";
 				String orgId = refreshGtwResp.getOrgId();
 				TsmpAuthorization auth = new TsmpAuthorization();
@@ -177,9 +201,13 @@ public class InMemoryGtwRefresh2LandingService {
 			}
 
 		} catch (Exception e) {
-			TPILogger.tl.error("reqUrl = " + reqUrl);
-			TPILogger.tl.error("reqJson = " + reqJson);
-			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			StringBuffer sb = new StringBuffer();
+			sb.append("\n");
+			sb.append("reqUrl = " + reqUrl + "\n");
+			sb.append("reqJson = " + reqJson + "\n");
+			sb.append(StackTraceUtil.logStackTrace(e) + "\n");
+			sb.append("\n");
+			TPILogger.tl.error(sb.toString());
 			return false;
 		}
 	}
@@ -277,6 +305,14 @@ public class InMemoryGtwRefresh2LandingService {
 
 				// 更新setting時間
 				TPILogger.lastUpdateTimeSetting.set(refreshGtwResp.getLastUpdateTimeSetting());
+				
+				// 取得現在 DB 的 LOGGER_LEVEL 值(id = TsmpSettingDao.Key.LOGGER_LEVEL), 
+				// 比較和系統的 TPILogger.tl.loggerLevel 值是否相同, 
+				// 若不相同,則呼叫 TPILogger.initLoggerLevel(DB 的 LOGGER_LEVEL 值) 改變系統的 LoggerLevel
+				String settingLoggerLevel = getTsmpSettingService().getVal_LOGGER_LEVEL();
+				if (!TPILogger.tl.loggerLevel.equals(settingLoggerLevel)) {
+					TPILogger.initLoggerLevel(settingLoggerLevel);
+				}
 			}
 		} catch (Exception e) {
 			TPILogger.tl.error("Import setting data error");
@@ -304,9 +340,13 @@ public class InMemoryGtwRefresh2LandingService {
 				TPILogger.lastUpdateTimeClient.set(refreshGtwResp.getLastUpdateTimeClient());
 			}
 		} catch (Exception e) {
-			TPILogger.tl.error("Import client data error");
-			TPILogger.tl.error(resp.getLogStr());
-			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			StringBuffer sb = new StringBuffer();
+			sb.append("\n");
+			sb.append("Import client data error\n");
+			sb.append(resp.getLogStr() + "\n");
+			sb.append(StackTraceUtil.logTpiShortStackTrace(e) + "\n");
+			sb.append("\n");
+			TPILogger.tl.error(sb.toString());
 		}
 	}
 
@@ -347,13 +387,18 @@ public class InMemoryGtwRefresh2LandingService {
 				TPILogger.lastUpdateTimeAPI.set(refreshGtwResp.getLastUpdateTimeAPI());
 			}
 		} catch (Exception e) {
-			TPILogger.tl.error("Import API data error");
-			TPILogger.tl.error(resp.getLogStr());
-			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+			StringBuffer sb = new StringBuffer();
+			sb.append("\n");
+			sb.append("Import API data error\n");
+			sb.append(resp.getLogStr() + "\n");
+			sb.append(StackTraceUtil.logTpiShortStackTrace(e) + "\n");
+			sb.append("\n");
+			TPILogger.tl.error(sb.toString());
 		}
 	}
 
-	private String makeImGTWRefreshGTWBody(String keeperApi, NodeInfoPacket nodeInfoPacket) {
+	private String makeImGTWRefreshGTWBody(String keeperApi, NodeInfoPacket nodeInfoPacket,
+			UndertowMetricsPacket undertowMetricsPacket, UrlStatusPacket urlStatusPacket) {
 		String reqJson = null;
 		RefreshGTWReq req = new RefreshGTWReq();
 		req.setKeeperApi(keeperApi);
@@ -365,8 +410,16 @@ public class InMemoryGtwRefresh2LandingService {
 		req.setGtwLastUpdateTimeSetting(TPILogger.lastUpdateTimeSetting.get());
 		req.setGtwLastUpdateTimeToken(TPILogger.lastUpdateTimeToken.get());
 		req.setNodeInfoPacket(nodeInfoPacket);
+		req.setUndertowMetricsPacket(undertowMetricsPacket);
+		req.setUrlStatusPacket(urlStatusPacket);
 		req.setTokenUsedMap(TPILogger.tokenUsedMap);
 		req.setApiUsedMap(TPILogger.apiUsedMap);
+		
+		//取出儲存的log,一併送至Master
+		List<String> msgList = new ArrayList<>();
+		TPIFileLoggerQueue.inMemLogQueue.drainTo(msgList,10);
+		req.setLogMsg(msgList);
+		
 		reqJson = DpaaHttpUtil.toReqPayloadJson(req, "inMemory");// 因為不會驗証,所以cid不是重點
 		return reqJson;
 	}
@@ -382,7 +435,7 @@ public class InMemoryGtwRefresh2LandingService {
 		header.put("Accept", "application/json");
 		header.put("Content-Type", "application/json");
 		header.put("cuuid", cuuid);
-		header.put("capi_key", capiKey);
+		header.put("capi-key", capiKey);
 		return header;
 	}
 	
@@ -437,4 +490,7 @@ public class InMemoryGtwRefresh2LandingService {
 		return dpb9922Service;
 	}
 
+	protected TsmpSettingService getTsmpSettingService() {
+		return tsmpSettingService;
+	}
 }

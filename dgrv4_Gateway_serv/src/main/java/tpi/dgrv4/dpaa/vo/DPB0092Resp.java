@@ -2,6 +2,8 @@ package tpi.dgrv4.dpaa.vo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class DPB0092Resp {
 
 	/** Client ID (用戶代碼) */
@@ -41,7 +43,9 @@ public class DPB0092Resp {
 	private String openApiKey;
 
 	/** Secret Key 	Open API Key 異動 / Open API Key 撤銷, 若非此子類別則不用傳入參數 */
-	private String secretKey;
+	//checkmarx, Excessive Data Exposure
+	@JsonProperty("secretKey")
+	private String mimaKey;
 
 	/** Open API Key 別名 Open API Key 異動 / Open API Key 撤銷, 若非此子類別則不用傳入參數 */
 	private String openApiKeyAlias;
@@ -147,12 +151,12 @@ public class DPB0092Resp {
 		this.openApiKey = openApiKey;
 	}
 
-	public String getSecretKey() {
-		return secretKey;
+	public String getMimaKey() {
+		return mimaKey;
 	}
 
-	public void setSecretKey(String secretKey) {
-		this.secretKey = secretKey;
+	public void setMimaKey(String mimaKey) {
+		this.mimaKey = mimaKey;
 	}
 
 	public String getOpenApiKeyAlias() {

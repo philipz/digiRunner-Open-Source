@@ -36,7 +36,11 @@ export class Ac0017Component extends BaseComponent implements OnInit {
  userDetail?:DPB0149Item;
  updateId?:string;
 
-
+ idpTypeList: { label: string; value: string; }[] = [
+    { label: 'GOOGLE', value: 'GOOGLE' },
+    { label: 'MS', value: 'MS' },
+    { label: 'OIDC', value: 'OIDC' },
+  ];
 
 
   constructor(

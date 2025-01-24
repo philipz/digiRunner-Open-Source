@@ -3,18 +3,15 @@ import { KeyValueGridModule } from './key-value-grid/key-value-grid.module';
 import { KeyValueGridComponent } from './key-value-grid/key-value-grid.component';
 import { ApiTestComponent } from './../layout/ac03/ac0316/api-test/api-test.component';
 import { LogoutService } from './services/logout.service';
-import { FaqFormComponent } from './../layout/np01/np0113/faq-form/faq-form.component';
 import { ApiListComponent } from './../layout/np03/np0304/api-list/api-list.component';
 import { OpenApiKeyFormComponent } from './../layout/np03/np0304/open-api-key-form/open-api-key-form.component';
 import { ClientService } from 'src/app/shared/services/api-client.service';
 import { ClientAuthorizeApiComponent } from './../layout/np03/np0303/client-authorize-api/client-authorize-api.component';
-import { ClientRegisteredComponent } from './../layout/np03/np0302/client-registered/client-registered.component';
 import { ApiOnOffComponent } from './../layout/np03/np0301/api-on-off/api-on-off.component';
 import { ApiShelvesComponent } from './../layout/np03/np0301/api-shelves/api-shelves.component';
 import { ThemeLovComponent } from './../layout/np03/np0301/theme-lov/theme-lov.component';
 import { ApiLovComponent } from './../layout/np03/np0301/api-lov/api-lov.component';
 import { CADetailComponent } from './../layout/np02/np0202/ca-detail/ca-detail.component';
-import { ClientCAComponent } from './../layout/np02/np0202/client-ca/client-ca.component';
 import { FrameComponent } from './../layout/components/frame/frame.component';
 import { OrgFormComponent } from './../layout/ac10/ac1002/org-form/org-form.component';
 import { TimepickerComponent } from './../layout/components/timepicker/timepicker.component';
@@ -51,7 +48,6 @@ import { HostInputComponent } from '../layout/ac02/ac0202/host-input/host-input.
 import { HostInputDetailComponent } from '../layout/ac02/ac0202/host-input-detail/host-input-detail.component';
 import { JobFormComponent } from '../layout/np05/np0513/job-form/job-form.component';
 import { NestableModule } from 'ngx-nestable';
-import { UserDetailComponent } from '../layout/ac00/ac0002/user-detail/user-detail.component';
 import { KeyValueGridDetailComponent } from './key-value-grid/key-value--grid-detail/key-value-grid-detail.component';
 import { FieldsFormComponent } from '../layout/components/fields/fields-form/fields-form.component';
 import { FieldsFormDetailComponent } from '../layout/components/fields/fields-form-detail/fields-form-detail.component';
@@ -71,6 +67,10 @@ import { LabelResetComponent } from './label-reset/label-reset.component';
 import { DatepickerComponent } from '../layout/components/datepicker/datepicker.component';
 import { WhiteListFormComponent } from '../layout/labs/lb0010/white-list-form/white-list-form.component';
 import { WhiteListDetailComponent } from '../layout/labs/lb0010/white-list-detail/white-list-detail.component';
+import { ApiDetailComponent } from '../layout/ac03/ac0301/api-detail/api-detail.component';
+import { ApiStatusModifyComponent } from '../layout/ac03/ac0301/api-status-modify/api-status-modify.component';
+import { ApiStatusComponent } from '../layout/ac03/ac0301/api-status/api-status.component';
+
 
 @NgModule({
   imports: [
@@ -105,18 +105,14 @@ import { WhiteListDetailComponent } from '../layout/labs/lb0010/white-list-detai
     OrgFormComponent,
     FrameComponent,
     JobFormComponent,
-    ClientCAComponent,
     CADetailComponent,
     ApiLovComponent,
     ThemeLovComponent,
     ApiShelvesComponent,
     ApiOnOffComponent,
-    ClientRegisteredComponent,
     ClientAuthorizeApiComponent,
     OpenApiKeyFormComponent,
     ApiListComponent,
-    FaqFormComponent,
-    UserDetailComponent,
     ApiTestComponent,
     KeyValueGridComponent,
     KeyValueDetailComponent,
@@ -139,6 +135,9 @@ import { WhiteListDetailComponent } from '../layout/labs/lb0010/white-list-detai
     DatepickerComponent,
     WhiteListFormComponent,
     WhiteListDetailComponent,
+    ApiDetailComponent,
+    ApiStatusComponent,
+    ApiStatusModifyComponent
   ],
   declarations: [
     ContainerComponent,
@@ -158,18 +157,14 @@ import { WhiteListDetailComponent } from '../layout/labs/lb0010/white-list-detai
     OrgFormComponent,
     FrameComponent,
     JobFormComponent,
-    ClientCAComponent,
     CADetailComponent,
     ApiLovComponent,
     ThemeLovComponent,
     ApiShelvesComponent,
     ApiOnOffComponent,
-    ClientRegisteredComponent,
     ClientAuthorizeApiComponent,
     OpenApiKeyFormComponent,
     ApiListComponent,
-    FaqFormComponent,
-    UserDetailComponent,
     ApiTestComponent,
     KeyValueDetailComponent,
     KeyValueGridDetailComponent,
@@ -191,6 +186,9 @@ import { WhiteListDetailComponent } from '../layout/labs/lb0010/white-list-detai
     DatepickerComponent,
     WhiteListFormComponent,
     WhiteListDetailComponent,
+    ApiDetailComponent,
+    ApiStatusComponent,
+    ApiStatusModifyComponent
   ],
   providers: [ApiBaseService, MessageService],
 })

@@ -30,6 +30,7 @@ import tpi.dgrv4.common.constant.DashboardTimeTypeEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
+import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DashboardAideVo;
 import tpi.dgrv4.entity.entity.TsmpApi;
 import tpi.dgrv4.entity.entity.TsmpApiId;
@@ -63,7 +64,8 @@ public class HandleDashboardDataByYearService {
 	@Transactional
 	public void exec(Date execDate, boolean isEs) {
 
-		TPILogger.tl.debug("--- Begin HandleDashboardDataByYearService ---");
+		TPILogger.tl.debug("--- Begin HandleDashboardDataBy\"Year\"Service ---");
+		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 		List<DgrDashboardLastData> saveLastList = new ArrayList<>();
 		// 資料日期
 		Date startDate = this.getStartDate(execDate);
@@ -95,7 +97,8 @@ public class HandleDashboardDataByYearService {
 
 		getDgrDashboardLastDataDao().saveAll(saveLastList);
 
-		TPILogger.tl.debug("--- Finish HandleDashboardDataByYearService ---");
+		TPILogger.tl.debug("--- Finish HandleDashboardDataBy\"Year\"Service ---");
+		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
 	}
 	
 	private void execDataTime(Date startDate, Date endDate, List<DgrDashboardLastData> saveLastList) {

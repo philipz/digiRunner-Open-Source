@@ -14,7 +14,7 @@
         </div>
 
         <div class="form-area" [hidden]="path['action'] == 'consent'">
-          <div class="felid-flex-start" [hidden]="path['action'] != 'consent'">
+          <div class="field-flex-start" [hidden]="path['action'] != 'consent'">
             <label class="mb-0">{{ "authority_time" | translate }}</label>
               <input
                 type="text"
@@ -52,7 +52,7 @@
               <input
                 type="password"
                 class="form-control"
-                formControlName="pwd"
+                formControlName="mima"
                 [placeholder]="'user_password' | translate"
               />
             </div>
@@ -137,7 +137,7 @@
     </form>
     <div class="p-2 mx-5" [hidden]="path['action'] != 'consent'">
       <p>{{ "gtwidp_alert" | translate : { title: title } }}</p>
-      <div class="felid-flex-center" >
+      <div class="field-flex-center" >
         <button
         type="button"
         class="btn tpi-btn tpi-primary"

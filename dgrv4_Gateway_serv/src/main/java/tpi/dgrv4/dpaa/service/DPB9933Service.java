@@ -77,6 +77,9 @@ public class DPB9933Service {
 		String headerKey = "Content-Disposition";
 		String headerValue = "attachment; filename=JWE_" + nowDateTime + ".xlsx";
 		response.setHeader(headerKey, headerValue);
+		  //checkmarx, Missing HSTS Header
+        response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+        
 	}
 
 	private void writeData(XSSFSheet sheet, short txtformat) {

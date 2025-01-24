@@ -1,6 +1,7 @@
 package tpi.dgrv4.gateway.controller;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.gateway.filter.GatewayFilter;
 import tpi.dgrv4.gateway.service.DGRCServiceDelete;
-@Deprecated
+
 @RestController
 public class DGRCControllerDelete {
 	
@@ -23,18 +24,29 @@ public class DGRCControllerDelete {
 	private DGRCServiceDelete service;
 	
 	@DeleteMapping(value = "/dgrc/**")
-	public Callable dispatch(HttpServletRequest httpReq, 
-			HttpServletResponse httpRes,
-			@RequestHeader HttpHeaders headers, 
-			@RequestBody(required = false) String payload) {
-		
-		return () -> {
-			ResponseEntity<?> resp = service.forwardToDelete(headers, httpReq, httpRes, payload);
-			
-			// 計算API每秒轉發吞吐量
-			GatewayFilter.setApiRespThroughput();
+	public CompletableFuture<ResponseEntity<?>> dispatch(HttpServletRequest httpReq,
+														 HttpServletResponse httpRes,
+														 @RequestHeader HttpHeaders headers,
+														 @RequestBody(required = false) String payload) throws Exception {
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		CompletableFuture<ResponseEntity<?>> resp;
+		if (selectWorkThread.equals(GatewayFilter.fast)) {
+			resp = service.forwardToDeleteAsyncFast(headers, httpReq, httpRes, payload);
+		} else {
+			resp = service.forwardToDeleteAsync(headers, httpReq, httpRes, payload);
+		}
 
-			return resp;
-		};
+		GatewayFilter.setApiRespThroughput();
+		return resp;
+
+//		return () -> {
+////			ResponseEntity<?> resp = service.forwardToDelete(headers, httpReq, httpRes, payload);
+//
+//			var resp = service.forwardToDeleteAsync(headers, httpReq, httpRes, payload);
+//			// 計算API每秒轉發吞吐量
+//			GatewayFilter.setApiRespThroughput();
+//
+//			return resp;
+//		};
 	}
 }

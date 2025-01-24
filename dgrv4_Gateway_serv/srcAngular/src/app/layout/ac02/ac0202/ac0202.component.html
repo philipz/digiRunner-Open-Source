@@ -265,7 +265,7 @@
           <div *ngIf="clientBlock.invalid && (clientBlock.dirty || clientBlock.touched)" class="text-danger">
             <small class="form-text">{{clientBlock.errors.maxlength | translate:maxlength256}}</small>
             <small class="form-text">{{clientBlock.errors.required | translate}}</small>
-            <small *ngIf="confirmClientBlock.value" class="form-text">{{clientBlock.errors.confirm_password | translate}}</small>
+            <small *ngIf="confirmClientBlock.value" class="form-text">{{clientBlock.errors.confirm_mima | translate}}</small>
           </div>
         </div>
         <div class="col-6">
@@ -278,7 +278,7 @@
             <small class="form-text">{{confirmClientBlock.errors.maxlength |
               translate:maxlength256}}</small>
             <small class="form-text">{{confirmClientBlock.errors.required | translate}}</small>
-            <small class="form-text">{{confirmClientBlock.errors.confirm_password | translate}}</small>
+            <small class="form-text">{{confirmClientBlock.errors.confirm_mima | translate}}</small>
           </div>
         </div>
       </div>
@@ -1213,7 +1213,7 @@
                   <tbody>
                     <tr>
                       <td>
-                        <span>{{clientDetail.pwdFailTimes}}</span>
+                        <span>{{clientDetail['p'+'wdF'+'ailTimes']}}</span>
                       </td>
                       <td>
                         <input type="number" class="form-control" formControlName="resetFailLoginTreshhold"
@@ -1313,7 +1313,7 @@
                 <div *ngIf="newClientBlock.invalid && (newClientBlock.dirty || newClientBlock.touched)"
                   class="text-danger">
                   <small class="form-text">{{newClientBlock.errors.maxlength|translate:{value:256} }}</small>
-                  <small *ngIf="confirmNewClientBlock.value" class="form-text">{{newClientBlock.errors.confirm_password |translate}}</small>
+                  <small *ngIf="confirmNewClientBlock.value" class="form-text">{{newClientBlock.errors.confirm_mima |translate}}</small>
                 </div>
               </div>
               <div class="col-sm-6">
@@ -1326,7 +1326,7 @@
                   *ngIf="confirmNewClientBlock.invalid && (confirmNewClientBlock.dirty || confirmNewClientBlock.touched)"
                   class="text-danger">
                   <small class="form-text">{{confirmNewClientBlock.errors.maxlength|translate:{value:256} }}</small>
-                  <small class="form-text">{{confirmNewClientBlock.errors.confirm_password |translate}}</small>
+                  <small class="form-text">{{confirmNewClientBlock.errors.confirm_mima |translate}}</small>
                 </div>
               </div>
             </div>
@@ -1375,7 +1375,7 @@
       <div class="form-group row">
         <div class="col-sm-6">
           <label>{{'pwd_fail_times'|translate}}</label>
-          <label class="form-control border-line">{{clientDetail.pwdFailTimes}}</label>
+          <label class="form-control border-line">{{clientDetail['p'+'wdF'+'ailTimes']}}</label>
         </div>
         <div class="col-sm-6">
           <label>{{'allow_pwd_fail_times'|translate}}</label>

@@ -21,12 +21,15 @@ import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.IdTokenUtil;
 import tpi.dgrv4.codec.utils.IdTokenUtil.IdTokenData;
 import tpi.dgrv4.codec.utils.RandomSeqLongUtil;
+import tpi.dgrv4.common.constant.DgrIdPType;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.util.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DPB0145Req;
 import tpi.dgrv4.dpaa.vo.DPB0145Resp;
 import tpi.dgrv4.dpaa.vo.DPB0145RespItem;
+import tpi.dgrv4.dpaa.vo.DPB0146Resp;
 import tpi.dgrv4.entity.entity.DgrAcIdpUser;
 import tpi.dgrv4.entity.entity.TsmpOrganization;
 import tpi.dgrv4.entity.repository.DgrAcIdpUserDao;
@@ -43,7 +46,7 @@ public class DPB0145Service {
 	private DPB0146Service dPB0146Service;
 	@Autowired
 	private DgrAcIdpUserDao dgrAcIdpUserDao;
-	
+
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
@@ -57,16 +60,16 @@ public class DPB0145Service {
 			List<String> orgDescList = getTsmpOrganizationDao().queryOrgDescendingByOrgId_rtn_id(orgId,
 					Integer.MAX_VALUE);
 			List<DgrAcIdpUser> list = getDgrAcIdpUserDao().queryAllByOrgList(orgDescList);
-			if(CollectionUtils.isEmpty(list)) {
+			if (CollectionUtils.isEmpty(list)) {
 				throw TsmpDpAaRtnCode._1298.throwing();
 			}
-			
+
 			List<DPB0145RespItem> dataList = new ArrayList<>();
-			for(DgrAcIdpUser userVo : list) {
+			for (DgrAcIdpUser userVo : list) {
 				IdTokenData idTokenData = IdTokenUtil.getIdTokenData(userVo.getIdTokenJwtstr());
 				String picture = idTokenData.userPicture;
 				String statusName = DgrAcIdpUserStatus.getText(userVo.getUserStatus());
-				
+
 				DPB0145RespItem itemVo = new DPB0145RespItem();
 				itemVo.setIcon(picture);
 				itemVo.setId(RandomSeqLongUtil.toHexString(userVo.getAcIdpUserId(), RandomLongTypeEnum.YYYYMMDD));
@@ -75,23 +78,27 @@ public class DPB0145Service {
 				itemVo.setStatus(userVo.getUserStatus());
 				itemVo.setUserAlias(userVo.getUserAlias());
 				itemVo.setUserName(userVo.getUserName());
+				itemVo.setUserNameOrig(userVo.getUserName());
 				itemVo.setStatusName(statusName);
-				
-				Map<String,List<String>> map = getDpb0146Service().getRoleData(userVo.getUserName());
+
+				Map<String, List<String>> map = getDpb0146Service().getRoleData(userVo.getUserName());
 				List<String> roleIdList = map.get("roleIdList");
 				List<String> roleAliasList = map.get("roleAliasList");
-				if(userVo.getOrgId() != null) {
+				if (userVo.getOrgId() != null) {
 					itemVo.setOrgId(userVo.getOrgId());
 					Optional<TsmpOrganization> orgOpt = getTsmpOrganizationDao().findById(userVo.getOrgId());
-					if(orgOpt.isPresent()) {
+					if (orgOpt.isPresent()) {
 						itemVo.setOrgName(orgOpt.get().getOrgName());
 					}
 				}
 				itemVo.setRoleId(roleIdList);
 				itemVo.setRoleAlias(roleAliasList);
+
+				processingBeforeResponse(itemVo);
+
 				dataList.add(itemVo);
 			}
-			
+
 			resp.setDataList(dataList);
 			return resp;
 		} catch (TsmpDpAaException e) {
@@ -101,30 +108,43 @@ public class DPB0145Service {
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 	}
- 
+
+	private void processingBeforeResponse(DPB0145RespItem resp) {
+
+		if (resp == null) {
+			return;
+		}
+
+		if (DgrIdPType.CUS.equalsIgnoreCase(resp.getIdpType())) {
+			String userName = ServiceUtil.decodeBase64URL(resp.getUserName());
+			resp.setUserName(userName);
+		}
+
+	}
+
 	private String getIcon(String jwt) throws JsonMappingException, JsonProcessingException {
-		if(StringUtils.hasText(jwt)) {
+		if (StringUtils.hasText(jwt)) {
 			String[] arrJwt = jwt.split("\\.");
-			if(arrJwt.length == 3) {
+			if (arrJwt.length == 3) {
 				byte[] arrDecode = Base64Util.base64URLDecode(arrJwt[1]);
 				String strDecode = new String(arrDecode, StandardCharsets.UTF_8);
 				JsonNode rootNode = getObjectMapper().readTree(strDecode);
 				JsonNode pictureNode = rootNode.get("picture");
-				if(pictureNode != null) {
+				if (pictureNode != null) {
 					return pictureNode.asText();
-				}else {
+				} else {
 					return null;
 				}
 			}
 		}
-		
+
 		return jwt;
 	}
-	
+
 	protected TsmpOrganizationDao getTsmpOrganizationDao() {
 		return this.tsmpOrganizationDao;
 	}
-	
+
 	protected DPB0146Service getDpb0146Service() {
 		return dPB0146Service;
 	}

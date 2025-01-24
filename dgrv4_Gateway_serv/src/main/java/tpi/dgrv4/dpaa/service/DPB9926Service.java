@@ -62,10 +62,18 @@ public class DPB9926Service {
 			 Sheet sheet = workbook.getSheetAt(0);
 			 boolean isFirst = true;
 			 DataFormatter formatter = new DataFormatter();
-		     Iterator<Row> rows = sheet.iterator();
-		     Map<String, TsmpDpMailTplt> fileDataList = new HashMap<String, TsmpDpMailTplt>();
+			 Map<String, TsmpDpMailTplt> fileDataList = new HashMap<String, TsmpDpMailTplt>();
 		     Map<String, TsmpDpMailTplt> tsmpDpMailTpltMap = new HashMap<String, TsmpDpMailTplt>();
-		     while (rows.hasNext()) {
+		     Iterator<Row> rows = sheet.iterator();
+
+		   //checkmarx, Unchecked Input for Loop Condition,所以多了maxValue和loopIndex
+		     int maxValue = Integer.MAX_VALUE;
+		     int loopIndex = 0;
+		     while (rows.hasNext() && loopIndex <= maxValue) {
+		    	 if(loopIndex == maxValue) {
+		    		 throw TsmpDpAaRtnCode._1559.throwing("Exceed " + maxValue + " row");
+		    	 }
+		    	 loopIndex++;
 		    	 if(isFirst) {
 		    		 isFirst = false;
 		    		 Row row = rows.next();		    		 
@@ -97,6 +105,7 @@ public class DPB9926Service {
 		    		 fileDataList.put(vo.getCode(), vo);
 		    	 }
 		     }
+			
 		     
 		     List<TsmpDpMailTplt> mailTpltList = getTsmpDpMailTpltDao().findAll();
 		     for(TsmpDpMailTplt mailTplt : mailTpltList) {

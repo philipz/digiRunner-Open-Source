@@ -1,24 +1,5 @@
 package tpi.dgrv4.gateway.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
-import tpi.dgrv4.codec.utils.Base64Util;
-import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
-import tpi.dgrv4.common.exceptions.TsmpDpAaException;
-import tpi.dgrv4.common.utils.ServiceUtil;
-import tpi.dgrv4.common.utils.StackTraceUtil;
-import tpi.dgrv4.entity.repository.TsmpSettingDao;
-import tpi.dgrv4.gateway.component.cache.proxy.TsmpSettingCacheProxy;
-import tpi.dgrv4.gateway.keeper.TPILogger;
-import tpi.dgrv4.httpu.utils.HttpUtil;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,6 +19,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import tpi.dgrv4.codec.utils.Base64Util;
+import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
+import tpi.dgrv4.common.exceptions.TsmpDpAaException;
+import tpi.dgrv4.common.utils.CheckmarxCommUtils;
+import tpi.dgrv4.common.utils.ServiceUtil;
+import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.entity.repository.TsmpSettingDao;
+import tpi.dgrv4.escape.CheckmarxUtils;
+import tpi.dgrv4.gateway.component.cache.proxy.TsmpSettingCacheProxy;
+import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.httpu.utils.HttpUtil;
+
 
 @Service
 public class KibanaService2 {
@@ -52,7 +55,7 @@ public class KibanaService2 {
     @Autowired
     private TsmpSettingService tsmpSettingService;
 
-    private static HashMap<String, HttpResponse<byte[]>> cacheMap;
+    public static HashMap<String, HttpResponse<byte[]>> cacheMap;
     private static String kibanaUser = null;
     private static String kibanaPwd = null;
     private static String auth = null;
@@ -87,8 +90,11 @@ public class KibanaService2 {
                 // 取得Kibana登入授權資料
                 loginKbn(response);
             }
+
+
+            //checkmarx, ReDoS From Regex Injection ,所以用replaceAll會有問題,理論上取代一次就行了, 已通過中風險
             // 直接轉導 Kibana URL
-            String localUrl = request.getRequestURL().toString().replaceAll(request.getRequestURI(), "");
+            String localUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
             String redirecturl = localUrl + reportURL;
             response.sendRedirect(redirecturl);
 
@@ -267,7 +273,7 @@ public class KibanaService2 {
                 } catch (Exception e) {
                     TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
                 }
-                sb.append("\n ---- req Herder ---- ");
+
                 Enumeration<String> httpHeaderKeys = request.getHeaderNames();
                 //
                 while (httpHeaderKeys.hasMoreElements()) {
@@ -289,7 +295,7 @@ public class KibanaService2 {
                             String v = valueList.stream()
                                     .collect(Collectors.joining(", "));
                             httpRequestBuilder.setHeader(key, v);
-                            sb.append("\n" + key + " :　" + v);
+
                         }
                     }
                 }
@@ -299,13 +305,20 @@ public class KibanaService2 {
                     String encodUNPW = Base64Util.base64Encode((kibanaUser + ":" + kibanaPwd).getBytes());
                     httpRequestBuilder.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodUNPW);
                 }
-                sb.append("\n ---- req Herder end ---- ");
+
+
                 // 不能自動轉導
                 HttpClient httpClient = HttpClient.newBuilder().sslContext(HttpUtil.disableWssValidation()).followRedirects(Redirect.NEVER)
                         .build();
 
                 HttpRequest httpRequest = httpRequestBuilder.build();
+                sb.append("\n ---- req Herder ---- ");
+                httpRequest.headers().map().entrySet().forEach(m -> {
+                    sb.append("\n" + m.getKey() + " :　" + m.getValue().stream()
+                            .collect(Collectors.joining(", ")));
+                });
 
+                sb.append("\n ---- req Herder end ---- ");
                 httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
 
                 if (resourceURL.endsWith(".js") || resourceURL.endsWith(".woff2")) {
@@ -342,6 +355,9 @@ public class KibanaService2 {
             sb.append("\n ---- resp Herder end ---- ");
             response.setStatus(httpResponse.statusCode());
             response.setHeader("kbn-xsrf", "true");
+        	//checkmarx, Missing HSTS Header
+            response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"); 
+            
 
             // 將Kibana URL內容輸出
             OutputStream outputStream = response.getOutputStream();
@@ -349,11 +365,13 @@ public class KibanaService2 {
             // org.springframework.web.context.request.async.AsyncRequestNotUsableException: ServletOutputStream failed to write: null
             // outputStream.write( ) 是由這個方法發出
             try {
-                outputStream.write(httpResponse.body());
+            	//checkmarx, Reflected XSS All Clients
+            	CheckmarxCommUtils.sanitizeForCheckmarx(httpResponse, outputStream);
             } catch (AsyncRequestNotUsableException e) {
                 long total = 0;
                 for (HttpResponse<byte[]> res : cacheMap.values()) {
-                    byte[] b = res.body();
+                	//checkmarx, Reflected XSS All Clients
+                    byte[] b = CheckmarxUtils.sanitizeForCheckmarx(res);
                     total += b.length;
                 }
 
@@ -365,10 +383,16 @@ public class KibanaService2 {
                 return;
             }
             outputStream.flush();
-            sb.append("\n resp body len : " + httpResponse.body().length);
+            sb.append("\n resp body len : " + CheckmarxUtils.sanitizeForCheckmarx(httpResponse).length);
 
             sb.append("\n ===============================================");
-
+            if (httpResponse.statusCode() >= 400) {
+                TPILogger.tl.error(sb.toString());
+                if (cacheMap != null) {
+                    cacheMap.clear();
+                    TPILogger.tl.info("Clear Kibana cache");
+                }
+            }
             TPILogger.tl.trace(sb.toString());
 
             return;

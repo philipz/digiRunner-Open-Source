@@ -4,22 +4,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -41,8 +37,8 @@ public class LinkerServer implements Runnable {
 	private List<Notifier> notifiers;
 	private Socket socket = null;
 
-	private final String keeperHeaerByte = "__K_e_E_p_er__H_ea_d_er__";
-	private final String keeperFooterByte = "__digi_9999__";
+	private final String keeperHeaerByte = "_|__K_e_E_p_er__H_ea_d_er__|_(";
+	private final String keeperFooterByte = ")_|__digi_9999__|_";
 
 //	private Input in = null;
 
@@ -122,14 +118,17 @@ public class LinkerServer implements Runnable {
 		try {
 			Kryo kryo = CommunicationServer.kryoLocal.get();
 			while (true) {
+				
 				int bytesRead = socket.getInputStream().read(socket_read_buffer);
 
 				if (bytesRead == -1) {
 					break; // socket close
 				}
+				// 只處理實際讀到的資料
+			    byte[] actualData = Arrays.copyOf(socket_read_buffer, bytesRead);
 
 				// copy to ByteArrayOS
-				baos_4_readObj.write(socket_read_buffer, 0, bytesRead);
+				baos_4_readObj.write(actualData, 0, actualData.length);
 				baos_4_readObj.flush();
 
 				// Determine the dgR Detection behavior is correct?
@@ -169,8 +168,8 @@ public class LinkerServer implements Runnable {
 
 	private boolean procKyroPacket(Kryo kryo) throws Exception {
 		byte arr[] = baos_4_readObj.toByteArray();
-//		logger.info("\n...開始 deserialize 封包...size:"+arr.length);
-//		logger.info("\n...封包值:"+new String(arr));
+		baos_4_readObj.reset();
+//		logger.info("暫時印出來看(Server)...1\n..." + new String(arr, "UTF-8") + "... 暫時印出來看(Server)...1\n");
 
 		boolean hasDoneToPack = hasDone(arr); // 是否收到'尾'資料了
 
@@ -180,6 +179,7 @@ public class LinkerServer implements Runnable {
 		try {
 			for (ByteArrayOutputStream bigContinue : bigContinueDeque) {
 				arr = bigContinue.toByteArray();
+//				logger.info("暫時印出來看(Server)...2\n..." + new String(arr, "UTF-8") + "... 暫時印出來看(Server)...2\n");
 	
 				ByteArrayInputStream bais = new ByteArrayInputStream(arr);
 				kryoInput.setInputStream(bais);
@@ -202,12 +202,17 @@ public class LinkerServer implements Runnable {
 			continueFile(arr);
 
 			StringBuffer sb = new StringBuffer();
-			sb.append("\n無法解析 LS 封包 (Kryo Buffer Underflow)..."); // + LinkerServer.logTpiShortStackTrace(e)
-			sb.append("byte[] length: " + arr.length);
-//			sb.append("\nbyte[] to String: " + getSubstring(arr));
-			sb.append("\n 略過不處理, 進行續傳");
+			sb.append("\n無法解析 LS 封包 (Can't parser Kryo packet )..."); // + LinkerServer.logTpiShortStackTrace(e)
+			sb.append("\n 略過不處理, 進行續傳 (ignore packet and continue)");
+			sb.append("\n LinkerServer name: " + userName);
+			sb.append("\nbyte[] length: " + arr.length);
 			sb.append("\n");
-			logger.debug(sb.toString());
+			logger.warn(sb.toString()); // 輸出基本資料
+			
+			sb = new StringBuffer();
+			sb.append("\nbyte[] length: " + arr.length);
+			sb.append("\narr[] as String: \n" + new String(arr, "UTF-8") + "\n");
+			logger.warn(sb.toString()); // 以字串輸出封包內容			
 		} catch (KryoException e) {
 			baos_4_readObj.reset(); // 如果出錯了就要 reset 以免資料一直留存
 			StringBuffer sb = new StringBuffer();

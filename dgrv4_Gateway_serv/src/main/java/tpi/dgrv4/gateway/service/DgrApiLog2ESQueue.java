@@ -14,7 +14,7 @@ import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
 
 public class DgrApiLog2ESQueue {
-	private final static int BUFFER_SIZE = 300000; // 3分鐘壓測, DgrApiLog2ESQueue REV ES_LoggerQueue size:31,993
+	private final static int BUFFER_SIZE = 500; // 不能太高, 否則在 container 環境會 GC 到卡住
 	public final static BlockingQueue<DgrApiLog2ESQueue> ES_LoggerQueue = new ArrayBlockingQueue<DgrApiLog2ESQueue>(BUFFER_SIZE);
 
 	private static String[] arrEsUrl;

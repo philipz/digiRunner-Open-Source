@@ -10,7 +10,6 @@ import { DPB0083RespItem, DPB0083Req } from 'src/app/models/api/CertificateAutho
 import { ClientCAService } from 'src/app/shared/services/api-certificate-authority.service';
 import { DPB0084Req, DPB0084certItem } from 'src/app/models/api/CertificateAuthorityService/dpb0084.interface';
 import { FormParams } from 'src/app/models/api/form-params.interface';
-import { ClientCAComponent } from '../np0202/client-ca/client-ca.component';
 import { ClientService } from 'src/app/shared/services/api-client.service';
 
 @Component({

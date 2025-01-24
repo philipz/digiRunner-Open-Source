@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import tpi.dgrv4.common.exceptions.TsmpDpAaException;
+import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.gateway.service.AcIdPCallbackService;
 
 /**
@@ -36,7 +37,9 @@ public class AcIdPCallbackController {
     		HttpServletResponse resp) throws IOException {
 
 		try {
-			acIdpCallbackService.acIdPCallback(headers, req, resp, idPType);
+			//checkmarx, Unchecked Input for Loop Condition
+			String type = CheckmarxUtils.sanitizeForCheckmarx(idPType);
+			acIdpCallbackService.acIdPCallback(headers, req, resp, type);
 		} catch (Exception e) {
 			throw new TsmpDpAaException(e, null);
 		}

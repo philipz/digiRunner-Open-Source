@@ -1,15 +1,15 @@
 package tpi.dgrv4.dpaa.component;
 
-import java.util.LinkedList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
+import tpi.dgrv4.dpaa.vo.UndertowConfigInfo;
 import tpi.dgrv4.entity.component.ITsmpCoreTokenInitializerInit;
 import tpi.dgrv4.entity.component.IVersionService;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.util.LinkedList;
 
 @Component
 public class TsmpCoreTokenInitializerInit implements ITsmpCoreTokenInitializerInit {
@@ -37,15 +37,27 @@ public class TsmpCoreTokenInitializerInit implements ITsmpCoreTokenInitializerIn
 		String sslFlag = env.getProperty("server.ssl.enabled");
 		info.append("\n========== dgRv4 web server info ============");
 		info.append("\n ...dgR VERSION = " + versionService.getVersion().strVersion);
-		info.append("\n ...server.port = " + webServerPort);
 		info.append("\n ...server.servlet.context-path = " + context_path);
-		info.append("\n ...server.ssl.enabled = " + sslFlag);
 		info.append("\n ...spring.profiles.active = " + env.getProperty("spring.profiles.active"));
+		info.append("\n ...NodeName = " + TPILogger.lc.userName);
 		TPILogger.lc.param.put("server.port", webServerPort);
 		TPILogger.lc.param.put("server.servlet.context-path", context_path);
 		TPILogger.lc.param.put("server.ssl.enabled", sslFlag);
 		TPILogger.lc.param.put("spring.profiles.active", env.getProperty("spring.profiles.active"));
-		info.append("\n ...NodeName = " + TPILogger.lc.userName);
+
+		// 添加 Undertow 配置資訊
+		String undertowInfo = UndertowConfigInfo.getUndertowInfo();
+		if (undertowInfo != null && !undertowInfo.isEmpty()) {
+			String[] lines = undertowInfo.split("\n");
+			for (int i = 1; i < lines.length; i++) {
+				// 移除原始的 "- " 前綴，並加上 "..."
+				String line = lines[i].trim();
+				if (line.startsWith("-")) {
+					line = line.substring(1).trim();
+				}
+				info.append("\n ..." + line);
+			}
+		}
 
 		LinkedList<String> logStartingMsg = tpi.dgrv4.gateway.keeper.TPILogger.logStartingMsg;
 		for (String msg : logStartingMsg) {
@@ -54,7 +66,19 @@ public class TsmpCoreTokenInitializerInit implements ITsmpCoreTokenInitializerIn
 	    info.append("\n_____________________________________________");
 	    info.append("\n");
 
+	    // 載入完成後, 可以重新連線 from RDB keeper server ip
+	    closeConnection();
+	    
 		return info;
+	}
+
+	private void closeConnection() {
+		TPILogger.tl.info("\n\n........... close-connection start...............\n\n");
+		
+		TPILogger.lc.close(); // 它會重連
+		TPILogger.hasSecondConnectionStarting = true; //不用讀10秒, 加速連線
+		
+		TPILogger.tl.info("\n\n........... close-connection end  ...............\n\n");
 	}
 
 }

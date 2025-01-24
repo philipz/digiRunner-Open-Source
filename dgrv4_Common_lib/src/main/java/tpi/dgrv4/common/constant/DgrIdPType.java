@@ -4,8 +4,8 @@ public class DgrIdPType {
 
 	// OAuth 2.0
 	public final static String GOOGLE = "GOOGLE";
-
 	public final static String MS = "MS";
+	public final static String OIDC = "OIDC";
 
 	// LDAP
 	public final static String LDAP = "LDAP";

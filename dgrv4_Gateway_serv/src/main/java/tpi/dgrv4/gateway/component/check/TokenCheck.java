@@ -26,6 +26,10 @@ public class TokenCheck {
 	@Autowired
 	private TsmpOpenApiKeyDao tsmpOpenApiKeyDao;
  
+	/**
+	 * 取得 cid, 依表頭 Authorization 的各種格式 <br>
+	 * cid 為 v3 底層的名稱, 即 client ID <br>
+	 */
 	public String getCid(String authorization) {
 		try {
 			String cid = null;
@@ -37,7 +41,7 @@ public class TokenCheck {
 				return null;
 			}
 			
-			// 2.basic 格式 (id:pwd)
+			// 2.basic 格式, Base64Encode(id:pwd)
 			// 是否有"basic "字樣,忽略大小寫
 			boolean hasBasic = getTokenHelper().checkHasKeyword(authorization, TokenHelper.BASIC);
 			if(hasBasic) {
@@ -45,7 +49,7 @@ public class TokenCheck {
 				return cid;
 			}
 			
-			// 3.bearer 格式 (JWE/JWS)
+			// 3.bearer 格式, JWE/JWS
 			// 是否有"bearer "字樣,忽略大小寫
 			boolean hasBearer = getTokenHelper().checkHasKeyword(authorization, TokenHelper.BEARER);
 			if(hasBearer) {
@@ -69,11 +73,7 @@ public class TokenCheck {
 	}
 	
 	/**
-	 * 取得 cid, 依 basic 格式
-	 * 
-	 * @param authorization
-	 * @param keyword
-	 * @return
+	 * 取得 client ID, 依 basic 格式 <br>
 	 */
 	public String getCidForBasic(String authorization) {
 		String cid = null;
@@ -92,11 +92,7 @@ public class TokenCheck {
 	}
 	
 	/**
-	 * 取得 cid, 依 bearer 格式
-	 * 
-	 * @param authorization
-	 * @param keyword
-	 * @return
+	 * 取得 client ID, 依 bearer 格式
 	 */
 	public String getCidForBearer(String authorization) {
 		String cid = null;
@@ -127,10 +123,7 @@ public class TokenCheck {
 	}
 	
 	/**
-	 * 取得 cid ,依 DGRK 格式
-	 * 
-	 * @param authorization
-	 * @return
+	 * 取得 client ID, 依 DGRK 格式
 	 */
 	public String getCidForDgrk(String authorization) {
 		String cid = null;

@@ -169,7 +169,7 @@ public class DPB0091Service {
 		resp.setClientName(clientName);//用戶端代號
 		resp.setClientAlias(clientAlias);//用戶端名稱
 		resp.setOpenApiKey(openApiKey.getOpenApiKey());
-		resp.setSecretKey(secretKeyMask);
+		resp.setMimaKey(secretKeyMask);
 		resp.setOpenApiKeyAlias(openApiKey.getOpenApiKeyAlias());
 		resp.setTimesQuota(openApiKey.getTimesQuota());
 		resp.setTimesThreshold(openApiKey.getTimesThreshold());

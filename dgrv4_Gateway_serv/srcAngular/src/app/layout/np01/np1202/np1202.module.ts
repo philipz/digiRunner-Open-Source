@@ -6,6 +6,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TokenExpiredGuard, SharedPipesModule } from 'src/app/shared';
 import { Np1202Component } from './np1202.component';
+import { ApiDetailContentComponent } from './api-detail-content/api-detail-content.component';
+import { ApiDetailComponent } from '../../ac03/ac0301/api-detail/api-detail.component';
 
 @NgModule({
     imports: [
@@ -17,7 +19,7 @@ import { Np1202Component } from './np1202.component';
         ReactiveFormsModule,
         FormsModule,
     ],
-    declarations: [Np1202Component],
+    declarations: [Np1202Component,ApiDetailContentComponent],
     providers: [TokenExpiredGuard]
 })
 export class Np1202Module { }

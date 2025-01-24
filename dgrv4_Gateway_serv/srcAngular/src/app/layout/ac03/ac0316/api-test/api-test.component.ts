@@ -22,7 +22,8 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as shajs from 'sha.js'
 import { CommonAPI } from 'src/app/shared/register-api/common-api.class';
 import * as base64 from 'js-base64'
-const crypto = require('libp2p-crypto');
+// const crypto = require('libp2p-crypto');
+import CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-api-test',
@@ -297,10 +298,10 @@ export class ApiTestComponent implements OnInit {
     this.resTime = "";
 
     var clientId = this.form.get("clientId")!.value;
-    var clientPassword = this.form.get("clientPasswd")!.value;
+    var clientmima = this.form.get("clientPasswd")!.value;
     var userName = this.form.get("userName")!.value;
     var passwd = this.form.get("passwd")!.value;
-    let grant_type = GrantType.password;
+    let grant_type = GrantType.mima;
 
     if (this.authType.value == 'cc' || this.authType.value == 'pwd') {
       grant_type = GrantType.client_credentials;
@@ -308,17 +309,17 @@ export class ApiTestComponent implements OnInit {
         this.alert.ok(dict['dialog.warn'], dict['client_id_required']);
         return;
       }
-      if (!clientPassword || clientPassword == "") {
+      if (!clientmima || clientmima == "") {
         this.alert.ok(dict['dialog.warn'], dict['client_pwd_required']);
         return;
       }
-      clientPassword = this.toolService.Base64Encoder(clientPassword);
+      clientmima = this.toolService.Base64Encoder(clientmima);
     }
 
 
     if (this.authType.value == 'pwd') {
 
-      grant_type = GrantType.password;
+      grant_type = GrantType.mima;
 
       if (!userName || userName == "") {
         this.alert.ok(dict['dialog.warn'], dict['user_name_required']);
@@ -355,7 +356,7 @@ export class ApiTestComponent implements OnInit {
     let path = this.form.get('testUrl')!.value;
     headerList = new Array<HttpHeader>();
     headerList = headerList.concat(this.keyvalueConvetToList(this.form.get("keyValueRequest")!.value));
-    if(isMockTest) headerList.push({name:'dgr_mock_test', value:'true'})
+    if(isMockTest) headerList.push({name:'dgr-mock-test', value:'true'})
     let body = this.reqBodyHandler();
 
     if (this.authType.value == 'cc' || this.authType.value == 'pwd') {
@@ -365,7 +366,7 @@ export class ApiTestComponent implements OnInit {
           this.ngxService.stop();
           return;
         }
-        if (clientPassword == "") {
+        if (clientmima == "") {
           this.alert.ok(dict['dialog.warn'], dict['client_pwd_required']);
           this.ngxService.stop();
           return;
@@ -374,7 +375,7 @@ export class ApiTestComponent implements OnInit {
 
       this.ngxService.start();
       this.startTimestamp = new Date().getTime();
-      this.tokenService.authBytestApi(clientId, clientPassword, userName, passwd, grant_type).subscribe(
+      this.tokenService.authBytestApi(clientId, clientmima, userName, passwd, grant_type).subscribe(
         // (r: ResToken) => {
         // this.signBlockService.getTestSignBlock(r.access_token).subscribe(res => {
         //   let signBlock = res.Res_getSignBlock.signBlock;
@@ -408,13 +409,13 @@ export class ApiTestComponent implements OnInit {
         this.ngxService.stop();
         return;
       }
-      if (clientPassword == "") {
+      if (clientmima == "") {
         this.alert.ok(dict['dialog.warn'], dict['client_pwd_required']);
         this.ngxService.stop();
         return;
       }
 
-      let tmpAccout = clientId + ":" + clientPassword;
+      let tmpAccout = clientId + ":" + clientmima;
       let header = new  HttpHeaders({
         'Authorization': `Basic ${btoa(tmpAccout)}`,
         'digiRunner' : 'Test Process' //api測試區標記，在token intercepter內辨識流程用，用來區分是由api測試區打出的api
@@ -446,7 +447,7 @@ export class ApiTestComponent implements OnInit {
       }
 
       const _apiKey = this.form.get("apiKey")!.value;
-      const _secretKey = this.form.get("secretKey")!.value;
+      const _sKy = this.form.get("secretKey")!.value;
 
 
       const minifiedBody = this.form.get("bodyText")!.value ? this.isJson(this.form.get("bodyText")!.value)? JSON.stringify(JSON.parse(this.form.get("bodyText")!.value)):this.form.get("bodyText")!.value : '';
@@ -459,15 +460,26 @@ export class ApiTestComponent implements OnInit {
       const encodeStr = minifiedBody + this.form.get("apiKey")!.value + this.form.get("secretKey")!.value;
       // console.log('msg',encodeStr)
 
-      const textEncoder = new TextEncoder();
-      let u8PayloadBytesTarget = textEncoder.encode(encodeStr);
-      let u8PayloadBytesSercretKey = textEncoder.encode(_secretKey);
+      // const textEncoder = new TextEncoder();
+      // let u8PayloadBytesTarget = textEncoder.encode(encodeStr);
+      // let u8PayloadBytesSercretKey = textEncoder.encode(_secretKey);
       // console.log('encodeStr',u8PayloadBytesTarget);
       // console.log('_secretKey',u8PayloadBytesSercretKey);
 
-      const hash = 'SHA256'
-      const hmac = await crypto.hmac.create(hash, u8PayloadBytesSercretKey)
-      const sign = await hmac.digest(u8PayloadBytesTarget)
+      // const hash = 'SHA256'
+      // const hmac = await crypto.hmac.create(hash, u8PayloadBytesSercretKey)
+
+      // 使用 HmacSHA256 進行計算
+      const hmac = CryptoJS.HmacSHA256(encodeStr, _sKy);
+
+      // 將結果轉為 Uint8Array
+      // const sign = await hmac.digest(u8PayloadBytesTarget)
+      const sign = Uint8Array.from(CryptoJS.enc.Hex.parse(hmac.toString(CryptoJS.enc.Hex)).words.flatMap(word => [
+        (word >>> 24) & 0xff,
+        (word >>> 16) & 0xff,
+        (word >>> 8) & 0xff,
+        word & 0xff,
+      ]));
       const encodeSign = base64.Base64.fromUint8Array(sign);
       // console.log(encodeSign)
 
@@ -661,50 +673,51 @@ export class ApiTestComponent implements OnInit {
     }
   }
 
-  private bindResResult(data: any): void {
-
+  private bindResResult(data: { headers: HttpHeaders; body: any; status: number }): void {
+    if (!data || !data.headers || typeof data.status !== 'number') {
+      console.error('Invalid response data');
+      return;
+    }
     //處理回應時間
     this.calResponseTime();
 
-    console.log('Reponse', data)
-    let main_headers = {}
-    const keys = data.headers.keys();
-    let headers = keys.map(key => {
-      `${key}: ${data.headers.get(key)}`
-      main_headers[key] = data.headers.get(key)
-    }
-    );
+    const mainHeaders: Record<string, string | null> = {};
+    data.headers.keys().forEach((key) => {
+      const value = data.headers.get(key);
+      if (value !== null) { // 確保 value 不為 null
+        mainHeaders[key] = value;
+      }
+    });
 
     this.form.get("resBody")!.setValue(data.body);
     this.form.get("resStatus")!.setValue(data.status);
-    this.form.get("headerList")!.setValue(JSON.stringify(main_headers));
+    this.form.get("headerList")!.setValue(JSON.stringify(mainHeaders));
 
     this.ngxService.stop();
 
   }
 
-  bindErrResult(data: any): void {
-
+  bindErrResult(data: { headers: HttpHeaders; body: any; status: number, error?:any }): void {
+    if (!data || !data.headers || typeof data.status !== 'number') {
+        console.error('Invalid response data');
+        return;
+      }
     //處理回應時間
     this.calResponseTime();
 
-    console.log('Error', data)
-    let main_headers = {}
-    const keys = data.headers.keys();
-    let headers = keys.map(key => {
-      `${key}: ${data.headers.get(key)}`
-      main_headers[key] = data.headers.get(key)
-    }
-    );
-
-    // console.log(JSON.stringify( data.error))
+    const mainHeaders: Record<string, string | null> = {};    
+    data.headers.keys().forEach((key) => {
+      const value = data.headers.get(key);
+      if (value !== null) { // 確保 value 不為 null
+        mainHeaders[key] = value;
+      }
+    });
 
 
     const bodymsg = (typeof data.error == 'object') ? JSON.stringify(data.error) : data.error;
-
     this.form.get("resBody")!.setValue(bodymsg);
     this.form.get("resStatus")!.setValue(data.status);
-    this.form.get("headerList")!.setValue(JSON.stringify(main_headers));
+    this.form.get("headerList")!.setValue(JSON.stringify(mainHeaders));
 
     this.ngxService.stop();
 

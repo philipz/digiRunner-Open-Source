@@ -11,17 +11,22 @@ import { AlertService } from 'src/app/shared/services/alert.service';
 import * as dayjs from 'dayjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import {
+  DPB0234ApiDataItem,
   DPB0234Req,
   DPB0234RespItem,
   DPB0234RespItemFromXapiKey,
 } from 'src/app/models/api/ServerService/dpb0234.interface';
 import * as ValidatorFns from '../../../shared/validator-functions';
+import { AA0302Req } from 'src/app/models/api/ApiService/aa0302_v3.interface';
+import { ApiService } from 'src/app/shared/services/api-api.service';
+import { DialogService } from 'primeng/dynamicdialog';
+import { ApiDetailContentComponent } from './api-detail-content/api-detail-content.component';
 
 @Component({
   selector: 'app-np1202',
   templateUrl: './np1202.component.html',
   styleUrls: ['./np1202.component.css'],
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, ApiService],
 })
 export class Np1202Component extends BaseComponent implements OnInit {
   @ViewChild('keyWords', { static: true })
@@ -34,8 +39,8 @@ export class Np1202Component extends BaseComponent implements OnInit {
 
   currentAction: string = '';
   dataList: Array<DPB0234RespItem> = [];
-  dataListFromXapiKey: Array<DPB0234RespItemFromXapiKey> = [];
   apiCount: string  ='';
+  responseFromXapiKey?: DPB0234RespItemFromXapiKey;
 
   constructor(
     route: ActivatedRoute,
@@ -47,7 +52,9 @@ export class Np1202Component extends BaseComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private serverService: ServerService,
     private alertService: AlertService,
-    private ngxSrvice: NgxUiLoaderService
+    private ngxSrvice: NgxUiLoaderService,
+    private apiService: ApiService,
+    private dialogService: DialogService,
   ) {
     super(route, tr);
 
@@ -68,7 +75,7 @@ export class Np1202Component extends BaseComponent implements OnInit {
 
   axios_queryApiStatusByGroup() {
     this.dataList = [];
-    this.dataListFromXapiKey = [];
+    this.responseFromXapiKey = undefined;
     this.apiCount = '';
     this.ngxSrvice.start();
     let req = {
@@ -79,8 +86,9 @@ export class Np1202Component extends BaseComponent implements OnInit {
     this.serverService.queryApiStatusByGroup(req).subscribe((res) => {
       if (this.toolService.checkDpSuccess(res.ResHeader)) {
         this.dataList = res.RespBody.dataList;
-        this.dataListFromXapiKey = res.RespBody.dataListFromXapiKey;
         this.apiCount = res.RespBody.totalApi;
+        // console.log(res.RespBody.responseFromXapiKey)
+        this.responseFromXapiKey = res.RespBody.responseFromXapiKey;
       }
       this.ngxSrvice.stop();
     });
@@ -91,7 +99,7 @@ export class Np1202Component extends BaseComponent implements OnInit {
     this.resetFormValidator(this.form);
     this.apiCount = '';
     this.dataList = [];
-    this.dataListFromXapiKey = [];
+    this.responseFromXapiKey = undefined;
     this.flag.setValue(this.tabKeys[evt.index]);
     if (this.tabKeys[evt.index] === 'keyWords') {
       this.keyWords.setValidators(ValidatorFns.requiredValidator());
@@ -113,6 +121,32 @@ export class Np1202Component extends BaseComponent implements OnInit {
       ? dayjs(parseInt(date)).format(formate)
       : '';
   }
+
+  async showDetailPage(rowData:DPB0234ApiDataItem) {
+    // console.log(rowData)
+    const code = ['detail'];
+    const dict = await this.toolService.getDict(code);
+    let detailReqBody = {
+      moduleName: rowData.moduleName,
+      apiKey: rowData.apiPath,
+    } as AA0302Req;
+    this.apiService.queryAPIDetail_v3(detailReqBody).subscribe((res) => {
+      if (this.toolService.checkDpSuccess(res.ResHeader)) {
+
+        this.dialogService.open(ApiDetailContentComponent, {
+          data: {
+            apiData: rowData,
+            apiDetail: res.RespBody
+          },
+          header: dict['detail'],
+          width: '80vw',
+          styleClass: 'cHeader cContent'
+        })
+      }
+    })
+
+  }
+
 
   public get keyWords() {
     return this.form.get('keyWords')!;

@@ -56,7 +56,7 @@
     </form>
     <div *ngIf="flag.value=='keyWords'">
       <div class="form-group row" *ngIf="apiCount && apiCount!=''">
-        <div class="col-12 felid-flex-start">
+        <div class="col-12 field-flex-start">
           <label class="control-label">{{'api_count' | translate}}</label>
           <label class="control-label">{{apiCount}}</label>
         </div>
@@ -65,57 +65,66 @@
 
       <div *ngFor="let item of dataList" class="groupCard form-group">
         <div class="form-group row">
-          <div class="col-4 felid-flex-start">
-            <label class="control-label">{{'group_id'|translate}}</label>
-            <label class="control-label">{{item.groupId}} </label>
+          <div class="col-6">
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'group_id'|translate}}</label>
+                <label class="control-label">{{item.groupId}} </label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'group_alias'|translate}}</label>
+                <label class="control-label">{{item.groupAlias}} </label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'group_name'|translate}}</label>
+                <label class="control-label">{{item.groupName}} </label>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-4 felid-flex-start">
-            <label class="control-label">{{'group_alias'|translate}}</label>
-            <label class="control-label">{{item.groupAlias}} </label>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-4 felid-flex-start">
-            <label class="control-label">{{'group_name'|translate}}</label>
-            <label class="control-label">{{item.groupName}} </label>
+          <div class="col-6">
+            <div class="col-12">
+              <label class="control-label">{{'auth_client'|translate}}</label>
+              <div>
+                <label *ngFor="let clientItem of item['clientNameList']; let idx = index;"
+                  style="background-color: #666666;color: #fff; border-radius: 5px;" class="m-1 p-1">
+                  {{clientItem}}
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
 
 
-        <p-table [value]="item.clientDataList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
+        <p-table [value]="item.apiDataList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
           styleClass="p-datatable-striped">
           <ng-template pTemplate="header" let-columns>
             <tr>
-              <th style="width: 20%;" scope="col">{{"auth_client"|translate}}</th>
-              <th style="width: 30%;" scope="col">{{"api_name"|translate}}</th>
-              <th style="width: 35%;" scope="col">API Path</th>
+              <th style="width: 40%;" scope="col">{{"api_name"|translate}}</th>
+              <th style="width: 45%;" scope="col">API Path</th>
               <th style="width: 5%;" scope="col">{{"api_status"|translate}}</th>
+              <th style="width: 5%;" scope="col">{{"action"|translate}}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-rowData let-columns="columns">
             <tr>
-              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.clientName}}</td>
-              <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiName}}</td>
-              <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiPath}}</td>
-              <td [attr.rowspan]="1">
-                <img
-                  [src]="rowData.apiDataList[0]?.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+
+              <td>{{rowData.apiName}}</td>
+              <td>{{rowData.apiPath}}</td>
+              <td>
+                <img [src]="rowData.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+              </td>
+              <td>
+                <button pButton pRipple type="button" icon="pi pi-eye"
+                  class="p-button-rounded p-button-text p-button-plain" (click)="showDetailPage(rowData)"
+                  [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
               </td>
 
             </tr>
-            <ng-container *ngFor="let apiDataItem of rowData.apiDataList; let i= index;">
-              <tr *ngIf="i>0">
-                <td [attr.rowspan]="1">{{apiDataItem.apiName}}</td>
-                <td [attr.rowspan]="1">{{apiDataItem.apiPath}}</td>
-                <td [attr.rowspan]="1">
-                  <img
-                    [src]="apiDataItem.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
-                </td>
-              </tr>
-            </ng-container>
           </ng-template>
 
           <ng-template pTemplate="emptymessage" let-columns>
@@ -129,57 +138,82 @@
       </div>
 
     </div>
-    <div *ngIf="flag.value!='keyWords'">
-      <div class="form-group row" *ngIf="apiCount && apiCount!=''">
-        <div class="col-12 felid-flex-start">
-          <label class="control-label">{{'api_count' | translate}}</label>
-          <label class="control-label">{{apiCount}}</label>
-        </div>
-      </div>
-      <div *ngFor="let item of dataListFromXapiKey" class="groupCard form-group">
+    <div *ngIf="flag.value!='keyWords' && responseFromXapiKey">
+
+      <div class="groupCard form-group">
         <div class="form-group row">
-          <div class="col-4 felid-flex-start">
-            <label class="control-label">X-API-Key</label>
-            <label class="control-label">{{item.apiKeyMask}} </label>
+          <div class="col-6">
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">X-API-Key ID</label>
+                <label class="control-label">{{responseFromXapiKey.apiKeyId}} </label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">X-API-Key</label>
+                <label class="control-label">{{responseFromXapiKey.apiKeyMask}} </label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'effective_date'|translate}}</label>
+                <label class="control-label">{{formateDate(responseFromXapiKey.effectiveAt,'YYYY/MM/DD')}} </label>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-4 felid-flex-start">
-            <label class="control-label">{{'effective_date'|translate}}</label>
-            <label class="control-label">{{formateDate(item.effectiveAt,'YYYY/MM/DD')}} </label>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-4 felid-flex-start">
-            <label class="control-label">{{'expired_date'|translate}}</label>
-            <label class="control-label">{{formateDate(item.expiredAt,'YYYY/MM/DD')}} </label>
+          <div class="col-6">
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'auth_client'|translate}}</label>
+                <label class="control-label">{{responseFromXapiKey.clientName}} </label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'api_count' | translate}}</label>
+                <label class="control-label">{{responseFromXapiKey.totalApi}}</label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12 field-flex-start">
+                <label class="control-label">{{'expired_date'|translate}}</label>
+                <label class="control-label">{{formateDate(responseFromXapiKey.expiredAt,'YYYY/MM/DD')}} </label>
+              </div>
+            </div>
           </div>
         </div>
 
 
 
-        <p-table [value]="item.clientDataList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
+
+        <p-table [value]="responseFromXapiKey.groupList" [style]="{'word-break':'break-word'}" responsiveLayout="scroll"
           styleClass="p-datatable-striped">
           <ng-template pTemplate="header" let-columns>
             <tr>
-              <th style="width: 15%;" scope="col">X-API-Key ID</th>
-              <th style="width: 15%;" scope="col">{{"xapikey_name"|translate}}</th>
-              <th style="width: 20%;" scope="col">{{"auth_client"|translate}}</th>
+
+              <th style="width: 15%;" scope="col">{{"group_name"|translate}}</th>
+              <th style="width: 20%;" scope="col">{{"group_alias"|translate}}</th>
               <th style="width: 30%;" scope="col">{{"api_name"|translate}}</th>
               <th style="width: 35%;" scope="col">API Path</th>
               <th style="width: 5%;" scope="col">{{"api_status"|translate}}</th>
+              <th style="width: 5%;" scope="col">{{"action"|translate}}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-rowData let-columns="columns">
             <tr>
-              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.apiKeyId}}</td>
-              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.apiKeyAlias}}</td>
-              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.clientName}}</td>
+              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.groupName}}</td>
+              <td [attr.rowspan]="rowData.apiDataList.length>1?rowData.apiDataList.length:1">{{rowData.groupAlias}}</td>
               <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiName}}</td>
               <td [attr.rowspan]="1">{{rowData.apiDataList[0]?.apiPath}}</td>
               <td [attr.rowspan]="1">
                 <img
                   [src]="rowData.apiDataList[0]?.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+              </td>
+              <td [attr.rowspan]="1">
+                <button pButton pRipple type="button" icon="pi pi-eye"
+                class="p-button-rounded p-button-text p-button-plain" (click)="showDetailPage(rowData.apiDataList[0])"
+                [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
               </td>
 
             </tr>
@@ -190,6 +224,11 @@
                 <td [attr.rowspan]="1">
                   <img
                     [src]="apiDataItem.apiStatus =='1'? 'assets/images/icon_green.png': 'assets/images/icon_red.png'">
+                </td>
+                <td [attr.rowspan]="1">
+                  <button pButton pRipple type="button" icon="pi pi-eye"
+                  class="p-button-rounded p-button-text p-button-plain" (click)="showDetailPage(apiDataItem)"
+                  [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
                 </td>
               </tr>
             </ng-container>

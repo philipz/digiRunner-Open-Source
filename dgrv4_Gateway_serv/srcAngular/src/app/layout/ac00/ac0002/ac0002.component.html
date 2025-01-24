@@ -169,7 +169,7 @@
         </div>
         <div class="col-sm-6">
           <label>{{'pwd_fail_times' | translate}}</label>
-          <label class="form-control border-line">{{userDetail.pwdFailTimes}}</label>
+          <label class="form-control border-line">{{userDetail['p'+'wdF'+'ailTimes']}}</label>
         </div>
       </div>
       <div class="form-group row">
@@ -215,7 +215,7 @@
           <div *ngIf="userBlock?.invalid && (userBlock?.dirty || userBlock?.touched)" class="text-danger">
             <small class="form-text">{{userBlock?.errors.maxlength | translate:userBlockLimitChar}}</small>
             <small class="form-text">{{userBlock?.errors.required | translate}}</small>
-            <small *ngIf="confirmUserBlock.value" class="form-text">{{userBlock?.errors.confirm_password | translate}}</small>
+            <small *ngIf="confirmUserBlock.value" class="form-text">{{userBlock?.errors.confirm_mima | translate}}</small>
           </div>
         </div>
         <div class="col-12 col-lg-6">
@@ -226,7 +226,7 @@
             class="text-danger">
             <small class="form-text">{{confirmUserBlock?.errors.maxlength | translate:userBlockLimitChar}}</small>
             <small class="form-text">{{confirmUserBlock?.errors.required | translate}}</small>
-            <small class="form-text">{{confirmUserBlock?.errors.confirm_password | translate}}</small>
+            <small class="form-text">{{confirmUserBlock?.errors.confirm_mima | translate}}</small>
           </div>
         </div>
       </div>

@@ -65,7 +65,11 @@ public class BotDetectionRuleValidator implements ApplicationListener<ContextRef
 
 		this.executorService = new ThreadPoolExecutor(//
 				corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, policy);
-		this.reloadExecutor = Executors.newSingleThreadExecutor();
+		this.reloadExecutor = Executors.newSingleThreadExecutor(r -> {
+		    Thread thread = new Thread(r);
+		    thread.setName("bot-detection-reload-Thread");
+		    return thread;
+		});
 		this.pendingConfig = new AtomicReference<>(null);
 	}
 
@@ -190,12 +194,12 @@ public class BotDetectionRuleValidator implements ApplicationListener<ContextRef
 		message.append("Request Headers:\n");
 
 		// Get all header names
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			String headerValue = request.getHeader(headerName);
-			message.append(headerName).append(": ").append(headerValue).append("\n");
-		}
+//		Enumeration<String> headerNames = request.getHeaderNames();
+//		while (headerNames.hasMoreElements()) {
+//			String headerName = headerNames.nextElement();
+//			String headerValue = request.getHeader(headerName);
+//			message.append(headerName).append(": ").append(headerValue).append("\n");
+//		}
 
 		return message.toString();
 	}
@@ -214,7 +218,7 @@ public class BotDetectionRuleValidator implements ApplicationListener<ContextRef
 		message.append("The following request User-Agent did not pass the rules:\n\n");
 		message.append("Request User-Agent:\n").append(userAgent).append("\n\n");
 
-		message.append("Whitelist patterns:\n");
+		message.append("Allow List patterns:\n");
 		for (Pattern pattern : patterns) {
 			message.append("- ").append(pattern.pattern()).append("\n");
 		}
@@ -226,13 +230,13 @@ public class BotDetectionRuleValidator implements ApplicationListener<ContextRef
 		message.append("Protocol: ").append(request.getProtocol()).append("\n");
 		message.append("Remote Address: ").append(request.getRemoteAddr()).append("\n\n");
 
-		message.append("Request Headers:\n");
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			String headerValue = request.getHeader(headerName);
-			message.append(headerName).append(": ").append(headerValue).append("\n");
-		}
+//		message.append("Request Headers:\n");
+//		Enumeration<String> headerNames = request.getHeaderNames();
+//		while (headerNames.hasMoreElements()) {
+//			String headerName = headerNames.nextElement();
+//			String headerValue = request.getHeader(headerName);
+//			message.append(headerName).append(": ").append(headerValue).append("\n");
+//		}
 
 		return message.toString();
 	}
@@ -423,8 +427,8 @@ public class BotDetectionRuleValidator implements ApplicationListener<ContextRef
 			// Bot Detection status
 			sb.append("\nBot Detection Status: ").append(isValidationEnabled ? "Enabled" : "Disabled").append("\n\n");
 
-			// Bot Detection whitelist patterns
-			sb.append("Bot Detection Whitelist Rules:\n");
+			// Bot Detection Allow List patterns
+			sb.append("Bot Detection Allow List Rules:\n");
 			if (patterns.isEmpty()) {
 				sb.append("- No rules configured");
 			} else {

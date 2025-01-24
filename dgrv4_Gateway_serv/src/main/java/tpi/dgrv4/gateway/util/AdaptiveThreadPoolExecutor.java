@@ -59,7 +59,11 @@ public class AdaptiveThreadPoolExecutor extends ThreadPoolExecutor {
 				+ " and scheduled adjustment task with initial delay: " + currentAdjustmentDelay + "ms");
 
 		// 設置定時任務，根據當前調整延遲時間動態調整執行緒池大小
-		scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+		    Thread thread = new Thread(r);
+		    thread.setName("Adaptive-util-Thread");
+		    return thread;
+		});
 		scheduler.schedule(this::adjustThreadPoolSize, currentAdjustmentDelay, TimeUnit.MILLISECONDS);
 	}
 

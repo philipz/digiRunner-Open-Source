@@ -45,8 +45,19 @@ public class DeferrableJobManager extends JobManager {
 			Thread t = new Thread(this);
 			t.start();
 		}
-		this.executor2ndSingle = Executors.newSingleThreadExecutor();
-		this.executor2nd = Executors.newFixedThreadPool(200);
+		this.executor2ndSingle = Executors.newSingleThreadExecutor(r -> {
+		    Thread thread = new Thread(r);
+		    thread.setName("Job-2nd-runner");
+		    return thread;
+		});
+		
+		AtomicInteger threadCounter = new AtomicInteger(1);
+		this.executor2nd = Executors.newFixedThreadPool(200, r -> {
+		    Thread thread = new Thread(r);
+		    thread.setName("deferrable-Job-Queue-" + threadCounter.getAndIncrement());
+		    return thread;
+		});
+		
 		super.logger.debugDelay2sec("JobManager(" +this.getClass().getCanonicalName() + ") is initialized with thread-pool-size (" + this.poolSize + ")");
 	}
 

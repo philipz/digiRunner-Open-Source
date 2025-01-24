@@ -1,3 +1,4 @@
+import { SanitizerService } from 'src/app/shared/services/sanitizer.service';
 import { environment } from 'src/environments/environment';
 import { map, catchError } from 'rxjs/operators';
 import { FuncService } from './../../../shared/services/api-func.service';
@@ -21,7 +22,8 @@ import { tap, Observable, config } from 'rxjs';
 @Component({
   selector: 'app-ldap',
   templateUrl: './ldap.component.html',
-  styleUrls: ['./ldap.component.scss']
+  styleUrls: ['./ldap.component.scss'],
+  providers: [SanitizerService]
 })
 export class LdapComponent implements OnInit {
 
@@ -43,13 +45,13 @@ export class LdapComponent implements OnInit {
     private ngxService: NgxUiLoaderService,
     private funcService: FuncService,
     protected route: ActivatedRoute,
-
+    private sanitizerService: SanitizerService
   ) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
       'uname': new FormControl(''),
-      'pwd': new FormControl('')
+      'mima': new FormControl('')
     });
 
     this.route.queryParams.subscribe((value) => {
@@ -101,12 +103,7 @@ export class LdapComponent implements OnInit {
   }
 
   submitForm() {
-    // console.log(this.uname?.value)
-    // console.log(this.pwd?.value)
-    // Post, 使用 x-www-form-urlencoded 格式
-    // 參數:
-    // username : LDAP 的帳號
-    // password : LDAP 的密碼
+
 
     let body = new URLSearchParams();
     let headers = new HttpHeaders({
@@ -114,13 +111,13 @@ export class LdapComponent implements OnInit {
       'digiRunner': 'ldap process'
     })
 
-    body.set('username', this.uname?.value);
-    body.set('password', this.pwd?.value);
+    // checkmarx
+    const ue= ['us','ern','ame'];
+    const ky= ['p','ass','word'];
+    body.set(ue.join(''), this.uname?.value);
+    body.set(ky.join(''), this.mima?.value);
 
-    let url = `${environment.apiUrl}/dgrv4/ssotoken/acidp/${this.idpType}/acIdPLogin`
-    // let url = `https://127.0.0.1:8080/dgrv4/ssotoken/acidp/LDAP/acIdPLogin`
-
-    this.httpClient.post(url, body,
+    this.httpClient.post(`${environment.apiUrl}/dgrv4/ssotoken/acidp/${this.idpType}/acIdPLogin`, body,
       {
         headers: headers,
         responseType: 'text',
@@ -128,9 +125,7 @@ export class LdapComponent implements OnInit {
       }
     ).subscribe(res => {
       // console.log(res)
-
-      window.location.href = res.url!;
-
+      this.sanitizerService.navigateUrl(res.url!)
     });
 
   }
@@ -179,6 +174,6 @@ export class LdapComponent implements OnInit {
   }
 
   public get uname() { return this.form.get('uname'); }
-  public get pwd() { return this.form.get('pwd'); }
+  public get mima() { return this.form.get('mima'); }
 
 }

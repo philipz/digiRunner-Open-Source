@@ -238,9 +238,21 @@ public class TptokenService {
 		
 		// 取得 Client ID/PW
 		String clientId = getClientId(aesKey);
+		if (clientId == null) {
+			TPILogger.tl.error("\n\n !!!!! clientId: null !!!!!\n\n"); // maybe decocde error
+			System.err.println("\n\n !!!!! clientId: null !!!!!\n\n");
+			Thread.sleep(3000);
+		}
 		TPILogger.tl.trace("--clientId:" + ServiceUtil.dataMask(clientId, 2, 2));
+
 		String clientPw = getClientPw(aesKey);
+		if (clientPw == null) {
+			TPILogger.tl.error("\n\n !!!!! clientPw: null !!!!!\n\n"); // maybe decocde error
+			System.err.println("\n\n !!!!! clientId: null !!!!!\n\n");
+			Thread.sleep(3000);
+		}
 		TPILogger.tl.trace("--clientPw:" + ServiceUtil.dataMask(clientPw, 2, 2));
+		
 		
 		// 組成 Http Header Authorization 
 		String authorization = getAuthorization(clientId, clientPw);

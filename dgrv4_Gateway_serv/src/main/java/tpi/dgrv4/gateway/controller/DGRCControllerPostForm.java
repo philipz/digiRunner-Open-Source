@@ -1,6 +1,7 @@
 package tpi.dgrv4.gateway.controller;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,17 +27,28 @@ public class DGRCControllerPostForm {
 	@RequestMapping(value = "/dgrc/**", 
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE, // 使用 Form Data 格式
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public Callable dispatch(HttpServletRequest httpReq, 
-			HttpServletResponse httpRes, 
-			@RequestHeader HttpHeaders headers) {
- 
-		return () -> {
-			ResponseEntity<?> resp = service.forwardToPostFormData(headers, httpReq, httpRes);
-			
-			// 計算API每秒轉發吞吐量
-			GatewayFilter.setApiRespThroughput();
+	public CompletableFuture<ResponseEntity<?>> dispatch(HttpServletRequest httpReq,
+														 HttpServletResponse httpRes,
+														 @RequestHeader HttpHeaders headers) throws Exception {
 
-			return resp;
-		};
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		CompletableFuture<ResponseEntity<?>> resp;
+		if (selectWorkThread.equals(GatewayFilter.fast)) {
+			resp = service.forwardToPostFormDataAsyncFast(headers, httpReq, httpRes);
+		} else {
+			resp = service.forwardToPostFormDataAsync(headers, httpReq, httpRes);
+		}
+
+		GatewayFilter.setApiRespThroughput();
+		return resp;
+//		return () -> {
+////			ResponseEntity<?> resp = service.forwardToPostFormData(headers, httpReq, httpRes);
+//			var resp = service.forwardToPostFormDataAsync(headers, httpReq, httpRes);
+//
+//			// 計算API每秒轉發吞吐量
+//			GatewayFilter.setApiRespThroughput();
+//
+//			return resp;
+//		};
 	}
 }

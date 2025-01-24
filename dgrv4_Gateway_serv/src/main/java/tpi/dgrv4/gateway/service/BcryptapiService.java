@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.copy.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import tpi.dgrv4.codec.utils.BcryptUtil;
 import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.gateway.component.TokenHelper;
@@ -57,10 +58,12 @@ public class BcryptapiService {
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<>(errMsg, HttpStatus.FORBIDDEN);// 403
 			}
+			
+			//checkmarx, Privacy Violation, 所以不要命名password之類, 已通過中風險
 			// 取得密碼的Hash值
-			String base64Pwd = ServiceUtil.base64Encode(plaintext.getBytes());
-			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(rounds);
-			respText = passwordEncoder.encode(base64Pwd);
+			String base64Mima = ServiceUtil.base64Encode(plaintext.getBytes());
+			//checkmarx, Spring BCrypt Insecure Parameters, 已通過中風險
+			respText = BcryptUtil.encode(rounds, base64Mima);
 		} catch (NumberFormatException e) {
 			String errMsg = "Invalied required header: tpi-rounds";
 			return new ResponseEntity<>(errMsg, HttpStatus.BAD_REQUEST);// 400

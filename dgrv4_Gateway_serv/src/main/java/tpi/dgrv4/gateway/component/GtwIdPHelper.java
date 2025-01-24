@@ -58,6 +58,7 @@ public class GtwIdPHelper {
 		List<String> idPTypeList = new ArrayList<>();
 		idPTypeList.add(DgrIdPType.GOOGLE);
 		idPTypeList.add(DgrIdPType.MS);
+		idPTypeList.add(DgrIdPType.OIDC);
 		idPTypeList.add(DgrIdPType.JDBC);
 		idPTypeList.add(DgrIdPType.LDAP);
 		idPTypeList.add(DgrIdPType.API);
