@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-	id 'org.springframework.boot' version '3.3.4'
+	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.github.jk1.dependency-license-report' version '2.9'
 
@@ -65,7 +65,7 @@ subprojects {
 		implementation files("${rootDir}/libsext/dgrv4_CodecUtil-v4.4.11.0-2-gd0900e21d-lib.jar")
 		implementation files("${rootDir}/libsext/dgrv4_HttpUtil-v4.4.11.0-2-gd0900e21d-lib.jar")
 		implementation files("${rootDir}/libsext/onlineConsole-v1.0-55-gdc3e362.jar")
-		
+
 		implementation ('org.springframework.boot:spring-boot-starter-data-jpa'){
 			exclude group: 'ch.qos.logback', module: 'logback-classic'
 			exclude group: 'ch.qos.logback', module: 'logback-core'
@@ -86,6 +86,7 @@ subprojects {
 
 		implementation 'org.jboss.xnio:xnio-nio:3.8.16.Final'
 		implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+
 		implementation 'com.h2database:h2'
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
 		compileOnly 'org.projectlombok:lombok:1.18.32'
@@ -171,7 +172,6 @@ project(':dgrv4_Gateway_serv'){
 		// https://mvnrepository.com/artifact/org.codehaus.janino/janino
 		implementation 'org.codehaus.janino:janino:3.0.7'
 
-
 		implementation 'org.apache.httpcomponents.client5:httpclient5'
 		implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 		implementation 'org.apache.httpcomponents:httpmime:4.5.14'
@@ -180,10 +180,8 @@ project(':dgrv4_Gateway_serv'){
 
 		// for tsmpdpaa
 		implementation 'com.sun.mail:javax.mail:1.6.2'
-
 		implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
 		implementation 'org.yaml:snakeyaml:2.2'
-
 
 		implementation ('org.apache.poi:poi-ooxml:5.3.0'){
 			// 'Avoid CVE-2024-26308'
@@ -204,8 +202,6 @@ project(':dgrv4_Gateway_serv'){
 
 
 		//  compileOnly:  JDBC Driver 5 種
-		implementation 'com.h2database:h2:1.4.199'
-		//  compileOnly: H2 Config
 		implementation project(':dgrv4_H2Config_lib')
 		implementation 'com.microsoft.sqlserver:mssql-jdbc'
 		implementation 'com.oracle.database.jdbc:ojdbc11'
@@ -226,8 +222,6 @@ project(':dgrv4_Gateway_serv'){
 		compileOnly 'com.amazonaws:aws-java-sdk-marketplacemeteringservice:1.12.627'
 		// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-cloudfront
 		compileOnly 'com.amazonaws:aws-java-sdk-cloudfront:1.12.627'
-		//https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on/1.70
-		compileOnly 'org.bouncycastle:bcprov-jdk15on:1.70'
 		//  compileOnly: AWS Customized
 
 		implementation 'org.springframework.boot:spring-boot-starter-freemarker:3.3.4'
@@ -357,10 +351,6 @@ project(':dgrv4_H2Config_lib'){
 		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
 		testImplementation 'org.junit.platform:junit-platform-runner'
 		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
-
-
-		//  compileOnly: H2 Driver
-		compileOnly 'com.h2database:h2:1.4.199'
 	}
 
 	bootJar {
