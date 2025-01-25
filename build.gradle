@@ -149,11 +149,6 @@ project(':dgrv4_Gateway_serv'){
 		implementation project(':dgrv4_Entity_lib')
 		
 		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-		testImplementation 'org.junit.jupiter:junit-jupiter-api' // JUnit 5 API 介面
-		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 測試框架的實作
-		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
-		testImplementation 'org.junit.platform:junit-platform-runner'
-		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
 
 		// jasypt
 		implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
@@ -269,11 +264,6 @@ project(':dgrv4_Gateway_serv'){
 project(':dgrv4_Common_lib'){
 	// 引用其它 project
 	dependencies{
-		testImplementation 'org.junit.jupiter:junit-jupiter-api' // JUnit 5 API 介面
-		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 測試框架的實作
-		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
-		testImplementation 'org.junit.platform:junit-platform-runner'
-		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
 		// Kryo Serialization
 		implementation 'com.esotericsoftware:kryo:5.4.0'
 
@@ -309,12 +299,6 @@ project(':dgrv4_Entity_lib'){
 		implementation project(':dgrv4_Common_lib')
 		compileOnly 'org.apache.commons:commons-lang3:3.12.0'
 		compileOnly 'com.oracle.database.jdbc:ojdbc11'
-		// https://nipafx.dev/static/b862798a258987401978b6731416a360/f11bc/junit-5-architecture-diagram.webp
-		testImplementation 'org.junit.jupiter:junit-jupiter-api' // JUnit 5 API 介面
-		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 測試框架的實作
-		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
-		testImplementation 'org.junit.platform:junit-platform-runner'
-		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
 
 		// Kryo Serialization
 		compileOnly 'com.esotericsoftware:kryo:5.4.0'
@@ -345,12 +329,6 @@ project(':dgrv4_H2Config_lib'){
 	// 引用其它 project
 	dependencies{
 		implementation project(':dgrv4_Common_lib')
-
-		testImplementation 'org.junit.jupiter:junit-jupiter-api' // JUnit 5 API 介面
-		testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine' // JUnit 5 測試框架的實作
-		testImplementation 'org.junit.vintage:junit-vintage-engine'	// 加了這個才能跑 Junit 4 的 Test Case，因為它從 spring-boot-starter-test 移除了
-		testImplementation 'org.junit.platform:junit-platform-runner'
-		testImplementation 'org.mock-server:mockserver-junit-jupiter:5.12.0'
 	}
 
 	bootJar {
