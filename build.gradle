@@ -202,16 +202,6 @@ project(':dgrv4_Gateway_serv'){
 			exclude group: 'net.java.dev.jna', module: 'jna-platform'  //使用其它版本的相依
 		})
 
-		//  compileOnly: AWS
-		//https://docs.aws.amazon.com/zh_tw/sdk-for-java/latest/developer-guide/setup-project-gradle.html
-		compileOnly platform('com.amazonaws:aws-java-sdk-bom:1.12.627')
-		compileOnly 'com.amazonaws:aws-java-sdk-s3'
-		// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-marketplacemeteringservice
-		compileOnly 'com.amazonaws:aws-java-sdk-marketplacemeteringservice:1.12.627'
-		// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-cloudfront
-		compileOnly 'com.amazonaws:aws-java-sdk-cloudfront:1.12.627'
-		//  compileOnly: AWS Customized
-
 		implementation 'org.springframework.boot:spring-boot-starter-freemarker:3.3.4'
 	}
 
