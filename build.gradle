@@ -153,9 +153,6 @@ project(':dgrv4_Gateway_serv'){
 		// jasypt
 		implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
-		// for Print SQL and Paramter
-		implementation group: 'com.googlecode.log4jdbc', name: 'log4jdbc', version: '1.2'
-
 		//implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.12'
 
 		// https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
@@ -204,10 +201,6 @@ project(':dgrv4_Gateway_serv'){
 		implementation('org.mariadb.jdbc:mariadb-java-client:3.1.2', {
 			exclude group: 'net.java.dev.jna', module: 'jna-platform'  //使用其它版本的相依
 		})
-
-		//  compileOnly: Google
-		// https://mvnrepository.com/artifact/com.google.cloud/google-cloud-logging-logback
-		compileOnly 'com.google.cloud:google-cloud-logging-logback:0.130.17-alpha'
 
 		//  compileOnly: AWS
 		//https://docs.aws.amazon.com/zh_tw/sdk-for-java/latest/developer-guide/setup-project-gradle.html
