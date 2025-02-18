@@ -35,7 +35,7 @@ licenseReport {
 
 allprojects {
 	group = 'tpi.dgrv4'
-	version = 'release-rc-v4.4.14.0-gcc13a9359'
+	version = 'release-v4.4.14'
 	apply plugin:  'io.spring.dependency-management'
 
 	repositories {
