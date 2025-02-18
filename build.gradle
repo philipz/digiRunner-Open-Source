@@ -87,7 +87,6 @@ subprojects {
 		implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
 
 		compileOnly 'com.h2database:h2'
-		testImplementation 'org.springframework.boot:spring-boot-starter-test'
 		compileOnly 'org.projectlombok:lombok:1.18.32'
 		annotationProcessor 'org.projectlombok:lombok:1.18.32'
 		implementation 'commons-io:commons-io:2.16.1'
