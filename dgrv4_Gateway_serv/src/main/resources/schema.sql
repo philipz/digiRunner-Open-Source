@@ -2103,3 +2103,11 @@ ALTER TABLE TSMP_TOKEN_HISTORY ALTER COLUMN API_RESP TEXT;
 ALTER TABLE DGR_AC_IDP_AUTH_CODE ALTER COLUMN API_RESP TEXT;
 -- 20250120 , Gateway IdP授權碼記錄檔, Mini Lee
 ALTER TABLE DGR_GTW_IDP_AUTH_CODE ALTER COLUMN API_RESP TEXT;
+
+-- 20250203, dashboard相關table建立index(若有資料存在可能要執行一段時間), tom
+CREATE INDEX idx_tsmp_req_log ON tsmp_req_log(rtime);
+CREATE INDEX idx_dgr_dashboard_es_log ON dgr_dashboard_es_log(rtime);
+CREATE INDEX idx_tsmp_req_res_log_history ON tsmp_req_res_log_history(rtime);
+
+-- 20250213, 增加欄位長度, Zoe Lee
+ALTER TABLE dgr_rdb_connection ALTER COLUMN mima VARCHAR(2000) NOT NULL;

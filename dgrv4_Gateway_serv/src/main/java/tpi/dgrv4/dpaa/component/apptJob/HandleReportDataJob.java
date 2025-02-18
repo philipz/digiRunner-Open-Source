@@ -16,6 +16,7 @@ import tpi.dgrv4.gateway.service.TsmpSettingService;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -70,44 +71,63 @@ public class HandleReportDataJob extends ApptJob {
 	public String runApptJob() throws Exception {
 		Long id = this.getTsmpDpApptJob().getApptJobId();
 
-		boolean hasReportRunning = getTsmpDpApptJobDao().existsByRefItemNoAndStatusAndApptJobIdNot("REPORT_BATCH", "R",
-				id);
+		// print info , remember delete that !
+		String temp = "\nId::" + getTsmpDpApptJob().getApptJobId() + "\n";
+		temp += "Status::" + getTsmpDpApptJob().getStatus() + "\n";
+		temp += "Job Type::" + getTsmpDpApptJob().getRefItemNo() + "\n";
+		TPILogger.tl.info(temp);
+		
+		
+		// RefItemNo - 參照項目編號要等於 "REPORT_BATCH"
+		// Status - 狀態要等於 "R"
+		// ApptJobIdNot - 工作 ID 不等於傳入的 id 參數
+		boolean hasReportRunning = getTsmpDpApptJobDao().
+				existsByRefItemNoAndStatusAndApptJobIdNot("REPORT_BATCH", "R", id);
+		TPILogger.tl.info("...Has Repor Job Running....::" + hasReportRunning );
 		if (hasReportRunning) {
-			this.logger.info("REPORT_BATCH job status running id:" + id);
-			throw new CancellationException();
+			String msg = TPILogger.lcUserName + " :: REPORT_BATCH job status running id:" + id;
+			TPILogger.tl.info(msg);
+			TPILogger.tl.info(StackTraceUtil.logStackTrace(new Exception(msg)));
+			throw new CancellationException(msg);
 		} else {
 			boolean isEs = false;
 			String rdbVal = "false";
 			try {
 				rdbVal = getTsmpSettingService().getVal_TSMP_APILOG_FORCE_WRITE_RDB();
-				isEs = !getTsmpSettingService().getVal_ES_LOG_DISABLE();
+				isEs = !getTsmpSettingService().getVal_ES_LOG_DISABLE(); // 給予 反向 值
+				//RDB-log 未啟用 && ES-log 未啟用, 則 '取消執行'
 				if("false".equalsIgnoreCase(rdbVal) && !isEs) {
 					throw new CancellationException();
 				}
+				
+				isEs = false; // 由於 ES-log 會造成 memory leak (10W) 筆 , 故先強制轉為 RDB-log 
 
 				String strParam = this.getTsmpDpApptJob().getInParams();
 				if(isEs) {
-					this.logger.debug("--- Begin ES HandleReportDataJob ---");
+					TPILogger.tl.info("--- Begin ES HandleReportDataJob ---");
 					
 					Date execDate = getExecuteDate();
-					this.logger.debug(
+					TPILogger.tl.info(
 							"execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 
 					if(StringUtils.hasText(strParam)) {
 						execDate = DateTimeUtil.stringToDateTime(strParam, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
-						this.logger.debug(
+						TPILogger.tl.info(
 								"inParams execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 						getHandleESExpiredDataService().exec(execDate, id);
 						step("2/2P");
 						getHandleDashboardDataService().exec(execDate, isEs, id);
 					}else {
 						String stepMax = "/3";
+						TPILogger.tl.info("Report Data Job:: 1" + stepMax + " (ES Expired Data)");
 						step(1 + stepMax);
 						getHandleESExpiredDataService().exec(execDate, id);
 						
+						TPILogger.tl.info("Report Data Job:: 2" + stepMax + " (ES Api Data)");
 						step(2 + stepMax);
 						getHandleESApiDataService().exec(execDate, id);
 						
+						TPILogger.tl.info("Report Data Job:: 3" + stepMax + " (Dashboard Data)");
 						step(3 + stepMax);
 						getHandleDashboardDataService().exec(execDate, isEs, id);
 					}
@@ -115,18 +135,18 @@ public class HandleReportDataJob extends ApptJob {
 					
 
 				}else {
-					this.logger.debug("--- Begin RDB HandleReportDataJob ---");
+					TPILogger.tl.info("--- Begin RDB HandleReportDataJob ---");
 	
 					Date execDate = getExecuteDate();
-					this.logger.debug(
+					TPILogger.tl.info(
 							"execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 					String createUser = getTsmpDpApptJob().getCreateUser();
 	
-					String stepMax = "/6";
+					String stepMax = "/7";
 	
 					if(StringUtils.hasText(strParam)) {
 						execDate = DateTimeUtil.stringToDateTime(strParam, DateTimeFormatEnum.西元年月日時分秒_2).orElse(null);
-						this.logger.debug(
+						TPILogger.tl.info(
 								"inParams execute time : " + DateTimeUtil.dateTimeToString(execDate, DateTimeFormatEnum.西元年月日時分秒).orElse(String.valueOf(TsmpDpAaRtnCode._1295)));
 						step("6/6P");
 						getHandleDashboardDataService().exec(execDate, isEs, id);
@@ -146,8 +166,9 @@ public class HandleReportDataJob extends ApptJob {
 						step(5 + stepMax);
 						getHandleReportDataByYearService().exec(execDate, createUser, id);
 		
-						step(6 + stepMax);
+						step(6 + stepMax); // 這一步跑很久
 						getHandleDashboardDataService().exec(execDate, isEs, id);
+						step(7 + stepMax); // finish 
 					}
 					
 				}
@@ -155,16 +176,16 @@ public class HandleReportDataJob extends ApptJob {
 			} catch(CancellationException e) {
 				throw e;
 			} catch(ObjectOptimisticLockingFailureException e) {
-				this.logger.warn(StackTraceUtil.logTpiShortStackTrace(e));
+				TPILogger.tl.warn(StackTraceUtil.logTpiShortStackTrace(e));
 				throw e;
 			} catch (Exception e) {
-				this.logger.error(StackTraceUtil.logStackTrace(e));
+				TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 				throw e;
 			} finally {
 				if(isEs) {
-					this.logger.debug("--- Finish ES HandleReportDataJob ---");
+					TPILogger.tl.info("--- Finish ES HandleReportDataJob ---");
 				}else if(!"false".equalsIgnoreCase(rdbVal)){
-					this.logger.debug("--- Finish RDB HandleReportDataJob ---");
+					TPILogger.tl.info("--- Finish RDB HandleReportDataJob ---");
 				}
 				
 			}

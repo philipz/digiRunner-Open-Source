@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.util.StringUtils;
 
@@ -15,6 +16,8 @@ import tpi.dgrv4.common.constant.TsmpDpApptJobStatus;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.component.DpaaSystemInfoHelper;
+import tpi.dgrv4.dpaa.vo.DpaaSystemInfo;
 import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.repository.TsmpDpApptJobDao;
 import tpi.dgrv4.gateway.component.job.DeferrableJob;
@@ -56,7 +59,36 @@ public abstract class ApptJob extends DeferrableJob implements TsmpDpApptJobSett
 		runJobBody();
 	}
 	
+	private DpaaSystemInfoHelper dpaaSystemInfoHelper = new DpaaSystemInfoHelper();
+	
+	protected DpaaSystemInfoHelper getDpaaSystemInfoHelper() {
+		return dpaaSystemInfoHelper;
+	}
+	
+	@Value("${job.start.threshold:60}")
+    Integer jobStartThreshold = 60; // 預設 60% 即不執行
+	
+	@Value("${job.start.enable:true}")
+	Boolean jobStartEanble = true; // 預設 true , false 表示不執行
+	
 	public void runJobBody() {
+		
+		// 可利用 properties 指定某些 gateway 不執行排程例如:Keeper 
+		if (jobStartEanble==false) {
+			TPILogger.tl.warn("    job.start.enable :: " + jobStartEanble);
+			return;
+		}
+		
+		// CPU load %
+		DpaaSystemInfo infoVo = new DpaaSystemInfo();
+		getDpaaSystemInfoHelper().setCpuUsedRateAndMem(infoVo);
+		float cpuLoad = infoVo.getCpu() * 100 ;
+		if (cpuLoad > jobStartThreshold ) { // 60% 以上即 abort missing
+			TPILogger.tl.warn("cpu load = " + cpuLoad + ", too heigh , abort ApptJob mission");
+			return ;
+		} 
+		
+		TPILogger.tl.info(" ... " + cpuLoad + "%... CPU Load" + "\n");
 		try {
 			// 週期排程的流程中, 只要有"暫停"、"作廢"...等操作, 都會刪除 ApptJob 的資料, 所以才會需要在執行前判斷資料是否還在
 			Boolean isExists = getTsmpDpApptJobDao().existsById(this.tsmpDpApptJob.getApptJobId());
@@ -168,6 +200,7 @@ public abstract class ApptJob extends DeferrableJob implements TsmpDpApptJobSett
 	 * @param step
 	 */
 	protected void step(String step) {
+		TPILogger.tl.info("Report Job:: " + step + " ...step()");
 		this.tsmpDpApptJob.setJobStep(step);
 		this.tsmpDpApptJob.setUpdateDateTime(DateTimeUtil.now());
 		this.tsmpDpApptJob.setUpdateUser(tsmpDpApptJob.getCreateUser());

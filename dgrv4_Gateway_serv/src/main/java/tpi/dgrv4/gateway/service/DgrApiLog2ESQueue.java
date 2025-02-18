@@ -6,15 +6,14 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.springframework.http.HttpMethod;
-
 import tpi.dgrv4.common.utils.StackTraceUtil;
+import tpi.dgrv4.dpaa.es.EsHttpClient;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.httpu.utils.HttpUtil;
 import tpi.dgrv4.httpu.utils.HttpUtil.HttpRespData;
 
 public class DgrApiLog2ESQueue {
-	private final static int BUFFER_SIZE = 500; // 不能太高, 否則在 container 環境會 GC 到卡住
+	private final static int BUFFER_SIZE = 500; // 3分鐘壓測, DgrApiLog2ESQueue REV ES_LoggerQueue size:31,993
 	public final static BlockingQueue<DgrApiLog2ESQueue> ES_LoggerQueue = new ArrayBlockingQueue<DgrApiLog2ESQueue>(BUFFER_SIZE);
 
 	private static String[] arrEsUrl;
@@ -25,9 +24,42 @@ public class DgrApiLog2ESQueue {
 	private String strJson;
 	private String _id; // ES 批次寫 _id
 	private static StringBuffer bulkDatas = new StringBuffer(); //積纍批次寫入的 Data
+	
+	public static void putByPoll(DgrApiLog2ESQueue logObj) {
+//		當 logPool 已滿( size 筆)時,丟棄最舊的 log (poll)
+//		然後重試加入新的 log (offer)
+//		以維持固定大小的 log 隊列
+		while (ES_LoggerQueue.offer(logObj) == false) {
+			ES_LoggerQueue.poll();
+//			TPILogger.tl.warn("\n\t.....Remove Head  ES_log .....");
+		}
+	}
 
+	public static int abortNum = 0;
 	public static void put(DgrApiLog2ESQueue logObj) throws InterruptedException {
-		ES_LoggerQueue.put(logObj);
+		
+		// If there are already 150 unwritten logs, skip writing the remaining ones.
+		if (ES_LoggerQueue.size() < 150) {   
+			putByPoll(logObj); // put 時若滿了就丟棄最舊的, 不會造成阻塞
+		} else {
+			// JVM memory
+			long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
+			long totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+			long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+			//118MB / 2048MB / 2048MB...Memory(free/total/Max)
+			// total 擴到最大, 且 free 大於 256 MB, 626MB
+			if (freeMemory > 256) {
+				putByPoll(logObj); // put 時若滿了就丟棄最舊的, 不會造成阻塞
+			} else {
+				abortNum++;
+				if (abortNum % 100 == 0) { // 不需要每次都印出來
+					TPILogger.tl.warn("\n\t.....Abort  ES_log ....." + abortNum);
+					if (abortNum > Integer.MAX_VALUE - 100000) {
+						abortNum = 10;
+					}
+				}			
+			}
+		}
 		DgrApiLog2ESQueue.startThread(); //雖然每次都 start 但要確保它只會做一次
 	}
 
@@ -37,9 +69,24 @@ public class DgrApiLog2ESQueue {
 	public static void startThread() {
 		if (startFlag == false) {
 			startFlag = true; //表示已啟動, 只能做一次
-			new Thread() {
+			new Thread("ES-Log") {
 				public void run() {
-					processLogOut();
+					try {
+						processLogOut();  // java.lang.OutOfMemoryError: Java heap space
+					} catch (java.lang.OutOfMemoryError e) {
+						// java.lang.OutOfMemoryError: Java heap space
+						startFlag = false; //再啟動一次
+						StringBuilder sb = new StringBuilder();
+						sb.append(StackTraceUtil.logStackTrace(e));
+						sb.append("\n\t.....ES_LoggerQueue.size() " + ES_LoggerQueue.size() + " .....");
+						sb.append("\n\t.....JVM.freeMemory() " + Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB" + " .....");
+						sb.append("\n\t.....ES_LoggerQueue.clear().....");
+						TPILogger.tl.error(sb.toString());
+						ES_LoggerQueue.clear();
+						System.exit(1);
+						// 包個 image 來試試, 
+						// 使用 AI 這個方法 https://claude.ai/chat/12fa92ea-eb8a-4b6f-8430-32fcd67a39cd
+					}
 				}
 			}.start();
 			
@@ -76,17 +123,21 @@ public class DgrApiLog2ESQueue {
 				DgrApiLog2ESQueue o = ES_LoggerQueue.take();
 				o.run(); // 自己纍加 1次 ES Log Data
 				int nowSize = ES_LoggerQueue.size();
+//				if (nowSize > 11)	nowSize = 11; //固定傳 12 份
 				int writeRow = nowSize + 1;
-				Thread.sleep( 5000 ); // wait 後面的 log 持續增加
+//				Thread.sleep( 50 ); // wait 後面的 log 持續增加
 				for (; nowSize > 0 ; nowSize--) {
 					o = ES_LoggerQueue.take();
 					o.run(); //add 後面積纍的 Log
+//					System.out.println("...add...");
 				}
+//				System.out.println("...writeES...1...");
 				o.writeES(bulkDatas.toString()); // 寫入一批 bulk ES log
-				//System.out.println("模擬寫入筆數 = " + writeRow);
+//				System.out.println("...writeES...2...");
+//				TPILogger.tl.info("\n\t...ES API Log write [Row] = " + writeRow + "\n");
 				
-				bulkDatas = new StringBuffer(); //清空重建
-				
+//				bulkDatas = new StringBuffer(); //清空重建
+				bulkDatas.setLength(0); //清空重建
 				// 不要每次都印出來, 偶數秒才印, 觀察使用量
 //				if (System.currentTimeMillis() / 1000 % 5 == 0) {
 //					TPILogger.tl.debug("[#queueTrace#] ES Queue ES_LoggerQueue size:" + ES_LoggerQueue.size() );
@@ -126,6 +177,9 @@ public class DgrApiLog2ESQueue {
 		bulkDatas.append(bulkBody); //纍加起來
 	}
 	
+	//提供了連接池和 keep-alive 機制
+	EsHttpClient httpClient = new EsHttpClient();
+	
 	private void writeES(String bulkBody) {
 		String esReqUrl =  getEsReqUrl(arrEsUrl, arrIdPwd, indexName, timeout);
 		// 如是第一次連 ES or 連失敗則 workIndex = -1, 需要重新 find connection
@@ -150,16 +204,26 @@ public class DgrApiLog2ESQueue {
 		/*
 		 */
 		try {
+//			System.out.println("...POST 1...");
 			
-			resp = HttpUtil.httpReqByRawData(esReqUrl, HttpMethod.POST.toString(), bulkBody, header, false);
+//			resp = HttpUtil.httpReqByRawData(esReqUrl, HttpMethod.POST.toString(), bulkBody, header, false);
+//			int httpCode = resp.statusCode;
+			int httpCode = httpClient.bulkWrite(esReqUrl, bulkBody, header);
+			
+//			System.out.println("...POST 2...");
 			// 告知寫入成功或失敗
-			if (resp.statusCode >= 200 && resp.statusCode < 400) {
+			if (httpCode >= 200 && httpCode < 400) {
 
-				// TPILogger.tl.debug("[#queueTrace#] \n" + resp.getLogStr() + "\n");
+				TPILogger.tl.debug("...ES API Log ...OK ...http code = " + httpCode );
 			} else {
-				TPILogger.tl.error("! Request ES API has ben FAIL !");
+				TPILogger.tl.error("...ES API log FAIL , status code = " + httpCode);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
+			// JVM memory
+			String freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB";
+			String totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB";
+			String maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB";
+			TPILogger.tl.info(freeMemory + " / " + totalMemory + " / " + maxMemory + "...Memory(free/total/Max)" + "\n");
 			TPILogger.tl.error("\nesReqUrl = " + esReqUrl + "\n" + StackTraceUtil.logStackTrace(e));
 		}
 

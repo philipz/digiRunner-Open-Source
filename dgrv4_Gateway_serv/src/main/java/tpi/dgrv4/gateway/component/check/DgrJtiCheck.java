@@ -58,7 +58,7 @@ public class DgrJtiCheck {
 				// 是否有"bearer "字樣,忽略大小寫
 				boolean hasBearer = getTokenHelper().checkHasKeyword(authorization, TokenHelper.BEARER);
 				if (hasBearer == false) {// 沒有字樣
-					String errMsg = TokenHelper.Unauthorized;
+					String errMsg = TokenHelper.UNAUTHORIZED;
 					TPILogger.tl.debug(errMsg);
 					return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);
 				}

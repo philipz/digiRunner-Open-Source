@@ -1042,6 +1042,12 @@ public class TsmpRtnCodeTableInitializer {
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1559"), (locale = "zh-TW"), (tsmpRtnMsg = "{{0}}"), (tsmpRtnDesc = ""));
 		    createTsmpRtnCode((tsmpRtnCodeColumn = "1559"), (locale = "en-US"), (tsmpRtnMsg = "{{0}}"), (tsmpRtnDesc = ""));
 		    
+		    // 20250206, 對稱式加密/解密失敗訊息, Mini Lee
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1561"), (locale = "zh-TW"), (tsmpRtnMsg = "對稱式加密失敗：{{0}}"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1561"), (locale = "en-US"), (tsmpRtnMsg = "Symmetric encryption error: {{0}}"), (tsmpRtnDesc = ""));
+			
+			createTsmpRtnCode((tsmpRtnCodeColumn = "1562"), (locale = "zh-TW"), (tsmpRtnMsg = "對稱式解密失敗：{{0}}"), (tsmpRtnDesc = ""));
+		    createTsmpRtnCode((tsmpRtnCodeColumn = "1562"), (locale = "en-US"), (tsmpRtnMsg = "Symmetric decryption error: {{0}}"), (tsmpRtnDesc = ""));
 		} catch (Exception e) {
 			StackTraceUtil.logStackTrace(e);
 			throw e;

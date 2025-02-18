@@ -499,9 +499,16 @@ public class TptokenService {
 		String acClientId = getTsmpSettingService().getVal_TSMP_AC_CLIENT_ID();
 		String clientId = "";
 		if (!StringUtils.hasLength(aesKey)) {
-			clientId = acClientId;
+			// 沒有 Key, 不用解密
+			clientId = acClientId;  
 		}else {
-			clientId = getTsmpTAEASKHelper().decrypt(acClientId);
+			// 有 Key, 解密
+			try {
+				clientId = getTsmpTAEASKHelper().decrypt(acClientId);
+			} catch (Exception e) {
+				TPILogger.tl.error("AES key exists! 'acClientId' must be ciphertext, value: " + acClientId);
+				throw e;
+			}
 		}
 		return clientId;
 	}

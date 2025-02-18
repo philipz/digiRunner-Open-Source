@@ -426,6 +426,8 @@ public enum TsmpDpAaRtnCode implements ITsmpDpAaError<TsmpDpAaException> {
 	_1557(TsmpDpModule.DP5, "57", "啟用日期需要小於停用日期"),
 	_1558(TsmpDpModule.DP5, "58", "停用日期需要小於啟用日期"),
 	_1559(TsmpDpModule.DP5, "59", "{{0}}"),
+	_1561(TsmpDpModule.DP5, "61", "對稱式加密失敗：{{0}}"),
+	_1562(TsmpDpModule.DP5, "62", "對稱式解密失敗：{{0}}"),
 	
 	_2000(TsmpDpModule.DP10, "00", "必填"),
 	_2001(TsmpDpModule.DP10, "01", "最大長度為 [{{0}}]"),

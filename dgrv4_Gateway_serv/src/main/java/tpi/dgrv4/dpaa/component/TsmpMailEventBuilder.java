@@ -46,7 +46,7 @@ public class TsmpMailEventBuilder {
 
 	public TsmpMailEvent build() {
  
-		List<String> errFieldList = new LinkedList<String>();
+		List<String> errFieldList = new LinkedList<>();
 		if (this.subject == null){
 			errFieldList.add("subject");
 		}

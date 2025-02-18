@@ -58,7 +58,7 @@ public class GtwIdPVerifyService {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			respEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			return respEntity;
@@ -75,10 +75,10 @@ public class GtwIdPVerifyService {
 		
 		// 沒有 id_token 值
 		if (!StringUtils.hasLength(idTokenJwtstr)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "id_token";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "id_token";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 		

@@ -22,6 +22,8 @@ public class ApiHelper_TSMP implements ApiHelper {
 	private TPILogger logger = TPILogger.tl;
 
 	private ObjectMapper om;
+	
+	private static final String AUTHORIZATION = "Authorization";
 
 	@PostConstruct
 	public void init() {
@@ -51,7 +53,7 @@ public class ApiHelper_TSMP implements ApiHelper {
 		String reqBody = getString("reqBody", params, false);
 		String resp = HttpUtil.post(reqUrl, reqBody, (conn) -> {
 			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Authorization", token);
+			conn.setRequestProperty(AUTHORIZATION, token);
 			conn.setRequestProperty("signCode", signCode);
 		});
 		this.logger.debug(String.format("Resp: %s", resp));
@@ -61,14 +63,6 @@ public class ApiHelper_TSMP implements ApiHelper {
 
 	// 使用 client_credentials
 	public String getTokenByClientCredentials(Map<String, Object> params) throws Exception {
-		/*
-		String origClientId = getString("clientId", params, false);
-		String origClientPwd = getString("clientPwd", params, false);
-		String clientIdBase64ed = Base64.getEncoder().encodeToString(origClientId.getBytes());
-		String clientPwBase64ed = Base64.getEncoder().encodeToString(origClientPwd.getBytes());
-		String authorizationTextValue = clientIdBase64ed + ":" + clientPwBase64ed;
-		final String authorization = "Basic " + Base64.getEncoder().encodeToString(authorizationTextValue.getBytes());
-		*/
 		String tokenUrl = getString("tokenUrl", params, true);
 		if (!StringUtils.hasLength(tokenUrl)) {
 			throw new Exception("TokenUrl must be specified!");
@@ -84,17 +78,17 @@ public class ApiHelper_TSMP implements ApiHelper {
 		this.logger.debug(String.format("tokenUrl: %s", tokenUrl));
 		this.logger.debug(String.format("auth: %s", authorization));
 		String body = HttpUtil.post(tokenUrl, grantType, (conn) -> {
-			conn.setRequestProperty("Authorization", authorization);
+			conn.setRequestProperty(AUTHORIZATION, authorization);
 		});
 
 		String token = null;
 		try {
 			JsonNode resBody = om.readTree(body);
 			// access_token
-			String access_token = resBody.get("access_token").asText();
+			String accessToken = resBody.get("access_token").asText();
 			// token_type
-			String token_type = resBody.get("token_type").asText();
-			token = token_type + " " + access_token;
+			String tokenType = resBody.get("token_type").asText();
+			token = tokenType + " " + accessToken;
 		} catch (Exception e) {
 			logger.debug("" + e);
 		}
@@ -114,7 +108,7 @@ public class ApiHelper_TSMP implements ApiHelper {
 		this.logger.debug(String.format("signBlockUrl: %s", signBlockUrl));
 		this.logger.debug(String.format("reqBody: %s", reqBody));
 		String respJson = HttpUtil.get(signBlockUrl, null, (conn) -> {
-			conn.setRequestProperty("Authorization", token);
+			conn.setRequestProperty(AUTHORIZATION, token);
 			conn.setRequestProperty("Content-Type", "application/json");
 		});
 		
@@ -127,8 +121,8 @@ public class ApiHelper_TSMP implements ApiHelper {
 				JsonNode resGetSignBlock = resp.get("Res_getSignBlock");
 				String signBlock = resGetSignBlock.get("signBlock").asText();
 				if (signBlock != null && !signBlock.isEmpty()) {
-					byte[] input_byte = SHA256Util.getSHA256((signBlock + reqBody).getBytes(StandardCharsets.UTF_8));
-					signCode = HttpUtil.byte2Hex(input_byte);
+					byte[] inputByte = SHA256Util.getSHA256((signBlock + reqBody).getBytes(StandardCharsets.UTF_8));
+					signCode = HttpUtil.byte2Hex(inputByte);
 				}
 			}
 		} catch (Exception e) {

@@ -82,8 +82,8 @@ public class MonitorHostService {
 			getDpaaSystemInfoHelper().setDiskInfo(infoVo);
 			getDpaaSystemInfoHelper().setRuntimeInfo(infoVo);
 			
-			// 每 60 秒 印一次 memory...etc 狀態
-			if (times % 60 == 0) {
+			// 每 60*3 秒 印一次 memory...etc 狀態
+			if (times % 180 == 0) {
 				// JVM memory
 				String freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB";
 				String totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB";

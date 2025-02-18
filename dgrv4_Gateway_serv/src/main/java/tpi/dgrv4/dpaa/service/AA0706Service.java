@@ -1,8 +1,15 @@
 package tpi.dgrv4.dpaa.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
 import tpi.dgrv4.common.constant.BcryptFieldValueEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.exceptions.BcryptParamDecodeException;
@@ -24,11 +31,6 @@ import tpi.dgrv4.entity.repository.TsmpRoleDao;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpAuthorization;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 public class AA0706Service {
@@ -124,11 +126,15 @@ public class AA0706Service {
 	}
 
 	protected void syncAlert() {
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		executor.execute(() -> {
-			getDpaaAlertDispatcherIfs().syncAlert();
-		});
-		executor.shutdown();
+		// 使用 execute(...) , 異常會被吞掉
+		// 使用 submit(...).get() , 會拋出 ExecutionException
+		// 離開 try block 時，會自動呼叫 executor.shutdown()
+		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+		    executor.submit(() -> getDpaaAlertDispatcherIfs().syncAlert()).get();
+		} catch (InterruptedException | ExecutionException e) {
+		    TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+		    Thread.currentThread().interrupt();
+		}
 	}
 
 	protected TsmpRoleDao getTsmpRoleDao() {

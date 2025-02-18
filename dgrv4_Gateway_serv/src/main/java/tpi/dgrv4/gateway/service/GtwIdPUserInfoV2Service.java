@@ -61,7 +61,7 @@ public class GtwIdPUserInfoV2Service {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			respEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			return respEntity;
@@ -85,7 +85,7 @@ public class GtwIdPUserInfoV2Service {
 		boolean hasBearer = getTokenHelper().checkHasKeyword(authorization, TokenHelper.BEARER);
 		if (!hasBearer) {
 			// 沒有 Authorization
-			String errMsg = TokenHelper.Missing_required_parameter + "Authorization";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "Authorization";
 			respEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);
 			return respEntity;
 		}
@@ -137,7 +137,7 @@ public class GtwIdPUserInfoV2Service {
 		if (!StringUtils.hasText(idTokenJwtstr)) {
 			// Table [TSMP_TOKEN_HISTORY] 查不到 ID token
 			String errMsg1 = "Table [TSMP_TOKEN_HISTORY] can't find ID Token. token_jti: " + tokenJti;
-			String errMsg2 = String.format(TokenHelper.The_id_token_was_not_found, tokenJti);
+			String errMsg2 = String.format(TokenHelper.THE_ID_TOKEN_WAS_NOT_FOUND, tokenJti);
 			TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 			return getTokenHelper().getForbiddenErrorResp(reqUri, errMsg2);// 403
 		}

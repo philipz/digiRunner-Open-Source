@@ -83,7 +83,7 @@ public class GtwIdPVgroupService {
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
     		// 重新導向到前端,顯示訊息
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
     		getGtwIdPHelper().redirectToShowMsg(httpResp, errMsg, idPType, redirectUri);
     		return null;
@@ -122,7 +122,7 @@ public class GtwIdPVgroupService {
 		if (!opt_client.isPresent()) {
 			// Table [TSMP_CLIENT] 查不到 client
 			String errMsg1 = "Table [TSMP_CLIENT] can't find client, client_id: " + clientId;
-			String errMsg2 = TokenHelper.The_client_was_not_found + clientId;
+			String errMsg2 = TokenHelper.THE_CLIENT_WAS_NOT_FOUND + clientId;
 			TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 			if (httpResp == null) {// for Unit test
 				throw new UnitTestExcption("TSMP_CLIENT " + errMsg2);
@@ -136,7 +136,7 @@ public class GtwIdPVgroupService {
 		if (!opt_authClientDetails.isPresent()) {
 			// Table [OAUTH_CLIENT_DETAILS] 查不到 client
 			String errMsg1 = "Table [OAUTH_CLIENT_DETAILS] can't find client, client_id: " + clientId;
-			String errMsg2 = TokenHelper.The_client_was_not_found + clientId;
+			String errMsg2 = TokenHelper.THE_CLIENT_WAS_NOT_FOUND + clientId;
 			TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 
 			if (httpResp == null) {// for Unit test

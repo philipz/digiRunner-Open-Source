@@ -36,33 +36,37 @@ public class HandleDashboardLogDataService {
 
 	@Transactional
 	public Map<String, Object> exec(Date execDate, String createUser) {
+		logger = TPILogger.tl;
 
-		this.logger.debug("--- Begin HandleDashboardLogDataService ---");
+		this.logger.info("--- Begin HandleDashboardLogDataService ---");
 
 		// 現在區間的日期
 		Date nowIntervalDate = this.getNowIntervalDate(execDate);
-		this.logger.debug("nowIntervalDate = "
+		this.logger.info("nowIntervalDate = "
 				+ DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing));
 
 		// 先找出要刪除的 一年前的紀錄
 		Date oneYearAgo = this.getOneYearAgo(execDate);
 		this.logger
-				.debug("oneYearAgo = " + DateTimeUtil.dateTimeToString(oneYearAgo, DateTimeFormatEnum.西元年月日時分秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing));
+				.info("oneYearAgo = " + DateTimeUtil.dateTimeToString(oneYearAgo, DateTimeFormatEnum.西元年月日時分秒).orElseThrow(TsmpDpAaRtnCode._1295::throwing));
 
 		List<TsmpReqResLogHistory> deleteList = getTsmpReqResLogHistoryDao().findByRtimeLessThan(oneYearAgo);
+		this.logger.info("TsmpReqResLogHistory will delete count: " + deleteList.size());
 		if (deleteList.size() > 0) {
-			deleteList.forEach(dvo -> {
-				getTsmpReqResLogHistoryDao().delete(dvo);
-			});
-			this.logger.debug("TsmpReqResLogHistory 已刪除 " + deleteList.size() + " 筆超過一年的紀錄");
+			getTsmpReqResLogHistoryDao().deleteAllInBatch(deleteList); // 這裡刪除太久了
+//			deleteList.forEach(dvo -> {
+//				getTsmpReqResLogHistoryDao().delete(dvo);
+//			});
+			this.logger.info("TsmpReqResLogHistory 已刪除 " + deleteList.size() + " 筆超過一年的紀錄");
 		}
 		List<TsmpReqLog> reqList = getTsmpReqLogDao().findByRtimeLessThanOrderByRtimeAsc(nowIntervalDate);
-
+		this.logger.info("TsmpReqLog count: " + reqList.size());
 		List<TsmpReqLog> deleteReqList = new ArrayList<>();
 		List<String> resIdList = new ArrayList<>();
 		List<String> reqIdList = new ArrayList<>();
 
 		List<TsmpResLog> resList = getTsmpResLogDao().findAll();
+		this.logger.info("TsmpResLog count: " + resList.size());
 		List<TsmpResLog> deleteResList = new ArrayList<>();
 		// 假設ID req 1 2 3 4 res 2 3 4 5
 		resList.forEach(r -> {
@@ -130,14 +134,12 @@ public class HandleDashboardLogDataService {
 			long timeDifference = nowIntervalDate.getTime() - d.getRtime().getTime();
 			if (timeDifference >= 0 && timeDifference <= oneHourInMillis) { // 如果小於一小時內，要把它移出刪除的list
 				removeFromDeleteReqList.add(d);
-
 			}
-
 		}
 		deleteReqList.removeAll(removeFromDeleteReqList);
 
-		getTsmpReqResLogHistoryDao().saveAll(insertList);
-		this.logger.trace("TsmpReqResLogHistory 已寫入 " + insertList.size() + " 筆紀錄");
+		getTsmpReqResLogHistoryDao().saveAll(insertList);  //-- 寫入太久
+		this.logger.info("TsmpReqResLogHistory 已寫入 " + insertList.size() + " 筆紀錄");
 		if (deleteReqList.size() > 0) {
 			deleteReqList.forEach(rm -> {
 				getTsmpReqLogDao().delete(rm);
@@ -158,7 +160,7 @@ public class HandleDashboardLogDataService {
 		Map<String, Object> map = new HashMap<>();
 		map.put("req", reqList);
 		map.put("res", resList);
-		this.logger.debug("--- Finish HandleDashboardLogDataService ---");
+		this.logger.info("--- Finish HandleDashboardLogDataService ---");
 		return map;
 	}
 

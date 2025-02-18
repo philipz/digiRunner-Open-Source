@@ -60,14 +60,14 @@ public class HandleReportDataByMinuteService {
 		Map<String, Object> map = getHandleDashboardLogDataService().exec(execDate, createUser);
 		List<TsmpReqLog> reqList = (List<TsmpReqLog>) map.get("req");
 		List<TsmpResLog> resList = (List<TsmpResLog>) map.get("res");
-		TPILogger.tl.debug("--- Begin HandleReportDataByMinuteService ---");
+		TPILogger.tl.info("--- Begin HandleReportDataByMinuteService ---");
 
 		// 現在區間的日期
 		Date nowIntervalDate = this.getNowIntervalDate(execDate);
-		TPILogger.tl.debug("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
+		TPILogger.tl.info("nowIntervalDate = " + DateTimeUtil.dateTimeToString(nowIntervalDate, DateTimeFormatEnum.西元年月日時分秒).orElse(execDate.toString()));
 
 
-		TPILogger.tl.debug("reqList.size = " + reqList.size());
+		TPILogger.tl.info("reqList.size = " + reqList.size());
 		for(TsmpReqLog vo : reqList) {
 			if(vo.getOrgid() == null) {
 				vo.setOrgid("");
@@ -104,7 +104,7 @@ public class HandleReportDataByMinuteService {
 		getHandleApiDataAndLogService().insertTsmpApiAndDeleteLog(reqList, resList);
 	
 		checkJobStatus(jobId);
-		TPILogger.tl.debug("--- Finish HandleReportDataByMinuteService ---");
+		TPILogger.tl.info("--- Finish HandleReportDataByMinuteService ---");
 	}
 	
 	protected void checkJobStatus(Long id) {

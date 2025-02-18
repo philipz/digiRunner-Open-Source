@@ -12,7 +12,7 @@ public interface ApiHelper {
 
 	public default String getString(String key, Map<String, Object> params, boolean isAllowNull) {
 		return getParam(key, params, isAllowNull //
-				, () -> {return new String();} //
+				, () -> {return "";} //
 				, (value) -> {return String.valueOf(value);});
 	};
 

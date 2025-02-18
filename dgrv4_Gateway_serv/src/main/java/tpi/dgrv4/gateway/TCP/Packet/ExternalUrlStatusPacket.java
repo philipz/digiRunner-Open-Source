@@ -37,7 +37,7 @@ public class ExternalUrlStatusPacket implements Packet_i {
 
 	@Override
 	public void runOnClient(LinkerClient lc) {
-
+		// Do nothing
 	}
 
 	@Override

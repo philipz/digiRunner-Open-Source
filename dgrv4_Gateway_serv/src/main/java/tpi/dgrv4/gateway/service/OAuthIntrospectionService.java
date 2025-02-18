@@ -150,7 +150,7 @@ public class OAuthIntrospectionService {
 				String errMsg = "Missing client_secret. client_id: " + clientId;
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 

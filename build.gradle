@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-	id 'org.springframework.boot' version '3.4.0'
+	id 'org.springframework.boot' version '3.4.0' apply false // 加上 apply false
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'com.github.jk1.dependency-license-report' version '2.9'
 
@@ -35,7 +35,7 @@ licenseReport {
 
 allprojects {
 	group = 'tpi.dgrv4'
-	version = 'release-rc-v4.4.11.0-gd0900e2'
+	version = 'release-rc-v4.4.14.0-gcc13a9359'
 	apply plugin:  'io.spring.dependency-management'
 
 	repositories {
@@ -57,14 +57,13 @@ subprojects {
 	apply plugin:  'java-library'
 	apply plugin:  'eclipse'
 
-	sourceCompatibility = '17'
-	targetCompatibility = '17'
+	sourceCompatibility = '21'
+	targetCompatibility = '21'
 
 
 	dependencies {
-		implementation files("${rootDir}/libsext/dgrv4_CodecUtil-v4.4.11.0-2-gd0900e21d-lib.jar")
-		implementation files("${rootDir}/libsext/dgrv4_HttpUtil-v4.4.11.0-2-gd0900e21d-lib.jar")
-		implementation files("${rootDir}/libsext/onlineConsole-v1.0-55-gdc3e362.jar")
+		implementation files("${rootDir}/libsext/dgrv4_CodecUtil-v4.4.14.0-4-gcc13a9359-lib.jar")
+		implementation files("${rootDir}/libsext/dgrv4_HttpUtil-v4.4.14.0-4-gcc13a9359-lib.jar")
 
 		implementation ('org.springframework.boot:spring-boot-starter-data-jpa'){
 			exclude group: 'ch.qos.logback', module: 'logback-classic'
@@ -87,7 +86,7 @@ subprojects {
 		implementation 'org.jboss.xnio:xnio-nio:3.8.16.Final'
 		implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
 
-		implementation 'com.h2database:h2'
+		compileOnly 'com.h2database:h2'
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'
 		compileOnly 'org.projectlombok:lombok:1.18.32'
 		annotationProcessor 'org.projectlombok:lombok:1.18.32'
@@ -121,7 +120,7 @@ subprojects {
 		}
 		from(configurations.runtimeClasspath){
 			include '**/google-cloud-logging-logback*.jar'
-			include '**/bcprov-jdk15on*.jar'
+			include '**/bcprov-jdk18on*.jar'
 			include '**/aws-java-sdk*.jar'
 			include '**/h2-*.jar'
 			include '**/mariadb-java-client-*.jar'
@@ -134,7 +133,7 @@ subprojects {
 	}
 }
 
-def getDate() {
+static def getDate() {
 	return new Date().format('yyyyMMdd_HHmm')
 }
 
@@ -194,15 +193,19 @@ project(':dgrv4_Gateway_serv'){
 
 
 		//  compileOnly:  JDBC Driver 5 種
+		implementation 'com.h2database:h2'
 		implementation project(':dgrv4_H2Config_lib')
 		implementation 'com.microsoft.sqlserver:mssql-jdbc'
 		implementation 'com.oracle.database.jdbc:ojdbc11'
 		implementation 'org.postgresql:postgresql'
 		implementation('org.mariadb.jdbc:mariadb-java-client:3.1.2', {
 			exclude group: 'net.java.dev.jna', module: 'jna-platform'  //使用其它版本的相依
+			exclude group: 'com.google.protobuf', module: 'protobuf-java'
 		})
+		
+		// 修正上方排除的
+		compileOnly 'com.google.protobuf:protobuf-java:3.25.5'
 
-		implementation 'org.springframework.boot:spring-boot-starter-freemarker:3.3.4'
 	}
 
 	task createVersionTxt() {
@@ -281,8 +284,7 @@ project(':dgrv4_Entity_lib'){
 	dependencies{
 		implementation project(':dgrv4_Common_lib')
 		compileOnly 'org.apache.commons:commons-lang3:3.12.0'
-		compileOnly 'com.oracle.database.jdbc:ojdbc11'
-
+		
 		// Kryo Serialization
 		compileOnly 'com.esotericsoftware:kryo:5.4.0'
 	}

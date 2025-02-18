@@ -485,10 +485,10 @@ public class CommForwardProcService {
 				if (!StringUtils.hasText(auth) && !StringUtils.hasText(xApiKey)) {
 					String reqUri = httpReq.getRequestURI();
 
-					String errMsg = TokenHelper.Authorization_And_X_Api_Key_Have_No_Values;
+					String errMsg = TokenHelper.AUTHORIZATION_AND_X_API_KEY_HAVE_NO_VALUES;
 					TPILogger.tl.debug(errMsg);
 
-					errMsg = TokenHelper.Unauthorized;
+					errMsg = TokenHelper.UNAUTHORIZED;
 					TPILogger.tl.debug(errMsg);
 					return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 				}
@@ -739,8 +739,8 @@ public class CommForwardProcService {
 		//httpRes.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, SignCode, Language"); // CORS
 		httpRes.setHeader("Access-Control-Allow-Headers", corsAllowHeaders); //"3. corsAllowHeaders = " + corsAllowHeaders
 		httpRes.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,PATCH,DELETE"); // CORS
-		if (StringUtils.hasText(dgrCspVal) && !!"*".equals(dgrCspVal.trim()))
-		httpRes.setHeader("Content-Security-Policy", dgrCspVal);
+		if (StringUtils.hasText(dgrCspVal) && !"*".equals(dgrCspVal.trim()))
+			httpRes.setHeader("Content-Security-Policy", dgrCspVal);
 		httpRes.setHeader("X-Frame-Options", "sameorigin");
 		httpRes.setHeader("X-Content-Type-Options", "nosniff");
 		httpRes.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -775,7 +775,11 @@ public class CommForwardProcService {
 		try {
 			httpRes.reset(); //code, headers
 		} catch (Exception e) {
-			TPILogger.tl.warn("is commited:" + httpRes.isCommitted() + "|" + StackTraceUtil.logStackTrace(e));
+			TPILogger.tl.warn("Response already commited HTTP code : " + httpRes.getStatus());
+			if (httpRes.getStatus() != 200) {
+				TPILogger.tl.warn(httpRes.getStatus() +", is commited:" + httpRes.isCommitted() + "|" + StackTraceUtil.logStackTrace(e));
+			}
+			return null;
 		}
 
 
@@ -806,7 +810,6 @@ public class CommForwardProcService {
 		 */
 		String dgrCspVal = getTsmpSettingService().getVal_DGR_CSP_VAL();// 例如: "*" 或 "https://10.20.30.88:18442
 																		// https://10.20.30.88:28442"
-//		String cspVal = String.format(GatewayFilter.cspDefaultVal, dgrCspVal);
 
 		httpRes.setHeader("Access-Control-Allow-Origin", getTsmpSettingService().getVal_DGR_CORS_VAL()); // 從 TsmpSetting 取值，動態回傳。
 		//httpRes.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, SignCode, Language"); // CORS
@@ -814,7 +817,7 @@ public class CommForwardProcService {
 
 		httpRes.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,PATCH,DELETE"); // CORS
 
-		if (!"*".equals(dgrCspVal.trim()))
+		if (StringUtils.hasText(dgrCspVal) && !"*".equals(dgrCspVal.trim()))
 			httpRes.setHeader("Content-Security-Policy", dgrCspVal);
 		httpRes.setHeader("X-Frame-Options", "sameorigin");
 		httpRes.setHeader("X-Content-Type-Options", "nosniff");
@@ -1963,7 +1966,7 @@ public class CommForwardProcService {
 					String errMsg = "API request JWS verify error.";
 					TPILogger.tl.debug(errMsg);
 					responseEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 							HttpStatus.BAD_REQUEST);// 400
 					jwtPayloadData.errRespEntity = responseEntity;
 				}
@@ -1992,7 +1995,7 @@ public class CommForwardProcService {
 					String errMsg = "API request JWE decryption error.";
 					TPILogger.tl.debug(errMsg);
 					ResponseEntity<?> responseEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 							HttpStatus.BAD_REQUEST);// 400
 					jwtPayloadData.errRespEntity = responseEntity;
 				}
@@ -2021,7 +2024,7 @@ public class CommForwardProcService {
 			String errMsg = No_Auth_no_valid_credentials_found;
 			TPILogger.tl.debug(errMsg);
 			ResponseEntity<?> errResEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 			clientPublicKeyData.errRespEntity = errResEntity;// 400
 			return clientPublicKeyData;
@@ -2033,7 +2036,7 @@ public class CommForwardProcService {
 			String errMsg = Missing_client_ID_no_valid_certificate_found;
 			TPILogger.tl.debug(errMsg);
 			ResponseEntity<?> errResEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 			clientPublicKeyData.errRespEntity = errResEntity;// 400
 			return clientPublicKeyData;
@@ -2048,7 +2051,7 @@ public class CommForwardProcService {
 			String errMsg = No_valid_certificate_found + clientId;
 			TPILogger.tl.debug(errMsg);
 			ResponseEntity<?> errResEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 			clientPublicKeyData.errRespEntity = errResEntity;// 400
 			return clientPublicKeyData;
@@ -2065,7 +2068,7 @@ public class CommForwardProcService {
 			String errMsg = Failed_to_generate_public_key + clientId;
 			TPILogger.tl.debug(errMsg);
 			ResponseEntity<?> errResEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 			clientPublicKeyData.errRespEntity = errResEntity;// 400
 			return clientPublicKeyData;
@@ -2177,6 +2180,10 @@ public class CommForwardProcService {
 
 		Map<String, Object> convertResponseBodyMap = new HashMap<String, Object>();
 
+		if(httpRes == null) {
+			return null;
+		}
+		
 		int status = httpRes.getStatus();
 		if (status >= 300) {// statusCode 大於 300 的錯誤訊息直接顯示,不處理壓縮,不轉JWE/JWS
 			convertResponseBodyMap.put("httpArray", httpArray);
@@ -2488,7 +2495,6 @@ public class CommForwardProcService {
 		// 是否禁止紀錄 RDB 的 LOG
 		boolean isAvailable = Boolean.parseBoolean(getTsmpSettingService().getVal_TSMP_APILOG_FORCE_WRITE_RDB());
 		if(!isAvailable) {
-			TPILogger.tl.info("TSMP_APILOG_FORCE_WRITE_RDB is false");
 			reqVo.setIgnore(true);
 			return reqVo;
 		}

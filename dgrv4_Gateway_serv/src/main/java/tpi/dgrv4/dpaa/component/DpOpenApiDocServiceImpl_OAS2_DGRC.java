@@ -28,7 +28,7 @@ import tpi.dgrv4.dpaa.vo.AA0315Resp;
 public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs {
 	
 	public List<AA0315Item> getAA0315ItemList(JsonNode rootNode, String protocol, String host, String basePath) {
-		HashMap<String, AA0315Item> dgrcHM = new HashMap<String, AA0315Item>();
+		HashMap<String, AA0315Item> dgrcHM = new HashMap<>();
 		
 		//openApiList: API清單,root.paths，若未傳入此欄位，則 throw 1350 ([paths] 為必填欄位)。需封裝成 AA0315Item 後填入
 		JsonNode pathsNode = rootNode.get("paths");//root.paths
@@ -44,7 +44,7 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 			//path: 來源URL,root.paths.{path}，若值非以 "/" 開頭則 throw 1352 ([path] 格式不正確)
 			String path = pathIter.next();	
 			
-			if (StringUtils.hasLength(path) == false || !path.startsWith("/")) {
+			if (!StringUtils.hasLength(path) || !path.startsWith("/")) {
 				throw TsmpDpAaRtnCode._1352.throwing("path");
 			}
 			
@@ -78,9 +78,9 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 			}else {
 				dgrcHM.put(rearPath, item);
 				
-				dgrcMethodList = new ArrayList<String>();
-				dgrcConsumesList = new ArrayList<String>();
-				dgrcProducesList = new ArrayList<String>();
+				dgrcMethodList = new ArrayList<>();
+				dgrcConsumesList = new ArrayList<>();
+				dgrcProducesList = new ArrayList<>();
 				dgrcSummary  = "";
 				dgrcDescription = "";
 				
@@ -121,12 +121,12 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 					 */
 					JsonNode summaryNode = methodNode.get("summary");//root.paths.{path}.{method}.summary
 					if(summaryNode != null) {
-						String summary_temp = summaryNode.asText();
-						if (StringUtils.hasLength(dgrcSummary) && StringUtils.hasLength(summary_temp)) {
-							dgrcSummary = dgrcSummary + "," + summary_temp;
+						String summaryTemp = summaryNode.asText();
+						if (StringUtils.hasLength(dgrcSummary) && StringUtils.hasLength(summaryTemp)) {
+							dgrcSummary = dgrcSummary + "," + summaryTemp;
 						}
-						if(!StringUtils.hasLength(dgrcSummary) && StringUtils.hasLength(summary_temp)) {
-							dgrcSummary = summary_temp;
+						if(!StringUtils.hasLength(dgrcSummary) && StringUtils.hasLength(summaryTemp)) {
+							dgrcSummary = summaryTemp;
 						}
 					}
 					
@@ -136,37 +136,33 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 					 */
 					JsonNode descriptionNode = methodNode.get("description");//root.paths.{path}.{method}.description
 					if(descriptionNode != null) {
-						String description_temp = descriptionNode.asText();
-						if (StringUtils.hasLength(dgrcDescription) && StringUtils.hasLength(description_temp)) {
-							dgrcDescription = dgrcDescription + "," + description_temp;
+						String descriptionTemp = descriptionNode.asText();
+						if (StringUtils.hasLength(dgrcDescription) && StringUtils.hasLength(descriptionTemp)) {
+							dgrcDescription = dgrcDescription + "," + descriptionTemp;
 						}
-						if(!StringUtils.hasLength(dgrcDescription) && StringUtils.hasLength(description_temp)) {
-							dgrcDescription = description_temp;
+						if(!StringUtils.hasLength(dgrcDescription) && StringUtils.hasLength(descriptionTemp)) {
+							dgrcDescription = descriptionTemp;
 						}						
 					}
 					
 					//consumes: Http Consumes,root.paths.{path}.{method}.consumes，把每個 method 中的 consumes 值(字串陣列)，整理成一個不重複值的List
 					JsonNode consumesNode = methodNode.get("consumes");//root.paths.{path}.{method}.consumes
-					if(consumesNode != null) {
-						if(consumesNode.isArray()) {//是否為陣列
-							for (JsonNode objNode : consumesNode) {
-								String consume = objNode.asText();
-								if(StringUtils.hasLength(consume) && !dgrcConsumesList.contains(consume)) {
-									dgrcConsumesList.add(consume);
-								}
+					if(consumesNode != null && consumesNode.isArray()) {//是否為陣列
+						for (JsonNode objNode : consumesNode) {
+							String consume = objNode.asText();
+							if(StringUtils.hasLength(consume) && !dgrcConsumesList.contains(consume)) {
+								dgrcConsumesList.add(consume);
 							}
 						}
 					}
 					
 					//produces: Http Produces,root.paths.{path}.{method}.produces，把每個 method 中的 produces 值(字串陣列)，整理成一個不重複值的List
 					JsonNode producesNode = methodNode.get("produces");//root.paths.{path}.{method}.produces
-					if(producesNode != null) {
-						if(producesNode.isArray()) {//是否為陣列
-							for (JsonNode objNode : producesNode) {
-								String produce = objNode.asText();
-								if(StringUtils.hasLength(produce) && !dgrcProducesList.contains(produce)) {
-									dgrcProducesList.add(produce);
-								}
+					if(producesNode != null && producesNode.isArray()) {//是否為陣列
+						for (JsonNode objNode : producesNode) {
+							String produce = objNode.asText();
+							if(StringUtils.hasLength(produce) && !dgrcProducesList.contains(produce)) {
+								dgrcProducesList.add(produce);
 							}
 						}
 					}
@@ -195,10 +191,10 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 			}
  
 			//headers: Http Header,暫不解析
-			List<String> headersList = new ArrayList<String>();
+			List<String> headersList = new ArrayList<>();
 			
 			//params: Http Parameter,暫不解析
-			List<String> paramsList = new ArrayList<String>();
+			List<String> paramsList = new ArrayList<>();
 			
 			item.setSummary(dgrcSummary);
 			item.setRearPath(rearPath);
@@ -221,8 +217,8 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 	}
 	
 	@Override
-	public AA0315Resp parseData(AA0315Req req ,AA0315Resp oas2Dgrc_resp, String fileData, String extFileName) throws Exception {
-		ObjectMapper objMapper = new ObjectMapper();
+	public AA0315Resp parseData(AA0315Req req ,AA0315Resp oas2DgrcResp, String fileData, String extFileName) throws Exception {
+		ObjectMapper objMapper = null;
 		if ("json".equalsIgnoreCase(extFileName)) {
 			objMapper = new ObjectMapper();
 		} else {
@@ -238,7 +234,7 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 		JsonNode schemesNode = rootNode.get("schemes");//root.schemes
 		
 		boolean isHttps = false;
-		List<String> protocolTempList = new ArrayList<String>();
+		List<String> protocolTempList = new ArrayList<>();
 		if(schemesNode != null && schemesNode.isArray()) {
 			for (JsonNode objNode : schemesNode) {
 				String scheme = objNode.asText();
@@ -281,7 +277,7 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 		if (basePathNode != null) {
 			basePath = basePathNode.asText();
 			boolean flag = basePath.startsWith("/");
-			if(flag == false) {
+			if(!flag) {
 				basePath = "";
 			}
 		}
@@ -290,38 +286,37 @@ public class DpOpenApiDocServiceImpl_OAS2_DGRC implements DpOpenApiDocServiceIfs
 		String moduleSrc = "2";
 		
 		//moduleName: 模組名稱,root.info.title，若未出現此欄位則 throw 1350 ([info.title] 為必填欄位)。	
-		JsonNode oas2Dgrc_infoNode = rootNode.get("info");//root.info
-		if(oas2Dgrc_infoNode == null) {
+		JsonNode oas2DgrcInfoNode = rootNode.get("info");//root.info
+		if(oas2DgrcInfoNode == null) {
 			throw TsmpDpAaRtnCode._1350.throwing("info");
 		}
-		JsonNode oas2Dgrc_titleNode = oas2Dgrc_infoNode.get("title");//root.info.title
-		if(oas2Dgrc_titleNode == null) {
+		JsonNode oas2DgrcTitleNode = oas2DgrcInfoNode.get("title");//root.info.title
+		if(oas2DgrcTitleNode == null) {
 			throw TsmpDpAaRtnCode._1350.throwing("info.title");
 		}
-		String moduleName = oas2Dgrc_titleNode.asText();
+		String moduleName = oas2DgrcTitleNode.asText();
 		
 		//moduleVersion: 模組版本,root.info.version，若未出現此欄位，則 throw 1350 ([info.version] 為必填欄位)。
-		JsonNode versionNode = oas2Dgrc_infoNode.get("version");//root.info.version
+		JsonNode versionNode = oas2DgrcInfoNode.get("version");//root.info.version
 		String moduleVersion = null;
 		if(versionNode == null) {
-			//throw TsmpDpAaRtnCode._1350.throwing("info.version");
 			moduleVersion = "v1";
 		}else {
 			moduleVersion = versionNode.asText();
 		}
 		
 		
-		oas2Dgrc_resp.setProtocol(protocol);
-		oas2Dgrc_resp.setHost(host);
-		oas2Dgrc_resp.setBasePath(basePath);
-		oas2Dgrc_resp.setModuleSrc(moduleSrc);
-		oas2Dgrc_resp.setModuleName(moduleName);
-		oas2Dgrc_resp.setModuleVersion(moduleVersion);
+		oas2DgrcResp.setProtocol(protocol);
+		oas2DgrcResp.setHost(host);
+		oas2DgrcResp.setBasePath(basePath);
+		oas2DgrcResp.setModuleSrc(moduleSrc);
+		oas2DgrcResp.setModuleName(moduleName);
+		oas2DgrcResp.setModuleVersion(moduleVersion);
 			
 		
 		List<AA0315Item> itemList = getAA0315ItemList(rootNode, protocol, host, basePath);
-		oas2Dgrc_resp.setOpenApiList(itemList);
+		oas2DgrcResp.setOpenApiList(itemList);
 	
-		return oas2Dgrc_resp;
+		return oas2DgrcResp;
 	}
 }

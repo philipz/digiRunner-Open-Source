@@ -1,6 +1,11 @@
-FROM azul/zulu-openjdk-alpine:17
+FROM azul/zulu-openjdk-alpine:21-jre-headless-latest
 
-RUN apk add --no-cache curl
+RUN set -eux; \
+    apk update; \
+    apk upgrade; \
+    apk add --no-cache curl; \
+    mkdir -p /app; \
+    rm -rf /var/cache/apk/*;
 
 COPY ./dgrv4_Gateway_serv/build/libs/* /opt/digirunner/
 COPY ./dgrv4_Gateway_serv/keys/* /opt/digirunner/keys/

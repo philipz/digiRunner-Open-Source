@@ -170,10 +170,10 @@ public class GtwIdPHelper {
 	public ResponseEntity<?> checkStateExists(String state, String reqUri) {
 		// 沒有 state
 		if (!StringUtils.hasText(state)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "state";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "state";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -196,20 +196,20 @@ public class GtwIdPHelper {
 	public ResponseEntity<?> checkCodeChallengeParam(String codeChallenge, String codeChallengeMethod) {
 		// 1.有 code_challenge, 但沒有 code_challenge_method
 		if (StringUtils.hasLength(codeChallenge) && !StringUtils.hasLength(codeChallengeMethod)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "code_challenge_method";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "code_challenge_method";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
 		// 2.有 code_challenge_method, 但沒有 code_challenge
 		if (StringUtils.hasLength(codeChallengeMethod)) {
 			if (!StringUtils.hasLength(codeChallenge)) {
-				String errMsg = TokenHelper.Missing_required_parameter + "code_challenge";
+				String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "code_challenge";
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 
@@ -223,7 +223,7 @@ public class GtwIdPHelper {
 				String errMsg = "Invalid parameter value for code_challenge_method: " + codeChallengeMethod;
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 		}

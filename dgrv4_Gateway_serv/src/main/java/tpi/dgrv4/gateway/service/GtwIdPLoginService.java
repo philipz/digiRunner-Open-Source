@@ -195,7 +195,7 @@ public class GtwIdPLoginService {
 				String errMsg = String.format(IdPHelper.MSG_INVALID_IDPTYPE, idPType);
 				TPILogger.tl.debug(errMsg);
 				errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 			
@@ -214,7 +214,7 @@ public class GtwIdPLoginService {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			return errRespEntity;
@@ -258,7 +258,7 @@ public class GtwIdPLoginService {
 				// URL 參數 'password' AES 解密失敗
 				String errMsg = "URL Parameter 'password' AES decryption failed.";
 				TPILogger.tl.debug(errMsg);
-				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST, errMsg);// 400
 				userLoginData.errRespEntity = errRespEntity;
 				return userLoginData;
 			}
@@ -283,7 +283,7 @@ public class GtwIdPLoginService {
 				// URL 參數 'credential' JWE解密失敗
 				String errMsg = "URL Parameter 'credential' JWE decryption failed.";
 				TPILogger.tl.debug(errMsg);
-				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request,
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST,
 						errMsg);// 400
 				userLoginData.errRespEntity = errRespEntity;
 				return userLoginData;
@@ -294,7 +294,7 @@ public class GtwIdPLoginService {
 				// URL 的參數 'credential' JWE 解密成功, 但缺少 'username' 值
 				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'username' value is missing.";
 				TPILogger.tl.debug(errMsg);
-				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request,
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST,
 						errMsg);// 400
 				userLoginData.errRespEntity = errRespEntity;
 				return userLoginData;
@@ -305,7 +305,7 @@ public class GtwIdPLoginService {
 				// URL 的參數 'credential' JWE 解密成功, 但缺少 'password' 值
 				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'password' value is missing.";
 				TPILogger.tl.debug(errMsg);
-				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST, errMsg);// 400
 				userLoginData.errRespEntity = errRespEntity;
 				return userLoginData;
 			}
@@ -315,7 +315,7 @@ public class GtwIdPLoginService {
 				// URL 的參數 'credential' JWE 解密成功, 但缺少 'exp' 值
 				String errMsg = "URL parameter 'credential' JWE decrypted successfully, but 'exp' value is missing.";
 				TPILogger.tl.debug(errMsg);
-				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request,
+				errRespEntity = getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST,
 						errMsg);// 400
 				userLoginData.errRespEntity = errRespEntity;
 				return userLoginData;
@@ -333,7 +333,7 @@ public class GtwIdPLoginService {
 			
 		} else { 
 			// 3.其他, 不正確
-			String errMsg = TokenHelper.Internal_Server_Error + ", decrypt type '" + decryptType + "' is failed";
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR + ", decrypt type '" + decryptType + "' is failed";
 			TPILogger.tl.error(errMsg);
 			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			userLoginData.errRespEntity = errRespEntity;
@@ -364,30 +364,30 @@ public class GtwIdPLoginService {
 
 		// 沒有 state
 		if (!StringUtils.hasLength(state)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "state";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "state";
 			TPILogger.tl.debug(errMsg);
-			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST, errMsg);// 400
 		}
 
 		// 檢查 (credential) or (username、password)
 		if (!StringUtils.hasLength(reqCredential) //
 				&& !StringUtils.hasLength(reqUserName) //
 				&& !StringUtils.hasLength(reqUserMima)) { // 沒有 (credential) 和 (username、password)
-			String errMsg = TokenHelper.Missing_required_parameter + "credential";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "credential";
 			TPILogger.tl.debug(errMsg);
-			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST, errMsg);// 400
 
 		} else if (StringUtils.hasLength(reqUserName) //
 				&& !StringUtils.hasLength(reqUserMima)) { // 若 username 有值, 但 password 沒有值,
-			String errMsg = TokenHelper.Missing_required_parameter + "password";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "password";
 			TPILogger.tl.debug(errMsg);
-			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST, errMsg);// 400
 
 		} else if (StringUtils.hasLength(reqUserMima) //
 				&& !StringUtils.hasLength(reqUserName)) {// 若 password 有值, 但 username 沒有值,
-			String errMsg = TokenHelper.Missing_required_parameter + "username";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "username";
 			TPILogger.tl.debug(errMsg);
-			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.invalid_request, errMsg);// 400
+			return getTokenHelper().getBadRequestErrorResp(reqUri, TokenHelper.INVALID_REQUEST, errMsg);// 400
 		}
 
 		// 檢查是否有 code_challenge 和 code_challenge_method
@@ -436,7 +436,7 @@ public class GtwIdPLoginService {
 				TPILogger.tl.debug("Table [DGR_GTW_IDP_INFO_JDBC] can't find data. dgrClientId: " + dgrClientId
 						+ ", status: " + status);
 				// 設定檔缺少參數
-				String errMsg = TokenHelper.The_profile_is_missing_parameters + "GTW IdP(" + idPType + ") Info";
+				String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "GTW IdP(" + idPType + ") Info";
 				TPILogger.tl.debug(errMsg);
 				errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 				return errRespEntity;
@@ -507,7 +507,7 @@ public class GtwIdPLoginService {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 		}
@@ -537,7 +537,7 @@ public class GtwIdPLoginService {
 						+ ", status: " + status);
 
 				// 設定檔缺少參數
-				String errMsg = TokenHelper.The_profile_is_missing_parameters + "GTW IdP info(LDAP). client_id: "
+				String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "GTW IdP info(LDAP). client_id: "
 						+ dgrClientId;
 				TPILogger.tl.debug(errMsg);
 				errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
@@ -558,7 +558,7 @@ public class GtwIdPLoginService {
 			if (StringUtils.hasLength(errMsg)) {
 				TPILogger.tl.debug(errMsg);
 				errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_user, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_USER, errMsg),
 						HttpStatus.UNAUTHORIZED);// 401
 				return errRespEntity;
 			}
@@ -605,7 +605,7 @@ public class GtwIdPLoginService {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 		}
@@ -637,7 +637,7 @@ public class GtwIdPLoginService {
 						+ ", status: " + status);
 
 				// 設定檔缺少參數
-				String errMsg = TokenHelper.The_profile_is_missing_parameters + "GTW IdP info(API). client_id: "
+				String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "GTW IdP info(API). client_id: "
 						+ dgrClientId;
 				TPILogger.tl.debug(errMsg);
 				errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
@@ -654,7 +654,7 @@ public class GtwIdPLoginService {
 				errMsg = ESAPI.encoder().encodeForHTML(errMsg.toString());
 				
 				errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_user, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_USER, errMsg),
 						HttpStatus.UNAUTHORIZED);// 401
 				return errRespEntity;
 			}
@@ -705,7 +705,7 @@ public class GtwIdPLoginService {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 		}

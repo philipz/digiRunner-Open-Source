@@ -49,7 +49,7 @@ public class CommunicationServerConfig {
 	public Notifier notify;
 
 	// 用來放最近的 n 條訊息
-	public static LinkedBlockingQueue<TPILogInfo> logPool = new LinkedBlockingQueue<>(100);
+	public static LinkedBlockingQueue<TPILogInfo> logPool = new LinkedBlockingQueue<>(8);
 	
 	// 提供給刪除資料使用
 //	ExecutorService threadPool = Executors.newFixedThreadPool(1);
@@ -235,6 +235,9 @@ public class CommunicationServerConfig {
 	}
 	
 	private void sendLogPacket(TPILogInfo log) {
+//		當 logPool 已滿(32筆)時,丟棄最舊的 log (poll)
+//		然後重試加入新的 log (offer)
+//		以維持固定大小的 log 隊列
 		while (CommunicationServerConfig.logPool.offer(log) == false) {
 			CommunicationServerConfig.logPool.poll();
 		}

@@ -81,7 +81,7 @@ public class GtwIdPApproveService {
  
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			getGtwIdPHelper().redirectToShowMsg(httpResp, errRespEntity, idPType, dgrClientRedirectUri);
@@ -102,7 +102,7 @@ public class GtwIdPApproveService {
 			String errMsg2 = "Table [DGR_GTW_IDP_AUTH_CODE] can't find, auth_code(state):" + state;
 			TPILogger.tl.debug(errMsg1 + "\n" + errMsg2);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg1),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg1),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 		
@@ -168,28 +168,28 @@ public class GtwIdPApproveService {
 		
 		// 2.沒有 username
 		if (!StringUtils.hasLength(userName)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "username";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "username";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 		
 		// 3.沒有 redirect_uri
 		if (!StringUtils.hasLength(dgrClientRedirectUri)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "redirect_uri";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "redirect_uri";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 		
 		// 4.沒有 state
 		if (!StringUtils.hasLength(state)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "state";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "state";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
  

@@ -238,9 +238,9 @@ public class CusTokenCheck implements ICheck {
 	public ResponseEntity<?> checkAccessTokenExp(String tokenStr, Long exp) {
 		if (exp == null || exp == 0) {
 			TPILogger.tl.debug("The exp of access token is 0");// refresh_token 的 exp 為 0
-			String errMsg = TokenHelper.Cannot_convert_access_token_to_JSON;
+			String errMsg = TokenHelper.CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -248,10 +248,10 @@ public class CusTokenCheck implements ICheck {
 		long nowTime = System.currentTimeMillis() / 1000;// 去掉亳秒
 		if (exp < nowTime) {
 			// access token 過期
-			TPILogger.tl.debug(TokenHelper.Access_token_expired + exp);
-			String errMsg = TokenHelper.Access_token_expired + tokenStr;
+			TPILogger.tl.debug(TokenHelper.ACCESS_TOKEN_EXPIRED + exp);
+			String errMsg = TokenHelper.ACCESS_TOKEN_EXPIRED + tokenStr;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 		}
 		return null;

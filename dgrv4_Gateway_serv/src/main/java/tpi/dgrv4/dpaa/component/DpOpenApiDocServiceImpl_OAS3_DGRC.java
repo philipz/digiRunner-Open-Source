@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class DpOpenApiDocServiceImpl_OAS3_DGRC implements DpOpenApiDocServiceIfs {
 	
 	public List<AA0315Item> getAA0315ItemList(JsonNode rootNode, String protocol, String host, String basePath) {
-		HashMap<String, AA0315Item> aa0315ItemHM = new HashMap<String, AA0315Item>();
+		HashMap<String, AA0315Item> aa0315ItemHM = new HashMap<>();
 		
 		//openApiList: API清單,root.paths，若未傳入此欄位，則 throw 1350 ([paths] 為必填欄位)。需封裝成 AA0315Item 後填入		
 		JsonNode pathsNode = rootNode.get("paths");//root.paths
@@ -75,9 +75,9 @@ public class DpOpenApiDocServiceImpl_OAS3_DGRC implements DpOpenApiDocServiceIfs
 			}else {
 				aa0315ItemHM.put(rearPath, item);
 			
-				methodList = new ArrayList<String>();
-				consumesList = new ArrayList<String>();
-				producesList = new ArrayList<String>();
+				methodList = new ArrayList<>();
+				consumesList = new ArrayList<>();
+				producesList = new ArrayList<>();
 				summary  = "";
 				description = "";
 				
@@ -240,16 +240,16 @@ public class DpOpenApiDocServiceImpl_OAS3_DGRC implements DpOpenApiDocServiceIfs
 			if(methodList == null || methodList.isEmpty()) {
 				throw TsmpDpAaRtnCode._1352.throwing("methods");
 			}
-			Set<String> methodSet = new HashSet<String>(methodList);//List轉成Set
+			Set<String> methodSet = new HashSet<>(methodList);//List轉成Set
 			if(methodList.size() != methodSet.size()) {//數目不同,表示有重複
 				throw TsmpDpAaRtnCode._1352.throwing("methods");
 			}
 			
 			//headers: Http Header,暫不解析
-			List<String> headersList = new ArrayList<String>();
+			List<String> headersList = new ArrayList<>();
 			
 			//params: Http Parameter,暫不解析
-			List<String> paramsList = new ArrayList<String>();
+			List<String> paramsList = new ArrayList<>();
 			
 			item.setSummary(summary);
 			item.setRearPath(rearPath);
@@ -291,8 +291,8 @@ public class DpOpenApiDocServiceImpl_OAS3_DGRC implements DpOpenApiDocServiceIfs
 		 */
  
 		boolean isHttps = false;
-		List<String> urlList = new ArrayList<String>();
-		List<String> schemeList = new ArrayList<String>();
+		List<String> urlList = new ArrayList<>();
+		List<String> schemeList = new ArrayList<>();
 		JsonNode serversNode = rootNode.get("servers");//root.servers
 		if(serversNode != null) {
 			if(serversNode.isArray()) {

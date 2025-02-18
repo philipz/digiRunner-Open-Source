@@ -22,10 +22,8 @@ import tpi.dgrv4.dpaa.vo.AA0315Resp;
  */
 @Service(value = "dpOpenApiDocServiceImpl_OAS2")
 public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
-//public class DpOpenApiDocServiceImpl_OAS2 implements DpOpenApiDocServiceIfs {
-	
 	private ObjectMapper getObjMapper(String extFileName) {
-		ObjectMapper oas2ObjMapper = new ObjectMapper();
+		ObjectMapper oas2ObjMapper = null;
 		if ("json".equalsIgnoreCase(extFileName)) {
 			oas2ObjMapper = new ObjectMapper();
 		} else {
@@ -34,11 +32,11 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 		return oas2ObjMapper;
 	}
 	
-	private ProtocolTempList createProtocolTempList(JsonNode oas2_schemesNode){
+	private ProtocolTempList createProtocolTempList(JsonNode oas2SchemesNode){
 		ProtocolTempList ptl = new ProtocolTempList();
-		ptl.protocolTempList = new ArrayList<String>();
-		if(oas2_schemesNode != null && oas2_schemesNode.isArray()) {
-			for (JsonNode objNode : oas2_schemesNode) {
+		ptl.protocolTempList = new ArrayList<>();
+		if(oas2SchemesNode != null && oas2SchemesNode.isArray()) {
+			for (JsonNode objNode : oas2SchemesNode) {
 				String scheme = objNode.asText();
 				if(StringUtils.hasText(scheme)) {
 					if(scheme.indexOf("https") > -1) {
@@ -67,7 +65,7 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 			}
 		}
  
-		if(StringUtils.hasText(protocol)==false) {
+		if(!StringUtils.hasText(protocol)) {
 			protocol = "https://";
 		}
 		
@@ -154,7 +152,7 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 		if (oas2BasePathNode != null) {
 			basePath = oas2BasePathNode.asText();
 			boolean flag = basePath.startsWith("/");
-			if(flag == false) {
+			if(!flag) {
 				throw TsmpDpAaRtnCode._1352.throwing("basePath");
 			}
 		}
@@ -162,7 +160,7 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 	}
 
 	public List<AA0315Item> getAA0315ItemList(JsonNode rootNode, String protocol, String host, String basePath) {
-		List<AA0315Item> openApiList = new ArrayList<AA0315Item>();
+		List<AA0315Item> openApiList = new ArrayList<>();
 		
 		//openApiList: API清單,root.paths，若未傳入此欄位，則 throw 1350 ([paths] 為必填欄位)。需封裝成 AA0315Item 後填入
 		JsonNode oas2PathsNode = rootNode.get("paths");//root.paths
@@ -176,7 +174,7 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 			
 			//path: 來源URL,root.paths.{path}，若值非以 "/" 開頭則 throw 1352 ([path] 格式不正確)
 			String path = oas2PathIter.next();
-			if(StringUtils.hasText(path)==false || !path.startsWith("/")) {
+			if(!StringUtils.hasText(path) || !path.startsWith("/")) {
 				throw TsmpDpAaRtnCode._1352.throwing("path");
 			}
 			//rearPath: 來源URL的最尾路徑,root.paths.{path}，截取最後一個"/"後的內容，ex: path 為 "/A/B/C" 則此欄位填入 "C"
@@ -187,9 +185,9 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 			Iterator<String> methodIter = pathNode.fieldNames();
 			String summary = "";
 			String description = "";
-			List<String> methodList = new ArrayList<String>();
-			List<String> consumesList = new ArrayList<String>();
-			List<String> producesList = new ArrayList<String>();
+			List<String> methodList = new ArrayList<>();
+			List<String> consumesList = new ArrayList<>();
+			List<String> producesList = new ArrayList<>();
 			while (methodIter.hasNext()) {//多個method
 				//methods: Http Method,root.paths.{path}.{method}，需整理出不重複值的List，若有重複或是無元素，則 throw 1352 ([methods] 格式不正確)
 				String method = methodIter.next();
@@ -219,7 +217,7 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 				}
 			} // end while
 			
-			if(StringUtils.hasText(summary)==false) {//若都沒有 summary，則填入與 rearPath 相同的值
+			if(!StringUtils.hasText(summary)) {//若都沒有 summary，則填入與 rearPath 相同的值
 				summary = rearPath;
 			}
 			//srcUrl: 完整的來源URL,protocol + host + basePath + path，若 protocol 為空值，則預設以"https://"代替。ex:"https://host/basePath/path
@@ -231,10 +229,10 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 			}
  
 			//headers: Http Header,暫不解析
-			List<String> headersList = new ArrayList<String>();
+			List<String> headersList = new ArrayList<>();
 			
 			//params: Http Parameter,暫不解析
-			List<String> paramsList = new ArrayList<String>();
+			List<String> paramsList = new ArrayList<>();
 			
 			oas2Item.setSummary(summary);
 			oas2Item.setRearPath(rearPath);
@@ -265,13 +263,11 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 
 	private void addProducesList(List<String> producesList, JsonNode methodNode) {
 		JsonNode producesNode = methodNode.get("produces");//root.paths.{path}.{method}.produces
-		if(producesNode != null) {
-			if(producesNode.isArray()) {//是否為陣列
-				for (JsonNode objNode : producesNode) {
-					String produce = objNode.asText();
-					if(StringUtils.hasText(produce) && !producesList.contains(produce)) {
-						producesList.add(produce);
-					}
+		if(producesNode != null && producesNode.isArray()) {//是否為陣列
+			for (JsonNode objNode : producesNode) {
+				String produce = objNode.asText();
+				if(StringUtils.hasText(produce) && !producesList.contains(produce)) {
+					producesList.add(produce);
 				}
 			}
 		}
@@ -279,13 +275,11 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 
 	private void addConsumesList(List<String> consumesList, JsonNode methodNode) {
 		JsonNode consumesNode = methodNode.get("consumes");//root.paths.{path}.{method}.consumes
-		if(consumesNode != null) {
-			if(consumesNode.isArray()) {//是否為陣列
-				for (JsonNode objNode : consumesNode) {
-					String consume = objNode.asText();
-					if(StringUtils.hasText(consume) && !consumesList.contains(consume)) {
-						consumesList.add(consume);
-					}
+		if(consumesNode != null && consumesNode.isArray()) {//是否為陣列
+			for (JsonNode objNode : consumesNode) {
+				String consume = objNode.asText();
+				if(StringUtils.hasText(consume) && !consumesList.contains(consume)) {
+					consumesList.add(consume);
 				}
 			}
 		}
@@ -294,9 +288,9 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 	private String makeDescription(String description, JsonNode methodNode) {
 		JsonNode descriptionNode = methodNode.get("description");//root.paths.{path}.{method}.description
 		if(descriptionNode != null) {
-			String description_temp = descriptionNode.asText();
-			if(StringUtils.hasText(description)==false && StringUtils.hasText(description_temp)) {
-				description = description_temp;
+			String descriptionTemp = descriptionNode.asText();
+			if(!StringUtils.hasText(description) && StringUtils.hasText(descriptionTemp)) {
+				description = descriptionTemp;
 			}
 		}
 		return description;
@@ -305,9 +299,9 @@ public class DpOpenApiDocServiceImplOAS2 implements DpOpenApiDocServiceIfs {
 	private String makeSummary(String summary, JsonNode methodNode) {
 		JsonNode summaryNode = methodNode.get("summary");//root.paths.{path}.{method}.summary
 		if(summaryNode != null) {
-			String summary_temp = summaryNode.asText();
-			if(StringUtils.hasText(summary)==false && StringUtils.hasText(summary_temp)) {
-				summary = summary_temp;
+			String summaryTemp = summaryNode.asText();
+			if(!StringUtils.hasText(summary) && StringUtils.hasText(summaryTemp)) {
+				summary = summaryTemp;
 			}
 		}
 		return summary;

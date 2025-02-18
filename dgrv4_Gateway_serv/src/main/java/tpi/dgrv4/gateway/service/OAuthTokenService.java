@@ -315,7 +315,7 @@ public class OAuthTokenService {
 			String errMsg = "Missing grant type";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -696,7 +696,7 @@ public class OAuthTokenService {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			return errRespEntity;
@@ -1271,7 +1271,7 @@ public class OAuthTokenService {
 					String errMsg = "Missing client_secret";
 					TPILogger.tl.debug(errMsg);
 					return new ResponseEntity<OAuthTokenErrorResp2>(
-							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 							HttpStatus.BAD_REQUEST);// 400
 
 				} else {// 若有授權 Public client 且沒有密碼, 就必須有 PKCE 的 code_verifier
@@ -1280,7 +1280,7 @@ public class OAuthTokenService {
 						String errMsg = "Missing code_verifier";
 						TPILogger.tl.debug(errMsg);
 						return new ResponseEntity<OAuthTokenErrorResp2>(
-								getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+								getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 								HttpStatus.BAD_REQUEST);// 400
 					}
 				}
@@ -1292,7 +1292,7 @@ public class OAuthTokenService {
 					String errMsg = "Missing client_secret";
 					TPILogger.tl.debug(errMsg);
 					return new ResponseEntity<OAuthTokenErrorResp2>(
-							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+							getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 							HttpStatus.BAD_REQUEST);// 400
 				}
 
@@ -1301,7 +1301,7 @@ public class OAuthTokenService {
 				String errMsg = "Missing client_secret";
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 
@@ -1328,7 +1328,7 @@ public class OAuthTokenService {
 			String errMsg = "Missing grant type";// Body 沒有 grant_type
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1338,7 +1338,7 @@ public class OAuthTokenService {
 			String errMsg = "Full authentication is required to access this resource";// 訪問此資源需要完全身份驗證
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.unauthorized, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.UNAUTHORIZED_2, errMsg),
 					HttpStatus.UNAUTHORIZED);// 401
 		}
 
@@ -1404,7 +1404,7 @@ public class OAuthTokenService {
 			errMsg = "Bad credentials";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1414,7 +1414,7 @@ public class OAuthTokenService {
 			errMsg = "Full authentication is required to access this resource";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.unauthorized, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.UNAUTHORIZED_2, errMsg),
 					HttpStatus.UNAUTHORIZED);// 401
 		}
 
@@ -1425,7 +1425,7 @@ public class OAuthTokenService {
 			errMsg = "Bad credentials";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1435,7 +1435,7 @@ public class OAuthTokenService {
 			errMsg = "Full authentication is required to access this resource";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.unauthorized, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.UNAUTHORIZED_2, errMsg),
 					HttpStatus.UNAUTHORIZED);// 401
 		}
 
@@ -1536,7 +1536,7 @@ public class OAuthTokenService {
 			errMsg = "Missing required parameter: code";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1558,7 +1558,7 @@ public class OAuthTokenService {
 			errMsg = "Invalid auth code";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1570,7 +1570,7 @@ public class OAuthTokenService {
 		if (CollectionUtils.isEmpty(dgrGtwIdpAuthDList)) {
 			// Table [DGR_GTW_IDP_AUTH_D] 查不到資料
 			TPILogger.tl.debug("Table [DGR_GTW_IDP_AUTH_D] can't find data. ref_gtw_idp_auth_m_id: " + gtwIdpAuthMId);
-			errMsg = TokenHelper.Unauthorized;
+			errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
@@ -1608,7 +1608,7 @@ public class OAuthTokenService {
 			errMsg = "Missing code";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1618,7 +1618,7 @@ public class OAuthTokenService {
 			errMsg = "Missing code";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.unauthorized, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.UNAUTHORIZED_2, errMsg),
 					HttpStatus.UNAUTHORIZED);// 401
 		}
 
@@ -1651,7 +1651,7 @@ public class OAuthTokenService {
 			errMsg = "Missing cookie jti";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1660,7 +1660,7 @@ public class OAuthTokenService {
 			errMsg = "Missing cookie idPType";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1683,7 +1683,7 @@ public class OAuthTokenService {
 			errMsg = "Missing refreshTokenJwtstr";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.unauthorized, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.UNAUTHORIZED_2, errMsg),
 					HttpStatus.UNAUTHORIZED);// 401
 		}
 
@@ -1732,7 +1732,7 @@ public class OAuthTokenService {
 		if (dgrGtwIdpAuthCode == null) {
 			// Table [DGR_GTW_IDP_AUTH_CODE] 查不到
 			TPILogger.tl.debug("Table [DGR_GTW_IDP_AUTH_CODE] can't find data. auth_code:" + authCode);
-			String errMsg = TokenHelper.Unauthorized;
+			String errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp>(
 					getTokenHelper().getOAuthTokenErrorResp(errMsg, errMsg, HttpStatus.UNAUTHORIZED.value(), reqUri),
@@ -1748,7 +1748,7 @@ public class OAuthTokenService {
 			} else {
 				authCodeStatus = "'" + authCodeStatus + "'";
 			}
-			String errMsg1 = TokenHelper.Unauthorized;
+			String errMsg1 = TokenHelper.UNAUTHORIZED;
 			String errMsg2 = "Auth code status is " + authCodeStatus + ". auth_code: " + authCode;
 			TPILogger.tl.debug(errMsg1 + "\n" + errMsg2);
 			return new ResponseEntity<OAuthTokenErrorResp>(
@@ -1762,7 +1762,7 @@ public class OAuthTokenService {
 		if (authCodeExpire < nowTime) {// auth code 過期
 			String expireTime = DateTimeUtil.dateTimeToString(new Date(authCodeExpire), DateTimeFormatEnum.西元年月日時分秒毫秒)
 					.orElse(null);
-			String errMsg1 = TokenHelper.Unauthorized;
+			String errMsg1 = TokenHelper.UNAUTHORIZED;
 			String errMsg2 = "Auth code expired. auth code exp: " + authCodeExpire + " (" + expireTime + ")";
 			TPILogger.tl.debug(errMsg2);
 			return new ResponseEntity<OAuthTokenErrorResp>(
@@ -1808,7 +1808,7 @@ public class OAuthTokenService {
 				String errMsg = "Missing code_verifier";
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 		}
@@ -1821,7 +1821,7 @@ public class OAuthTokenService {
 				String errMsg = "Invalid code_verifier";
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 		}
@@ -1842,7 +1842,7 @@ public class OAuthTokenService {
 				errMsg = "Invalid code_verifier";
 				TPILogger.tl.debug(errMsg);
 				return new ResponseEntity<OAuthTokenErrorResp2>(
-						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+						getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 						HttpStatus.BAD_REQUEST);// 400
 			}
 		}
@@ -1865,7 +1865,7 @@ public class OAuthTokenService {
 		if (dgrAcIdpAuthCode == null) {
 			// Table [DGR_AC_IDP_AUTH_CODE] 查不到
 			TPILogger.tl.debug("Table [DGR_AC_IDP_AUTH_CODE] can't find data, auth_code:" + dgRcode);
-			String errMsg = TokenHelper.Unauthorized;
+			String errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp>(
 					getTokenHelper().getOAuthTokenErrorResp(errMsg, errMsg, HttpStatus.UNAUTHORIZED.value(), reqUri),
@@ -1877,7 +1877,7 @@ public class OAuthTokenService {
 		if (!TsmpAuthCodeStatus2.AVAILABLE.value().equals(authCodeStatus)) {// 若 auth code 狀態不是"可用"
 			// auth code 狀態為 "已使用"
 			TPILogger.tl.debug("Auth code(dgRcode) is " + authCodeStatus + ", auth_code:" + dgRcode);
-			String errMsg = TokenHelper.Unauthorized;
+			String errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp>(
 					getTokenHelper().getOAuthTokenErrorResp(errMsg, errMsg, HttpStatus.UNAUTHORIZED.value(), reqUri),
@@ -1891,7 +1891,7 @@ public class OAuthTokenService {
 			String expireTime = DateTimeUtil.dateTimeToString(new Date(authCodeExpire), DateTimeFormatEnum.西元年月日時分秒毫秒)
 					.orElse(null);
 			TPILogger.tl.debug("Auth code(dgRcode) expired, auth code exp:" + authCodeExpire + " (" + expireTime + ")");
-			String errMsg = TokenHelper.Unauthorized;
+			String errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp>(
 					getTokenHelper().getOAuthTokenErrorResp(errMsg, errMsg, HttpStatus.UNAUTHORIZED.value(), reqUri),
@@ -2109,8 +2109,8 @@ public class OAuthTokenService {
 		// access token 過期
 		long nowTime = System.currentTimeMillis() / 1000;// 去掉亳秒
 		if (exp < nowTime) {
-			TPILogger.tl.debug(TokenHelper.Access_token_expired + exp);
-			String errMsg = TokenHelper.Access_token_expired + accessToken;
+			TPILogger.tl.debug(TokenHelper.ACCESS_TOKEN_EXPIRED + exp);
+			String errMsg = TokenHelper.ACCESS_TOKEN_EXPIRED + accessToken;
 			TPILogger.tl.debug(errMsg);	
 			return false;
 		}

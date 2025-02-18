@@ -102,7 +102,7 @@ public class IdPJdbcHelper {
  
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			userInfoData.errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			return userInfoData;
@@ -261,7 +261,7 @@ public class IdPJdbcHelper {
 
 	private ResponseEntity<?> getResponseEntity(String errMsg) {
 		ResponseEntity<?> errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-				getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_user, errMsg), HttpStatus.UNAUTHORIZED);// 401
+				getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_USER, errMsg), HttpStatus.UNAUTHORIZED);// 401
 		return errRespEntity;
 	}
 

@@ -472,6 +472,16 @@ public class TsmpSettingService {
 		String val = getStringVal(key);
 		return val;
 	}
+
+	public String getKey_KIBANA_STATUS_URL() {
+		return TsmpSettingDao.Key.KIBANA_STATUS_URL;
+	}
+
+	public String getVal_KIBANA_STATUS_URL() {
+		String key = getKey_KIBANA_STATUS_URL();
+		String val = getStringVal(key);
+		return val;
+	}
 	
 	public String getKey_ES_TEST_TIMEOUT() {
 		return TsmpSettingDao.Key.ES_TEST_TIMEOUT;

@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.async.WebAsyncManager;
+import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.entity.TsmpApi;
@@ -228,6 +230,8 @@ public class GatewayFilter extends OncePerRequestFilter {
 			b = b || (uri.length() >= 16 && (uri.substring(0, 16).equals("/_plugin/kibana/")));
 			b = b || (uri.length() >= 13 && (uri.substring(0, 13).equals("/_dashboards/"))); // AWS上的OpenSearch的URL路徑
 			b = b || (uri.length() >= 12 && (uri.substring(0, 12).equals("/dgrliveness")));	//國壽要求一個 非/dgrv4的探針API
+			b = b || (uri.length() >= 9 && (uri.substring(0, 9).equals("/liveness")));	//國壽要求一個 非/dgrv4的探針API
+			b = b || (uri.length() >= 10 && (uri.substring(0, 10).equals("/readiness")));	//國壽要求一個 非/dgrv4的探針API
 			b = b || (uri.length() >= 8 && (uri.substring(0, 8).equals("/kibana/")))            
 					|| isGCPkibana(request, kibanaPrefix); // 判斷是不是走/kibana2的GCP 相關URL
 			b = !(b);
@@ -377,7 +381,28 @@ public class GatewayFilter extends OncePerRequestFilter {
 
 		// GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, PATCH
 
-		filterChain.doFilter(request, response);
+		try {
+			// ... 原有邏輯 ...
+			filterChain.doFilter(request, response);
+//			filterChain.doFilter(request, responseWrapper); //response 空白一片
+	    } catch (Exception e) {
+	    	if (response.getStatus() == 200) {
+	    		// 為了解決高併發時, 2個 worker thread 搶 filter 的問題
+	    		// jakarta.servlet.ServletException: Request processing failed: java.lang.IllegalStateException: AsyncWebRequest must not be null
+	    		StringBuilder sb = new StringBuilder();
+	    		sb.append("\nresponse.getStatus()::" + response.getStatus());
+	    		sb.append("\nrequest.getRequestURI()::" + request.getRequestURI());
+	    		sb.append("\nmsg::" + e.getLocalizedMessage());
+	    		TPILogger.tl.warn(sb.toString());
+	    		return ;
+	    	}
+	    	TPILogger.tl.error("response.getStatus(): " + response.getStatus());
+	    	TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+	        throw e;  // 重新拋出異常，確保錯誤能被正確處理
+	    } finally {
+	        // 清理資源
+	        //cleanup();
+	    }
 
 		// You can't delete headers afterwards by the standard Servlet API. Your best
 		// bet is to just prevent the header from being set.
@@ -425,8 +450,6 @@ public class GatewayFilter extends OncePerRequestFilter {
 	 * */
 	public static void fetchUriHistoryAfter(HttpServletRequest request) {
 		long endTime = System.currentTimeMillis();
-		// 以此 Request 記錄它的 startTime
-//		request.setAttribute(GatewayFilter.endTime, endTime);
 		
 		// 以此 Request 記錄它的 URI Key: [GET] /aa/bb , 沒有含 QueryString
 		long startTime = (long)request.getAttribute(GatewayFilter.startTime);
@@ -441,7 +464,7 @@ public class GatewayFilter extends OncePerRequestFilter {
 		apiRespTimeMap.put(keyUri, elapsed);
 		
 		// print
-		fetchUriHistoryList();
+		// fetchUriHistoryList(); //不需要輸出以免影響 CPU 使用率
 	}
 	
 	/**
@@ -1164,4 +1187,23 @@ public class GatewayFilter extends OncePerRequestFilter {
 
 		return isDgrUrl;
 	}
+	
+	/**
+	 * 兩個方法的作用和為什麼會在高併發時出現問題 當這兩個方法保持預設值（true）時，在高併發情況下可能會出現問題：
+	 * 
+	 * 1.請求進入系統，第一次經過 filter 
+	 * 2.開始非同步處理 
+	 * 3.因為 shouldNotFilterAsyncDispatch = true，非同步分發時不會再次執行 filter 
+	 * 4.此時如果有其他 filter 或處理邏輯修改了 request 的屬性
+	 * 5.當非同步操作完成時，Spring 嘗試獲取 AsyncWebRequest，但可能已經被清除或變為 null
+	 */
+//    @Override
+//    protected boolean shouldNotFilterAsyncDispatch() {
+//        return false; //true, 在高併發時出現問題
+//    }
+//
+//    @Override
+//    protected boolean shouldNotFilterErrorDispatch() {
+//        return false; //true, 在高併發時出現問題
+//    }
 }

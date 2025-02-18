@@ -14,6 +14,44 @@
 	background-color: #D3D3D3;
 }
 
+/* 全域字型設定 */
+* {
+    font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif;
+}
+
+/* 針對 ASCII art 區塊使用等寬字型 */
+pre {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    white-space: pre;
+    line-height: 1;
+    font-size: 14px;
+}
+
+/* 針對特定元素的字型設定 */
+#onlineConsole,
+#showAllClientDiv,
+#showAllThreadStatusDiv,
+#showAllUrlStatusDiv,
+.modal-content,
+li,
+td,
+th {
+    font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif !important;
+}
+
+/* 確保動態生成的內容也使用相同字型 */
+#showAllClientDiv li,
+#showAllClientDiv b,
+#showAllClientDiv font,
+#showAllClientDiv u {
+    font-family: 'Roboto', 'Arial', 'Helvetica', sans-serif !important;
+}
+
+/* 保留原本的 monospace 字型設定給程式碼區塊 */
+pre code {
+    font-family: monospace;
+}
+
 body {
 	padding-top: 20px
 }
@@ -395,11 +433,18 @@ p {
 												str = str + '<ul>';
 							str = str + '<li><b>' + ' version:</b> '+ d.version + ' </li>';					
 							str = str + '<li><b>' + ' update time:</b> '+ d.updateTime + ' (<b>Active:</b> <u>'+ d.upTime +'</u>)</li>';				
-							str = str + '<li><b>' + ' Web:</b> <u>'+ d.webLocalIP + ':' + d.serverPort + '</u> <b>('+ d.fqdn +')</b>' + '</li>';				
-							str = str + '<li>' + 'CPU: <u>' + d.cpu + '</u>, &emsp; Mem: <u>' + d.mem + '</u></li>';	
-							str = str + '<li>' + 'H_used: <u>' + d.h_used + '</u>, &emsp; H_free: <u>' + d.h_free + '</u>, &emsp; H_total: <u>' + d.h_total + '</u></li>';
+							str = str + '<li><b>' + ' Web:</b> <u>'+ d.webLocalIP + ':' + d.serverPort + '</u> <b>('+ d.fqdn +')</b>' + '</li>';
+							
+							str = str + '<li><b>' + 'API Req: ' + d.api_ReqThroughputSize + ',&emsp;';
+							str = str + '' + 'API Resp: ' + d.api_RespThroughputSize + '</b></li>';
+
+							str = str + '<li><b>' + 'esQueue: ' + d.esQueue + ',&emsp;';
+							str = str + '' + 'rdbQueue: ' + d.rdbQueue + '</b></li>';
+											
+							str = str + '<li>' + 'CPU: <b><u>' + d.cpu + '</u></b>, &emsp; Mem: <u>' + d.mem + '</u></li>';	
+							str = str + '<li>' + 'H_used: <u>' + d.h_used + '</u>, &emsp; H_free: <b><u>' + d.h_free + '</u></b>, &emsp; H_total: <u>' + d.h_total + '</u></li>';
 						str = str + '</ul>';
-				str = str + '</li>';				
+						str = str + '</li>';				
 				}else{
 						str = str + 
 						'<b><font size="5">' + d.username+'</font></b> / <b>Foreign:</b> <u>'+d.ip+':' + d.port + 
@@ -418,9 +463,16 @@ p {
 						str = str + '<ul>';
 
 							str = str + '<li><b>' + ' update time:</b> '+ d.updateTime + ' (<b>Active:</b> <u>'+ d.upTime +'</u>)</li>';				
-							str = str + '<li><b>' + ' Web:</b> <u>'+ d.webLocalIP + ':' + d.serverPort + '</u> <b>('+ d.fqdn +')</b>' + '</li>';				
-							str = str + '<li>' + 'CPU: <u>' + d.cpu + '</u>, &emsp; Mem: <u>' + d.mem + '</u></li>';	
-							str = str + '<li>' + 'H_used: <u>' + d.h_used + '</u>, &emsp; H_free: <u>' + d.h_free + '</u>, &emsp; H_total: <u>' + d.h_total + '</u></li>';
+							str = str + '<li><b>' + ' Web:</b> <u>'+ d.webLocalIP + ':' + d.serverPort + '</u> <b>('+ d.fqdn +')</b>' + '</li>';
+							
+							str = str + '<li><b>' + 'API Req: ' + d.api_ReqThroughputSize + ',&emsp;';
+							str = str + '' + 'API Resp: ' + d.api_RespThroughputSize + '</b></li>';
+							
+							str = str + '<li><b>' + 'esQueue: ' + d.esQueue + ',&emsp;';
+							str = str + '' + 'rdbQueue: ' + d.rdbQueue + '</b></li>';
+											
+							str = str + '<li>' + 'CPU: <b><u>' + d.cpu + '</u></b>, &emsp; Mem: <u>' + d.mem + '</u></li>';	
+							str = str + '<li>' + 'H_used: <u>' + d.h_used + '</u>, &emsp; H_free: <b><u>' + d.h_free + '</u></b>, &emsp; H_total: <u>' + d.h_total + '</u></li>';
 							
 							str = str + '<li><b>' + ' main: ' + d.main + ',&emsp;';	
 							str = str + '' + 'deferrable: ' + d.deferrable + ',&emsp;';	
@@ -428,13 +480,6 @@ p {
 							
 							str = str + '<li>' + 'rcdCacheSize: ' + d.rcdCacheSize + ',&emsp;';	
 							str = str + '' + 'fixedCacheSize: ' + d.fixedCacheSize + '</li>';
-							
-							str = str + '<li><b>' + 'esQueue: ' + d.esQueue + ',&emsp;';
-							str = str + '' + 'rdbQueue: ' + d.rdbQueue + '</b></li>';
-
-							
-							str = str + '<li>' + 'API Req: ' + d.api_ReqThroughputSize + ',&emsp;';
-							str = str + '' + 'API Resp: ' + d.api_RespThroughputSize + '</li>';
 							
 							str = str + '<li>' + 'lastUpdateTimeClient: ' + d.lastUpdateTimeClient + ',&emsp;';
 							str = str + '' + 'lastUpdateTimeAPI: ' + d.lastUpdateTimeAPI + '</li>';

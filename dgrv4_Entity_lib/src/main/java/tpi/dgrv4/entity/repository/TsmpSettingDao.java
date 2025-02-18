@@ -221,6 +221,7 @@ public interface TsmpSettingDao extends JpaRepository<TsmpSetting, String> {
 		public static final String KIBANA_AUTH = "KIBANA_AUTH";
 		public static final String KIBANA_LOGIN_URL = "KIBANA_LOGIN_URL";
 		public static final String KIBANA_LOGIN_REQUESTBODY = "KIBANA_LOGIN_REQUESTBODY";
+		public static final String KIBANA_STATUS_URL = "KIBANA_STATUS_URL";
 
 		public static final String DGR_AC_LOGIN_PAGE = "DGR_AC_LOGIN_PAGE";
 

@@ -69,6 +69,7 @@ public class HandleESApiDataService {
 	public Date getStartDate(Date execDate) {
 		// 如果無資料(第一次)，則只撈現在時間往前10分鐘的值
 		// 1. 先判斷資料庫內是否有值
+		// 此 order by 超級耗時, 使用 Dbeaver 連線, 70w 筆即會耗時
 		DgrDashboardEsLog lastData = getDgrDashboardEsLogDao().findTopByOrderByRtimeDesc().orElse(null);
 		Date startDate;
 		Calendar c = Calendar.getInstance();
@@ -87,6 +88,14 @@ public class HandleESApiDataService {
 
 		return startDate;
 	}
+	
+	private void sleepforColddownCPU(long ms) {
+//		try {
+//			Thread.sleep(ms);
+//		} catch (InterruptedException e) {
+//			Thread.currentThread().interrupt();
+//		}
+	}
 
 	private String[] getIndicesSet(Date startDate, Date execDate) {
 		Calendar c = Calendar.getInstance();
@@ -102,7 +111,7 @@ public class HandleESApiDataService {
 
 			c.add(Calendar.DATE, 1);
 			startDate = c.getTime();
-
+			sleepforColddownCPU(10); //冷卻 CPU
 		}
 		return set.toArray(new String[0]);
 	}
@@ -197,11 +206,14 @@ public class HandleESApiDataService {
 		List<Map<String, Object>> sortList2 = getDgrESService().getSortList(null, createTimestemp, "asc");
 		getDgrESService().getSortList(sortList2, "id.keyword", "asc");
 		getDgrESService().getSortList(sortList2, "type.keyword", "asc");
+		
+		TPILogger.tl.info("...start ES search() ");
 		while (true) {
 
 			Map<String, Object> finalMap2 = getDgrESService().getfinalMap(0, 10000, bool2, sortList2, searchAfter,
 					source);
 
+			// ES 這裡似乎也會 search 很久
 			List<ResponseHit> hitList2 = search(finalMap2, indicesArray);
 			if (CollectionUtils.isEmpty(hitList2)) {
 				break;
@@ -209,11 +221,15 @@ public class HandleESApiDataService {
 			searchAfter = hitList2.get(hitList2.size() - 1).getSort();
 			TPILogger.tl.trace("searchAfter = " + searchAfter);
 			hitList.addAll(hitList2);
+//			sleepforColddownCPU(10); //冷卻 CPU
 		}
 
+		TPILogger.tl.info("...start classifyData() ");
 		Map<String, Map<String, DashboardEsData>> map = classifyData(hitList);
 		// 判斷是否有沒有匹配
 		List<DashobardNotMatchItem> notMatchListFinal = new ArrayList<>();
+		
+		TPILogger.tl.info("...start classifyData map.forEach() ");
 		map.forEach((k, vMap) -> {
 			if (vMap.size() < 2 && vMap.get("req") != null) { // 未匹配且未超過一小時，則繼續保存在TSMP_DP_FILE等待下次判斷
 				Date ts = new Date(vMap.get("req").getCreateTimestamp());
@@ -222,9 +238,11 @@ public class HandleESApiDataService {
 					notMatchListFinal.add(new DashobardNotMatchItem(k, vMap.get("req").getCreateTimestamp()));
 				}
 			}
+//			sleepforColddownCPU(10); //冷卻 CPU
 		});
 
 		// 寫入DgrDashboardEsLog
+		TPILogger.tl.info("...start inserData() ");
 		List<DgrDashboardEsLog> inserList = inserData(map);
 
 		// 新增/更新 notMatchList
@@ -233,6 +251,7 @@ public class HandleESApiDataService {
 		saveDpFile(dpFile, notMatchListStr, 1l, json);
 
 		// tsmpApi 計算與寫入
+		TPILogger.tl.info("...start calculateAPIUsage(inserList) ");
 		calculateAPIUsage(inserList);
 
 		checkJobStatus(jobId);
@@ -268,8 +287,9 @@ public class HandleESApiDataService {
 	}
 
 	protected boolean checkConnection() {
-
-		return getDgrESService().isConnected();
+		boolean isConnection = getDgrESService().isConnected();
+		TPILogger.tl.info("ES Service is Connected::" + isConnection);
+		return isConnection;
 	}
 
 	private void calculateAPIUsage(List<DgrDashboardEsLog> list) {
@@ -364,6 +384,7 @@ public class HandleESApiDataService {
 				vo.setRtimeYearMonth(DateTimeUtil.dateTimeToString(ts, DateTimeFormatEnum.西元年月_2).orElse(null));
 				list.add(vo);
 			}
+			sleepforColddownCPU(10); //冷卻 CPU
 		}
 		if (list.size() > 0) {
 			getDgrDashboardEsLogDao().saveAll(list);
@@ -403,6 +424,7 @@ public class HandleESApiDataService {
 				}
 
 			}
+			sleepforColddownCPU(10); //冷卻 CPU
 		}
 
 		return map;

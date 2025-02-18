@@ -41,15 +41,13 @@ public class DpOpenApiDocServiceImpl_OAS3 implements DpOpenApiDocServiceIfs {
 		 */
  
 		boolean isHttps = false;
-		List<String> urlList = new ArrayList<String>();
-		List<String> schemeList = new ArrayList<String>();
+		List<String> urlList = new ArrayList<>();
+		List<String> schemeList = new ArrayList<>();
 		JsonNode oas3ServersNode = rootNode.get("servers");//root.servers
-		if(oas3ServersNode != null) {
-			if(oas3ServersNode.isArray()) {
-				for (JsonNode objNode : oas3ServersNode) {
-					JsonNode urlNode = objNode.get("url");//root.servers.url
-					isHttps = updateUrlNode(req, urlNode, isHttps, urlList, schemeList);
-				}
+		if(oas3ServersNode != null && oas3ServersNode.isArray()) {
+			for (JsonNode objNode : oas3ServersNode) {
+				JsonNode urlNode = objNode.get("url");//root.servers.url
+				isHttps = updateUrlNode(req, urlNode, isHttps, urlList, schemeList);
 			}
 		}
 		
@@ -210,7 +208,7 @@ public class DpOpenApiDocServiceImpl_OAS3 implements DpOpenApiDocServiceIfs {
 
 
 	public List<AA0315Item> getAA0315ItemList(JsonNode rootNode, String protocol, String oas3_host, String basePath) {
-		List<AA0315Item> openApiList = new ArrayList<AA0315Item>();
+		List<AA0315Item> openApiList = new ArrayList<>();
 		
 		//openApiList: API清單,root.paths，若未傳入此欄位，則 throw 1350 ([paths] 為必填欄位)。需封裝成 AA0315Item 後填入		
 		JsonNode oas3PathsNode = rootNode.get("paths");//root.paths
@@ -257,9 +255,9 @@ public class DpOpenApiDocServiceImpl_OAS3 implements DpOpenApiDocServiceIfs {
 			}
 			
 			Iterator<String> methodIter = pathNode.fieldNames();
-			List<String> methodList = new ArrayList<String>();
-			List<String> consumesList = new ArrayList<String>();
-			List<String> producesList = new ArrayList<String>();
+			List<String> methodList = new ArrayList<>();
+			List<String> consumesList = new ArrayList<>();
+			List<String> producesList = new ArrayList<>();
 			while (methodIter.hasNext()) {  //多個method
 				String method = methodIter.next();
 				String upperMethod = method.toUpperCase();	// 20210113; 需轉成大寫
@@ -311,10 +309,10 @@ public class DpOpenApiDocServiceImpl_OAS3 implements DpOpenApiDocServiceIfs {
 			checkMethodList(methodList);
 			
 			//headers: Http Header,暫不解析
-			List<String> oas3HeadersList = new ArrayList<String>();
+			List<String> oas3HeadersList = new ArrayList<>();
 			
 			//params: Http Parameter,暫不解析
-			List<String> oas3ParamsList = new ArrayList<String>();
+			List<String> oas3ParamsList = new ArrayList<>();
 			
 			oas3Item.setSummary(summary);
 			oas3Item.setRearPath(rearPath);
@@ -337,7 +335,7 @@ public class DpOpenApiDocServiceImpl_OAS3 implements DpOpenApiDocServiceIfs {
 		if(methodList == null || methodList.isEmpty()) {
 			throw TsmpDpAaRtnCode._1352.throwing("methods");
 		}
-		Set<String> methodSet = new HashSet<String>(methodList);//List轉成Set
+		Set<String> methodSet = new HashSet<>(methodList);//List轉成Set
 		if(methodList.size() != methodSet.size()) {//數目不同,表示有重複
 			throw TsmpDpAaRtnCode._1352.throwing("methods");
 		}

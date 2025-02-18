@@ -16,8 +16,6 @@ import java.util.TreeMap;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,16 +25,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import jakarta.transaction.Transactional;
 import tpi.dgrv4.common.constant.DashboardReportTypeEnum;
 import tpi.dgrv4.common.constant.DashboardTimeTypeEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
-import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DashboardMedianAideVo;
 import tpi.dgrv4.entity.entity.TsmpApi;
 import tpi.dgrv4.entity.entity.TsmpApiId;
-import tpi.dgrv4.entity.entity.TsmpDpApptJob;
 import tpi.dgrv4.entity.entity.jpql.DgrDashboardEsLog;
 import tpi.dgrv4.entity.entity.jpql.DgrDashboardLastData;
 import tpi.dgrv4.entity.entity.jpql.TsmpReqResLogHistory;
@@ -47,10 +44,10 @@ import tpi.dgrv4.entity.repository.TsmpDpApptJobDao;
 import tpi.dgrv4.entity.repository.TsmpReqResLogHistoryDao;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpApiCacheProxy;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.service.ISysInfoService;
 
 @Service
 public class HandleDashboardDataService {
-
 
 	@Autowired
 	private DgrDashboardLastDataDao dgrDashboardLastDataDao;
@@ -68,6 +65,8 @@ public class HandleDashboardDataService {
 	private HandleDashboardDataByYearService handleDashboardDataByYearService;
 	@Autowired
 	private TsmpSettingService tsmpSettingService;
+	@Autowired(required = false)
+	private ISysInfoService sysInfoService;
 	
 	private DateFormat yyyyMMddHHmmssSSS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 	private DateFormat yyyyMMddHHmm = new SimpleDateFormat("yyyy/MM/dd HH:mm");
@@ -77,11 +76,19 @@ public class HandleDashboardDataService {
 	private DateFormat mm = new SimpleDateFormat("mm");
 	private DateFormat MMdd = new SimpleDateFormat("MM/dd");
 	
+	private static final String NO_ENTERPRISE_SERVICE = "...No Enterprise Service...";
+	
 	@Transactional
 	public void exec(Date execDate, boolean isEs, Long jobId) {
-
+//		System.err.println(StackTraceUtil.logStackTrace(new Exception("find-root-stack")));
 		TPILogger.tl.debug("--- Begin HandleDashboardDataService ---");
-		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+		if (sysInfoService != null) {
+			TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+		} else {
+			TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+		}
+		
+		sleepforColddownCPU(10, "START"); //計算完冷卻一下 CPU
 
 		List<DgrDashboardLastData> lastList = getDgrDashboardLastDataDao()
 				.findByTimeTypeAndDashboardType(DashboardTimeTypeEnum.MINUTE.value(), DashboardReportTypeEnum.UNPOPULAR.value());
@@ -91,8 +98,11 @@ public class HandleDashboardDataService {
 		List<DgrDashboardLastData> saveLastList = new ArrayList<>();
 		//top5冷門
 		execUnpopular(lastList, saveLastList);
+		sleepforColddownCPU(10 , "top 5 Cold"); //計算完冷卻一下 CPU
+		
 		//top5熱門
 		execPopular(saveLastList);
+		sleepforColddownCPU(10 , "top 5 HOT"); //計算完冷卻一下 CPU
 		
 		// 資料日期
 		Date monthStartDate = this.getStartDate(execDate, DashboardTimeTypeEnum.MONTH);
@@ -123,10 +133,17 @@ public class HandleDashboardDataService {
 		int loopIndex = 1;
 		while(true) {
 			TPILogger.tl.info("start get month,day,minute data, Loop index is " + loopIndex);
-			TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+			if (sysInfoService != null) {
+				TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+			} else {
+				TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+			}
+			
+			sleepforColddownCPU(10, "133"); //計算完冷卻一下 CPU
+			
 			if(isEs) {
 				esMonthDataList = this.getDataForEs(monthStartDate, endDate, lastRowId);
-				TPILogger.tl.debug("esMonthDataList.size = " + esMonthDataList.size());
+				TPILogger.tl.info("esMonthDataList.size = " + esMonthDataList.size());
 				//月資料給天
 				if(esMonthDataList.size() > 0) {
 					//第一筆就在天的範圍
@@ -142,7 +159,7 @@ public class HandleDashboardDataService {
 						esDayDataList = new ArrayList<>();
 					}
 				}
-				TPILogger.tl.debug("esDayDataList.size = " + esDayDataList.size());
+				TPILogger.tl.info("esDayDataList.size = " + esDayDataList.size());
 				//天資料給分
 				if(!CollectionUtils.isEmpty(esDayDataList)) {
 					//第一筆就在分的範圍
@@ -158,10 +175,10 @@ public class HandleDashboardDataService {
 						esMinuteDataList = new ArrayList<>();
 					}
 				}
-				TPILogger.tl.debug("esMinuteDataList.size = " + esMinuteDataList.size());
+				TPILogger.tl.info("esMinuteDataList.size = " + esMinuteDataList.size());
 			}else {
 				rdbMonthDataList = this.getDataForRdb(monthStartDate, endDate, lastRowId);
-				TPILogger.tl.debug("rdbMonthDataList.size = " + rdbMonthDataList.size());
+				TPILogger.tl.info("rdbMonthDataList.size = " + rdbMonthDataList.size());
 				//月資料給天
 				if(rdbMonthDataList.size() > 0) {
 					//第一筆就在天的範圍
@@ -177,7 +194,7 @@ public class HandleDashboardDataService {
 						rdbDayDataList = new ArrayList<>();
 					}
 				}
-				TPILogger.tl.debug("rdbDayDataList.size = " + rdbDayDataList.size());
+				TPILogger.tl.info("rdbDayDataList.size = " + rdbDayDataList.size());
 				//天資料給分
 				if(!CollectionUtils.isEmpty(rdbDayDataList)) {
 					//第一筆就在分的範圍
@@ -193,11 +210,17 @@ public class HandleDashboardDataService {
 						rdbMinuteDataList = new ArrayList<>();
 					}
 				}
-				TPILogger.tl.debug("rdbMinuteDataList.size = " + rdbMinuteDataList.size());
+				TPILogger.tl.info("rdbMinuteDataList.size = " + rdbMinuteDataList.size());
 			} 
 			
 			TPILogger.tl.info("end get month,day,minute data, Loop index is " + loopIndex);
-			TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+			if (sysInfoService != null) {
+				TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+			} else {
+				TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+			}
+			
+			sleepforColddownCPU(10, "209"); //計算完冷卻一下 CPU
 			
 			//月
 			//5.Bad Attempt
@@ -224,7 +247,13 @@ public class HandleDashboardDataService {
 			execClientUsageMetrics(lastDataMap, medianMap, rdbMinuteDataList, esMinuteDataList, isEs, DashboardTimeTypeEnum.MINUTE);
 			
 			TPILogger.tl.info("data to lastDataMap, Loop index is " + loopIndex++);
-			TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+			if (sysInfoService != null) {
+				TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+			} else {
+				TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+			}
+			
+			sleepforColddownCPU(10, "237"); //計算完冷卻一下 CPU
 			
 			if(isEs) {
 				if(esMonthDataList.size() < this.getPageSize()) {
@@ -252,8 +281,14 @@ public class HandleDashboardDataService {
 		esMinuteDataList = null;
 		rdbMinuteDataList = null;
 		
-		TPILogger.tl.debug("month,day,minute data already clear, maybe garbage collection");
-		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+		TPILogger.tl.info("month,day,minute data already clear, maybe garbage collection");
+		if (sysInfoService != null) {
+			TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+		} else {
+			TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+		}
+		
+		sleepforColddownCPU(10 , "267"); //計算完冷卻一下 CPU
 		
 		List<DgrDashboardLastData> monthClientLastDataList = new ArrayList<>();
 		List<DgrDashboardLastData> dayClientLastDataList = new ArrayList<>();
@@ -328,8 +363,14 @@ public class HandleDashboardDataService {
 		}
 		
 		lastDataMap = null;
-		TPILogger.tl.debug("lastDataMap already clear, maybe garbage collection");
-		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+		TPILogger.tl.info("lastDataMap already clear, maybe garbage collection");
+		if (sysInfoService != null) {
+			TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+		} else {
+			TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+		}
+		
+		sleepforColddownCPU(10, "344"); //計算完冷卻一下 CPU
 		//月
 		//3.Success
 		execSuccess(monthClientLastDataList, DashboardTimeTypeEnum.MONTH, saveLastList);
@@ -391,7 +432,11 @@ public class HandleDashboardDataService {
 		getDgrDashboardLastDataDao().saveAll(saveLastList);
 		
 		TPILogger.tl.debug("--- Finish HandleDashboardDataService ---");
-		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+		if (sysInfoService != null) {
+			TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+		} else {
+			TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+		}
 	}
 	
 	protected void checkJobStatus(Long id) {
@@ -1305,6 +1350,15 @@ public class HandleDashboardDataService {
 		synchronized (MMdd) {
 			return MMdd.format(date);
 		}
+	}
+	
+	private void sleepforColddownCPU(long ms, String msg) {
+//		TPILogger.tl.info(ms + " -- " + msg);
+//		try {
+//			Thread.sleep(ms);
+//		} catch (InterruptedException e) {
+//			Thread.currentThread().interrupt();
+//		}
 	}
 	
 	protected Integer getPageSize() {

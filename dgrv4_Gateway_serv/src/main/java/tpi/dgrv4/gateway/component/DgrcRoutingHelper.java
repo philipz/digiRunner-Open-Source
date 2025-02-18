@@ -284,7 +284,7 @@ public class DgrcRoutingHelper {
 		OAuthTokenErrorResp resp = new OAuthTokenErrorResp();
 		resp.setTimestamp(System.currentTimeMillis() + "");
 		resp.setStatus(HttpStatus.UNAUTHORIZED.value());// 401
-		resp.setError(TokenHelper.Unauthorized);
+		resp.setError(TokenHelper.UNAUTHORIZED);
 		resp.setMessage("Missing srcUrl information. ip/fqdn= " + ip + "/" + dn);
 		resp.setPath(apiId);
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);

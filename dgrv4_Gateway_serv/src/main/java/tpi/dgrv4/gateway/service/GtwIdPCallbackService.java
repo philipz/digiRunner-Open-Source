@@ -123,7 +123,7 @@ public class GtwIdPCallbackService {
 			return null;
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 		}
@@ -154,7 +154,7 @@ public class GtwIdPCallbackService {
 			String errMsg = String.format(IdPHelper.MSG_INVALID_IDPTYPE, idPType);
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
 		
@@ -194,7 +194,7 @@ public class GtwIdPCallbackService {
 		String dgrClientRedirectUri = dgrGtwIdpAuthM.getRedirectUri();// TSP 在發出授權請求(auth API)時,傳入的 redirect_uri
 		if (!StringUtils.hasLength(dgrClientRedirectUri)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "DGR_GTW_IDP_AUTH_M.redirect_uri";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "DGR_GTW_IDP_AUTH_M.redirect_uri";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -213,7 +213,7 @@ public class GtwIdPCallbackService {
 			TPILogger.tl.debug("Table [DGR_GTW_IDP_INFO_O] can't find data. dgrClientId: " + dgrClientId
 					+ ", idpType: " + idPType + ", status: " + status);
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "GTW IdP Info";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "GTW IdP Info";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -227,7 +227,7 @@ public class GtwIdPCallbackService {
 
 		if (!StringUtils.hasLength(idPWellKnownUrl)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "wellKnownUrl";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "wellKnownUrl";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -235,7 +235,7 @@ public class GtwIdPCallbackService {
 
 		if (!StringUtils.hasLength(dgrCallbackUrl)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "callbackUrl";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "callbackUrl";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -258,7 +258,7 @@ public class GtwIdPCallbackService {
 
 		if (!StringUtils.hasLength(idPAccessTokenUrl)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "accessTokenUrl";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "accessTokenUrl";
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
@@ -267,7 +267,7 @@ public class GtwIdPCallbackService {
 		String jwksUri = wellKnownData.jwksUri;
 		if (!StringUtils.hasLength(jwksUri)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "jwksUri";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "jwksUri";
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
@@ -276,7 +276,7 @@ public class GtwIdPCallbackService {
 		String issuer = wellKnownData.issuer;
 		if (!StringUtils.hasLength(issuer)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "issuer";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "issuer";
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
@@ -296,7 +296,7 @@ public class GtwIdPCallbackService {
  
 		if(!StringUtils.hasLength(idTokenJwtstr)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "idTokenJwtstr";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "idTokenJwtstr";
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
@@ -327,7 +327,7 @@ public class GtwIdPCallbackService {
 			String userinfoUrl = wellKnownData.userinfoEndpoint;
 			if(!StringUtils.hasLength(userinfoUrl)) {
 				// 設定檔缺少參數
-				String errMsg = TokenHelper.The_profile_is_missing_parameters + "userinfoUrl";
+				String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "userinfoUrl";
 				TPILogger.tl.debug(errMsg);
 				return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			}
@@ -406,10 +406,10 @@ public class GtwIdPCallbackService {
 		
 		// 沒有 code
 		if (!StringUtils.hasLength(idPAuthCode)) {
-			String errMsg = TokenHelper.Missing_required_parameter + "code";
+			String errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "code";
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+					getTokenHelper().getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 					HttpStatus.BAD_REQUEST);// 400
 		}
  

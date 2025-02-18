@@ -89,10 +89,7 @@ public class RequireUrlStatusInfosPacket implements Packet_i {
 		// 檢查封包是否過期
 		if (isPacketExpired(externalUrlStatusPacket)) {
 			// 若過期，則從 map 中移除
-
 			// 因 UndertowMetricsInfo 不是 node 資料, 故不用做 新增失去聯繫的 DGR 節點資訊
-			// addLostDgrInfo(ExternalUrlStatusPacket);
-
 			iterator.remove();
 		} else {
 			// 若未過期，則加入到 urlStatusInfos 列表中

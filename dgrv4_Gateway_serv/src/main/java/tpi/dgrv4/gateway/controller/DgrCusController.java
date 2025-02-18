@@ -176,13 +176,13 @@ public class DgrCusController {
 			@RequestBody(required = false) String payload, HttpServletRequest request, HttpServletResponse response)
 			throws Throwable {
 		if (!StringUtils.hasLength(authorization)) {
-			TPILogger.tl.error(TokenHelper.invalid_token);
-			sendError(response, HttpStatus.UNAUTHORIZED, (TokenHelper.invalid_token));
+			TPILogger.tl.error(TokenHelper.INVALID_TOKEN);
+			sendError(response, HttpStatus.UNAUTHORIZED, (TokenHelper.INVALID_TOKEN));
 			return;
 		}
 		if (!StringUtils.hasLength(reportId)) {
-			TPILogger.tl.error(TokenHelper.invalid_request + ":reportId is null");
-			sendError(response, HttpStatus.BAD_REQUEST, (TokenHelper.invalid_request + ":reportId is null"));
+			TPILogger.tl.error(TokenHelper.INVALID_REQUEST + ":reportId is null");
+			sendError(response, HttpStatus.BAD_REQUEST, (TokenHelper.INVALID_REQUEST + ":reportId is null"));
 			return;
 		}
 
@@ -276,7 +276,7 @@ public class DgrCusController {
 			// access token 過期
 			long nowTime = System.currentTimeMillis() / 1000;// 去掉亳秒
 			if (exp < nowTime) {
-				sendError(response, HttpStatus.UNAUTHORIZED, (TokenHelper.Access_token_expired + exp));
+				sendError(response, HttpStatus.UNAUTHORIZED, (TokenHelper.ACCESS_TOKEN_EXPIRED + exp));
 				return false;
 			}
 

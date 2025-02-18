@@ -111,7 +111,7 @@ public class AA0506Controller {
 			.path(rootPath)
 			.httpOnly(true) // 禁止 JavaScript 存取 cookie, 防止 XSS Attack (Cross-Site Scripting，跨站腳本攻擊)
 			.secure(true) // 讓 cookie 只能透過 https 傳遞, 即只有 HTTPS 才能讀與寫
-			.sameSite("Lax") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
+			.sameSite("Strict") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
 			.build();
 		return cookie.toString();
 	}
@@ -123,7 +123,7 @@ public class AA0506Controller {
 			.path(rootPath)
 			.httpOnly(true) // 禁止 JavaScript 存取 cookie, 防止 XSS Attack (Cross-Site Scripting，跨站腳本攻擊)
 			.secure(true) // 讓 cookie 只能透過 https 傳遞, 即只有 HTTPS 才能讀與寫
-			.sameSite("Lax") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
+			.sameSite("Strict") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
 			.build();
 		return cookie.toString();
 	}

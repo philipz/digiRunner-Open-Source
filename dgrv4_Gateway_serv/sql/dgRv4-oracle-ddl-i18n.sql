@@ -2897,7 +2897,6 @@ v_processed := v_processed + SQL%ROWCOUNT;
 COMMIT;
 END LOOP;
 END;
-/
 
 -- 3. 驗證資料是否正確複製
 SELECT COUNT(*) FROM tsmp_token_history WHERE api_resp_new IS NULL;
@@ -2913,3 +2912,11 @@ ALTER TABLE dgr_gtw_idp_auth_code DROP COLUMN api_resp;
 ALTER TABLE tsmp_token_history RENAME COLUMN api_resp_new TO api_resp;
 ALTER TABLE dgr_ac_idp_auth_code RENAME COLUMN api_resp_new TO api_resp;
 ALTER TABLE dgr_gtw_idp_auth_code RENAME COLUMN api_resp_new TO api_resp;
+
+-- 20250203, dashboard相關table建立index(若有資料存在可能要執行一段時間), tom
+CREATE INDEX idx_tsmp_req_log ON tsmp_req_log(rtime);
+CREATE INDEX idx_dgr_dashboard_es_log ON dgr_dashboard_es_log(rtime);
+CREATE INDEX idx_tsmp_req_res_log_history ON tsmp_req_res_log_history(rtime);
+
+-- 20250213, 增加欄位長度, Zoe Lee
+ALTER TABLE dgr_rdb_connection MODIFY mima VARCHAR2(2000) NOT NULL;

@@ -35,7 +35,7 @@ import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.ResHeader;
 
-@ControllerAdvice(basePackages = {"tpi.dgrv4.dpaa.controller","tpi.dgrv4.enterprise"})
+@ControllerAdvice(basePackages = {"tpi.dgrv4.dpaa.controller","tpi.dgrv4.enterprise", "tpi.dgrv4.gateway.service"})
 public class DpaaControllerExceptionHandler {
 
 	private TPILogger logger = TPILogger.tl;
@@ -196,7 +196,7 @@ public class DpaaControllerExceptionHandler {
 	}
  
 	private Map<String, String> getRtnCodeMsgMap(TsmpDpAaException ex) throws Exception {
-		Map<String, String> rtnCodeMsgMap = new HashMap<String, String>();
+		Map<String, String> rtnCodeMsgMap = new HashMap<>();
 		String rtnCode = getRtnCode(ex);
 		rtnCodeMsgMap.put(RTN_CODE, rtnCode);
 		

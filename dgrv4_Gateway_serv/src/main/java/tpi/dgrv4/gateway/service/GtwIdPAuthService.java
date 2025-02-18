@@ -124,7 +124,7 @@ public class GtwIdPAuthService {
 			
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			errRespEntity = getTokenHelper().getInternalServerErrorResp(reqUri, errMsg);// 500
 			return errRespEntity;
@@ -151,7 +151,7 @@ public class GtwIdPAuthService {
 			TPILogger.tl.debug("Table [DGR_GTW_IDP_INFO_O] can't find data. dgrClientId: " + dgrClientId
 					+ ", idpType: " + idPType + ", status: " + status);
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "GTW IdP Info";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "GTW IdP Info";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -165,7 +165,7 @@ public class GtwIdPAuthService {
 
 		if (!StringUtils.hasLength(idPWellKnownUrl)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "wellKnownUrl";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "wellKnownUrl";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -173,7 +173,7 @@ public class GtwIdPAuthService {
 
 		if (!StringUtils.hasLength(dgrCallbackUrl)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "callbackUrl";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "callbackUrl";
 			TPILogger.tl.debug(errMsg);
 			errRespEntity = getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			return errRespEntity;
@@ -203,14 +203,14 @@ public class GtwIdPAuthService {
 		
 		if (!StringUtils.hasLength(idPAuthUrl)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "authUrl";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "authUrl";
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}
 		
 		if (!StringUtils.hasLength(idPScopeStr)) {
 			// 設定檔缺少參數
-			String errMsg = TokenHelper.The_profile_is_missing_parameters + "scope";
+			String errMsg = TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + "scope";
 			TPILogger.tl.debug(errMsg);
 			return getTokenHelper().getUnauthorizedErrorResp(reqUri, errMsg);// 401
 		}

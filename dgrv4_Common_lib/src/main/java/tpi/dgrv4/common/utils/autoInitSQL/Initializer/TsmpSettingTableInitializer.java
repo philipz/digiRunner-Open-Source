@@ -74,8 +74,9 @@ public class TsmpSettingTableInitializer {
 	        createTsmpSetting("LDAP_TIMEOUT","3000","ldap登入的連線timeout,單位毫秒");
 	        createTsmpSetting("LDAP_CHECK_ACCT_ENABLE","false","LDAP檢查帳號功能是否啟用 true/false");
 	        ///* 交給 resetAdminConsoleData() 建立了
-	        createTsmpSetting("TSMP_AC_CLIENT_ID","YWRtaW5Db25zb2xl","登入AC的帳號 (請勿修改)");
-	        createTsmpSetting("TSMP_AC_CLIENT_PW","dHNtcDEyMw==","登入AC的密碼 (請勿修改)");
+	        createTsmpSetting("TSMP_AC_CLIENT_ID","YWRtaW5Db25zb2xl","Login AC account (do not modify)");
+			createTsmpSetting("TSMP_AC_CLIENT_PW","dHNtcDEyMw==","AC login password (do not modify)");
+
 	        // */
 	        createTsmpSetting("TSMP_FAIL_THRESHOLD","6","允許User密碼錯誤次數上限");
 	        createTsmpSetting("SSO_PKCE","true","PKCE等級AuthCode驗證是否啟用 true/false");
@@ -293,6 +294,9 @@ public class TsmpSettingTableInitializer {
 	        
 //	        -- 2024/12/27 HIGHWAY_THRESHOLD, Webber
 	        createTsmpSetting((id = "HIGHWAY_THRESHOLD"), (value = "1000"), (memo = "High speed channel for API requests"));
+
+//			-- 2025/02/03 kibana  status API
+			createTsmpSetting((id = "KIBANA_STATUS_URL"), (value = "/kibana/api/status"), (memo = " Kibana status API. defult: /kibana/api/status"));
 		} catch (Exception e) {
 			StackTraceUtil.logStackTrace(e);
 			throw e;

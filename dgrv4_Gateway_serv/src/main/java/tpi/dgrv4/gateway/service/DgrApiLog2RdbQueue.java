@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.entity.entity.jpql.TsmpReqLog;
 import tpi.dgrv4.entity.entity.jpql.TsmpResLog;
@@ -18,8 +19,41 @@ public abstract class DgrApiLog2RdbQueue  {
 
 	public abstract void run();
 	
+	public static void putByPoll(DgrApiLog2RdbQueue logObj) {
+//		當 logPool 已滿( size 筆)時,丟棄最舊的 log (poll)
+//		然後重試加入新的 log (offer)
+//		以維持固定大小的 log 隊列
+		while (rdb_LoggerQueue.offer(logObj) == false) {
+			rdb_LoggerQueue.poll();
+//			TPILogger.tl.warn("\n\t.....Remove Head  RDB_log .....");
+		}
+	}
+	
+	public static int abortNum = 0;
 	public static void put(DgrApiLog2RdbQueue logObj) throws InterruptedException {
-		rdb_LoggerQueue.put(logObj);
+		
+		// If there are already 150 unwritten logs, skip writing the remaining ones.
+		if (rdb_LoggerQueue.size() < 150) {   
+			putByPoll(logObj); // put 時若滿了就丟棄最舊的, 不會造成阻塞
+		} else {
+			// JVM memory
+			long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
+			long totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+			long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+			//118MB / 2048MB / 2048MB...Memory(free/total/Max)
+			// total 擴到最大, 且 free 大於 256 MB, 626MB
+			if (freeMemory > 256) {
+				putByPoll(logObj); // put 時若滿了就丟棄最舊的, 不會造成阻塞
+			} else {
+				abortNum++;
+				if (abortNum % 100 == 0) { // 不需要每次都印出來
+					TPILogger.tl.warn("\n\t.....Abort  RDB_log ....." + abortNum + ", freeMem::" + freeMemory);
+					if (abortNum > Integer.MAX_VALUE - 100000) {
+						abortNum = 10;
+					}
+				}
+			}
+		}
 		DgrApiLog2RdbQueue.startThread(); //雖然每次都 start 但要確保它只會做一次
 	}
 
@@ -28,9 +62,24 @@ public abstract class DgrApiLog2RdbQueue  {
 	public static void startThread() {
 		if (startFlag == false) {
 			startFlag = true; //表示已啟動, 只能做一次
-			new Thread() {
+			new Thread("RDB-Log") {
 				public void run() {
-					processLogOut();
+					try {
+						processLogOut();  // java.lang.OutOfMemoryError: Java heap space
+					} catch (java.lang.OutOfMemoryError e) {
+						// java.lang.OutOfMemoryError: Java heap space
+						startFlag = false; //再啟動一次
+						StringBuilder sb = new StringBuilder();
+						sb.append(StackTraceUtil.logStackTrace(e));
+						sb.append("\n\t.....ES_LoggerQueue.size() " + rdb_LoggerQueue.size() + " .....");
+						sb.append("\n\t.....JVM.freeMemory() " + Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB" + " .....");
+						sb.append("\n\t.....ES_LoggerQueue.clear().....");
+						TPILogger.tl.error(sb.toString());
+						rdb_LoggerQueue.clear();
+						System.exit(1);
+						// 包個 image 來試試, 
+						// 使用 AI 這個方法 https://claude.ai/chat/12fa92ea-eb8a-4b6f-8430-32fcd67a39cd
+					}
 				}
 			}.start();
 			
@@ -71,9 +120,9 @@ public abstract class DgrApiLog2RdbQueue  {
 				DgrApiLog2RdbQueue o = rdb_LoggerQueue.take();
 				o.run(); //add self Entity (Req/Res)
 //				Thread.sleep(5000); // wait 後面的 log
-				synchronized (processLogOutLock) {
-					processLogOutLock.wait(5000);// wait 後面的 log 
-				}
+//				synchronized (processLogOutLock) {
+//					processLogOutLock.wait(5000);// wait 後面的 log 
+//				}
 				
 				int nowSize = rdb_LoggerQueue.size();
 				for (; nowSize > 0 ; nowSize--) {
@@ -89,11 +138,6 @@ public abstract class DgrApiLog2RdbQueue  {
 				if (arrayListP.size() > 0) {
 					tsmpResLogDaoObj.saveAll(arrayListP); //寫入一批 Rep
 					arrayListP.clear();
-				}
-				
-				// 不要每次都印出來, 偶數秒才印, 觀察使用量
-				if (System.currentTimeMillis() / 1000 % 5 == 0) {
-					TPILogger.tl.debug("[#queueTrace#] RDB_LoggerQueue size:" + rdb_LoggerQueue.size());
 				}
 			}
 		} catch (InterruptedException e) {

@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import tpi.dgrv4.gateway.keeper.TPILogger;
+
+import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
 @Configuration
@@ -47,6 +50,11 @@ public class AsyncConfig {
         executor.setCorePoolSize(commonWorkerPoolSize);
         executor.setMaxPoolSize(commonWorkerPoolSize);
         executor.setQueueCapacity(0);
+        // 設置拒絕策略
+        executor.setRejectedExecutionHandler((r, exe) -> {
+        	TPILogger.tl.warn("Task rejected due to thread pool exhaustion");
+            throw new RejectedExecutionException("[country-road] Task rejected");
+        });
         executor.setThreadNamePrefix(threadNamePrefix + "country-road-");
         executor.initialize();
         return executor;
@@ -61,6 +69,12 @@ public class AsyncConfig {
         executor.setCorePoolSize(highwaySize);
         executor.setMaxPoolSize(highwaySize);
         executor.setQueueCapacity(0);
+//        executor.setKeepAliveSeconds(60);
+        // 設置拒絕策略
+        executor.setRejectedExecutionHandler((r, exe) -> {
+        	TPILogger.tl.warn("Task rejected due to thread pool exhaustion");
+            throw new RejectedExecutionException("[highway] Task rejected");
+        });
         executor.setThreadNamePrefix(threadNamePrefix + "highway-");
         executor.initialize();
         return executor;

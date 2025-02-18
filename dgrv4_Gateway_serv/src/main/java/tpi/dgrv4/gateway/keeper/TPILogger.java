@@ -564,24 +564,6 @@ public class TPILogger extends ITPILogger {
 				}
 			}
 
-			// 當Value為 450 時是過濾特定關鍵字的Log訊息，例如：API的四道LOG。
-//			if (LoggerLevelConstant.getValue(loggerLevel.toUpperCase()) == 450) {
-//				String msg = log.getLogMsg().toString().toUpperCase();
-//				if (msg.contains(loggerLevel.toUpperCase())) {
-//					TPILogInfoPacket packet = new TPILogInfoPacket(log);
-//					log.userName = lc.userName;
-//					lc.send(packet);
-//				}
-//			} else {
-//				if (LoggerLevelConstant.getValue(loggerLevel.toUpperCase()) >= LoggerLevelConstant
-//						.getValue(log.getLevel())) {
-//
-//					TPILogInfoPacket packet = new TPILogInfoPacket(log);
-//					log.userName = lc.userName;
-//					lc.send(packet);
-//				}
-//			}
-
 			TPILogInfoPacket packet = new TPILogInfoPacket(log);
 			log.userName = lc.userName;
 			lc.send(packet);
@@ -679,8 +661,6 @@ public class TPILogger extends ITPILogger {
 		TPILogger.lc.paramObj.put("changeDbInfo", getChangeDbConnInfoService());
 		TPILogger.lc.paramObj.put(DBINFOMAP, dbInfoMap);
 
-		if (TPILogger.isFirstConnection == true) {
-		}
 		createThreadStarter();
 		
 		// 控制後續的非首次連線
@@ -913,22 +893,29 @@ public class TPILogger extends ITPILogger {
 					connector.getProtocolHandler().closeServerSocketGraceful();
 				}
 			}
-			// 等待未完成的
-			ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-				Thread thread = new Thread(r);
-				thread.setName("graceful-shutdow-Thread");
-				return thread;
-			});
-			executor.submit(() -> {
-				tomcat.getServer().await();
-			});
-
-			executor.shutdown();
-			if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
-				executor.shutdownNow();
-			}
-
+			
+			awaitTomcatStop();
+			
 			System.out.println("Tomcat stopped.");
+		}
+	}
+
+	private static void awaitTomcatStop() throws InterruptedException {
+		try (ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+		    Thread thread = new Thread(r);
+		    thread.setName("graceful-shutdown-Thread");
+		    return thread;
+		})) {
+			// 執行 executor 內容
+		    executor.submit(() -> {
+		        tomcat.getServer().await();
+		    });
+
+		    executor.shutdown();
+		    if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+		        executor.shutdownNow();
+		    }
+		    //當 try 區塊結束時，ExecutorService 會自動被關閉(自動執行shutdown)，即使發生異常也能確保資源被釋放
 		}
 	}
 
@@ -1328,8 +1315,8 @@ public class TPILogger extends ITPILogger {
 		nodeInfoPacket.fixedCacheSize = CommForwardProcService.fixedCacheMap.size() + "";
 		nodeInfoPacket.webLocalIP = lc.getLocalIpAdress();
 		nodeInfoPacket.fqdn = lc.getLocalIpFQDN();
-		nodeInfoPacket.ES_Queue = DgrApiLog2ESQueue.ES_LoggerQueue.size() + "";
-		nodeInfoPacket.RDB_Queue = DgrApiLog2RdbQueue.rdb_LoggerQueue.size() + "";
+		nodeInfoPacket.ES_Queue = DgrApiLog2ESQueue.ES_LoggerQueue.size() + " (-"+ DgrApiLog2ESQueue.abortNum +")";
+		nodeInfoPacket.RDB_Queue = DgrApiLog2RdbQueue.rdb_LoggerQueue.size() + " (-"+ DgrApiLog2RdbQueue.abortNum +")";
 
 		nodeInfoPacket.lastUpdateTimeAPI = String.valueOf(lastUpdateTimeAPI.get());
 		nodeInfoPacket.lastUpdateTimeClient = String.valueOf(lastUpdateTimeClient.get());

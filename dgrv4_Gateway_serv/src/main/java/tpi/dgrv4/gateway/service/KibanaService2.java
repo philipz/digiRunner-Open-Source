@@ -160,7 +160,7 @@ public class KibanaService2 {
     }
 
 
-    private HttpResponse<byte[]> login_withUrl(String kibanaUser, String kibanaPwd) throws
+    public HttpResponse<byte[]> login_withUrl(String kibanaUser, String kibanaPwd) throws
             IOException, NoSuchAlgorithmException, KeyManagementException, InterruptedException {
 
         loginsb.append("\n==============login================\n");

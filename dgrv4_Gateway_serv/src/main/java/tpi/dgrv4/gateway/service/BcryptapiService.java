@@ -69,7 +69,7 @@ public class BcryptapiService {
 			return new ResponseEntity<>(errMsg, HttpStatus.BAD_REQUEST);// 400
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			return new ResponseEntity<>(errMsg, HttpStatus.INTERNAL_SERVER_ERROR);// 500
 		}
 

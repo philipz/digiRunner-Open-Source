@@ -1,7 +1,6 @@
 package tpi.dgrv4.gateway.keeper;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -27,6 +26,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tpi.dgrv4.common.keeper.ITPILogger;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.escape.CheckmarxUtils;
 import tpi.dgrv4.httpu.utils.HttpUtil;
@@ -127,8 +127,16 @@ public class ProxyServlet extends HttpServlet {
 			HttpRequest proxyRequest) throws IOException {
 		TPILogger.tl.debug("proxy " + servletRequest.getMethod() + " uri: " + servletRequest.getRequestURI() + " -- "
 				+ proxyRequest.getRequestLine().getUri());
-		//checkmarx, SSRF
-		return CheckmarxUtils.sanitizeForCheckmarx(proxyClient, getTargetHost(servletRequest), proxyRequest);
+		HttpResponse httpResponse = null;
+		try {
+			// checkmarx, SSRF
+			httpResponse = CheckmarxUtils.sanitizeForCheckmarx(proxyClient, getTargetHost(servletRequest),
+					proxyRequest);
+		} catch (Exception e) {
+			ITPILogger.tl.error(StackTraceUtil.logStackTrace(e));
+		}
+
+		return httpResponse;
 	}
 
 	protected String rewriteUrlFromRequest(HttpServletRequest servletRequest) {

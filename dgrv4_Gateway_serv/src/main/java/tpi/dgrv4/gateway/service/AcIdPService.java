@@ -82,7 +82,7 @@ public class AcIdPService {
 			String errMsg = "Missing dgRcode";//Query String 沒有 dgRcode
 			TPILogger.tl.debug(errMsg);
 			return new ResponseEntity<OAuthTokenErrorResp2>(getTokenHelper().getOAuthTokenErrorResp2(
-					TokenHelper.invalid_request, errMsg), HttpStatus.BAD_REQUEST);//400
+					TokenHelper.INVALID_REQUEST, errMsg), HttpStatus.BAD_REQUEST);//400
 		}
 		
 		if(isGetToken()) {
@@ -127,7 +127,7 @@ public class AcIdPService {
 		int statusCode = respObj.getStatusCode().value();
 
 		if (bodyObj == null) return new ResponseEntity<OAuthTokenErrorResp2>(getTokenHelper().getOAuthTokenErrorResp2(
-				TokenHelper.invalid_request, "getOAuthTokenService().getToken(...) response body is null"), HttpStatus.BAD_REQUEST);
+				TokenHelper.INVALID_REQUEST, "getOAuthTokenService().getToken(...) response body is null"), HttpStatus.BAD_REQUEST);
 
 
 		String token_loginState = "";

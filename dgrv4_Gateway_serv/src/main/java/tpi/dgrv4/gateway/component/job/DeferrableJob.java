@@ -73,7 +73,7 @@ public abstract class DeferrableJob extends Job {
 			try {
 				runJob(jobHelper, jobManager);
 			} catch(ObjectOptimisticLockingFailureException e) {
-				this.logger.warn(StackTraceUtil.logTpiShortStackTrace(e));
+				TPILogger.tl.warn(StackTraceUtil.logTpiShortStackTrace(e));
 			}
 		}
 	}

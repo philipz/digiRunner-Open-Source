@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
@@ -223,7 +224,11 @@ public class DGRCServicePostForm implements IApiCacheService{
 			content_Length = httpArray.length;
 			ByteArrayInputStream bi = new ByteArrayInputStream(httpArray);
 			// http InputStream copy into Array
-			IOUtils.copy(bi, httpRes.getOutputStream());
+			try {
+				IOUtils.copy(bi, httpRes.getOutputStream());
+			} catch (AsyncRequestNotUsableException e) {
+				TPILogger.tl.warn(httpRes.getStatus() + ", " + e.getLocalizedMessage());		
+			}
 		}
 
 		// 印出第四道log
@@ -708,7 +713,11 @@ public class DGRCServicePostForm implements IApiCacheService{
 		if (httpArray != null) {
 			content_Length = httpArray.length;
 			ByteArrayInputStream bi = new ByteArrayInputStream(httpArray);
-			IOUtils.copy(bi, httpRes.getOutputStream()); // http InputStream copy into Array
+			try {
+				IOUtils.copy(bi, httpRes.getOutputStream()); // http InputStream copy into Array
+			} catch (AsyncRequestNotUsableException e) {
+				TPILogger.tl.warn(httpRes.getStatus() + ", " + e.getLocalizedMessage());		
+			}
 		}
 		
 		// 印出第四道log

@@ -146,45 +146,45 @@ public class TokenHelper {
 
 	@Autowired
 	private ServiceConfig serviceConfig;
-	
+
 	@Value("${digiRunner.gtw.deploy.role}")
 	private String deployRole;
 
-	public static String BASIC = "basic ";
-	public static String BEARER = "bearer ";
-	public static String DGRK = "dgrk ";
-	public static String CLIENT_ID = "clientId";
-	public static String USER_NAME = "userName";
-	public static String ORG_ID = "orgId";
-	public static String JTI = "jti";
-	public static String NO_AUTH = "noAuth";
-	public static String SSOTOKEN = "ssotoken";
+	public static final String BASIC = "basic ";
+	public static final String BEARER = "bearer ";
+	public static final String DGRK = "dgrk ";
+	public static final String CLIENT_ID = "clientId";
+	public static final String USER_NAME = "userName";
+	public static final String ORG_ID = "orgId";
+	public static final String JTI = "jti";
+	public static final String NO_AUTH = "noAuth";
+	public static final String SSOTOKEN = "ssotoken";
 
-	public static String Authorization_does_not_have_the_word = "Authorization does not have the word: ";
-	public static String Authorization_has_no_value = "Authorization has no value";
-	public static String Authorization_And_X_Api_Key_Have_No_Values = "Authorization and X-Api-Key have no values";
-	public static String unauthorized = "unauthorized";
-	public static String Unauthorized = "Unauthorized";
-	public static String Token_parsing_error = "Token parsing error";// token 解析錯誤
-	public static String Cannot_convert_access_token_to_JSON = "Cannot convert access token to JSON";
-	public static String Access_token_expired = "Access token expired: ";// token 過期
-	public static String invalid_user = "invalid_user";
-	public static String invalid_token = "invalid_token";
-	public static String invalid_grant = "invalid_grant";
-	public static String invalid_request = "invalid_request";
-	public static String invalid_scope = "invalid_scope";
-	public static String Forbidden = "Forbidden";
-	public static String Internal_Server_Error = "Internal Server Error";
-	public static String The_client_was_not_found = "The client(application) was not found. client_id: ";
-	public static String The_jti_was_not_found = "The jti was not found. token_jti: %s, idp_type: %s";
-	public static String The_jti_was_not_found2 = "The jti was not found. token_jti: %s";
-	public static String The_id_token_was_not_found = "The ID token was not found. token_jti: %s";
-	public static String JWE_expired = "JWE expired: ";// JWE 過期
+	public static final String AUTHORIZATION_DOES_NOT_HAVE_THE_WORD = "Authorization does not have the word: ";
+	public static final String AUTHORIZATION_HAS_NO_VALUE = "Authorization has no value";
+	public static final String AUTHORIZATION_AND_X_API_KEY_HAVE_NO_VALUES = "Authorization and X-Api-Key have no values";
+	public static final String UNAUTHORIZED = "Unauthorized";
+	public static final String UNAUTHORIZED_2 = "unauthorized";
+	public static final String TOKEN_PARSING_ERROR = "Token parsing error";// token 解析錯誤
+	public static final String CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON = "Cannot convert access token to JSON";
+	public static final String ACCESS_TOKEN_EXPIRED = "Access token expired: ";// token 過期
+	public static final String INVALID_USER = "invalid_user";
+	public static final String INVALID_TOKEN = "invalid_token";
+	public static final String INVALID_GRANT = "invalid_grant";
+	public static final String INVALID_REQUEST = "invalid_request";
+	public static final String INVALID_SCOPE = "invalid_scope";
+	public static final String FORBIDDEN = "Forbidden";
+	public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
+	public static final String THE_CLIENT_WAS_NOT_FOUND = "The client(application) was not found. client_id: ";
+	public static final String THE_JTI_WAS_NOT_FOUND = "The jti was not found. token_jti: %s, idp_type: %s";
+	public static final String THE_JTI_WAS_NOT_FOUND2 = "The jti was not found. token_jti: %s";
+	public static final String THE_ID_TOKEN_WAS_NOT_FOUND = "The ID token was not found. token_jti: %s";
+	public static final String JWE_EXPIRED = "JWE expired: ";// JWE 過期
 
 	// 設定檔缺少參數 '%s'
-	public static String The_profile_is_missing_parameters = "The profile is missing parameters: ";
+	public static final String THE_PROFILE_IS_MISSING_PARAMETERS = "The profile is missing parameters: ";
 	// 缺少必需的參數
-	public static String Missing_required_parameter = "Missing required parameter: ";
+	public static final String MISSING_REQUIRED_PARAMETER = "Missing required parameter: ";
 
 	public static class JwtPayloadData {
 		public ResponseEntity<?> errRespEntity;
@@ -219,7 +219,7 @@ public class TokenHelper {
 	 */
 	public boolean checkHasKeyword(String authorization, String keyword) {
 		if (!StringUtils.hasText(authorization)) {// 沒有 authorization
-			String errMsg = TokenHelper.Authorization_has_no_value;
+			String errMsg = TokenHelper.AUTHORIZATION_HAS_NO_VALUE;
 			TPILogger.tl.debug(errMsg);
 			return false;
 		}
@@ -237,10 +237,10 @@ public class TokenHelper {
 	public ResponseEntity<?> checkHasAuthorization(String authorization, String apiUrl) {
 		// 沒有 Authorization
 		if (!StringUtils.hasText(authorization)) {
-			String errMsg = TokenHelper.Authorization_has_no_value;
+			String errMsg = TokenHelper.AUTHORIZATION_HAS_NO_VALUE;
 			TPILogger.tl.debug(errMsg);
 
-			errMsg = TokenHelper.Unauthorized;
+			errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 		}
@@ -264,7 +264,7 @@ public class TokenHelper {
 			boolean hasBasic = checkHasKeyword(authorization, keyword);
 			if (!hasBasic) {
 				// 沒有 Authorization
-				String errMsg = Missing_required_parameter + "Authorization";
+				String errMsg = MISSING_REQUIRED_PARAMETER + "Authorization";
 				basicAuthClientData.errRespEntity = getUnauthorizedErrorResp(apiUrl, errMsg);
 				return basicAuthClientData;
 			}
@@ -276,9 +276,9 @@ public class TokenHelper {
 			int index = str.indexOf(keyword);
 			if (index == -1) {
 				// Authorization 沒有 ":" 字樣
-				String errMsg = TokenHelper.Authorization_does_not_have_the_word + keyword;
+				String errMsg = TokenHelper.AUTHORIZATION_DOES_NOT_HAVE_THE_WORD + keyword;
 				TPILogger.tl.debug(errMsg);
-				errMsg = TokenHelper.Unauthorized;
+				errMsg = TokenHelper.UNAUTHORIZED;
 				TPILogger.tl.debug(errMsg);
 				basicAuthClientData.errRespEntity = getUnauthorizedErrorResp(apiUrl, errMsg);
 				return basicAuthClientData;
@@ -290,7 +290,7 @@ public class TokenHelper {
 			}
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			basicAuthClientData.errRespEntity = getInternalServerErrorResp(apiUrl, errMsg);// 500
 			return basicAuthClientData;
@@ -303,7 +303,9 @@ public class TokenHelper {
 	 * DGRK 格式 <br>
 	 * 
 	 * @param authorization, <br>
-	 * 例如: "DGRK MjRlMGQwYjhhYzA0MDY0ZWVjYjcwM2NkNWEzMzA4ZWQwNjcwMDc1OA==.OsWBMekA0nz6eUpKr2z+Y3Ng4ZZHaa0oC4DRQXTK46E=" <br>
+	 *                       例如: "DGRK
+	 *                       MjRlMGQwYjhhYzA0MDY0ZWVjYjcwM2NkNWEzMzA4ZWQwNjcwMDc1OA==.OsWBMekA0nz6eUpKr2z+Y3Ng4ZZHaa0oC4DRQXTK46E="
+	 *                       <br>
 	 * @return authData[0] : API Key <br>
 	 *         authData[1] : Signature <br>
 	 *         若回傳值為 null, 表示 Authorization 格式有問題 <br>
@@ -318,7 +320,7 @@ public class TokenHelper {
 			// 沒有 Authorization 或格式不正確
 			if (!hasDgrk) {
 				TPILogger.tl.debug("No Authorization or incorrect format, auth:" + authorization);
-				String errMsg = TokenHelper.Unauthorized;
+				String errMsg = TokenHelper.UNAUTHORIZED;
 				TPILogger.tl.debug(errMsg);
 				dgrkAuthData.errRespEntity = getUnauthorizedErrorResp(apiUrl, errMsg);
 				return dgrkAuthData;
@@ -330,7 +332,7 @@ public class TokenHelper {
 			// 格式不正確
 			if (dgrkInfoArr.length != 2) {
 				TPILogger.tl.debug("Incorrect Authorization format, auth:" + authorization);
-				String errMsg = TokenHelper.Unauthorized;
+				String errMsg = TokenHelper.UNAUTHORIZED;
 				TPILogger.tl.debug(errMsg);
 				dgrkAuthData.errRespEntity = getUnauthorizedErrorResp(apiUrl, errMsg);
 				return dgrkAuthData;
@@ -340,7 +342,7 @@ public class TokenHelper {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			dgrkAuthData.errRespEntity = getInternalServerErrorResp(apiUrl, errMsg);// 500
 			return dgrkAuthData;
@@ -357,11 +359,10 @@ public class TokenHelper {
 
 		// 沒有 clientId
 		if (!StringUtils.hasText(clientId)) {
-			errMsg = Missing_required_parameter + "client_id";
+			errMsg = MISSING_REQUIRED_PARAMETER + "client_id";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
 		// 查無 client
@@ -378,8 +379,8 @@ public class TokenHelper {
 			TPILogger.tl.debug("Client(application) is disabled, client_id:" + clientId);// client 已停用
 			errMsg = "'" + clientId + "' Client(application) disable";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -387,8 +388,8 @@ public class TokenHelper {
 			TPILogger.tl.debug("Client(application) is locked, client_id:" + clientId);// client 已鎖定
 			errMsg = "'" + clientId + "' Client(application) locked";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -402,21 +403,21 @@ public class TokenHelper {
 		// 沒有 clientId 或 clientPw
 		if (!StringUtils.hasText(clientId) || !StringUtils.hasText(clientPw)) {
 			TPILogger.tl.debug("No clientId or clientPw");// 沒有 clientId 或 clientPw
-			String errMsg = TokenHelper.Unauthorized;
+			String errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 		}
 
-		Optional<OauthClientDetails> opt_authClientDetails = getOauthClientDetailsCacheProxy().findById(clientId);
-		if (!opt_authClientDetails.isPresent()) {
+		Optional<OauthClientDetails> optAuthClientDetails = getOauthClientDetailsCacheProxy().findById(clientId);
+		if (!optAuthClientDetails.isPresent()) {
 			return getFindOauthClientDetailsError(clientId, apiUrl);
 		}
 
-		OauthClientDetails authClientDetails = opt_authClientDetails.get();
+		OauthClientDetails authClientDetails = optAuthClientDetails.get();
 		if (authClientDetails == null) {
 			// Table [OAUTH_CLIENT_DETAILS] 查不到 client
 			TPILogger.tl.debug("Table [OAUTH_CLIENT_DETAILS] can't find client(application), client_id:" + clientId);
-			String errMsg = TokenHelper.Unauthorized;
+			String errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 		}
@@ -428,10 +429,10 @@ public class TokenHelper {
 
 			// 更新 tsmpClient 密碼錯誤次數
 			updateTsmpClinetPWDFailTimes(clientId);
-			String errMsg1 = TokenHelper.Unauthorized;
+			String errMsg1 = TokenHelper.UNAUTHORIZED;
 			String errMsg2 = "The client(application) account or password is incorrect. clientId: " + clientId;
 			TPILogger.tl.debug("..." + errMsg1 + "\n\t..." + errMsg2);
-			return new ResponseEntity<OAuthTokenErrorResp>(
+			return new ResponseEntity<>(
 					getOAuthTokenErrorResp(errMsg1, errMsg2, HttpStatus.UNAUTHORIZED.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 		}
@@ -447,17 +448,17 @@ public class TokenHelper {
 	private void updateTsmpClinetPWDFailTimes(String clientId) {
 		TsmpClient client = getTsmpClientDao().findById(clientId).orElse(null);
 		if (client != null) {
-			int PwdFailTimes = client.getPwdFailTimes();
-			int FAIL_TRESHHOLD = client.getFailTreshhold();
-			if (PwdFailTimes + 1 == FAIL_TRESHHOLD) {
-				client.setPwdFailTimes(PwdFailTimes + 1);
+			int pwdFailTimes = client.getPwdFailTimes();
+			int failTreshhold = client.getFailTreshhold();
+			if (pwdFailTimes + 1 == failTreshhold) {
+				client.setPwdFailTimes(pwdFailTimes + 1);
 				client.setClientStatus("3");
 
-			} else if (PwdFailTimes + 1 > FAIL_TRESHHOLD) {
+			} else if (pwdFailTimes + 1 > failTreshhold) {
 				client.setClientStatus("3");
 
 			} else {
-				client.setPwdFailTimes(PwdFailTimes + 1);
+				client.setPwdFailTimes(pwdFailTimes + 1);
 			}
 
 			client = getTsmpClientDao().save(client);
@@ -472,7 +473,7 @@ public class TokenHelper {
 			// 1.沒有 clientId
 			if (!StringUtils.hasText(clientId)) {
 				TPILogger.tl.debug("No clientId");// 沒有 clientId
-				String errMsg = TokenHelper.Unauthorized;
+				String errMsg = TokenHelper.UNAUTHORIZED;
 				TPILogger.tl.debug(errMsg);
 				return getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			}
@@ -500,14 +501,14 @@ public class TokenHelper {
 					String errmsg2 = "Host list: " + ipList;
 					TPILogger.tl.debug(errMsg + "\n" + errmsg2);
 
-					return new ResponseEntity<OAuthTokenErrorResp>(
-							getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
+					return new ResponseEntity<>(
+							getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), reqUri),
 							setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 				}
 			}
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getInternalServerErrorResp(reqUri, errMsg);// 500
 		}
@@ -521,7 +522,7 @@ public class TokenHelper {
 			// 1.沒有 clientId
 			if (!StringUtils.hasText(clientId)) {
 				TPILogger.tl.debug("No clientId");// 沒有 clientId
-				String errMsg = TokenHelper.Unauthorized;
+				String errMsg = TokenHelper.UNAUTHORIZED;
 				TPILogger.tl.debug(errMsg);
 				return getUnauthorizedErrorResp(reqUri, errMsg);// 401
 			}
@@ -550,7 +551,7 @@ public class TokenHelper {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getInternalServerErrorResp(reqUri, errMsg);// 500
 		}
@@ -584,7 +585,7 @@ public class TokenHelper {
 				TPILogger.tl.debug(errMsg);
 				String errMsg2 = errMsg + ", start day(yyyy-MM-ddZ): " + startDateStr;
 				TPILogger.tl.debug(errMsg2);
-				return new ResponseEntity<OAuthTokenErrorResp>(
+				return new ResponseEntity<>(
 						getOAuthTokenErrorResp(errMsg, errMsg2, HttpStatus.FORBIDDEN.value(), apiUrl),
 						setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 			}
@@ -596,7 +597,7 @@ public class TokenHelper {
 				TPILogger.tl.debug(errMsg);
 				String errMsg2 = errMsg + ", end day(yyyy-MM-ddZ): " + endDateStr;
 				TPILogger.tl.debug(errMsg2);
-				return new ResponseEntity<OAuthTokenErrorResp>(
+				return new ResponseEntity<>(
 						getOAuthTokenErrorResp(errMsg, errMsg2, HttpStatus.FORBIDDEN.value(), apiUrl),
 						setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 			}
@@ -636,7 +637,7 @@ public class TokenHelper {
 				String errMsg2 = errMsg + ", Start Time(HH:mmZ): " + startTimePerDayStr + ", End Time(HH:mmZ): "
 						+ endTimePerDayStr + ", Now(HH:mmZ): " + nowStr;
 				TPILogger.tl.debug(errMsg2);
-				return new ResponseEntity<OAuthTokenErrorResp>(
+				return new ResponseEntity<>(
 						getOAuthTokenErrorResp(errMsg, errMsg2, HttpStatus.FORBIDDEN.value(), apiUrl),
 						setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 			}
@@ -653,11 +654,10 @@ public class TokenHelper {
 
 		// 沒有 redirect_uri
 		if (!StringUtils.hasLength(redirectUri)) {
-			errMsg = Missing_required_parameter + "redirect_uri";
+			errMsg = MISSING_REQUIRED_PARAMETER + "redirect_uri";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
 		// 取得 OAUTH_CLIENT_DETAILS 的 web_server_redirect_uri
@@ -672,8 +672,7 @@ public class TokenHelper {
 
 		// redirect_uri 不正確
 		if (!isMatchRedirectUri(webServerRedirectUriList, redirectUri)) {
-			errMsg = String.format(
-					"The redirect_uri mismatch. \n" //
+			errMsg = String.format("The redirect_uri mismatch. \n" //
 					+ "client_id: %s, \n" //
 					+ "redirect_uri: %s, \n" //
 					+ "Table [OAUTH_CLIENT_DETAILS] web_server_redirect_uri:\n%s" //
@@ -685,19 +684,19 @@ public class TokenHelper {
 
 			TPILogger.tl.debug(errMsg);
 			errMsg = "The redirect_uri mismatch";
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 檢查傳入的 redirectUri 和 client 註冊在系統中的是否相同 <br>
 	 * 若 redirectUri 為 https 或 https, 則網址必須完全相同才是符合 <br>
 	 * 否則, redirectUri 只要和註冊的 * 號前後相同即符合 <br>
+	 * 
 	 * @param webServerRedirectUriList client 註冊在系統中的
-	 * @param reqRedirectUri 傳入的 redirectUri
+	 * @param reqRedirectUri           傳入的 redirectUri
 	 */
 	private boolean isMatchRedirectUri(List<String> webServerRedirectUriList, String reqRedirectUri) {
 		if (isHttpsOrHttp(reqRedirectUri)) {// https or http
@@ -721,7 +720,7 @@ public class TokenHelper {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 網址是否為 "https://" 或 "http://" 開頭
 	 * 
@@ -731,7 +730,7 @@ public class TokenHelper {
 		if (uri == null) {
 			return false;
 		}
-		
+
 		if (uri.toLowerCase().startsWith("https://") || uri.toLowerCase().startsWith("http://")) {
 			return true;
 		}
@@ -781,7 +780,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("Table [Users] can't find data, username:" + userName);
 			String errMsg = "Bad credentials";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -792,7 +791,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("Table [Users] status disabled, username:" + userName);
 			String errMsg = "User is disabled";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -809,7 +808,7 @@ public class TokenHelper {
 		if (user == null) {
 			// Table [TSMP_USER] 查不到資料
 			TPILogger.tl.debug("Table [TSMP_USER] can't find data, userName:" + userName);
-			errMsg = TokenHelper.Unauthorized;
+			errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 		}
@@ -819,8 +818,8 @@ public class TokenHelper {
 			TPILogger.tl.debug("User is disabled, user_name:" + userName);// user 已停用
 			errMsg = "'" + userName + "' User disable";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -828,8 +827,8 @@ public class TokenHelper {
 			TPILogger.tl.debug("User is locked, user_name:" + userName);// user 已鎖定
 			errMsg = "'" + userName + "' User locked";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 		return null;
@@ -845,7 +844,7 @@ public class TokenHelper {
 		if (user == null) {
 			// Table [DGR_AC_IDP_USER] 查不到資料
 			TPILogger.tl.debug("Table [DGR_AC_IDP_USER] can't find data, userName:" + userName);
-			errMsg = TokenHelper.Unauthorized;
+			errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
 			return getUnauthorizedErrorResp(apiUrl, errMsg);// 401
 		}
@@ -855,8 +854,8 @@ public class TokenHelper {
 			TPILogger.tl.debug("User status is request, user_name:" + userName);// user request
 			errMsg = "'" + userName + "' User status is request";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -864,8 +863,8 @@ public class TokenHelper {
 			TPILogger.tl.debug("User status is deny', user_name:" + userName);// user deny
 			errMsg = "'" + userName + "' User status is deny";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 		return null;
@@ -882,7 +881,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("Table [Users] can't find data, username:" + userName);
 			String errMsg = "Bad credentials";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -895,7 +894,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("User account or password is incorrect, username:" + userName);
 			String errMsg = "Bad credentials";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -916,9 +915,8 @@ public class TokenHelper {
 		if (!isSupport) {
 			errMsg = "Invalid idPType: " + idPType;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
 		return null;
@@ -932,20 +930,18 @@ public class TokenHelper {
 
 		// 沒有 response_type
 		if (!StringUtils.hasText(responseType)) {
-			errMsg = TokenHelper.Missing_required_parameter + "response_type";
+			errMsg = TokenHelper.MISSING_REQUIRED_PARAMETER + "response_type";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
 		// 無效的 response_type
 		if (!"code".equals(responseType)) {
 			errMsg = "Invalid response_type: " + responseType;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
 		return null;
@@ -958,11 +954,10 @@ public class TokenHelper {
 		String errMsg = null;
 		// 沒有 scope
 		if (!StringUtils.hasLength(reqScopeStr)) {
-			errMsg = Missing_required_parameter + "scope";
+			errMsg = MISSING_REQUIRED_PARAMETER + "scope";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg), setContentTypeHeader(),
-					HttpStatus.BAD_REQUEST);// 400
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
+					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
 		// 支援的 scope
@@ -983,7 +978,7 @@ public class TokenHelper {
 		if (StringUtils.hasLength(errScopeStr)) {
 			errMsg = "Some requested scopes were invalid. {invalid=[" + errScopeStr + "]}";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_scope, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_SCOPE, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -994,18 +989,18 @@ public class TokenHelper {
 		String errMsg = "";
 		if (token == null) {
 			TPILogger.tl.debug("Body does not have " + msgWord);// Body 沒有 {token/refresh_token}
-			errMsg = TokenHelper.Cannot_convert_access_token_to_JSON;
+			errMsg = TokenHelper.CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 		}
 
 		if ("".equals(token)) {
 			TPILogger.tl.debug("Body has " + msgWord + ", but no value");// Body 有 {token/refresh_token}, 但沒有值
 			TPILogger.tl.debug("Full authentication is required to access this resource");
-			errMsg = TokenHelper.Unauthorized;
+			errMsg = TokenHelper.UNAUTHORIZED;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(errMsg, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(errMsg, errMsg),
 					setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 		}
 		return null;
@@ -1085,9 +1080,9 @@ public class TokenHelper {
 	public ResponseEntity<?> checkTokenClientId(String clientId, String tokenClientId, String tokenStr, String msg) {
 		if (!StringUtils.hasText(tokenClientId)) {
 			TPILogger.tl.debug("client_id in " + msg + " has no value");// token 的 client_id 沒有值
-			String errMsg = TokenHelper.Cannot_convert_access_token_to_JSON;
+			String errMsg = TokenHelper.CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1096,7 +1091,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("The client_id and client_id in " + msg + " are not the same");
 			String errMsg = "Wrong client(application) for this " + msg + ": " + tokenStr;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_grant, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_GRANT, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 		return null;
@@ -1136,9 +1131,9 @@ public class TokenHelper {
 	public ResponseEntity<?> checkAccessTokenExp(String tokenStr, Long exp) {
 		if (exp == null || exp == 0) {
 			TPILogger.tl.debug("The exp of access token is 0");// refresh_token 的 exp 為 0
-			String errMsg = TokenHelper.Cannot_convert_access_token_to_JSON;
+			String errMsg = TokenHelper.CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1146,10 +1141,10 @@ public class TokenHelper {
 		long nowTime = System.currentTimeMillis() / 1000;// 去掉亳秒
 		if (exp < nowTime) {
 			// access token 過期
-			TPILogger.tl.debug(TokenHelper.Access_token_expired + exp);
-			String errMsg = TokenHelper.Access_token_expired + tokenStr;
+			TPILogger.tl.debug(TokenHelper.ACCESS_TOKEN_EXPIRED + exp);
+			String errMsg = TokenHelper.ACCESS_TOKEN_EXPIRED + tokenStr;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 		}
 		return null;
@@ -1159,7 +1154,7 @@ public class TokenHelper {
 	 * 是否 refresh token exp 沒有值 或 refresh token 過期
 	 * 
 	 * @param tokenStr
-	 * @param exp 到期日,單位為秒,10碼
+	 * @param exp      到期日,單位為秒,10碼
 	 * @return
 	 */
 	public ResponseEntity<?> checkRefreshTokenExp(String tokenStr, Long exp) {
@@ -1167,7 +1162,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("The exp of refresh token is 0");// refresh_token 的 exp 為 0
 			String errMsg = "Cannot convert refresh token to JSON";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1185,7 +1180,7 @@ public class TokenHelper {
 				errMsg2 = "Invalid refresh token (expired): " + tokenStr;
 				TPILogger.tl.debug(errMsg2);
 			}
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg2),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg2),
 					setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 		}
 
@@ -1218,15 +1213,15 @@ public class TokenHelper {
 	 */
 	private ResponseEntity<?> checkJtiHasValue(String jti) {
 		if (!StringUtils.hasLength(jti)) {
-			String errMsg = Missing_required_parameter + "jti";
+			String errMsg = MISSING_REQUIRED_PARAMETER + "jti";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * 是否 access token 已撤銷
 	 */
@@ -1316,7 +1311,7 @@ public class TokenHelper {
 			TPILogger.tl.debug("user_name in refresh token has no value");
 			String errMsg = "Cannot convert refresh token to JSON";
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -1360,8 +1355,8 @@ public class TokenHelper {
 	 * (1).若 grant_type 不是 client_credientails, 找出此 client id + user 的所有記錄, <br>
 	 * access token 的 revoked_status 若沒有值,更新狀態為"N" <br>
 	 * 2.處理舊的 refresh token 狀態: <br>
-	 * (1).若 grant_type = refresh_token 資料, rft_revoked_status 狀態不變; <br> 
-	 * (2).否則, 若 grant_type 不是 client_credientails, <br> 
+	 * (1).若 grant_type = refresh_token 資料, rft_revoked_status 狀態不變; <br>
+	 * (2).否則, 若 grant_type 不是 client_credientails, <br>
 	 * refresh token 的 rft_revoked_status 若沒有值,更新狀態為"N" <br>
 	 */
 	public List<TsmpTokenHistory> updateTokenHistoryForWhitelist(String grantType, String clientId, String userName) {
@@ -1512,6 +1507,8 @@ public class TokenHelper {
 			return respEntity;
 		}
 
+		httpReq.setAttribute(TokenHelper.CLIENT_ID, clientId);
+
 		return null;
 	}
 
@@ -1529,7 +1526,7 @@ public class TokenHelper {
 	 */
 	protected ResponseEntity<?> checkXApiKeyPermission(String apiId, String moduleName, Long apiKeyId, String apiUrl) {
 		List<DgrXApiKeyMap> dgrXApiKeyMapList = getDgrXApiKeyMapCacheProxy().findByRefApiKeyId(apiKeyId);
-		List<String> xApiKeyScopeList = new ArrayList<String>();
+		List<String> xApiKeyScopeList = new ArrayList<>();
 		for (DgrXApiKeyMap dgrXApiKeyMap : dgrXApiKeyMapList) {
 			String groupId = dgrXApiKeyMap.getGroupId();
 			if (StringUtils.hasLength(groupId)) {
@@ -1553,7 +1550,7 @@ public class TokenHelper {
 		// 取得此 API 被授權的 scope(group id)
 		List<String> apiScopeList = getApiScopeList(apiId, moduleName);
 
-		List<String> xApiKeyScopeList2 = new ArrayList<String>();
+		List<String> xApiKeyScopeList2 = new ArrayList<>();
 		xApiKeyScopeList2.addAll(xApiKeyScopeList);
 
 		xApiKeyScopeList2.retainAll(apiScopeList);// 交集
@@ -1562,8 +1559,8 @@ public class TokenHelper {
 			String errLog = errMsg + "\n" + "X-Api-Key ScopeList:" + xApiKeyScopeList.toString() + "\n"
 					+ "Api ScopeList:" + apiScopeList.toString();
 			TPILogger.tl.debug(errLog);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -1621,7 +1618,7 @@ public class TokenHelper {
 		}
 
 		// 5.沒有以上等字樣
-		String errMsg = TokenHelper.Unauthorized;
+		String errMsg = TokenHelper.UNAUTHORIZED;
 		TPILogger.tl.debug(errMsg);
 		return getUnauthorizedErrorResp(reqUri, errMsg);
 	}
@@ -1724,7 +1721,7 @@ public class TokenHelper {
 			}
 
 			String jti = JsonNodeUtil.getNodeAsText(payloadJsonNode, "jti");
-			
+
 			// 3.檢查 token 是否已撤銷
 			boolean isSkipForMemory = false;// for in-memory
 			if (DgrDeployRole.MEMORY.value().equalsIgnoreCase(getDeployRole())) {
@@ -1736,14 +1733,14 @@ public class TokenHelper {
 				}
 
 				TsmpTokenHistory tsmpTokenHistory = getTsmpTokenHistoryCacheProxy().findFirstByTokenJti(jti);
-				
+
 				// (2).若查無資料,則略過檢查狀態及 quota
 				if (tsmpTokenHistory == null) {// 查無資料
 					// Table [TSMP_TOKEN_HISTORY] 查不到資料
 					TPILogger.tl.debug("Table [TSMP_TOKEN_HISTORY] can't find data, token_jti:" + jti);
 					isSkipForMemory = true;
 				}
-				
+
 			} else {
 				// 用原本的方式檢查是否已撤銷
 				respEntity = checkAccessTokenRevoked(jti);
@@ -1756,31 +1753,31 @@ public class TokenHelper {
 			String idpType = JsonNodeUtil.getNodeAsText(payloadJsonNode, "idp_type");
 			String userName = JsonNodeUtil.getNodeAsText(payloadJsonNode, "user_name");
 			String orgId = JsonNodeUtil.getNodeAsText(payloadJsonNode, "org_id");
-			
+
 			if (TokenHelper.SSOTOKEN.equals(apiId)) {
 				// 若為 dgR 特殊 API,不檢查
 				// 例如: /dgrv4/ssotoken/gtwidp/v2/userInfo
-				
+
 			} else {
-				
+
 				// 4.檢查 client 狀態
 				respEntity = checkClientStatus(clientId, apiUrl);
 				if (respEntity != null) {// 資料有錯誤
 					return respEntity;
 				}
-				
+
 				// 5.檢查主機清單
 				respEntity = checkHostList(clientId, apiUrl, httpReq);
 				if (respEntity != null) {// 資料驗證有錯誤
 					return respEntity;
 				}
-				
+
 				// 6.檢查 client 用戶啟日/迄日 & 每日服務時間
 				respEntity = checkClientStartEndDateAndServiceTime(clientId, apiUrl);
 				if (respEntity != null) {// 資料驗證有錯誤
 					return respEntity;
 				}
-				
+
 				// 7.檢查 user 狀態
 				if (StringUtils.hasLength(idpType)) {// 當 grant_type 為 "delegate_auth",會有 idp_type
 					// 不檢查IdP user狀態,以減少DB存取
@@ -1790,7 +1787,7 @@ public class TokenHelper {
 						return respEntity;
 					}
 				}
-				
+
 				// 8.檢查 access token 的 scope 是否有權限打 API
 				JsonNode scopeArray = payloadJsonNode.get("scope");// 取得 token 的 scope(group id)
 				List<String> tokenScopeList = JsonNodeUtil.convertJsonArrayToList(scopeArray);
@@ -1798,13 +1795,13 @@ public class TokenHelper {
 				if (respEntity != null) {// 資料有錯誤
 					return respEntity;
 				}
-				
+
 				// 9.檢查 client API 可用量 和 打 API 成功後, API 使用量加1
 				respEntity = checkClientApiQuota(clientId, apiUrl);
 				if (respEntity != null) {// 資料驗證有錯誤
 					return respEntity;
 				}
-				
+
 				// 10.檢查 access token 可用量 和 打 API 成功後, access token 使用量加1
 				if (isSkipForMemory) {// 查無資料,則略過檢查狀態及 quota
 					// 不檢查可用量,
@@ -1817,7 +1814,7 @@ public class TokenHelper {
 					}
 				}
 			}
- 
+
 			// 寫入參數,做為後面寫log時使用
 			// 因為有些DB是不分大小寫,所以再去DB撈一次,來解決cid大小寫不一致,造成dashboard分組,不使用byId因為它不是根劇DB的大小寫回傳
 			TsmpClient tsmpClient = getTsmpClientCacheProxy().findFirstByClientId(clientId);
@@ -1828,7 +1825,7 @@ public class TokenHelper {
 				TPILogger.tl.error("client(application) input clientId");
 				httpReq.setAttribute(TokenHelper.CLIENT_ID, clientId);
 			}
-			
+
 			httpReq.setAttribute(TokenHelper.USER_NAME, userName);
 			httpReq.setAttribute(TokenHelper.ORG_ID, orgId);
 			httpReq.setAttribute(TokenHelper.JTI, jti);
@@ -1836,12 +1833,12 @@ public class TokenHelper {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getInternalServerErrorResp(apiUrl, errMsg);// 500
 		}
 	}
-	
+
 	/**
 	 * for In-Memory GTW 流程, <br>
 	 * 當角色為 Memory, 先用 Map 儲存 token 的使用量, <br>
@@ -1859,7 +1856,7 @@ public class TokenHelper {
 			}
 		}
 	}
-	
+
 	/**
 	 * for In-Memory GTW 流程, <br>
 	 * 當角色為 Memory, 先用 Map 儲存 API 的使用量, <br>
@@ -1998,7 +1995,7 @@ public class TokenHelper {
 
 		} catch (Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			String errMsg = TokenHelper.Internal_Server_Error;
+			String errMsg = TokenHelper.INTERNAL_SERVER_ERROR;
 			TPILogger.tl.error(errMsg);
 			return getInternalServerErrorResp(apiUrl, errMsg);// 500
 		}
@@ -2011,7 +2008,7 @@ public class TokenHelper {
 			String apiUrl) {
 		List<TsmpOpenApiKeyMap> tsmpOpenApiKeyMapList = getTsmpOpenApiKeyMapCacheProxy()
 				.findByRefOpenApiKeyId(openApikeyId);
-		List<String> apiUidList = new ArrayList<String>();
+		List<String> apiUidList = new ArrayList<>();
 		for (TsmpOpenApiKeyMap tsmpOpenApiKeyMap : tsmpOpenApiKeyMapList) {
 			String apiUid = tsmpOpenApiKeyMap.getRefApiUid();
 			if (StringUtils.hasLength(apiUid)) {
@@ -2029,8 +2026,8 @@ public class TokenHelper {
 			String errLog = errMsg + "\n" + "API Key apiUidList:" + apiUidList.toString() + "\n" + "API apiUid:"
 					+ apiUid;
 			TPILogger.tl.debug(errLog);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -2045,7 +2042,7 @@ public class TokenHelper {
 		// 取得此 API 被授權的 scope(group id)
 		List<String> apiScopeList = getApiScopeList(apiId, moduleName);
 
-		List<String> tokenScopeList2 = new ArrayList<String>();
+		List<String> tokenScopeList2 = new ArrayList<>();
 		tokenScopeList2.addAll(tokenScopeList);
 
 		tokenScopeList2.retainAll(apiScopeList);// 交集
@@ -2054,8 +2051,8 @@ public class TokenHelper {
 			String errLog = errMsg + "\n" + "Token ScopeList:" + tokenScopeList.toString() + "\n" + "Api ScopeList:"
 					+ apiScopeList.toString();
 			TPILogger.tl.debug(errLog);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -2068,25 +2065,23 @@ public class TokenHelper {
 	 */
 	protected ResponseEntity<?> checkClientGroupScope(String apiId, String moduleName, String clientId, String apiUrl) {
 		// 取得 client 的 scope(group id),僅一般群組
-		List<String> clientScopeList = new ArrayList<String>();
+		List<String> clientScopeList = new ArrayList<>();
 		clientScopeList = getClientGroupScopeList(clientId, clientScopeList);
 
 		// 取得此 API 被授權的 scope(group id)
 		List<String> apiScopeList = getApiScopeList(apiId, moduleName);
 
-		List<String> clientScopeList2 = new ArrayList<String>();
+		List<String> clientScopeList2 = new ArrayList<>();
 		clientScopeList2.addAll(clientScopeList);
 
 		clientScopeList2.retainAll(apiScopeList);// 交集
 		if (clientScopeList2.size() == 0) {
 			String errMsg = "Token Violates Scope Authorization Access Settings";
-			String errLog = errMsg + "\n" 
-					+ "Client Id: " + clientId + "\n" 
-					+ "Client ScopeList: " + clientScopeList.toString() + "\n" 
-					+ "Api ScopeList: " + apiScopeList.toString();
+			String errLog = errMsg + "\n" + "Client Id: " + clientId + "\n" + "Client ScopeList: "
+					+ clientScopeList.toString() + "\n" + "Api ScopeList: " + apiScopeList.toString();
 			TPILogger.tl.debug(errLog);
-			return new ResponseEntity<OAuthTokenErrorResp>(
-					getOAuthTokenErrorResp(TokenHelper.Forbidden, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp(TokenHelper.FORBIDDEN, errMsg, HttpStatus.FORBIDDEN.value(), apiUrl),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
 
@@ -2116,7 +2111,7 @@ public class TokenHelper {
 	 * 取得此 API 被授權的 scope(group id)
 	 */
 	private List<String> getApiScopeList(String apiId, String moduleName) {
-		List<String> apiScopeList = new ArrayList<String>();
+		List<String> apiScopeList = new ArrayList<>();
 
 		List<TsmpGroupApi> tsmpGroupApiList = getTsmpGroupApiCacheProxy().findByApiKeyAndModuleName(apiId, moduleName);
 		for (TsmpGroupApi tsmpGroupApi : tsmpGroupApiList) {
@@ -2143,7 +2138,7 @@ public class TokenHelper {
 		if (!isSupport) {
 			String errMsg = "Unsupported grant type: " + grantType;// 沒有支援此 grant type
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2("unsupported_grant_type", errMsg),
+			return new ResponseEntity<>(getOAuthTokenErrorResp2("unsupported_grant_type", errMsg),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 
@@ -2172,8 +2167,8 @@ public class TokenHelper {
 			String errMsg = "Client(application) is not authorized for this grant type '" + grantType + "', "
 					+ "clientId: " + clientId;
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(
-					getOAuthTokenErrorResp2(TokenHelper.invalid_request, "Unauthorized grant type: " + grantType),
+			return new ResponseEntity<>(
+					getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, "Unauthorized grant type: " + grantType),
 					setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 		}
 		return null;
@@ -2188,7 +2183,7 @@ public class TokenHelper {
 		// 因為最終要用findFirstByClientId的cache機制,所以沒用findById
 		TsmpClient cache_tsmpClient = getTsmpClientCacheProxy().findFirstByClientId(clientId);
 		if (cache_tsmpClient == null) {
-            return getFindTsmpClientError(clientId, reqUri);
+			return getFindTsmpClientError(clientId, reqUri);
 		}
 
 		Integer apiQuota = cache_tsmpClient.getApiQuota();
@@ -2199,8 +2194,8 @@ public class TokenHelper {
 
 		// --- 使用 Dao ---
 		Optional<TsmpClient> opt_client = getTsmpClientDao().findById(clientId);
-		if (opt_client.isEmpty()){
-            return getFindTsmpClientError(clientId, reqUri);
+		if (opt_client.isEmpty()) {
+			return getFindTsmpClientError(clientId, reqUri);
 		}
 
 		TsmpClient tsmpClient = opt_client.get();
@@ -2212,7 +2207,7 @@ public class TokenHelper {
 			String errMsg = "Client(application) quota ran out";// client 配額用完
 			String errMsg2 = errMsg + ", client_id: " + clientId;
 			TPILogger.tl.debug(errMsg2);
-			return new ResponseEntity<OAuthTokenErrorResp>(
+			return new ResponseEntity<>(
 					getOAuthTokenErrorResp(errMsg, errMsg2, HttpStatus.FORBIDDEN.value(), reqUri),
 					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 		}
@@ -2223,10 +2218,10 @@ public class TokenHelper {
 		tsmpClient.setUpdateTime(DateTimeUtil.now());
 		tsmpClient.setUpdateUser("SYSTEM apiUsed");
 		getTsmpClientDao().saveAndFlush(tsmpClient);
-		
+
 		// 當角色為 Memory, 先用 Map 儲存 API 使用量
 		addApiUsedMap4InMemory(clientId);
-		
+
 		return null;
 	}
 
@@ -2263,15 +2258,15 @@ public class TokenHelper {
 		if (tokenUsed >= tokenQuota) {
 			String errMsg = "Over Access Token Allow Times";// 超過 access token 允許次數
 			TPILogger.tl.debug(errMsg);
-			return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(errMsg, errMsg),
-					setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
+			return new ResponseEntity<>(getOAuthTokenErrorResp2(errMsg, errMsg), setContentTypeHeader(),
+					HttpStatus.FORBIDDEN);// 403
 		}
 
 		// 4.每打一次 API, access token使用量 + 1, 更新 TSMP_TOKEN_HISTORY
 		tokenUsed += 1;
 		tsmpTokenHistory.setTokenUsed(tokenUsed);
 		tsmpTokenHistory = getTsmpTokenHistoryDao().saveAndFlush(tsmpTokenHistory);
-		
+
 		// 當角色為 Memory, 先用 Map 儲存 token 的使用量
 		addTokenUsedMap4InMemory(jti);
 
@@ -2321,7 +2316,7 @@ public class TokenHelper {
 	public ResponseEntity<?> getFindTsmpClientError(String clientId, String apiUrl) {
 		// Table [TSMP_CLIENT] 查不到 client
 		String errMsg1 = "Table [TSMP_CLIENT] can't find client(application), client_id: " + clientId;
-		String errMsg2 = The_client_was_not_found + clientId;
+		String errMsg2 = THE_CLIENT_WAS_NOT_FOUND + clientId;
 		TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 		return getUnauthorizedErrorResp(apiUrl, errMsg2);// 401
 	}
@@ -2329,7 +2324,7 @@ public class TokenHelper {
 	public ResponseEntity<?> getFindOauthClientDetailsError(String clientId, String apiUrl) {
 		// Table [OAUTH_CLIENT_DETAILS] 查不到 client
 		String errMsg1 = "Table [OAUTH_CLIENT_DETAILS] can't find client(application), client_id: " + clientId;
-		String errMsg2 = The_client_was_not_found + clientId;
+		String errMsg2 = THE_CLIENT_WAS_NOT_FOUND + clientId;
 		TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 		return getUnauthorizedErrorResp(apiUrl, errMsg2);// 401
 	}
@@ -2337,54 +2332,52 @@ public class TokenHelper {
 	public ResponseEntity<?> getFindTsmpTokenHistoryError(String accessTokenJti, String idPType, String apiUrl) {
 		// Table [TSMP_TOKEN_HISTORY] 查不到資料
 		String errMsg1 = "Table [TSMP_TOKEN_HISTORY] can't find. token_jti: " + accessTokenJti + ", idp_type" + idPType;
-		String errMsg2 = String.format(The_jti_was_not_found, accessTokenJti, idPType);
+		String errMsg2 = String.format(THE_JTI_WAS_NOT_FOUND, accessTokenJti, idPType);
 		TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 		return getUnauthorizedErrorResp(apiUrl, errMsg2);// 401
 	}
-	
+
 	public ResponseEntity<?> getFindTsmpTokenHistoryError(String accessTokenJti, String apiUrl) {
 		// Table [TSMP_TOKEN_HISTORY] 查不到資料
 		String errMsg1 = "Table [TSMP_TOKEN_HISTORY] can't find. token_jti: " + accessTokenJti;
-		String errMsg2 = String.format(The_jti_was_not_found2, accessTokenJti);
+		String errMsg2 = String.format(THE_JTI_WAS_NOT_FOUND2, accessTokenJti);
 		TPILogger.tl.debug(errMsg1 + ",\n" + errMsg2);
 		return getUnauthorizedErrorResp(apiUrl, errMsg2);// 401
 	}
 
 	public ResponseEntity<?> getBadRequestErrorResp(String reqUri, String errMsg1, String errMsg2) {
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(errMsg1, errMsg2),
-				HttpStatus.BAD_REQUEST);// 400
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(errMsg1, errMsg2), HttpStatus.BAD_REQUEST);// 400
 	}
-	
+
 	public ResponseEntity<?> getUnauthorizedErrorResp(String apiUrl, String errMsg) {
-		return new ResponseEntity<OAuthTokenErrorResp>(
-				getOAuthTokenErrorResp(TokenHelper.Unauthorized, errMsg, HttpStatus.UNAUTHORIZED.value(), apiUrl),
+		return new ResponseEntity<>(
+				getOAuthTokenErrorResp(TokenHelper.UNAUTHORIZED, errMsg, HttpStatus.UNAUTHORIZED.value(), apiUrl),
 				setContentTypeHeader(), HttpStatus.UNAUTHORIZED);// 401
 	}
-	
+
 	public ResponseEntity<?> getForbiddenErrorResp(String reqUri, String errMsg) {
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.Forbidden, errMsg),
-				HttpStatus.FORBIDDEN);// 403
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.FORBIDDEN, errMsg), HttpStatus.FORBIDDEN);// 403
 	}
 
 	public ResponseEntity<?> getInternalServerErrorResp(String apiUrl, String errMsg) {
-		return new ResponseEntity<OAuthTokenErrorResp>(
+		return new ResponseEntity<>(
 				getOAuthTokenErrorResp(errMsg, errMsg, HttpStatus.INTERNAL_SERVER_ERROR.value(), apiUrl),
 				setContentTypeHeader(), HttpStatus.INTERNAL_SERVER_ERROR);// 500
 	}
 
 	public ResponseEntity<?> getTokenFormatError() {
 		// token 格式不對
-		String errMsg = TokenHelper.Cannot_convert_access_token_to_JSON;
+		String errMsg = TokenHelper.CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON;
 		TPILogger.tl.debug(errMsg);
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
-				setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg), setContentTypeHeader(),
+				HttpStatus.BAD_REQUEST);// 400
 	}
 
 	public ResponseEntity<?> getApiJwsBodyFormatError() {
 		// API JWS request body 格式不對
 		String errMsg = "API JWS Request_body Required";
 		TPILogger.tl.debug(errMsg);
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 				setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 	}
 
@@ -2392,7 +2385,7 @@ public class TokenHelper {
 		// API JWE request body 格式不對
 		String errMsg = "JWE Cannot Be Resolved";
 		TPILogger.tl.debug(errMsg);
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 				setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 	}
 
@@ -2400,7 +2393,7 @@ public class TokenHelper {
 		// API request body 格式不對
 		String errMsg = "API request body is incorrect";
 		TPILogger.tl.debug(errMsg);
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_request, errMsg),
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_REQUEST, errMsg),
 				setContentTypeHeader(), HttpStatus.BAD_REQUEST);// 400
 	}
 
@@ -2408,7 +2401,7 @@ public class TokenHelper {
 		// access_token 已撤銷
 		String errMsg = "Access token revoked, jti: " + jti;
 		TPILogger.tl.debug(errMsg);
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 				setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 	}
 
@@ -2416,7 +2409,7 @@ public class TokenHelper {
 		// refresh token 已撤銷
 		String errMsg = "Refresh token revoked, jti: " + jti;
 		TPILogger.tl.debug(errMsg);
-		return new ResponseEntity<OAuthTokenErrorResp2>(getOAuthTokenErrorResp2(TokenHelper.invalid_token, errMsg),
+		return new ResponseEntity<>(getOAuthTokenErrorResp2(TokenHelper.INVALID_TOKEN, errMsg),
 				setContentTypeHeader(), HttpStatus.FORBIDDEN);// 403
 	}
 
@@ -2433,7 +2426,7 @@ public class TokenHelper {
 					.logTpiShortStackTrace(new Throwable(new ObjectMapper().writeValueAsString(resp)));
 			if (stackLog != null) {
 				TPILogger.tl.debug(stackLog);
-				
+
 				/*
 				 * 判斷訊息內是否有"GatewayFilter.getCID("的字樣, 若有,表示由GatewayFilter.getCID()出現的錯誤,不印訊息;
 				 * 否則,印出訊息
@@ -2502,7 +2495,7 @@ public class TokenHelper {
 	private String getServiceConfigVal(String key) {
 		String val = getServiceConfig().get(key);
 		if (!StringUtils.hasLength(val)) {
-			TPILogger.tl.error("The profile is missing parameters: " + key);
+			TPILogger.tl.error(TokenHelper.THE_PROFILE_IS_MISSING_PARAMETERS + key);
 			return null;
 		}
 		val = val.trim();
@@ -2517,7 +2510,7 @@ public class TokenHelper {
 				.maxAge(maxAge) // 以秒為單位
 				.path("/").httpOnly(true) // 禁止 JavaScript 存取 cookie, 防止 XSS Attack (Cross-Site Scripting，跨站腳本攻擊)
 				.secure(true) // 讓 cookie 只能透過 https 傳遞, 即只有 HTTPS 才能讀與寫
-				.sameSite("Lax") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
+				.sameSite("Strict") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
 				.build();
 
 		return cookie;
@@ -2527,7 +2520,7 @@ public class TokenHelper {
 	 * 取得 client 在 digiRunner 設定的重新導向URI資料
 	 */
 	private List<String> getWebServerRedirectUriList(OauthClientDetails authClientDetails) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list = getWebServerRedirectUriList(list, authClientDetails.getWebServerRedirectUri());
 		list = getWebServerRedirectUriList(list, authClientDetails.getWebServerRedirectUri1());
 		list = getWebServerRedirectUriList(list, authClientDetails.getWebServerRedirectUri2());
@@ -2558,7 +2551,7 @@ public class TokenHelper {
 		header.put("Content-Type", Arrays.asList(MediaType.APPLICATION_JSON.toString()));
 		return header;
 	}
-	
+
 	protected String getDeployRole() {
 		return deployRole;
 	}

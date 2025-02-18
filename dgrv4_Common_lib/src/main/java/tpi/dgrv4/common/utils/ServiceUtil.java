@@ -2,6 +2,8 @@ package tpi.dgrv4.common.utils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.Inet6Address;
@@ -610,14 +612,5 @@ public class ServiceUtil {
 		return result;
 	}
 	
-	public static String getMemoryInfo() {
-		StringBuilder sb = new StringBuilder();
-		String freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024 + "MB";
-		String totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB";
-		String maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB";
-		sb.append("\n...Memory(free/total/Max): "+freeMemory + " / " + totalMemory + " / " + maxMemory  + "\n");
-
-		return sb.toString();
-	}
 	
 }

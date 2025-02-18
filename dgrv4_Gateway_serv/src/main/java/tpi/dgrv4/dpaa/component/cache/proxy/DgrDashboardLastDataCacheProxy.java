@@ -11,9 +11,12 @@ import tpi.dgrv4.common.component.cache.proxy.DaoCacheProxy;
 import tpi.dgrv4.entity.entity.jpql.DgrDashboardLastData;
 import tpi.dgrv4.entity.repository.DgrDashboardLastDataDao;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import org.springframework.context.annotation.Lazy;
+
 
 @Component
 public class DgrDashboardLastDataCacheProxy extends DaoCacheProxy {
+	@Lazy
 	@Autowired
 	private DgrDashboardLastDataDao dgrDashboardLastDataDao;
 

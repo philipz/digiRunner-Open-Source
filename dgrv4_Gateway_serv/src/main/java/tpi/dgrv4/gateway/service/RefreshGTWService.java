@@ -56,7 +56,6 @@ import tpi.dgrv4.tcp.utils.packets.UrlStatusPacket;
 @Service
 public class RefreshGTWService {
 	private final static String USERNAME = "manager";
-	private TPILogger logger = TPILogger.tl;
 	@Autowired
 	private AA1120Service aA1120Service;
 
@@ -144,15 +143,15 @@ public class RefreshGTWService {
 				}
 				String result = sb.toString();
 				if(StringUtils.hasText(result)) {
-					this.logger.info(result);
+					TPILogger.tl.info(result);
 				}				
 				sb.setLength(0); // 清空
 			}			
 		} catch (TsmpDpAaException e) {
 			throw e;
 		} catch (Exception e) {
-			this.logger.error(json);
-			this.logger.error(StackTraceUtil.logStackTrace(e));
+			TPILogger.tl.error(json);
+			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 			throw TsmpDpAaRtnCode._1297.throwing();
 		}
 		return resp;
@@ -369,13 +368,13 @@ public class RefreshGTWService {
 		ClientKeeper clientKeeper = createClientKeeper(gtwName, gtwIp, gtwPort, keeperApi, nodeInfoPacket);
 
 		// 如果日誌記錄器的 lc 屬性非空，則發送一個包含 ClientKeeper 資訊的 ExternalDgrInfoPacket
-		if (logger.lc != null) {
-			logger.lc.send(new ExternalDgrInfoPacket(clientKeeper));
-			logger.lc.send(new ExternalUndertowMetricsInfosPacket(undertowMetricsPacket));
-			logger.lc.send(new ExternalUrlStatusPacket(urlStatusPacket));
+		if (TPILogger.lc != null) {
+			TPILogger.lc.send(new ExternalDgrInfoPacket(clientKeeper));
+			TPILogger.lc.send(new ExternalUndertowMetricsInfosPacket(undertowMetricsPacket));
+			TPILogger.lc.send(new ExternalUrlStatusPacket(urlStatusPacket));
 		} else {
 			// 若日誌記錄器的 lc 屬性為空，則記錄錯誤信息，表示無法將外部 dgr 資料發送到 Keeper 伺服器
-			this.logger.warn("The program lc is null and cannot send external dgr data to the Keeper server\n");
+			TPILogger.tl.warn("The program lc is null and cannot send external dgr data to the Keeper server\n");
 		}
 	}
 
@@ -397,7 +396,7 @@ public class RefreshGTWService {
 			port = matcher.group(3); // 端口號可能不存在，此時為空字串
 		} else {
 			// 如果 URL 格式不符合預期，記錄錯誤日誌
-			this.logger.error("Invalid URL format: " + keeperApi);
+			TPILogger.tl.error("Invalid URL format: " + keeperApi);
 		}
 
 		// 返回協議加主機地址和端口號的字串陣列

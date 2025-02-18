@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,12 +23,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import jakarta.transaction.Transactional;
 import tpi.dgrv4.common.constant.DashboardReportTypeEnum;
 import tpi.dgrv4.common.constant.DashboardTimeTypeEnum;
 import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.constant.TsmpDpAaRtnCode;
 import tpi.dgrv4.common.utils.DateTimeUtil;
-import tpi.dgrv4.common.utils.ServiceUtil;
 import tpi.dgrv4.dpaa.vo.DashboardAideVo;
 import tpi.dgrv4.entity.entity.TsmpApi;
 import tpi.dgrv4.entity.entity.TsmpApiId;
@@ -42,11 +40,10 @@ import tpi.dgrv4.entity.repository.DgrDashboardLastDataDao;
 import tpi.dgrv4.entity.repository.TsmpReqResLogHistoryDao;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpApiCacheProxy;
 import tpi.dgrv4.gateway.keeper.TPILogger;
+import tpi.dgrv4.gateway.service.ISysInfoService;
 
 @Service
 public class HandleDashboardDataByYearService {
-
-
 	@Autowired
 	private DgrDashboardLastDataDao dgrDashboardLastDataDao;
 	@Autowired
@@ -55,17 +52,25 @@ public class HandleDashboardDataByYearService {
 	private DgrDashboardEsLogDao dgrDashboardEsLogDao;
 	@Autowired
 	private TsmpApiCacheProxy tsmpApiCacheProxy;
+	@Autowired(required = false)
+	private ISysInfoService sysInfoService;
 	
 	private DateFormat yyyyMMddHHmmssSSS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 	private DateFormat yyyyMMddHHmm = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	private DateFormat yyyyMM = new SimpleDateFormat("yyyy/MM");
 
-
+	private static final String NO_ENTERPRISE_SERVICE = "...No Enterprise Service...";
+	
 	@Transactional
 	public void exec(Date execDate, boolean isEs) {
 
 		TPILogger.tl.debug("--- Begin HandleDashboardDataBy\"Year\"Service ---");
-		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+		if (sysInfoService != null) {
+			TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+		} else {
+			TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+		}
+		
 		List<DgrDashboardLastData> saveLastList = new ArrayList<>();
 		// 資料日期
 		Date startDate = this.getStartDate(execDate);
@@ -98,7 +103,11 @@ public class HandleDashboardDataByYearService {
 		getDgrDashboardLastDataDao().saveAll(saveLastList);
 
 		TPILogger.tl.debug("--- Finish HandleDashboardDataBy\"Year\"Service ---");
-		TPILogger.tl.info(ServiceUtil.getMemoryInfo());
+		if (sysInfoService != null) {
+			TPILogger.tl.info(sysInfoService.getCpuMemoryInfo());
+		} else {
+			TPILogger.tl.info(NO_ENTERPRISE_SERVICE);
+		}
 	}
 	
 	private void execDataTime(Date startDate, Date endDate, List<DgrDashboardLastData> saveLastList) {

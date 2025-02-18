@@ -1,7 +1,9 @@
 package tpi.dgrv4.gateway.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import io.undertow.UndertowOptions;
@@ -10,6 +12,9 @@ import tpi.dgrv4.dpaa.vo.UndertowConfigInfo;
 @Component
 public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> {
 
+    @Autowired
+    private Environment env;
+    
     @Override
     public void customize(UndertowServletWebServerFactory factory) {
         factory.addBuilderCustomizers(builder -> {
@@ -66,6 +71,8 @@ public class CustomizeUndertowConfig implements WebServerFactoryCustomizer<Under
             // SSL 是否啟用。如果啟用,服務器將支援 HTTPS,提供更安全的通訊。
             boolean sslEnabled = factory.getSsl() != null;
             String sslInfo = sslEnabled ? "Enabled" : "Disabled";
+            sslInfo = env.getProperty("server.ssl.enabled");
+            
 
             String cfg = String.format("Customized Undertow configuration:\n"
                             + " - HTTP/2 Enabled: %b\n"

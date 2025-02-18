@@ -36,7 +36,7 @@ public class TokenCheck {
 			
 			// 1.是否有 authorization
 			if (!StringUtils.hasText(authorization)) {// 沒有 authorization
-				String errMsg = TokenHelper.Authorization_has_no_value;
+				String errMsg = TokenHelper.AUTHORIZATION_HAS_NO_VALUE;
 				TPILogger.tl.debug(errMsg);
 				return null;
 			}
@@ -111,11 +111,11 @@ public class TokenCheck {
 			cid = JsonNodeUtil.getNodeAsText(payloadJsonNode, "client_id");
 			
 		} catch (Exception e) {
-			String error = TokenHelper.Token_parsing_error;//token 解析錯誤
+			String error = TokenHelper.TOKEN_PARSING_ERROR;//token 解析錯誤
 			TPILogger.tl.debug(error);
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
 			
-			error = TokenHelper.Cannot_convert_access_token_to_JSON;
+			error = TokenHelper.CANNOT_CONVERT_ACCESS_TOKEN_TO_JSON;
 			TPILogger.tl.debug(error);
 			return null;
 		}

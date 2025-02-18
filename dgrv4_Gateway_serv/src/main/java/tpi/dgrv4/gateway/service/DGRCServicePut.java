@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -188,7 +189,11 @@ public class DGRCServicePut implements IApiCacheService{
 				content_Length = httpArray.length;
 				ByteArrayInputStream bi = new ByteArrayInputStream(httpArray);
 				//http InputStream copy into Array
-				IOUtils.copy(bi, httpRes.getOutputStream());
+				try {
+					IOUtils.copy(bi, httpRes.getOutputStream());
+				} catch (AsyncRequestNotUsableException e) {
+					TPILogger.tl.warn(httpRes.getStatus() + ", " + e.getLocalizedMessage());		
+				}
 			}
 			
 			// 印出第四道log

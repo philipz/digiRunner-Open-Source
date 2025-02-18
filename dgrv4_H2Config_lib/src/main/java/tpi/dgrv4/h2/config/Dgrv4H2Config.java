@@ -16,7 +16,8 @@ public class Dgrv4H2Config implements IDgrv4H2Config {
 	public Server createTcpServer(String string, String string2, String string3, String portStr, ITPILogger tl) {
 		Server h2Server = null;
 		try {
-			h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", portStr);
+			h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", 
+					"-tcpPort", portStr);
 		} catch (SQLException e) {
 			tl.error(StackTraceUtil.logTpiShortStackTrace(e));
 		}

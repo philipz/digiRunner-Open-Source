@@ -117,28 +117,11 @@ public class TsmpTAEASKHelper {
 	}
 
 	public String encrypt(String content) {
-		/*
-		 * 2022.05.10 改用 AESUtils try { byte[] contentBytes =
-		 * content.getBytes(this.defaultCharset); byte[] encryptBytes =
-		 * getEncryptCipher().doFinal(contentBytes); String code =
-		 * HexStringUtils.toString(encryptBytes); return code; } catch (Exception e) {
-		 * logger.debug(StackTraceUtil.logStackTrace(e)); throw
-		 * DgrRtnCode._1297.throwing(); }
-		 */
 		String code = encryptByAESUtils(content);
 		return code;
 	}
 
 	public String decrypt(String content) {
-		/*
-		 * 2022.05.10 改用 AESUtils try { byte[] contentBytes =
-		 * HexStringUtils.toBytes(content); byte[] decryptBytes =
-		 * getDecryptCipher().doFinal(contentBytes);
-		 * 
-		 * String decryptContent = new String(decryptBytes); return decryptContent; }
-		 * catch (Exception e) { logger.debug(StackTraceUtil.logStackTrace(e)); throw
-		 * DgrRtnCode._1297.throwing(); }
-		 */
 		String decryptContent = decryptByAESUtils(content);
 		return decryptContent;
 	}
@@ -169,9 +152,12 @@ public class TsmpTAEASKHelper {
 			String dec = AESUtils.AesCipher(content, Cipher.DECRYPT_MODE, this.keySize, this.algorithm, null, seed);
 
 			return dec;
-		} catch (Exception e) {
-			logger.debug(StackTraceUtil.logStackTrace(e));
-			throw TsmpDpAaRtnCode._1297.throwing();
+		} catch (Exception e) {// AES 解密錯誤
+			StringBuilder sb = new StringBuilder();
+			sb.append("...AES decryption error. \n");
+			sb.append(StackTraceUtil.logStackTrace(e));
+			ITPILogger.tl.error(sb.toString());
+			throw TsmpDpAaRtnCode._1562.throwing("AES");
 		}
 	}
 

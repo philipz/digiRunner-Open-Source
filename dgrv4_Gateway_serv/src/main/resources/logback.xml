@@ -32,7 +32,8 @@
             <level>DEBUG</level>
         </filter>
 	</appender>
-<!--<appender name="fileerr" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	
+	<appender name="fileerr" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.err.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
@@ -65,7 +66,7 @@
 	      <OnMatch>ACCEPT</OnMatch>
 	    </filter>
 	</appender>
--->
+
 	<appender name="file_sys_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LogsLocation}/${FileName}.%d{yyyyMMdd}.%i.file_sys_info.log</fileNamePattern>
