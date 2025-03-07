@@ -1,4 +1,4 @@
-﻿## Reporting a Vulnerability
+﻿# Reporting a Vulnerability
 
   Team-digiRunner considers the security of our systems a top priority. Despite our best efforts, vulnerabilities may still exist.
   
@@ -42,9 +42,9 @@ To submit a vulnerability please use the following template:
   - E-mail your findings to opensourceprogramoffice@tpisoftware.com using the subject "Vulnerability Submission".
 
 
-**
+
 ### **What to Expect**
-**
+
 
   - We will acknowledge receipt of your report within **5 business days**..
   
