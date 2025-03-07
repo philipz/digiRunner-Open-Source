@@ -1,4 +1,4 @@
-﻿# Reporting a Vulnerability
+﻿## Reporting a Vulnerability
 
   Team-digiRunner considers the security of our systems a top priority. Despite our best efforts, vulnerabilities may still exist.
   
@@ -6,7 +6,7 @@
 
 
 
-# CVSS Score defined
+## CVSS Score defined
 
 **CVSS V3 Score rating will be used as priority:**
   
@@ -19,7 +19,7 @@
   Critical - 9.0 - 10.0
 
 
-\*\*CVSS V2 Score rating will be used where no CVSS score is given:\*\*
+**CVSS V2 Score rating will be used where no CVSS score is given:**
   
   Low - 0.1 - 3.9
   
@@ -27,7 +27,7 @@
   
   High - 7.0 - 10.0
 
-**How to Submit**
+## How to Submit
 
 To submit a vulnerability please use the following template:
   
@@ -43,10 +43,10 @@ To submit a vulnerability please use the following template:
 
 
 
-### **What to Expect**
+## What to Expect
 
 
-  - We will acknowledge receipt of your report within **5 business days**..
+  - We will acknowledge receipt of your report within **5 business days**..
   
   - Our security team will investigate the issue and aim to provide an initial response within **5 business days**.
   
