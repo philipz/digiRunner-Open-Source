@@ -76,6 +76,11 @@ public abstract class DeferrableJob extends Job {
 				TPILogger.tl.warn(StackTraceUtil.logTpiShortStackTrace(e));
 			}
 		}
+		
+		// 2025.3.7 - All DeferrableJob 在執行完也要 notify, 以免高併發, 長時間堆積
+		synchronized (jobManager.buff2nd) {
+			jobManager.buff2nd.notifyAll();
+		}
 	}
 
 	public long getDeferTimestamp() {

@@ -82,17 +82,17 @@
                       [aria-expanded]="isCollapsed">
                       <label >{{ isValidStringStartWith_dp_(groups.vgroupAliasShowUi)? ("all"|translate) : (groups.vgroupAliasShowUi + "(" +  groups.vgroupId + ")")  }}
                         </label>
-                        <span class="mr-3"></span>
+                        <span class="me-3"></span>
                     </a>
                   </div>
                   <div *ngIf="!groups.apiDataList || groups.apiDataList.length==0">
-                    <i class="fa fa-circle mr-2" ></i>
+                    <i class="fa fa-circle me-2" ></i>
                     <label >{{ isValidStringStartWith_dp_(groups.vgroupAliasShowUi)? ("all"|translate) : (groups.vgroupAliasShowUi + "(" +  groups.vgroupId + ")")  }}
                     </label>
                   </div>
                 </div>
                 <div
-                  class="collapse text-left" [ngClass]="{'show':isCollapsed}"
+                  class="collapse text-start" [ngClass]="{'show':isCollapsed}"
                   [id]="'mains' + groups.vgroupAliasShowUi"
                   *ngIf="groups.apiDataList && groups.apiDataList.length"
                 >

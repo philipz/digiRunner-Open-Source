@@ -58,8 +58,8 @@ public class TSMPCServicePostFormUrlEncoded implements IApiCacheService {
 			HttpServletResponse httpRes, MultiValueMap<String, String> values) throws Exception {
 		try {
 
-			String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+			String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+			String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 			String reqUrl = httpReq.getRequestURI();
 
 			// 1. req header / body

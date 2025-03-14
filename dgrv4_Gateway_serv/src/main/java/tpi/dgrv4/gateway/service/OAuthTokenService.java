@@ -337,12 +337,12 @@ public class OAuthTokenService {
 			} else {
 				// 沒有 Basic Authorization 或 格式不正確
 				BasicAuthClientData basicAuthClientData = getTokenHelper().getAuthClientDataForBasic(authorization, reqUri);
-				errRespEntity = basicAuthClientData.errRespEntity;
+				errRespEntity = basicAuthClientData.getErrRespEntity();
 				
 				if (errRespEntity != null) {
 					return errRespEntity;
 				} else {
-					String[] cliendData = basicAuthClientData.cliendData;
+					String[] cliendData = basicAuthClientData.getCliendData();
 					clientId = cliendData[0];
 					clientPw = cliendData[1];
 				}

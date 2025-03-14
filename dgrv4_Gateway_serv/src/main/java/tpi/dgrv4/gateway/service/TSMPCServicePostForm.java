@@ -89,9 +89,9 @@ public class TSMPCServicePostForm implements IApiCacheService {
 			@RequestHeader HttpHeaders httpHeaders) throws Exception {
 
 		String reqUrl = httpReq.getRequestURI();
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
+		String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
 		String uuid = UUID.randomUUID().toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 		Map<String, String> partContentTypes = new HashMap<>();
 		for (Part part : httpReq.getParts()) {
 			partContentTypes.put(part.getName(), part.getContentType());
@@ -424,8 +424,8 @@ public class TSMPCServicePostForm implements IApiCacheService {
 		String reqUrl = httpReq.getRequestURI();
 		String uuid = UUID.randomUUID().toString();
 
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+		String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 
 		boolean cApiKeySwitch = getCommForwardProcService().getcApiKeySwitch(moduleName, apiId);
 		StringBuffer tsmpcPostForm_log = new StringBuffer();

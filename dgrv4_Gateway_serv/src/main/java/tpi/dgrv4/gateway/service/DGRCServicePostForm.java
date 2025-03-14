@@ -83,7 +83,6 @@ public class DGRCServicePostForm implements IApiCacheService{
 	public CompletableFuture<ResponseEntity<?>> forwardToPostFormDataAsyncFast(HttpHeaders httpHeaders, HttpServletRequest httpReq,
 																		   HttpServletResponse httpRes) throws Exception {
 		var response = forwardToPostFormData(httpHeaders, httpReq, httpRes);
-		GatewayFilter.fetchUriHistoryAfter(httpReq);
 		return CompletableFuture.completedFuture(response);
 	}
 
@@ -91,7 +90,6 @@ public class DGRCServicePostForm implements IApiCacheService{
 	public CompletableFuture<ResponseEntity<?>> forwardToPostFormDataAsync(HttpHeaders httpHeaders, HttpServletRequest httpReq,
 			HttpServletResponse httpRes) throws Exception {
 		var response = forwardToPostFormData(httpHeaders, httpReq, httpRes);
-		GatewayFilter.fetchUriHistoryAfter(httpReq);
 		return CompletableFuture.completedFuture(response);
 	}
 
@@ -121,11 +119,11 @@ public class DGRCServicePostForm implements IApiCacheService{
 		String uuid = UUID.randomUUID().toString();
 		
 		TsmpApiReg apiReg = null;
-		if (null == httpReq.getAttribute(GatewayFilter.moduleName)) {
+		if (null == httpReq.getAttribute(GatewayFilter.MODULE_NAME)) {
 			throw new Exception("TSMP_API_REG module_name is null");
 		}
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+		String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 		TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, moduleName);
 		Optional<TsmpApiReg> opt_tsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);		
 		if (opt_tsmpApiReg.isPresent()) {
@@ -232,7 +230,8 @@ public class DGRCServicePostForm implements IApiCacheService{
 		}
 
 		// 印出第四道log
-		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo);
+		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo,
+				httpReq);
 		TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End DGRC】--\n" + resLog.toString());
 
 		// 第一組ES RESP
@@ -532,8 +531,8 @@ public class DGRCServicePostForm implements IApiCacheService{
 			@RequestHeader HttpHeaders httpHeaders) throws Exception {
 		String reqUrl = httpReq.getRequestURI();
 		TsmpApiReg apiReg = null;
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+		String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 		TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, moduleName);
 		Optional<TsmpApiReg> opt_tsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);		
 		if (opt_tsmpApiReg.isPresent()) {
@@ -721,7 +720,8 @@ public class DGRCServicePostForm implements IApiCacheService{
 		}
 		
 		// 印出第四道log
-		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo);
+		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo,
+				httpReq);
 		TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End DGRC】--\n" + resLog.toString());
 		
 		//第一組ES RESP

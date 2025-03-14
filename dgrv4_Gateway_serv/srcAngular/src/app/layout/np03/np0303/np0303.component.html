@@ -15,7 +15,7 @@
         </div>
         <!-- <div class="form-group row">
             <div class="col-3 col-xl-3 col-lg-3">
-                <button type="submit" class="btn btn-warning float-left">{{'button.search'|translate}}</button>
+                <button type="submit" class="btn btn-warning float-start">{{'button.search'|translate}}</button>
             </div>
         </div> -->
     </form>
@@ -51,12 +51,6 @@
                     </div>
                 </td>
                 <td style="text-align:center;width: 80px">
-                    <!-- <div class="btn-group">
-                        <button type="button" class="btn btn-deta mr-5" (click)="showDialog(rowData)"
-                            [disabled]="rowData['applyFlag'] == false">
-                            <span class="fa fa-search">{{'button.chs_api'|translate}}</span>
-                        </button>
-                    </div> -->
                     <button pButton pRipple type="button" icon="fa fa-search"
                             class="p-button-rounded p-button-text p-button-plain" (click)="showDialog(rowData)"
                             [pTooltip]="'button.chs_api' | translate" tooltipPosition="top"></button>
@@ -67,9 +61,6 @@
             <tr *ngIf="rowcount">
                 <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
                     <span>{{'row_count' | translate}}: {{rowcount}}</span>
-                    <!-- <button type="button" class="btn btn-warning pull-right ml-3"
-                        (click)="moreData();">{{'button.more'|translate}}</button> -->
-
                         <!-- 查詢更多 -->
                         <button  type="button" class="btn tpi-header-return" (click)="moreData()">{{ 'button.more'| translate}}
                         <i class="fas fa-angle-double-right" style="margin-left: 5px;"></i>

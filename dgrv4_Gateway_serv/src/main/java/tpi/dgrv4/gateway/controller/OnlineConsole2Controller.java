@@ -86,7 +86,7 @@ public class OnlineConsole2Controller {
 		} else {
 			TPILogger.tl.error("<Keeper Server> Lost Connection");
 		}
-
+		//allClientInfoData.getAllClientList().get(0).getMem();
 		return ResponseEntity.ok(allClientInfoData);
 	}
 

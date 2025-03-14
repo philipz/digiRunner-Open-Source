@@ -26,19 +26,19 @@
       <div class="col-12 px-0" style="display: flex;justify-content: space-between;">
 
           <!-- 匯出 tsmp dp items -->
-          <button type="button" class="btn tpi-btn tpi-primary mr-2"
+          <button type="button" class="btn tpi-btn tpi-primary me-2"
             (click)="changePage('export');">{{'button.export'|translate}}</button>
 
         <div style="display: flex;align-items: center;">
 
-          <div class="ui-inputgroup mr-2">
+          <div class="ui-inputgroup me-2">
             <input type="file" id="file" style="display: none;" accept=".xlsx" (change)="fileChange($event)">
             <input type="text" class="form-control" value="{{fileName}}" readOnly
               placeholder="{{'upload_file' | translate}}">
-            <button pButton type="button" icon="pi pi-file" class="ml-1 tpi-primary"
+            <button pButton type="button" icon="pi pi-file" class="ms-1 tpi-primary"
               [pTooltip]="'upload_file' | translate" tooltipPosition="top" (click)="openFileBrowser();"></button>
           </div>
-          <button type="button" class="btn tpi-btn tpi-primary mr-2" [disabled]="!fileName"
+          <button type="button" class="btn tpi-btn tpi-primary me-2" [disabled]="!fileName"
             (click)="importTsmpDpItems()">{{'button.import'|translate}}</button>
           <i class="far fa-question-circle" pTooltip='<ol style="padding-inline-start: 20px;margin-block-end: 0;"><li>{{"import_key_tip"|translate:{key:"ITEM_NO+SUBITEM_NO+LOCALE"} }}</li><li>{{"use_in_multi_language"|translate }}</li></ol>'
              [escape]="false"></i>
@@ -47,9 +47,9 @@
       </div>
       <!-- <div class="form-group row">
         <div class="col-12 col-xl-12 col-lg-12"> -->
-      <!-- <button type="button" class="btn btn-warning float-left mr-3"
+      <!-- <button type="button" class="btn btn-warning float-start me-3"
             (click)="queryTsmpDpItemsList();">{{'button.search' | translate}}</button> -->
-      <!-- <button type="button" class="btn btn-primary float-left"
+      <!-- <button type="button" class="btn btn-primary float-start"
             (click)="changePage('create');">{{'button.create'|translate}}</button>           -->
       <!-- </div>> -->
       <!-- </div> -->
@@ -84,7 +84,7 @@
             <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
               (click)="changePage('subitem',rowData)" [pTooltip]="'button.query' | translate"
               tooltipPosition="top"></button>
-            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('subitem',rowData);">
+            <!-- <button type="button" class="btn btn-deta me-5" (click)="changePage('subitem',rowData);">
                 <span class="fa fa-search">{{'button.query' | translate}}</span>
               </button> -->
             <button pButton pRipple type="button" icon="fa fa-edit"
@@ -101,7 +101,7 @@
         <tr *ngIf="tableDataRowcount">
           <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
             <span style="vertical-align: middle;">{{'row_count' | translate}}: {{tableDataRowcount}}</span>
-            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+            <!-- <button type="button" class="btn btn-warning pull-right ms-3"
               (click)="getMoreData();">{{'button.more'|translate}}</button> -->
 
             <!-- 查詢更多 -->
@@ -151,10 +151,10 @@
     </form>
     <div class="form-group row">
       <div class="col-12 col-xl-12 col-lg-12">
-        <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+        <button type="button" class="btn tpi-btn tpi-primary float-start me-3"
           (click)="queryTsmpDpItemsList();">{{'button.search' | translate}}</button>
 
-        <button type="button" class="btn tpi-btn tpi-primary float-left"
+        <button type="button" class="btn tpi-btn tpi-primary float-start"
           (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
       </div>
     </div>
@@ -189,7 +189,7 @@
             <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-plain"
               (click)="changePage('subitemDetail', null, rowData)" [pTooltip]="'button.query' | translate"
               tooltipPosition="top"></button>
-            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('subitemDetail', null, rowData);">
+            <!-- <button type="button" class="btn btn-deta me-5" (click)="changePage('subitemDetail', null, rowData);">
                 <span class="fa fa-search">{{'button.query' | translate}}</span>
               </button> -->
             <button pButton pRipple type="button" icon="fa fa-edit"
@@ -206,7 +206,7 @@
         <tr *ngIf="subTableRowcount">
           <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
             <span>{{'row_count' | translate}}: {{subTableRowcount}}</span>
-            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+            <!-- <button type="button" class="btn btn-warning pull-right ms-3"
               (click)="getMoreSubData();">{{'button.more'|translate}}</button> -->
 
             <!-- 查詢更多 -->
@@ -239,7 +239,7 @@
         <label class="form-control border-line">{{subitemDetail.sortBy}}</label>
       </div>
       <div class="col-2">
-        <label class="control-label mr-5">{{'default_cr'|translate}}</label>
+        <label class="control-label me-5">{{'default_cr'|translate}}</label>
         <label class="form-control border-line">{{subitemDetail.isDefault}}</label>
         <!-- <input class="align-middle checkbox" type="checkbox"> -->
       </div>
@@ -298,7 +298,7 @@
 
     <div class="form-group row mt-5">
       <div class="col-12 col-xl-12 col-lg-12">
-        <button type="button" class="btn tpi-btn tpi-primary float-left"
+        <button type="button" class="btn tpi-btn tpi-primary float-start"
           (click)="changePage('subitem');">{{'button.return_to_list'|translate}}</button>
       </div>
     </div>
@@ -324,7 +324,7 @@
           </div> -->
           <div class="p-form-check col">
             <p-checkbox [binary]="true" inputId="isDefault" formControlName="isDefault"></p-checkbox>
-            <!-- <label class="ml-2 mb-0" for="isDefault">{{'reset_pwd_attempts' | translate}}</label> -->
+            <!-- <label class="ms-2 mb-0" for="isDefault">{{'reset_pwd_attempts' | translate}}</label> -->
           </div>
         </div>
       </div>
@@ -402,10 +402,10 @@
 
       <div class="form-group row mt-5">
         <div class="col-12 col-xl-12 col-lg-12">
-          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          <button type="button" class="btn tpi-btn tpi-primary float-start me-3"
             [disabled]="detailForm.invalid || !subitemsValid"
             (click)="procData();">{{'button.update'|translate}}</button>
-          <button type="button" class="btn tpi-btn tpi-primary float-left"
+          <button type="button" class="btn tpi-btn tpi-primary float-start"
             (click)="changePage('subitem');">{{'button.return_to_list'|translate}}</button>
         </div>
       </div>
@@ -448,9 +448,9 @@
 
       <div class="form-group row">
         <div class="col-12 col-xl-12 col-lg-12">
-          <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+          <button type="button" class="btn tpi-btn tpi-primary float-start me-3"
             [disabled]="itemForm.invalid || !localeValid" (click)="procData();">{{'button.update'|translate}}</button>
-          <button type="button" class="btn tpi-btn tpi-primary float-left"
+          <button type="button" class="btn tpi-btn tpi-primary float-start"
             (click)="changePage('query');">{{'button.return_to_list'|translate}}</button>
         </div>
       </div>

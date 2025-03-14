@@ -28,7 +28,7 @@
         (onHeaderCheckboxToggle)="handleDeniedStatus($event);" [style]="{'word-break':'break-word'}">
         <ng-template pTemplate="caption">
             <div class="ui-helper-clearfix">
-                <button type="button" class="btn tpi-primary float-left mr-1" (click)="saveDenied()" [disabled]="selectedModules.length==0">
+                <button type="button" class="btn tpi-primary float-start me-1" (click)="saveDenied()" [disabled]="selectedModules.length==0">
                     {{'button.setting' | translate}}
                 </button>
             </div>
@@ -63,7 +63,7 @@
             <tr *ngIf="rowCount">
                 <td [attr.colspan]="columns.length+1">
                     <span>{{'row_count' | translate}}: {{rowCount}}</span>
-                    <button type="button" class="btn btn-warning pull-right ml-3"
+                    <button type="button" class="btn btn-warning pull-right ms-3"
                         (click)="moreDate();">{{'button.more'|translate}}</button>
                 </td>
             </tr>

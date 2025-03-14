@@ -2,7 +2,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { G } from 'chart.js/dist/chunks/helpers.core';
 import { TxID } from 'src/app/models/common.enum';
 import { ApiBaseService } from 'src/app/shared/services/api-base.service';
 import { ToolService } from 'src/app/shared/services/tool.service';

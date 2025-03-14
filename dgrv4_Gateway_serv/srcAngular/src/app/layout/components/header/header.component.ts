@@ -9,7 +9,6 @@ import { UserService } from 'src/app/shared/services/api-user.service';
 import { AA0510Resp } from 'src/app/models/api/UtilService/aa0510.interface';
 import * as dayjs from 'dayjs';
 import * as base64 from 'js-base64';
-import Swal from 'sweetalert2';
 import { MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -211,7 +210,6 @@ export class HeaderComponent implements OnInit {
       dialog.destroy();
     });
     //
-    Swal.close();
     this.userService.logoutTUser().subscribe(() => {
       this.logoutService.logout();
     });

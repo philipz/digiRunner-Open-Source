@@ -27,8 +27,8 @@ public class DGRCControllerGet {
 														 HttpServletRequest httpReq,
 														 HttpServletResponse httpRes) throws Exception {
 		
-		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
-		if (selectWorkThread.equals(GatewayFilter.fast)) {
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.SETWORK_THREAD).toString();
+		if (selectWorkThread.equals(GatewayFilter.FAST)) {
 			var resp = service.forwardToGetAsyncFast(httpHeaders, httpReq, httpRes);
 			GatewayFilter.setApiRespThroughput();
 			return resp;

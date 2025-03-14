@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/** API 自適用快取使用此 proxy */
 public abstract class AbstractCacheProxy {
 
 	private static final String NO_PARAM_KEY = "0";
@@ -45,6 +46,7 @@ public abstract class AbstractCacheProxy {
 	}
 
 	protected <R> Optional<R> getOne(String methodName, Supplier<R> supplier, Class<R> returnType, Object...params) {
+		// API '自適應' cache 會啟用 addRefreshCacheJob() & addDummyJob()
 		R r = get(methodName, supplier, (obj) -> {
 			return returnType.cast(obj);
 		}, params);
@@ -67,7 +69,7 @@ public abstract class AbstractCacheProxy {
 
 	private <R> R get(String methodName, Supplier<R> supplier, Function<Object, R> caster, Object...params) {
 		String cacheKey = genCacheKey(getDaoClass(), methodName, params);
-		addRefreshCacheJob(cacheKey, supplier);
+		addRefreshCacheJob(cacheKey, supplier);  
 		
 		// 如果有存入過 cache
 		boolean hasCacheEntry = getCache().containsKey(cacheKey);
@@ -81,7 +83,9 @@ public abstract class AbstractCacheProxy {
 		}
 		
 		// 某一種情況是：從 cache 取出的值為空，可能是過期被清掉了，應該要重查並放回 cache
-		addDummyJob(cacheKey);	// 不是從 cache 取值時才需要加入此工作。利用 job 的 replace 機制，抑制首次 RefreshCacheJob 的執行
+		// 2025.3.11, 新機制下, 不需要 DummyJob 
+		// addDummyJob(cacheKey);	// 不是從 cache 取值時才需要加入此工作。利用 job 的 replace 機制，抑制首次 RefreshCacheJob 的執行
+		
 		R r = supplier.get();
 		getCache().put(cacheKey, r, getCacheValueAdapter());
 		return r;

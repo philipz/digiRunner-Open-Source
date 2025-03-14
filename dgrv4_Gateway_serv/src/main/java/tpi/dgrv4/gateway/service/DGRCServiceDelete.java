@@ -90,7 +90,6 @@ public class DGRCServiceDelete implements IApiCacheService{
 	private CompletableFuture<ResponseEntity<?>> dgrcService(HttpHeaders httpHeaders, HttpServletRequest httpReq,
 			HttpServletResponse httpRes, String payload) throws Exception {
 		var response = forwardToDelete(httpHeaders, httpReq, httpRes, payload);
-		GatewayFilter.fetchUriHistoryAfter(httpReq);
 		return CompletableFuture.completedFuture(response);
 	}
 
@@ -106,12 +105,12 @@ public class DGRCServiceDelete implements IApiCacheService{
 			
 			TsmpApiReg apiReg = null;
 
-			if (null == httpReq.getAttribute(GatewayFilter.moduleName)) {
+			if (null == httpReq.getAttribute(GatewayFilter.MODULE_NAME)) {
 				throw new Exception("TSMP_API_REG module_name is null");
 			}
 
-			String dgrcDelModuleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+			String dgrcDelModuleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+			String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 			TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, dgrcDelModuleName);
 			Optional<TsmpApiReg> optTsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);		
 			if (optTsmpApiReg.isPresent()) {
@@ -227,7 +226,7 @@ public class DGRCServiceDelete implements IApiCacheService{
 			
 			// 印出第四道log
 			StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, contentLength,
-					maskInfo);
+					maskInfo, httpReq);
 			TPILogger.tl.debug("\n--" + LOGUUID + "【" + uuid + "】" + END_DGRC + "--\n" + resLog.toString());
 
 			// 第一組ES RESP

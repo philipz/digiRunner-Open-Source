@@ -31,9 +31,9 @@ public class DGRCControllerPostForm {
 														 HttpServletResponse httpRes,
 														 @RequestHeader HttpHeaders headers) throws Exception {
 
-		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.SETWORK_THREAD).toString();
 		CompletableFuture<ResponseEntity<?>> resp;
-		if (selectWorkThread.equals(GatewayFilter.fast)) {
+		if (selectWorkThread.equals(GatewayFilter.FAST)) {
 			resp = service.forwardToPostFormDataAsyncFast(headers, httpReq, httpRes);
 		} else {
 			resp = service.forwardToPostFormDataAsync(headers, httpReq, httpRes);

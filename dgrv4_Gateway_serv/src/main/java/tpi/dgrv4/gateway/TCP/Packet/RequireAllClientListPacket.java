@@ -116,6 +116,7 @@ public class RequireAllClientListPacket implements Packet_i {
 
 					c.setCpu(nodeInfoData.get(NodeInfoPacket.CPU));
 					c.setMem(nodeInfoData.get(NodeInfoPacket.MEM));
+					c.setMetaSpace(nodeInfoData.get(NodeInfoPacket.METASPACE));
 					c.setH_used(nodeInfoData.get(NodeInfoPacket.H_USED));
 					c.setH_free(nodeInfoData.get(NodeInfoPacket.H_FREE));
 					c.setH_total(nodeInfoData.get(NodeInfoPacket.H_TOTAL));
@@ -239,6 +240,7 @@ public class RequireAllClientListPacket implements Packet_i {
 					clientKeeper.setUpTime(nodeInfoPacket.upTime);
 					clientKeeper.setUpdateTime(nodeInfoPacket.updateTime);
 					clientKeeper.setCpu(nodeInfoPacket.cpu);
+					clientKeeper.setMetaSpace(nodeInfoPacket.metaSpace);
 					clientKeeper.setMem(nodeInfoPacket.mem);
 					clientKeeper.setH_used(nodeInfoPacket.h_used);
 					clientKeeper.setH_free(nodeInfoPacket.h_free);

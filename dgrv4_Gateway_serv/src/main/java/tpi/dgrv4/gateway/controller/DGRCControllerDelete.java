@@ -28,9 +28,9 @@ public class DGRCControllerDelete {
 														 HttpServletResponse httpRes,
 														 @RequestHeader HttpHeaders headers,
 														 @RequestBody(required = false) String payload) throws Exception {
-		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.SETWORK_THREAD).toString();
 		CompletableFuture<ResponseEntity<?>> resp;
-		if (selectWorkThread.equals(GatewayFilter.fast)) {
+		if (selectWorkThread.equals(GatewayFilter.FAST)) {
 			resp = service.forwardToDeleteAsyncFast(headers, httpReq, httpRes, payload);
 		} else {
 			resp = service.forwardToDeleteAsync(headers, httpReq, httpRes, payload);

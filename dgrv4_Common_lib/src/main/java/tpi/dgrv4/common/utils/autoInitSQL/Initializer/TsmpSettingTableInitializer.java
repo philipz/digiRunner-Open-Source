@@ -76,7 +76,6 @@ public class TsmpSettingTableInitializer {
 	        ///* 交給 resetAdminConsoleData() 建立了
 	        createTsmpSetting("TSMP_AC_CLIENT_ID","YWRtaW5Db25zb2xl","Login AC account (do not modify)");
 			createTsmpSetting("TSMP_AC_CLIENT_PW","dHNtcDEyMw==","AC login password (do not modify)");
-
 	        // */
 	        createTsmpSetting("TSMP_FAIL_THRESHOLD","6","允許User密碼錯誤次數上限");
 	        createTsmpSetting("SSO_PKCE","true","PKCE等級AuthCode驗證是否啟用 true/false");

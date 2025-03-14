@@ -140,16 +140,6 @@ body {
   zoom: 1;
 }
 
-// .btn.mr-5 {
-//   margin-right: 5px !important;
-// }
-
-// .btn.mr-10 {
-//   margin-right: 10px;
-// }
-
-
-
 .swal2-container {
   z-index: 10001!important;
 }
@@ -1568,4 +1558,25 @@ p-inputswitch{
 }
 .item-panel .p-dropdown-panel{
   left: 0!important;
+}
+
+.form-text {
+  color: inherit;
+}
+
+textarea[readonly] {
+  background-color: #e9ecef;
+}
+textarea[readonly]:focus {
+  background-color: #e9ecef;
+}
+
+input[readonly] {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+input[readonly]:focus {
+  background-color: #e9ecef;
+  opacity: 1;
 }

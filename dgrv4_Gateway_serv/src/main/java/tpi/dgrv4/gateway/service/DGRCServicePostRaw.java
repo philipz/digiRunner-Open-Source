@@ -77,7 +77,6 @@ public class DGRCServicePostRaw implements IApiCacheService{
 	public CompletableFuture<ResponseEntity<?>> forwardToPostRawDataAsyncFast(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
 																		  String payload) throws Exception {
 		var response = forwardToPostRawData(httpHeaders, httpReq, httpRes, payload);
-		GatewayFilter.fetchUriHistoryAfter(httpReq);
 		return CompletableFuture.completedFuture(response);
 	}
 
@@ -85,7 +84,6 @@ public class DGRCServicePostRaw implements IApiCacheService{
 	public CompletableFuture<ResponseEntity<?>> forwardToPostRawDataAsync(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes,
 																		  String payload) throws Exception {
 		var response = forwardToPostRawData(httpHeaders, httpReq, httpRes, payload);
-		GatewayFilter.fetchUriHistoryAfter(httpReq);
 		return CompletableFuture.completedFuture(response);
 	}
 
@@ -100,11 +98,11 @@ public class DGRCServicePostRaw implements IApiCacheService{
 			String reqUrl = httpReq.getRequestURI();
 	
 			TsmpApiReg apiReg = null;
-			if (null == httpReq.getAttribute(GatewayFilter.moduleName)) {
+			if (null == httpReq.getAttribute(GatewayFilter.MODULE_NAME)) {
 				throw new Exception("TSMP_API_REG module_name is null");
 			}
-			String dgrcPostRaw_moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+			String dgrcPostRaw_moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+			String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 			TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(apiId, dgrcPostRaw_moduleName);
 			Optional<TsmpApiReg> opt_tsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);		
 			if (opt_tsmpApiReg.isPresent()) {
@@ -219,7 +217,8 @@ public class DGRCServicePostRaw implements IApiCacheService{
 			}
 
 			// 印出第四道log
-			StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo);
+			StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo,
+					httpReq);
 			TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End DGRC】--\n" + resLog.toString());
 
 			//第一組ES RESP

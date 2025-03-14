@@ -145,7 +145,7 @@ public class AA0311Service {
 	
 	protected LinkedList<String[]> checkSrcUrl(String srcUrl) {
 		boolean isThrowing = true;
-		LinkedList<String[]> dataList = getCommForwardProcService().getSrcUrlToTargetUrlAndProbabilityList(srcUrl, isThrowing);
+		LinkedList<String[]> dataList = (LinkedList<String[]>) getCommForwardProcService().getSrcUrlToTargetUrlAndProbabilityList(srcUrl, isThrowing);
 		return dataList;
 	}
 	
@@ -305,9 +305,11 @@ public class AA0311Service {
 		}
 
 		// 1.若 targeUrl 只有1筆, srcUrl 為 targeUrl，省略機率
-		if (srcUrlDataList.size() == 1) {
+		if (srcUrlDataList.size() == 1 ) {
+
 			String[] srcUrlData = srcUrlDataList.get(0);
-			return srcUrlData[1];// 目標URL
+			if (srcUrlData[1].startsWith("http"))
+				return srcUrlData[1];// 目標URL
 		}
 
 		// 2.若 targeUrl 大於1筆,

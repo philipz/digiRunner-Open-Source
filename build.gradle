@@ -35,7 +35,7 @@ licenseReport {
 
 allprojects {
 	group = 'tpi.dgrv4'
-	version = 'release-v4.4.14'
+	version = 'release-rc-v4.4.18.1-1-g5c5e4d8ac'
 	apply plugin:  'io.spring.dependency-management'
 
 	repositories {
@@ -62,8 +62,8 @@ subprojects {
 
 
 	dependencies {
-		implementation files("${rootDir}/libsext/dgrv4_CodecUtil-v4.4.14.0-4-gcc13a9359-lib.jar")
-		implementation files("${rootDir}/libsext/dgrv4_HttpUtil-v4.4.14.0-4-gcc13a9359-lib.jar")
+		implementation files("${rootDir}/libsext/dgrv4_CodecUtil-v4.4.18.1-1-g5c5e4d8ac-lib.jar")
+		implementation files("${rootDir}/libsext/dgrv4_HttpUtil-v4.4.18.1-1-g5c5e4d8ac-lib.jar")
 
 		implementation ('org.springframework.boot:spring-boot-starter-data-jpa'){
 			exclude group: 'ch.qos.logback', module: 'logback-classic'
@@ -74,7 +74,7 @@ subprojects {
 			exclude group:'org.apache.tomcat.embed', module:'tomcat-embed-core'
 		}
 		// 修正上方排除的 org.apache.tomcat.embed:tomcat-embed-core
-		implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.34'
+		implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.35'
 		// 修正上方排除的 ch.qos.logback:logback-classic
 		implementation 'ch.qos.logback:logback-classic:1.5.13'
 		// 修正上方排除的 ch.qos.logback:logback-core
@@ -204,12 +204,14 @@ project(':dgrv4_Gateway_serv'){
 		
 		// 修正上方排除的
 		compileOnly 'com.google.protobuf:protobuf-java:3.25.5'
+		
+		 implementation 'org.owasp.esapi:esapi:2.6.0.0'
 
 	}
 
 	task createVersionTxt() {
 		doFirst {
-			file("src/main/resources/version.txt").text = version
+			file("src/main/resources/open-source-version.txt").text = version
 		}
 	}
 

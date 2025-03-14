@@ -79,7 +79,8 @@ public final class MockApiTestService {
 		IOUtils.copy(bi, httpRes.getOutputStream());
 
 		// print
-		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, httpArray.length);
+		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, httpArray.length, null,
+				httpReq);
 		TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End MOCK】--\n" + resLog.toString());
 
 		// 第一組ES RESP

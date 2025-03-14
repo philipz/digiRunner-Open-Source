@@ -15,6 +15,7 @@ public class DgrApplicationEventListener {
 	private ILogbackService service;
 	
 	private static final String NO_ENTERPRISE_SERVICE = "...No Enterprise Service...";
+	private static final String TPI_DGRV4 = "tpi.dgrv4";
 	
 	@EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
@@ -22,7 +23,7 @@ public class DgrApplicationEventListener {
 		//停用tpi.dgrv4的fileerr
 		String rs = "";
 		if (service != null) {
-			rs = service.stop("tpi.dgrv4", "fileerr");
+			rs = service.stop(TPI_DGRV4, "fileerr");
 		} else {
 			rs = NO_ENTERPRISE_SERVICE;
 		}
@@ -31,7 +32,7 @@ public class DgrApplicationEventListener {
 		
 		//停用tpi.dgrv4的fileloguuid
 		if (service != null) {
-			rs = service.stop("tpi.dgrv4", "fileloguuid");
+			rs = service.stop(TPI_DGRV4, "fileloguuid");
 		} else {
 			rs = NO_ENTERPRISE_SERVICE;
 		}
@@ -47,7 +48,7 @@ public class DgrApplicationEventListener {
 		
 		//停用tpi.dgrv4的file_sys_info
 		if (service != null) {
-			rs = service.stop("tpi.dgrv4", "file_sys_info");
+			rs = service.stop(TPI_DGRV4, "file_sys_info");
 		} else {
 			rs = NO_ENTERPRISE_SERVICE;
 		}

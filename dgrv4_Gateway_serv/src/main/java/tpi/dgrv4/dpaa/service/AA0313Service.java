@@ -504,7 +504,7 @@ public class AA0313Service {
 	
 	protected LinkedList<String[]> checkSrcUrl(String srcUrl) {
 		boolean isThrowing = true;
-		LinkedList<String[]> dataList = getCommForwardProcService().getSrcUrlToTargetUrlAndProbabilityList(srcUrl, isThrowing);
+		LinkedList<String[]> dataList = (LinkedList<String[]>) getCommForwardProcService().getSrcUrlToTargetUrlAndProbabilityList(srcUrl, isThrowing);
 		return dataList;
 	}
 	

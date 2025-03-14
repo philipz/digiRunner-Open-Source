@@ -47,6 +47,9 @@ import tpi.dgrv4.common.utils.LicenseUtilBase;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.component.DpaaSystemInfoHelper;
 import tpi.dgrv4.dpaa.constant.LicenseEnvType;
+import tpi.dgrv4.dpaa.es.DiskSpaceMonitor;
+import tpi.dgrv4.dpaa.es.ESLogBuffer;
+import tpi.dgrv4.dpaa.es.EsHttpClient;
 import tpi.dgrv4.dpaa.service.ChangeDbConnInfoService;
 import tpi.dgrv4.dpaa.vo.DpaaSystemInfo;
 import tpi.dgrv4.entity.entity.TsmpSetting;
@@ -62,6 +65,7 @@ import tpi.dgrv4.gateway.component.ServerConfigProperties;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.component.cache.core.GenericCache;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpSettingCacheProxy;
+import tpi.dgrv4.gateway.component.job.DeferrableJobManager;
 import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptJobDispatcher;
 import tpi.dgrv4.gateway.constant.DgrDataType;
@@ -125,6 +129,15 @@ public class TPILogger extends ITPILogger {
 
 	@Value("${digi.instance.id}")
 	private String instanceId;
+	
+	@Value("${es.apilog.disk.free.threshold:0.2f}")
+	public Float diskFreeThreshHold; 
+	
+	@Value("${es.apilog.disk.deletePercert:80}")
+	public int deletePercent;
+	
+	@Value("${es.apilog.allow.write.elastic:false}")
+	public boolean allowWriteElastic;
 
 	@Autowired
 	DPB0059Service dPB0059Service;
@@ -202,6 +215,47 @@ public class TPILogger extends ITPILogger {
 
 	@Value("${digiRunner.gtw.deploy.interval.ms:1000}")
 	private Long deployIntervalMs;
+
+	@Value("${es.api.log.store.dir.max.size:5GB}")
+	private String esApiLogDirMaxSize;
+	
+	@Value("${es.api.log.store.dir.max.files:50000}")
+	private int esApiLogDirMaxFiles;
+	
+	// 從配置中獲取最大目錄大小
+    private long getConfiguredMaxDirSize() {
+        // 這裡可以從系統屬性、配置文件或環境變量讀取配置
+        return parseSize(esApiLogDirMaxSize);
+    }
+    
+    // 從配置中獲取最大文件數量
+    private int getConfiguredMaxFiles() {
+        return esApiLogDirMaxFiles;
+    }
+    
+    // 解析大小字符串為字節數
+    private static long parseSize(String sizeStr) {
+        sizeStr = sizeStr.toUpperCase();
+        long multiplier = 1;
+        
+        if (sizeStr.endsWith("KB")) {
+            multiplier = 1024;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("MB")) {
+            multiplier = 1024 * 1024;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("GB")) {
+            multiplier = 1024 * 1024 * 1024;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("TB")) {
+            multiplier = 1024L * 1024L * 1024L * 1024L;
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 2);
+        } else if (sizeStr.endsWith("B")) {
+            sizeStr = sizeStr.substring(0, sizeStr.length() - 1);
+        }
+        
+        return (long)(Double.parseDouble(sizeStr) * multiplier);
+    }
 
 	public String getDeployRole() {
 		return deployRole;
@@ -702,6 +756,16 @@ public class TPILogger extends ITPILogger {
 		if (TPILogger.isFirstConnection == false) {
 			// 首次連 keeper 時不啟動
 			inMemoryGtwRefresh2Landing(TPILogger.threadCreateTiem);
+		}
+		
+		if (allowWriteElastic) {
+			// 產生 CloseableHttpClient 並啟動 ESLogBuffer
+			EsHttpClient.getInstance().getESLogBuffer(diskFreeThreshHold, deletePercent, allowWriteElastic);
+			
+			// 啟動 disk 監控器, 考慮只在消費者(master)中啟動監控器，而生產者(slave)只讀取狀態（這樣只有一個實例在執行檢查）
+			long maxDirSize = getConfiguredMaxDirSize(); // 例如 5GB, 10MB, 2TB
+			int maxFiles = getConfiguredMaxFiles(); // 例如 50,000
+			DiskSpaceMonitor.getInstance(maxDirSize, maxFiles).start();
 		}
 	}
 
@@ -1228,9 +1292,12 @@ public class TPILogger extends ITPILogger {
 						lc.send(new RequireAllClientListPacket());
 						String threadStatus = "...No Enterprise Service...";
 						if (undertowMetricsService != null) {
+							// online console 'Thread Status' data
 							threadStatus = undertowMetricsService.webserverProperties();
 						}
 						lc.send(new UndertowMetricsPacket(lc.userName, threadStatus));
+						
+						// online console 'URI Status' data
 						String uriStatus = GatewayFilter.fetchUriHistoryList();
 						lc.send(new UrlStatusPacket(lc.userName, uriStatus));
 					} catch (InterruptedException e) {
@@ -1264,6 +1331,7 @@ public class TPILogger extends ITPILogger {
 		NodeInfoPacket nodeInfoPacket = new NodeInfoPacket();
 		nodeInfoPacket.cpu = cpuInfo.getCpu() + "";
 		nodeInfoPacket.mem = cpuInfo.getMem() + "";
+		nodeInfoPacket.metaSpace = cpuInfo.getMetaspacePercent();
 		nodeInfoPacket.h_used = cpuInfo.getHused() + "";
 		nodeInfoPacket.h_free = cpuInfo.getHfree() + "";
 		nodeInfoPacket.h_total = cpuInfo.getHtotal() + "";
@@ -1275,31 +1343,17 @@ public class TPILogger extends ITPILogger {
 			if (map.get("dbInfo") != null) {
 				nodeInfoPacket.dbInfo = ((JsonNode) map.get("dbInfo")).toPrettyString();
 			}
-
 		}
 
 		// 獲取API每秒轉發吞吐量，發送到keeper server。
 		// 獲取目前秒數，因為有可能在GatewayFilter設定Api Req
 		// Throughput的秒數為28，在TPILogger取出的秒數是27會有秒差問題，
 		// 所以TPILogger取出秒數要減2秒。
-		long currentTimeMillis = System.currentTimeMillis();
-		int currentSeconds = ((int) (currentTimeMillis / 1000)) - 2;
-
-		synchronized (GatewayFilter.throughputObjLock) {
-			// 重置API發吞吐量
-			nodeInfoPacket.api_ReqThroughputSize = 0 + "";
-			nodeInfoPacket.api_RespThroughputSize = 0 + "";
-			// 取得API發吞吐量
-			if (GatewayFilter.apiReqThroughput.containsKey(currentSeconds)) {
-				nodeInfoPacket.api_ReqThroughputSize = GatewayFilter.apiReqThroughput.get(currentSeconds) + "";
-			}
-			if (GatewayFilter.apiRespThroughput.containsKey(currentSeconds)) {
-				nodeInfoPacket.api_RespThroughputSize = GatewayFilter.apiRespThroughput.get(currentSeconds) + "";
-			}
-		}
+		getTps(nodeInfoPacket);
 
 		nodeInfoPacket.main = main + "";
 		nodeInfoPacket.deferrable = deferrable + "";
+//		nodeInfoPacket.refresh = refresh + ", (buff2ndWaitCount=" + DeferrableJobManager.buff2ndWaitCount.get() +")";
 		nodeInfoPacket.refresh = refresh + "";
 		nodeInfoPacket.updateTime = DateTimeUtil.dateTimeToString(DateTimeUtil.now(), DateTimeFormatEnum.西元年月日時分秒)
 				.orElse("");
@@ -1315,7 +1369,7 @@ public class TPILogger extends ITPILogger {
 		nodeInfoPacket.fixedCacheSize = CommForwardProcService.fixedCacheMap.size() + "";
 		nodeInfoPacket.webLocalIP = lc.getLocalIpAdress();
 		nodeInfoPacket.fqdn = lc.getLocalIpFQDN();
-		nodeInfoPacket.ES_Queue = DgrApiLog2ESQueue.ES_LoggerQueue.size() + " (-"+ DgrApiLog2ESQueue.abortNum +")";
+		nodeInfoPacket.ES_Queue = DgrApiLog2ESQueue.ES_LoggerQueue.size() + " (-" + DgrApiLog2ESQueue.abortNum + ")(-"+ ESLogBuffer.abortNum + ")";
 		nodeInfoPacket.RDB_Queue = DgrApiLog2RdbQueue.rdb_LoggerQueue.size() + " (-"+ DgrApiLog2RdbQueue.abortNum +")";
 
 		nodeInfoPacket.lastUpdateTimeAPI = String.valueOf(lastUpdateTimeAPI.get());
@@ -1337,6 +1391,33 @@ public class TPILogger extends ITPILogger {
 
 		return nodeInfoPacket;
 //		lc.send(nodeInfoPacket);
+	}
+	
+	private void getTps(NodeInfoPacket nodeInfoPacket) {
+		
+		long currentTimeMillis = System.currentTimeMillis();
+		int currentSeconds = ((int) (currentTimeMillis / 1000)) - 2;
+
+		synchronized (GatewayFilter.throughputObjLock) {
+			// 重置API發吞吐量
+			nodeInfoPacket.api_ReqThroughputSize = 0 + "";
+			nodeInfoPacket.api_RespThroughputSize = 0 + "";
+			// 取得API發吞吐量
+			if (GatewayFilter.apiReqThroughput.containsKey(currentSeconds)) {
+				nodeInfoPacket.api_ReqThroughputSize = GatewayFilter.apiReqThroughput.get(currentSeconds) + "";
+			}
+			if (GatewayFilter.apiRespThroughput.containsKey(currentSeconds)) {
+				nodeInfoPacket.api_RespThroughputSize = GatewayFilter.apiRespThroughput.get(currentSeconds) + "";
+			}
+		}
+	}
+	
+	public String getReqTps() {
+		return nodeInfoPacket.api_ReqThroughputSize;
+	}
+	
+	public String getRespTps() {
+		return nodeInfoPacket.api_RespThroughputSize;
 	}
 
 	/**
@@ -1433,16 +1514,11 @@ public class TPILogger extends ITPILogger {
 
 	/**
 	 * Get CPU / Mem info
-	 * 
+	 * 使用單例模式（Singleton Pattern）確保 DpaaSystemInfoHelper 只會被創建一次
 	 * @return
 	 */
 	protected DpaaSystemInfo getMetrics() {
-		DpaaSystemInfoHelper dpaaSystemInfoHelper = new DpaaSystemInfoHelper();
-		DpaaSystemInfo infoVo = new DpaaSystemInfo();
-		dpaaSystemInfoHelper.setCpuUsedRateAndMem(infoVo);
-		dpaaSystemInfoHelper.setDiskInfo(infoVo);
-		dpaaSystemInfoHelper.setRuntimeInfo(infoVo);
-		return infoVo;
+		return DpaaSystemInfoHelper.getInstance().getCachedSystemInfo();
 	}
 
 	/* 由 cache 取 onlineConsole 值 */

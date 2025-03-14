@@ -17,7 +17,7 @@
             </div>
             <!-- <div class="form-group row">
                 <div class="col-3 col-xl-3 col-lg-3">
-                    <button type="button" class="btn btn-warning float-left mr-3"
+                    <button type="button" class="btn btn-warning float-start me-3"
                         (click)="queryClientList();">{{'button.search'|translate}}</button>
                 </div>
             </div> -->
@@ -49,7 +49,7 @@
                     </td>
                     <td style="text-align:center;width: 50px">
                         <!-- <div class="btn-group">
-                            <button type="button" class="btn btn-deta mr-5" (click)="viewClientOpenApiList(rowData);">
+                            <button type="button" class="btn btn-deta me-5" (click)="viewClientOpenApiList(rowData);">
                                 <span class="fa fa-search">{{'button.view'|translate}}</span>
                             </button>
                         </div> -->
@@ -63,7 +63,7 @@
                 <tr *ngIf="clientListRowcount">
                     <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
                         <span style="vertical-align: middle;">{{'row_count' | translate}}: {{clientListRowcount}}</span>
-                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                        <!-- <button type="button" class="btn btn-warning pull-right ms-3"
                             (click)="moreClientList();">{{'button.more'|translate}}</button> -->
 
                             <!-- 查詢更多 -->
@@ -87,7 +87,7 @@
         <form>
             <div class="form-group row">
                 <div class="col-12 col-xl-12 col-lg-12">
-                    <button type="button" class="btn tpi-btn tpi-second loat-left mr-3" (click)="applyOpenApiKey('create');"
+                    <button type="button" class="btn tpi-btn tpi-second loat-left me-3" (click)="applyOpenApiKey('create');"
                         [disabled]="canCreate == false">{{'button.apply'|translate}}</button>
                 </div>
             </div>
@@ -118,21 +118,21 @@
                         </td>
                         <td style="text-align:center;width: 150px">
                             <!-- <div class="btn-group"> -->
-                                <!-- <button type="button" class="btn btn-deta mr-5"
+                                <!-- <button type="button" class="btn btn-deta me-5"
                                     (click)="queryOpenApiKeyDetail(rowData);">
                                     <span class="fa fa-search">{{'button.detail'|translate}}</span>
                                 </button> -->
                                 <button pButton pRipple type="button" icon="pi pi-eye"
                                         class="p-button-rounded p-button-text p-button-plain" (click)="queryOpenApiKeyDetail(rowData)"
                                         [pTooltip]="'button.detail' | translate" tooltipPosition="top"></button>
-                                <!-- <button *ngIf="rowData['updateVisiable'] == 'Y'" type="button" class="btn btn-deta mr-5"
+                                <!-- <button *ngIf="rowData['updateVisiable'] == 'Y'" type="button" class="btn btn-deta me-5"
                                     (click)="applyOpenApiKey('update', rowData);" [disabled]="canCreate == false">
                                     <span class="fa fa-search">{{'button.change'|translate}}</span>
                                   </button>-->
                                   <button pButton pRipple type="button" icon="fa fa-edit" *ngIf="rowData['updateVisiable'] == 'Y'" [disabled]="canCreate == false"
                                           class="p-button-rounded p-button-text p-button-plain" (click)="applyOpenApiKey('update', rowData);"
                                           [pTooltip]="'button.change' | translate" tooltipPosition="top"></button>
-                                <!-- <button *ngIf="rowData['revokeVisiable'] == 'Y'" type="button" class="btn btn-deta mr-5"
+                                <!-- <button *ngIf="rowData['revokeVisiable'] == 'Y'" type="button" class="btn btn-deta me-5"
                                     (click)="applyOpenApiKey('revoke', rowData);" [disabled]="canCreate == false">
                                     <span class="fa fa-search">{{'button.revoke'|translate}}</span>
                                 </button> -->
@@ -147,7 +147,7 @@
                     <tr *ngIf="openApiKeyListRowcount">
                         <td [attr.colspan]="columns.length+1" style="color: #b7b7b7;">
                             <span style="vertical-align: middle;">{{'row_count' | translate}}: {{openApiKeyListRowcount}}</span>
-                            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                            <!-- <button type="button" class="btn btn-warning pull-right ms-3"
                                 (click)="moreOpenApiList();">{{'button.more'|translate}}</button> -->
 
                                 <!-- 查詢更多 -->
@@ -168,7 +168,7 @@
             <br>
             <div class="form-group row">
                 <div class="col-12 col-xl-12 col-lg-12">
-                    <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+                    <button type="button" class="btn tpi-btn tpi-primary float-start me-3"
                         (click)="changePage('queryClientList', false);">{{'button.return_to_list'|translate}}</button>
                 </div>
             </div>
@@ -281,7 +281,7 @@
                                 <tr *ngIf="openApiKeyDetailRowcount">
                                     <td [attr.colspan]="columns.length" style="color: #b7b7b7;">
                                         <span>{{'row_count' | translate}}: {{openApiKeyDetailRowcount}}</span>
-                                        <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+                                        <!-- <button type="button" class="btn btn-warning pull-right ms-3"
                                             (click)="moreOpenApiKeyDetailData();">{{'button.more'|translate}}</button> -->
 
                                             <!-- 查詢更多 -->
@@ -306,7 +306,7 @@
         <br>
         <div class="row">
             <div class="col-12 col-xl-12 col-lg-12">
-                <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+                <button type="button" class="btn tpi-btn tpi-primary float-start me-3"
                     (click)="changePage('viewClientOpenApiList', false);">{{'button.return_to_list'|translate}}</button>
             </div>
         </div>
@@ -319,7 +319,7 @@
         <br>
         <div class="row">
             <div class="col-12 col-xl-12 col-lg-12">
-                <button type="button" class="btn tpi-btn tpi-primary float-left mr-3"
+                <button type="button" class="btn tpi-btn tpi-primary float-start me-3"
                     (click)="changePage('viewClientOpenApiList', true);">{{'button.return_to_list'|translate}}</button>
             </div>
         </div>

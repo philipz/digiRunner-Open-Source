@@ -128,7 +128,7 @@ public class TptokenService {
 			flagName = TsmpSettingDao.Key.LDAP_CHECK_ACCT_ENABLE;
 			flag_ldap = getTsmpSettingService().getVal_LDAP_CHECK_ACCT_ENABLE();
 		} catch (TsmpDpAaException e) {
-			TPILogger.tl.debug("查無資料:" + flagName);
+			TPILogger.tl.debug("No data found:" + flagName);
 //			throw TsmpDpAaRtnCode._1298.throwing();
 		}
 		
@@ -136,7 +136,7 @@ public class TptokenService {
 		String grantType = parameters.get("grant_type");
 		if("refresh_token".equalsIgnoreCase(grantType)) {
 			//refresh_token 用 parameters.get("username") 會得到 null
-			TPILogger.tl.info("--執行 doTptoken");
+			TPILogger.tl.info("--Execute doTptoken");
 			doTptoken(parameters, scheme, httpRes, userIp, userHostname, txnUid);
 			return;
 		}
@@ -145,7 +145,7 @@ public class TptokenService {
 		//判斷 user 是否為 manager
 		boolean isManager = isManager(parameters);
 		if(isManager) {
-			TPILogger.tl.info("--執行 doTptoken");
+			TPILogger.tl.info("--Execute doTptoken");
 			doTptoken(parameters, scheme, httpRes, userIp, userHostname, txnUid);
 			return;
 		}
@@ -153,16 +153,16 @@ public class TptokenService {
 		//3. 若有啟用 LDAP,執行 ssotoken
 		if(flag_ldap) {
 			if(isDoLdap()) {
-				TPILogger.tl.info("--執行 doLdap");
+				TPILogger.tl.info("--Execute doLdap");
 				doLdap(parameters, localBaseUrl);
 			}
-			TPILogger.tl.info("--執行 doSsotoken");
+			TPILogger.tl.info("--Execute doSsotoken");
 			doSsotoken(parameters, scheme, httpRes, locale, userIp, userHostname, txnUid);
 			return;
 		}
 		
 		//4. 其他,執行 tptoken
-		TPILogger.tl.info("--執行 doTptoken");
+		TPILogger.tl.info("--Execute doTptoken");
 		doTptoken(parameters, scheme, httpRes, userIp, userHostname, txnUid);
 	}
 	

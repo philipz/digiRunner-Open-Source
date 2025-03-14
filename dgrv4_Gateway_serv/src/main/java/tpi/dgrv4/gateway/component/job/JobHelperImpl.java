@@ -46,14 +46,14 @@ public class JobHelperImpl implements JobHelper {
 		this.logger = logger;
 	}
 	
-	public static boolean STRESS_MODE = false;
+	public static boolean STRESS_MODE = true;
 
 	@Override
 	public void add(Job job) throws DgrException {
 		try {
 			
 			// 壓測造成太多 RefreshCaheJob 了所以不放入, 這只會影響到快取的更新
-			if (JobHelperImpl.STRESS_MODE && getMainJobManager().size() > 500
+			if (JobHelperImpl.STRESS_MODE && getMainJobManager().size() > 100
 					&& (job instanceof RefreshCacheJob || job instanceof DummyJob)) {
 				return ; 
 			}
@@ -79,21 +79,50 @@ public class JobHelperImpl implements JobHelper {
 		if (types != null && types.length > 0) {
 			for (int type : types) {
 				if (type == 1) {
-					sum += getMainJobManager().size();
+					sum += mainJobManager.size();
 				} else if (type == 2) {
 //					sum += getDeferrableJobManager().size();
 					//int queueSize = ((ThreadPoolExecutor) getDeferrableJobManager().executor2nd).getQueue().size();//UT時會發生NullPointException
-					int queueSize = getDeferrableJobManager().getExecutor2ndQueueSize();
-					sum += getDeferrableJobManager().buff2nd.size() + queueSize;
+					sum += deferrableJobManager.size() + deferrableJobManager.buff1st.size() + 
+							deferrableJobManager.buff2nd.size();
 				} else if (type == 3) {
 //					sum += getRefreshCacheJobManager().size();
 					//int queueSize = ((ThreadPoolExecutor) getRefreshCacheJobManager().executor2nd).getQueue().size();//UT時會發生NullPointException
-					int queueSize = getDeferrableJobManager().getExecutor2ndQueueSize();
-					sum += getRefreshCacheJobManager().buff2nd.size() + queueSize;
+//					int queueSize = getDeferrableJobManager().getExecutor2ndQueueSize();
+					sum += deferrableJobManager.buff1st.size() + 
+							deferrableJobManager.buff2nd.size() + 
+							deferrableJobManager.size();
 				}
 			}
 		}
 		return sum;
+	}
+	
+	@Override
+	public String getQueueStatus(int type) {
+		String status = "(";
+		if (type == 1) {
+			status += getMainJobManager().size() + ", ";
+			status += getMainJobManager().buff1st.size() + ", ";
+			status += getMainJobManager().buff2nd.size() + ")";
+		} else if (type == 2) {
+			status += getDeferrableJobManager().size() + ", ";
+			status += getDeferrableJobManager().buff1st.size() + ", ";
+			status += getDeferrableJobManager().buff2nd.size() + ")";
+		} else if (type == 3) {
+			status += getRefreshCacheJobManager().size() + ", ";
+			status += getRefreshCacheJobManager().buff1st.size() + ", ";
+			status += getRefreshCacheJobManager().buff2nd.size() + ")";
+		}
+		clear3Q();
+		return status;
+	}
+	
+	@Override
+	public void clear3Q() {
+		this.mainJobManager.clear();
+		this.deferrableJobManager.clear();
+		this.refreshCacheJobManager.clear();
 	}
 
 	@Override
@@ -134,27 +163,6 @@ public class JobHelperImpl implements JobHelper {
 		});
 	}
 
-	// SonarQube 弱掃處理
-//	public void take1stJob__(final LinkedHashMap<String, Job> buff1st,final LinkedHashMap<String, Job> buff2nd) {
-//		Map.Entry<String, Job> entry = null;
-//		// 取出第一個元素 (取出 1st job 放入 2nd)
-//		synchronized (buff1st) {
-//			Iterator<Map.Entry<String, Job>> itr = buff1st.entrySet().iterator();
-//			if (itr.hasNext()) {
-//				entry = itr.next(); //NoSuchElementException 
-//				itr.remove(); // ConcurrentModificationException
-//			}
-//		}
-//		
-//		if (entry==null) {return;}
-//		
-//		Job valJob = entry.getValue();
-//		
-//		synchronized (buff2nd) {
-//			buff2nd.put(valJob.getGroupId(), valJob);
-//			buff2nd.notify();
-//		}
-//	}
 
 	public void defer(DeferrableJob job) {
 		DeferrableJobManager jm = getDeferrableJobManagerByType(job);
@@ -190,6 +198,7 @@ public class JobHelperImpl implements JobHelper {
 		}
 		return getDeferrableJobManager();
 	}
+	
 
 	protected JobManager getMainJobManager() {
 		return this.mainJobManager;

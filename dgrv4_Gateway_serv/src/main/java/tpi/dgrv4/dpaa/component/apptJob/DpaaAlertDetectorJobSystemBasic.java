@@ -30,11 +30,10 @@ public class DpaaAlertDetectorJobSystemBasic extends DpaaAlertDetectorJob<DpaaAl
 	private TPILogger logger = TPILogger.tl;
 
 	
-	private DpaaSystemInfoHelper dpaaSystemInfoHelper;
+	private DpaaSystemInfoHelper dpaaSystemInfoHelper = DpaaSystemInfoHelper.getInstance();
 	
 	public DpaaAlertDetectorJobSystemBasic(TsmpDpApptJob tsmpDpApptJob, ObjectMapper objectMapper) throws Exception {
 		super(tsmpDpApptJob, objectMapper, DpaaAlertDetectorJobSystemBasicParams.class);
-		this.dpaaSystemInfoHelper = new DpaaSystemInfoHelper();
 	}
 
 	@Override

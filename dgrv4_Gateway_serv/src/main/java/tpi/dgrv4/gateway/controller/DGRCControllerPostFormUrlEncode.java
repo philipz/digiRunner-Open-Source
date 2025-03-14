@@ -30,9 +30,9 @@ public class DGRCControllerPostFormUrlEncode {
 														 @RequestHeader HttpHeaders headers,
 														 @RequestParam MultiValueMap< String, String > values) throws Exception {
 
-		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.SETWORK_THREAD).toString();
 		CompletableFuture<ResponseEntity<?>> resp;
-		if (selectWorkThread.equals(GatewayFilter.fast)) {
+		if (selectWorkThread.equals(GatewayFilter.FAST)) {
 			resp = service.forwardToPostFormUrlEncodedAsyncFast(headers, httpReq, httpRes, values);
 		} else {
 			resp = service.forwardToPostFormUrlEncodedAsync(headers, httpReq, httpRes, values);

@@ -73,8 +73,8 @@ public class DGRCServicePatch implements IApiCacheService {
 		String reqUrl = httpReq.getRequestURI();
 
 		TsmpApiReg apiReg = null;
-		String dgrcPatchModuleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String dgrcPatchApiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String dgrcPatchModuleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+		String dgrcPatchApiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 		TsmpApiRegId tsmpApiRegId = new TsmpApiRegId(dgrcPatchApiId, dgrcPatchModuleName);
 		Optional<TsmpApiReg> opt_tsmpApiReg = getTsmpApiRegCacheProxy().findById(tsmpApiRegId);		
 		if (opt_tsmpApiReg.isPresent()) {
@@ -190,7 +190,7 @@ public class DGRCServicePatch implements IApiCacheService {
 		}
 
 		// 印出第四道log
-		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo);
+		StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length, maskInfo, httpReq);
 		TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End DGRC】--\n" + resLog.toString());
 		
 		// 第一組ES RESP

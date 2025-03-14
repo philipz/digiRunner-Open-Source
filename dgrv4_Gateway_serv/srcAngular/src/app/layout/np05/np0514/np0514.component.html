@@ -18,7 +18,7 @@
           >
           </p-dropdown>
 
-          <span class="p-input-icon-right ml-2" style="width: 40vw">
+          <span class="p-input-icon-right ms-2" style="width: 40vw">
             <i
               class="pi pi-search tpi-i-search"
               (click)="queryScheduleList()"
@@ -37,7 +37,7 @@
 
           <button
             type="button"
-            class="btn tpi-btn tpi-second float-right"
+            class="btn tpi-btn tpi-second float-end"
             [disabled]="canCreate == false"
             (click)="changePage('create')"
           >
@@ -60,8 +60,8 @@
             </div>
             <div class="form-group row">
                 <div class="col-3 col-xl-3">
-                    <button type="submit" class="btn btn-warning float-left mr-3">{{'button.search'|translate}}</button>
-                    <button type="button" class="btn btn-primary float-left" (click)="changePage('create');"
+                    <button type="submit" class="btn btn-warning float-start me-3">{{'button.search'|translate}}</button>
+                    <button type="button" class="btn btn-primary float-start" (click)="changePage('create');"
                         [disabled]="canCreate == false">
                         {{'button.create'|translate}}
                     </button>
@@ -140,35 +140,35 @@
                         (click)="toggleBtnMenu($event,rowData);"></button> -->
             <!-- <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="toggleBtnMenu($event)"></button> -->
 
-            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('detail',rowData);"
+            <!-- <button type="button" class="btn btn-deta me-5" (click)="changePage('detail',rowData);"
                             [disabled]="rowData['detailFlag'] == false">
                             <span class="fa fa-edit">{{'button.detail' | translate}}</span>
                         </button> -->
-            <!-- <button type="button" class="btn btn-deta mr-5" (click)="changePage('update',rowData);"
+            <!-- <button type="button" class="btn btn-deta me-5" (click)="changePage('update',rowData);"
                             [disabled]="rowData['updateFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.edit' | translate}}</span>
                         </button> -->
 
-            <!-- <button *ngIf="rowData['pauseVisible']" type="button" class="btn btn-deta mr-5"
+            <!-- <button *ngIf="rowData['pauseVisible']" type="button" class="btn btn-deta me-5"
                             (click)="changePage('pause',rowData);"
                             [disabled]="rowData['pauseFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.pause' | translate}}</span>
                         </button>
 
-                        <button *ngIf="rowData['activeVisible']" type="button" class="btn btn-deta mr-5"
+                        <button *ngIf="rowData['activeVisible']" type="button" class="btn btn-deta me-5"
                             (click)="changePage('active',rowData);"
                             [disabled]="rowData['activeFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.active' | translate}}</span>
                         </button>
-                        <button type="button" class="btn btn-deta mr-5" (click)="changePage('skip',rowData);"
+                        <button type="button" class="btn btn-deta me-5" (click)="changePage('skip',rowData);"
                             [disabled]="rowData['skipFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.pause_once'|translate}}</span>
                         </button>
-                        <button type="button" class="btn btn-deta mr-5" (click)="changePage('invalid',rowData);"
+                        <button type="button" class="btn btn-deta me-5" (click)="changePage('invalid',rowData);"
                             [disabled]="rowData['inactiveFlag'] == false || canUpdate == false">
                             <span class="fa fa-edit">{{'button.disable'|translate}}</span>
                         </button>
-                        <button type="button" class="btn btn-deta mr-5" (click)="changePage('traker',rowData);"
+                        <button type="button" class="btn btn-deta me-5" (click)="changePage('traker',rowData);"
                             [disabled]="rowData['historyFlag'] == false">
                             <span class="fa fa-edit">{{'button.history'|translate}}</span>
                         </button> -->
@@ -188,7 +188,7 @@
             <span style="vertical-align: middle"
               >{{ "row_count" | translate }}: {{ scheduleListRowcount }}</span
             >
-            <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+            <!-- <button type="button" class="btn btn-warning pull-right ms-3"
                             (click)="moreScheduleList();">{{'button.more'|translate}}</button> -->
 
             <!-- 查詢更多 -->
@@ -369,7 +369,7 @@
                 value="3"
                 inputId="frequency3"
               ></p-radioButton>
-              <label for="frequency3" class="ml-2 mb-0">
+              <label for="frequency3" class="ms-2 mb-0">
                 {{ "every_ten_minutes" | translate }}</label
               >
             </div>
@@ -380,7 +380,7 @@
                 value="4"
                 inputId="frequency4"
               ></p-radioButton>
-              <label for="frequency4" class="ml-2 mb-0">
+              <label for="frequency4" class="ms-2 mb-0">
                 {{ "every_halt_hour" | translate }}</label
               >
             </div>
@@ -391,7 +391,7 @@
                 value="5"
                 inputId="frequency5"
               ></p-radioButton>
-              <label for="frequency5" class="ml-2 mb-0">
+              <label for="frequency5" class="ms-2 mb-0">
                 {{ "every_hour" | translate }}</label
               >
             </div>
@@ -402,7 +402,7 @@
                 value="6"
                 inputId="frequency6"
               ></p-radioButton>
-              <label for="frequency6" class="ml-2 mb-0">
+              <label for="frequency6" class="ms-2 mb-0">
                 {{ "every_two_hours" | translate }}</label
               >
             </div>
@@ -413,7 +413,7 @@
                 value="7"
                 inputId="frequency7"
               ></p-radioButton>
-              <label for="frequency7" class="ml-2 mb-0">
+              <label for="frequency7" class="ms-2 mb-0">
                 {{ "every_six_hours" | translate }}</label
               >
             </div>
@@ -424,7 +424,7 @@
                 value="8"
                 inputId="frequency8"
               ></p-radioButton>
-              <label for="frequency8" class="ml-2 mb-0">
+              <label for="frequency8" class="ms-2 mb-0">
                 {{ "every_twelve_hours" | translate }}</label
               >
             </div>
@@ -526,7 +526,7 @@
                                             <td>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="0"  inputId="frequency0"></p-radioButton>
-                                                <label for="frequency0" class="ml-2 mb-0">{{'everyday'|translate}}</label>
+                                                <label for="frequency0" class="ms-2 mb-0">{{'everyday'|translate}}</label>
                                               </div>
                                                 <div *ngIf="frequency.invalid && (frequency.dirty || frequency.touched)"
                                                     class="text-danger">
@@ -555,27 +555,27 @@
                                             <td rowspan="3">
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="3"  inputId="frequency3"></p-radioButton>
-                                                <label for="frequency3" class="ml-2 mb-0"> {{'every_ten_minutes'|translate}}</label>
+                                                <label for="frequency3" class="ms-2 mb-0"> {{'every_ten_minutes'|translate}}</label>
                                               </div>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="4"  inputId="frequency4"></p-radioButton>
-                                                <label for="frequency4" class="ml-2 mb-0"> {{'every_halt_hour'|translate}}</label>
+                                                <label for="frequency4" class="ms-2 mb-0"> {{'every_halt_hour'|translate}}</label>
                                               </div>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="5"  inputId="frequency5"></p-radioButton>
-                                                <label for="frequency5" class="ml-2 mb-0"> {{'every_hour'|translate}}</label>
+                                                <label for="frequency5" class="ms-2 mb-0"> {{'every_hour'|translate}}</label>
                                               </div>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="6"  inputId="frequency6"></p-radioButton>
-                                                <label for="frequency6" class="ml-2 mb-0">  {{'every_two_hours'|translate}}</label>
+                                                <label for="frequency6" class="ms-2 mb-0">  {{'every_two_hours'|translate}}</label>
                                               </div>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="7"  inputId="frequency7"></p-radioButton>
-                                                <label for="frequency7" class="ml-2 mb-0">   {{'every_six_hours'|translate}}</label>
+                                                <label for="frequency7" class="ms-2 mb-0">   {{'every_six_hours'|translate}}</label>
                                               </div>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="8"  inputId="frequency8"></p-radioButton>
-                                                <label for="frequency8" class="ml-2 mb-0">    {{'every_twelve_hours'|translate}}</label>
+                                                <label for="frequency8" class="ms-2 mb-0">    {{'every_twelve_hours'|translate}}</label>
                                               </div>
                                             </td>
                                         </tr>
@@ -583,7 +583,7 @@
                                             <td>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="1"  inputId="frequency1"></p-radioButton>
-                                                <label for="frequency1" class="ml-2 mb-0">    {{'every_month'|translate}}</label>
+                                                <label for="frequency1" class="ms-2 mb-0">    {{'every_month'|translate}}</label>
                                               </div>
 
                                                 <p-multiSelect [options]="dayRangeOption"
@@ -599,7 +599,7 @@
                                             <td>
                                               <div class="p-form-check">
                                                 <p-radioButton formControlName="frequency" value="2"  inputId="frequency2"></p-radioButton>
-                                                <label for="frequency2" class="ml-2 mb-0">{{'every_week'|translate}}</label>
+                                                <label for="frequency2" class="ms-2 mb-0">{{'every_week'|translate}}</label>
                                               </div>
                                                 <p-multiSelect [options]="weekRangeOption"
                                                     [style]="{'width':'100%'}"
@@ -655,7 +655,7 @@
           <button
             *ngIf="currentAction != 'detail'"
             type="button"
-            class="btn tpi-btn tpi-second float-left mr-3"
+            class="btn tpi-btn tpi-second float-start me-3"
             [disabled]="
               form.invalid || rjobItems.value.length == 0 || !isInvalid
             "
@@ -665,7 +665,7 @@
           </button>
           <button
             type="button"
-            class="btn tpi-btn tpi-primary float-left"
+            class="btn tpi-btn tpi-primary float-start"
             (click)="changePage('query')"
           >
             {{ "button.return_to_list" | translate }}
@@ -733,7 +733,7 @@
                 >{{ "row_count" | translate }}:
                 {{ scheduleHistoryDataRowcount }}</span
               >
-              <!-- <button type="button" class="btn btn-warning pull-right ml-3"
+              <!-- <button type="button" class="btn btn-warning pull-right ms-3"
                                 (click)="moreScheduleHistoryData();">{{'button.more'|translate}}</button> -->
 
               <!-- 查詢更多 -->
@@ -764,7 +764,7 @@
         <div class="col-12 col-lg-12">
           <button
             type="button"
-            class="btn tpi-btn tpi-primary float-left"
+            class="btn tpi-btn tpi-primary float-start"
             (click)="changePage('query')"
           >
             {{ "button.return_to_list" | translate }}

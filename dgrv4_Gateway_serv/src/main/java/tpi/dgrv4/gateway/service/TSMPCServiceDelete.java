@@ -64,8 +64,8 @@ public class TSMPCServiceDelete implements IApiCacheService {
 
 			String reqUrl = httpReq.getRequestURI();
 
-			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
-			String tsmpcDel_moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
+			String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
+			String tsmpcDel_moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
 
 			// 1. req header / body
 			// print log

@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import tpi.dgrv4.codec.utils.Base64Util;
 import tpi.dgrv4.codec.utils.HexStringUtils;
@@ -86,6 +87,11 @@ import tpi.dgrv4.gateway.vo.OAuthTokenErrorResp2;
 
 @Component
 public class TokenHelper {
+	
+	private static volatile TokenHelper instance;
+	
+	@Value("${digi.cookie.samesite.value:Lax}")
+	public String samesiteValue;
 
 	@Autowired
 	private TsmpClientDao tsmpClientDao;
@@ -185,6 +191,22 @@ public class TokenHelper {
 	public static final String THE_PROFILE_IS_MISSING_PARAMETERS = "The profile is missing parameters: ";
 	// 缺少必需的參數
 	public static final String MISSING_REQUIRED_PARAMETER = "Missing required parameter: ";
+	
+    public static TokenHelper getInstance() {
+        if (instance == null) {
+            synchronized (TokenHelper.class) {
+                if (instance == null) {
+                    instance = new TokenHelper();
+                }
+            }
+        }
+        return instance;
+    }
+    
+    @PostConstruct
+    public void init() {
+    	instance = this;
+    }
 
 	public static class JwtPayloadData {
 		public ResponseEntity<?> errRespEntity;
@@ -193,13 +215,39 @@ public class TokenHelper {
 	}
 
 	public static class BasicAuthClientData {
-		public ResponseEntity<?> errRespEntity;
-		public String[] cliendData = null;
+		private ResponseEntity<?> errRespEntity;
+		private String[] cliendData = null;
+		
+		public ResponseEntity<?> getErrRespEntity() {
+			return errRespEntity;
+		}
+		public void setErrRespEntity(ResponseEntity<?> errRespEntity) {
+			this.errRespEntity = errRespEntity;
+		}
+		public String[] getCliendData() {
+			return cliendData;
+		}
+		public void setCliendData(String[] cliendData) {
+			this.cliendData = cliendData;
+		}
 	}
 
 	public static class DgrkAuthData {
-		public ResponseEntity<?> errRespEntity;
-		public String[] authData = null;
+		private ResponseEntity<?> errRespEntity;
+		private String[] authData = null;
+		
+		public ResponseEntity<?> getErrRespEntity() {
+			return errRespEntity;
+		}
+		public void setErrRespEntity(ResponseEntity<?> errRespEntity) {
+			this.errRespEntity = errRespEntity;
+		}
+		public String[] getAuthData() {
+			return authData;
+		}
+		public void setAuthData(String[] authData) {
+			this.authData = authData;
+		}
 	}
 
 	/**
@@ -224,11 +272,7 @@ public class TokenHelper {
 			return false;
 		}
 
-		int flag = authorization.toLowerCase().indexOf(keyword.toLowerCase());// 轉小寫,再比較(忽略大小寫)
-		if (flag == -1) {
-			return false;
-		}
-		return true;
+		return authorization.toLowerCase().contains(keyword.toLowerCase());// 轉小寫,再比較(忽略大小寫)
 	}
 
 	/**
@@ -369,8 +413,7 @@ public class TokenHelper {
 		// 因為最終要用findFirstByClientId的cache機制,所以沒用findById
 		TsmpClient client = getTsmpClientCacheProxy().findFirstByClientId(clientId);
 		if (client == null) {
-			ResponseEntity<?> errRespEntity = getFindTsmpClientError(clientId, reqUri);
-			return errRespEntity;
+			return getFindTsmpClientError(clientId, reqUri);
 		}
 
 		// client 狀態為2(停用)或3(鎖定)
@@ -461,7 +504,7 @@ public class TokenHelper {
 				client.setPwdFailTimes(pwdFailTimes + 1);
 			}
 
-			client = getTsmpClientDao().save(client);
+			getTsmpClientDao().save(client);
 		}
 	}
 
@@ -1446,8 +1489,8 @@ public class TokenHelper {
 	 */
 	public ResponseEntity<?> verifyApiForXApiKey(String xApiKey, HttpServletRequest httpReq) throws Exception {
 		String reqUri = httpReq.getRequestURI();
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+		String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 
 		// 1.找不到符合的 X-Api-Key
 		String xApiKeyEn = getXApiKeyEn(xApiKey);// 取得 X-Api-Key 經過 SHA256 的值
@@ -1572,8 +1615,8 @@ public class TokenHelper {
 	 */
 	public ResponseEntity<?> verifyApiForAuth(String authorization, HttpServletRequest httpReq, String payload) {
 		String reqUri = httpReq.getRequestURI();
-		String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-		String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+		String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+		String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 
 		// 1.是否有 authorization
 		ResponseEntity<?> respEntity = checkHasAuthorization(authorization, reqUri);
@@ -2510,7 +2553,7 @@ public class TokenHelper {
 				.maxAge(maxAge) // 以秒為單位
 				.path("/").httpOnly(true) // 禁止 JavaScript 存取 cookie, 防止 XSS Attack (Cross-Site Scripting，跨站腳本攻擊)
 				.secure(true) // 讓 cookie 只能透過 https 傳遞, 即只有 HTTPS 才能讀與寫
-				.sameSite("Strict") // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
+				.sameSite(TokenHelper.getInstance().samesiteValue) // 防止 CSRF Attack (Cross-site request forgery，跨站請求偽造)
 				.build();
 
 		return cookie;

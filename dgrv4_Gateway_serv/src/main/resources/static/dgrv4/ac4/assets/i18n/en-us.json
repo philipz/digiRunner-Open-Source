@@ -1247,8 +1247,8 @@
   "target_url_remove_n_import": "When updating, delete the target URL and then import the new target URL.",
   "export_dont_modify": "Do not modify the JSON file content after exporting to avoid system errors during import.",
   "apiStatus": {
-    "scheduledLaunchDate": "Scheduled Activation Date",
-    "scheduledDiscontinuationDate": "Scheduled Deactivation Date",
+    "scheduledLaunchDate": "Scheduled Enablement",
+    "scheduledDiscontinuationDate": "Scheduled Disablement",
     "noSchedule": "No Schedule",
     "daysLater": "{{day}} days later",
     "scheduleDate": "Scheduled Date",

@@ -28,9 +28,9 @@ public class DGRCControllerPostRaw {
 														 @RequestHeader HttpHeaders headers,
 														 @RequestBody(required = false) String payload) throws Exception {
 
-		String selectWorkThread = httpReq.getAttribute(GatewayFilter.setWorkThread).toString();
+		String selectWorkThread = httpReq.getAttribute(GatewayFilter.SETWORK_THREAD).toString();
         CompletableFuture<ResponseEntity<?>> resp;
-        if (selectWorkThread.equals(GatewayFilter.fast)) {
+        if (selectWorkThread.equals(GatewayFilter.FAST)) {
             resp = service.forwardToPostRawDataAsyncFast(headers, httpReq, httpRes, payload);
         } else { // "slow"
             resp = service.forwardToPostRawDataAsync(headers, httpReq, httpRes, payload);

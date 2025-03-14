@@ -80,12 +80,12 @@ public class TokenCheck {
 		
 		//取得 Basic Authorization 的 Client ID
 		BasicAuthClientData basicAuthClientData = getTokenHelper().getAuthClientDataForBasic(authorization, null);
-		ResponseEntity<?> respEntity = basicAuthClientData.errRespEntity;
+		ResponseEntity<?> respEntity = basicAuthClientData.getErrRespEntity();
 		if(respEntity != null) {
 			return null;
 		}
 		
-		String[] cliendData = basicAuthClientData.cliendData;
+		String[] cliendData = basicAuthClientData.getCliendData();
 		cid = cliendData[0];
 		
 		return cid;
@@ -130,12 +130,12 @@ public class TokenCheck {
 		
 		//取得 DGRK Authorization 的資料
 		DgrkAuthData dgrkAuthData = getTokenHelper().getAuthDataForDgrk(authorization, null);
-		ResponseEntity<?> respEntity = dgrkAuthData.errRespEntity;
+		ResponseEntity<?> respEntity = dgrkAuthData.getErrRespEntity();
 		if(respEntity != null) {
 			return null;
 		}
 		
-		String[] authData = dgrkAuthData.authData;
+		String[] authData = dgrkAuthData.getAuthData();
 		String openApiKey = authData[0];
 		
 		TsmpOpenApiKey tsmpOpenApiKey = getTsmpOpenApiKeyDao().findFirstByOpenApiKey(openApiKey);

@@ -75,6 +75,8 @@ public class NodeInfoPacket implements Packet_i {
 	public static final String DBINFO = "dbInfo";
 	public static final String DBCONNECT = "dbConnect";
 
+	public static final String METASPACE = "METASPACE";
+
 	public String main;
 
 	public String deferrable;
@@ -118,6 +120,8 @@ public class NodeInfoPacket implements Packet_i {
 	public String cpu;
 
 	public String mem;
+	
+	public String metaSpace;
 
 	public String h_used;
 
@@ -199,6 +203,7 @@ public class NodeInfoPacket implements Packet_i {
 				nodeInfoData.put(rdbQueue, RDB_Queue);
 
 				nodeInfoData.put(CPU, cpu);
+				nodeInfoData.put(METASPACE, metaSpace);
 				nodeInfoData.put(MEM, mem);
 				nodeInfoData.put(H_USED, h_used);
 				nodeInfoData.put(H_FREE, h_free);

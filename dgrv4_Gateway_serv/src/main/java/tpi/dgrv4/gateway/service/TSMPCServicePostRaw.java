@@ -68,12 +68,12 @@ public class TSMPCServicePostRaw implements IApiCacheService {
 			}
 
 			String reqUrl = httpReq.getRequestURI();
-			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+			String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 
 			// 1. req header / body
 			// print log
 			String uuid = UUID.randomUUID().toString();
-			String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
+			String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
 			// 判斷是否需要cApikey
 			boolean cApiKeySwitch = getCommForwardProcService().getcApiKeySwitch(moduleName, apiId);
 			String aType = "R";

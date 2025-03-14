@@ -64,8 +64,8 @@ public class TSMPCServicePut implements IApiCacheService {
 			}
 
 			String reqUrl = httpReq.getRequestURI();
-			String moduleName = httpReq.getAttribute(GatewayFilter.moduleName).toString();
-			String apiId = httpReq.getAttribute(GatewayFilter.apiId).toString();
+			String moduleName = httpReq.getAttribute(GatewayFilter.MODULE_NAME).toString();
+			String apiId = httpReq.getAttribute(GatewayFilter.API_ID).toString();
 
 			// 1. req header / body
 			// print

@@ -31,8 +31,10 @@ import tpi.dgrv4.common.constant.DateTimeFormatEnum;
 import tpi.dgrv4.common.utils.DateTimeUtil;
 import tpi.dgrv4.common.utils.StackTraceUtil;
 import tpi.dgrv4.dpaa.component.DpaaSystemInfoHelper;
+import tpi.dgrv4.dpaa.es.ESLogBuffer;
 import tpi.dgrv4.dpaa.vo.DpaaSystemInfo;
 import tpi.dgrv4.entity.exceptions.DgrException;
+import tpi.dgrv4.gateway.component.job.DeferrableJobManager;
 import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.keeper.TPILogger;
 import tpi.dgrv4.gateway.vo.TsmpMonitorLog;
@@ -65,7 +67,7 @@ public class MonitorHostService {
 	@Qualifier("async-workers-highway")
 	ThreadPoolTaskExecutor asyncWorkerHighwayPool;
 	
-	private DpaaSystemInfoHelper dpaaSystemInfoHelper = new DpaaSystemInfoHelper();
+	private DpaaSystemInfoHelper dpaaSystemInfoHelper = DpaaSystemInfoHelper.getInstance();
 	
 	private long times = 0;
 	
@@ -81,6 +83,7 @@ public class MonitorHostService {
 			getDpaaSystemInfoHelper().setCpuUsedRateAndMem(infoVo);
 			getDpaaSystemInfoHelper().setDiskInfo(infoVo);
 			getDpaaSystemInfoHelper().setRuntimeInfo(infoVo);
+			getDpaaSystemInfoHelper().setDiskInfo(infoVo);		
 			
 			// 每 60*3 秒 印一次 memory...etc 狀態
 			if (times % 180 == 0) {
@@ -117,9 +120,27 @@ public class MonitorHostService {
 						", active=" + poolMXBean.getActiveConnections() + 
 						", idle=" + poolMXBean.getIdleConnections() + 
 						", waiting=" + poolMXBean.getThreadsAwaitingConnection() + ") ..... db status \n\t");
-				
 				//HikariPool-1 - Before cleanup stats (total=5, active=0, idle=5, waiting=0)
+				sb.append("......................................................\n\t");
+				
+				sb.append("JobManager\t\t=" + jobHelper.getJobQueueSize(1) + jobHelper.getQueueStatus(1) + "\n");
+				sb.append("\tDeferrableJobManager\t=" + jobHelper.getJobQueueSize(2) + jobHelper.getQueueStatus(2) + "\n");
+				sb.append("\tRefreshCacheJobManager\t=" + jobHelper.getJobQueueSize(3) + jobHelper.getQueueStatus(3) +"\n");
+//				sb.append("\tJob-2nd-runner.buff2ndWaitCount\t=" + DeferrableJobManager.buff2ndWaitCount.get() +"\n");
+				sb.append("\t......................................................\n\t");
+				sb.append("Disk = (" + String.format("%,d %s", (infoVo.getDtotal() / 1024 / 1024 /1024), "GB") + ", %=" + infoVo.getDusage() + ")\n"); 
+				try {
+					ESLogBuffer.getInstance().diskFree = infoVo.getDusage();
+				} catch (IllegalStateException e) {
+					if (!"LogBuffer not initialized. Call getInstance(httpClient) first".equals(e.getMessage())) {
+						TPILogger.tl.error(StackTraceUtil.logTpiShortStackTrace(e));
+					}
+				} catch (Exception e) {
+					TPILogger.tl.error(StackTraceUtil.logTpiShortStackTrace(e));
+				}
+				
 				TPILogger.tl.info(sb.toString());
+				
 			}
 			times ++;
 			

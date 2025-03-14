@@ -59,7 +59,7 @@ public abstract class ApptJob extends DeferrableJob implements TsmpDpApptJobSett
 		runJobBody();
 	}
 	
-	private DpaaSystemInfoHelper dpaaSystemInfoHelper = new DpaaSystemInfoHelper();
+	private DpaaSystemInfoHelper dpaaSystemInfoHelper = DpaaSystemInfoHelper.getInstance();
 	
 	protected DpaaSystemInfoHelper getDpaaSystemInfoHelper() {
 		return dpaaSystemInfoHelper;

@@ -74,7 +74,7 @@ public class DPB0118Service {
 			
 			VersionInfo v = versionService.getVersion();
 	
-			resp.setMajorVersionNo(v.MajorVersionNo);
+			resp.setMajorVersionNo(v.majorVersionNo);
 			resp.setVersion(v.strVersion);
 			if (StringUtils.hasLength(ipAddress)) {
 				resp.setRemoteAddr(ipAddress);

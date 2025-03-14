@@ -72,71 +72,7 @@ export class DashboardComponent implements OnInit {
 
   reloadDataRef: any;
 
-  lastLoginLog: Array<AA1211LastLoginLog> = [
-    { loginDate: '2024-01-01 00:00:00(test)', loginIP: '10.20.30.88' },
-    { loginDate: '2024-01-01 00:00:00(test)', loginIP: '10.20.30.88' },
-    { loginDate: '2024-01-01 00:00:00(test)', loginIP: '10.20.30.88' },
-  ];
-
-  // clientDetail: { [key: string]: any }[] = [
-  //   {
-  //     clientName: 'clientA',
-  //     detail: [
-  //       {
-  //         apiName: '/c1/api1',
-  //         req: '56',
-  //         sf: '52/4',
-  //         avg: '123'
-  //       },
-  //       {
-  //         apiName: '/hello',
-  //         req: '48',
-  //         sf: '48/0',
-  //         avg: '88'
-  //       },
-  //       {
-  //         apiName: '/api222',
-  //         req: '32',
-  //         sf: '32/0',
-  //         avg: '120'
-  //       },
-  //       {
-  //         apiName: '/api345',
-  //         req: '31',
-  //         sf: '31/0',
-  //         avg: '89'
-  //       },
-  //       {
-  //         apiName: '/testapi',
-  //         req: '28',
-  //         sf: '28/0',
-  //         avg: '112'
-  //       },
-
-  //     ]
-  //   },
-  //   {
-  //     clientName: 'clientB',
-  //   },
-  //   {
-  //     clientName: 'clientC',
-  //   },
-  //   {
-  //     clientName: 'clientD',
-  //   },
-  //   {
-  //     clientName: 'clientE',
-  //   },
-  //   {
-  //     clientName: 'clientF',
-  //   },
-  //   {
-  //     clientName: 'clientG',
-  //   },
-  //   {
-  //     clientName: 'clientH',
-  //   },
-  // ];
+  lastLoginLog: Array<AA1211LastLoginLog> = [];
 
   constructor(
     private alert: AlertService,
@@ -148,7 +84,6 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   resizeReport() {
-    // console.log('first')
     setTimeout(() => {
       if (this.badattempChart) this.badattempChart.resize();
       if (this.medianChart) this.medianChart.resize();
@@ -180,9 +115,6 @@ export class DashboardComponent implements OnInit {
   }
 
   async ngOnInit() {
-
-    this.getDataReload();
-
     const code = ['minute', 'calendar.day', 'calendar.month', 'calendar.year'];
     const dict = await this.toolService.getDict(code);
     this.timeTypeUnit = [
@@ -192,8 +124,6 @@ export class DashboardComponent implements OnInit {
       { label: dict['calendar.year'], key: 4 },
     ];
 
-    // this.aboutService.queryModuleVersion().subscribe(res => {
-    //   if (this.toolService.checkDpSuccess(res.ResHeader)) {
     this.aboutService.getModuleVersionData().subscribe((res) => {
       this.versionInfo = res;
       this.edition = this.toolService.getAcConfEdition();
@@ -258,8 +188,8 @@ export class DashboardComponent implements OnInit {
             );
           });
       }
-      // }
     });
+    this.getDataReload();
   }
 
   clearDashboardData() {
@@ -306,58 +236,60 @@ export class DashboardComponent implements OnInit {
   // 產生BadAttempt圖表
   generateBadAttemptReport(badAttempt: AA1211BadAttemptResp) {
     this.badAttempt = badAttempt;
-    const badattempEle = document.getElementById('badAttemptReport');
-    if (badattempEle) {
-      this.badattempChart = echarts.init(badattempEle);
-      let option = {
-        color: ['#F6D8CB', '#DA7A53', '#6E79ED'],
-        tooltip: {
-          trigger: 'item',
-        },
-        title: {
-          text: this.numberComma(badAttempt.total),
-          left: 'center',
-          top: 'center',
-        },
-        // legend: {
-        //   top: '0%',
-        //   left: 'center'
-        // },
-        series: [
-          {
-            // name: 'Access From',
-            type: 'pie',
-            radius: ['40%', '70%'],
-            avoidLabelOverlap: false,
-            itemStyle: {
-              borderRadius: 10,
-              borderColor: '#fff',
-              borderWidth: 1,
-            },
-            label: {
-              show: false,
-              position: 'center',
-            },
-            emphasis: {
+    setTimeout(() => {
+      //避免chart init 因container剛長出來還未有clientwidth,clientheight的警告
+      const badattempEle = document.getElementById('badAttemptReport');
+      if (badattempEle) {
+        this.badattempChart = echarts.init(badattempEle);
+        let option = {
+          color: ['#F6D8CB', '#DA7A53', '#6E79ED'],
+          tooltip: {
+            trigger: 'item',
+          },
+          title: {
+            text: this.numberComma(badAttempt.total),
+            left: 'center',
+            top: 'center',
+          },
+          // legend: {
+          //   top: '0%',
+          //   left: 'center'
+          // },
+          series: [
+            {
+              type: 'pie',
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 10,
+                borderColor: '#fff',
+                borderWidth: 1,
+              },
               label: {
                 show: false,
-                fontSize: 24,
-                // fontWeight: 'bold'
+                position: 'center',
               },
+              emphasis: {
+                label: {
+                  show: false,
+                  fontSize: 24,
+                  // fontWeight: 'bold'
+                },
+              },
+              labelLine: {
+                show: false,
+              },
+              data: [
+                { value: badAttempt.code_401, name: '401' },
+                { value: badAttempt.code_403, name: '403' },
+                { value: badAttempt.others, name: 'Others' },
+              ],
             },
-            labelLine: {
-              show: false,
-            },
-            data: [
-              { value: badAttempt.code_401, name: '401' },
-              { value: badAttempt.code_403, name: '403' },
-              { value: badAttempt.others, name: 'Others' },
-            ],
-          },
-        ],
-      };
-      this.badattempChart.setOption(option);
-    }
+          ],
+        };
+        this.badattempChart.setOption(option);
+      }
+    }, 0);
   }
   // 中位數圖表
   async generateMadianReport(median: AA1211MedianResp) {
@@ -367,105 +299,105 @@ export class DashboardComponent implements OnInit {
     }
     const codes = ['normal', 'good', 'aberrant'];
     const dict = await this.toolService.getDict(codes);
-    const medianEle = document.getElementById('medianReport');
-    if (medianEle) {
-      this.medianChart = echarts.init(medianEle);
+    setTimeout(() => {
+      const medianEle = document.getElementById('medianReport');
+      if (medianEle) {
+        this.medianChart = echarts.init(medianEle);
+        let option = {
+          series: [
+            {
+              type: 'gauge',
+              startAngle: 180,
+              endAngle: 0,
+              center: ['50%', '50%'],
+              radius: '60%',
+              min: median.min,
+              max: median.max,
+              splitNumber: median.gap,
+              axisLine: {
+                lineStyle: {
+                  width: 15,
+                  color: [
+                    [0.1, '#6DEA38'],
+                    [0.2, '#ACE236'],
+                    [0.3, '#D8ED38'],
+                    [0.4, '#EDE438'],
+                    [0.5, '#edd538'],
+                    [0.6, '#F2B13A'],
+                    [0.7, '#EFA526'],
+                    [0.8, '#F28232'],
+                    [0.9, '#f7630e'],
+                    [1, '#f73d0e'],
+                  ],
+                },
+              },
+              pointer: {
+                icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+                length: '55%',
+                width: 3,
+                offsetCenter: [0, '-10%'],
+                itemStyle: {
+                  color: 'auto',
+                },
+              },
+              axisTick: {
+                show: false,
+                // length: 0,
+                // lineStyle: {
+                //   color: 'auto',
+                //   width: 2
+                // }
+              },
+              splitLine: {
+                show: false,
+                // length: 0,
+                // lineStyle: {
+                //   color: 'auto',
+                //   width: 5
+                // }
+              },
+              axisLabel: {
+                padding: [-5, -15, 0, -15],
+                color: '#464646',
+                fontSize: 10,
+                distance: -30,
+                // rotate: 'tangential',
+                formatter: function (value) {
+                  if (value === median.max) {
+                    return dict['aberrant'];
+                  } else if (value === (median.min + median.max) / 2) {
+                    return dict['normal'];
+                  } else if (value === median.min) {
+                    return dict['good'];
+                  }
 
-      let option = {
-        series: [
-          {
-            type: 'gauge',
-            startAngle: 180,
-            endAngle: 0,
-            center: ['50%', '50%'],
-            radius: '60%',
-            min: median.min,
-            max: median.max,
-            splitNumber: median.gap,
-            axisLine: {
-              lineStyle: {
-                width: 15,
-                color: [
-                  [0.1, '#6DEA38'],
-                  [0.2, '#ACE236'],
-                  [0.3, '#D8ED38'],
-                  [0.4, '#EDE438'],
-                  // [0.5, '#EACF38'],
-                  [0.5, '#edd538'],
-                  [0.6, '#F2B13A'],
-                  [0.7, '#EFA526'],
-                  [0.8, '#F28232'],
-                  [0.9, '#f7630e'],
-                  [1, '#f73d0e'],
-                ],
+                  return '';
+                },
               },
-            },
-            pointer: {
-              icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-              length: '55%',
-              width: 3,
-              offsetCenter: [0, '-10%'],
-              itemStyle: {
-                color: 'auto',
-              },
-            },
-            axisTick: {
-              show: false,
-              // length: 0,
-              // lineStyle: {
-              //   color: 'auto',
-              //   width: 2
-              // }
-            },
-            splitLine: {
-              show: false,
-              // length: 0,
-              // lineStyle: {
-              //   color: 'auto',
-              //   width: 5
-              // }
-            },
-            axisLabel: {
-              padding: [-5, -15, 0, -15],
-              color: '#464646',
-              fontSize: 10,
-              distance: -30,
-              // rotate: 'tangential',
-              formatter: function (value) {
-                if (value === median.max) {
-                  return dict['aberrant'];
-                } else if (value === (median.min + median.max) / 2) {
-                  return dict['normal'];
-                } else if (value === median.min) {
-                  return dict['good'];
-                }
-
-                return '';
-              },
-            },
-            // title: {
-            //   offsetCenter: [0, '-10%'],
-            //   fontSize: 20
-            // },
-            detail: {
-              fontSize: 0,
-              offsetCenter: [0, '-35%'],
-              valueAnimation: true,
-              // formatter: function (value) {
-              //   return Math.round(value * 100) + '';
+              // title: {
+              //   offsetCenter: [0, '-10%'],
+              //   fontSize: 20
               // },
-              color: 'inherit',
-            },
-            data: [
-              {
-                value: median.median,
+              detail: {
+                fontSize: 0,
+                offsetCenter: [0, '-35%'],
+                valueAnimation: true,
+                // formatter: function (value) {
+                //   return Math.round(value * 100) + '';
+                // },
+                color: 'inherit',
               },
-            ],
-          },
-        ],
-      };
-      this.medianChart.setOption(option);
-    }
+              data: [
+                {
+                  value: median.median,
+                },
+              ],
+            },
+          ],
+        };
+        this.medianChart.setOption(option);
+      }
+    }, 0);
   }
 
   //top5熱門排行
@@ -475,18 +407,6 @@ export class DashboardComponent implements OnInit {
     const code = ['resp_avg_time'];
     const dict = await this.toolService.getDict(code);
 
-    // const hotData = [
-    //   { apiName: '/topApi1', success: '456', fail: '5', respAvg: '120' },
-    //   { apiName: '/topApi22', success: '654', fail: '12', respAvg: '130' },
-    //   { apiName: '/topApi333', success: '834', fail: '14', respAvg: '110' },
-    //   { apiName: '/topApi4444', success: '1755', fail: '18', respAvg: '109' },
-    //   { apiName: '/top55555', success: '1988', fail: '57', respAvg: '100' },
-    // ];
-    // console.log(popular)
-    // const yData = popular.map(item=>{
-    //   return item.apiName
-    // })
-    // console.log(yData)
     const popularRefactor = popular
       .sort((a: AA1211PopularResp, b: AA1211PopularResp) => {
         return b.rank - a.rank;
@@ -500,134 +420,134 @@ export class DashboardComponent implements OnInit {
           avg: item.avg,
         };
       });
+    setTimeout(() => {
+      const popularEle = document.getElementById('popularReport');
+      if (popularEle) {
+        const _this = this;
+        this.hotChart = echarts.init(popularEle);
 
-    const popularEle = document.getElementById('popularReport');
-
-    if (popularEle) {
-      const _this = this;
-      this.hotChart = echarts.init(popularEle);
-
-      let option = {
-        dataset: {
-          source: popularRefactor,
-        },
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            // Use axis to trigger tooltip
-            type: 'shadow', // 'shadow' as default; can also be 'line' or 'shadow'
+        let option = {
+          dataset: {
+            source: popularRefactor,
           },
-          formatter: (params) => {
-            // console.log(params)
-            let failTarIdx =
-              params.length > 1 ? params.length - 2 : params.length - 1;
-            return `
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              // Use axis to trigger tooltip
+              type: 'shadow', // 'shadow' as default; can also be 'line' or 'shadow'
+            },
+            formatter: (params) => {
+              // console.log(params)
+              let failTarIdx =
+                params.length > 1 ? params.length - 2 : params.length - 1;
+              return `
                       ${params[0].name}<br />
                       ${params[0].marker} ${
-              params[0].seriesName
-            }: ${this.toolService.numberComma(params[0].value.success)}<br />
+                params[0].seriesName
+              }: ${this.toolService.numberComma(params[0].value.success)}<br />
                       ${params[failTarIdx].marker} ${
-              params[failTarIdx].seriesName
-            }: ${this.toolService.numberComma(
-              params[failTarIdx].value.fail
-            )}<br />
+                params[failTarIdx].seriesName
+              }: ${this.toolService.numberComma(
+                params[failTarIdx].value.fail
+              )}<br />
                       ${dict['resp_avg_time']}: ${this.toolService.numberComma(
-              params[0].value.avg
-            )}ms
+                params[0].value.avg
+              )}ms
                       `;
-          },
-        },
-        // barWidth: '40%',
-        barCategoryGap: '20%',
-        legend: {},
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true,
-        },
-
-        xAxis: {
-          type: 'value',
-        },
-        yAxis: {
-          type: 'category',
-          // data: popular.map(item=>{ return item.apiName })
-        },
-        label: {
-          fontWeight: 'bold',
-          fontSize: 14,
-          color: '#000',
-        },
-        itemStyle: {
-          // borderRadius:[0,15,15,0]
-        },
-        series: [
-          {
-            name: 'Success',
-            type: 'bar',
-            stack: 'total',
-            label: {
-              show: false,
-            },
-            emphasis: {
-              focus: 'series',
-            },
-            // data: popular.map(item=>{return item.success}),
-            // color: '#F3B142',
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 1,
-              y2: 0,
-              colorStops: [
-                {
-                  offset: 0,
-                  color: '#FCEDCC', // 0% 的颜色
-                },
-                {
-                  offset: 1,
-                  color: '#F3B041', // 100% 的颜色
-                },
-              ],
-              global: false,
             },
           },
-          {
-            name: 'Fail',
-            type: 'bar',
-            stack: 'total',
-            label: {
-              show: false,
-            },
-
-            emphasis: {
-              focus: 'series',
-            },
-            color: '#DFDFDF',
-            // data: popular.map(item=>{return item.fail}),
+          // barWidth: '40%',
+          barCategoryGap: '20%',
+          legend: {},
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true,
           },
-          {
-            name: 'Fail',
-            type: 'bar',
-            stack: 'total',
-            label: {
-              show: true,
 
-              formatter: function (params) {
-                const total =
-                  Number(params.value.success.replace(',')) +
-                  Number(params.value.fail.replace(','));
-                return _this.toolService.numberComma(total);
+          xAxis: {
+            type: 'value',
+          },
+          yAxis: {
+            type: 'category',
+            // data: popular.map(item=>{ return item.apiName })
+          },
+          label: {
+            fontWeight: 'bold',
+            fontSize: 14,
+            color: '#000',
+          },
+          itemStyle: {
+            // borderRadius:[0,15,15,0]
+          },
+          series: [
+            {
+              name: 'Success',
+              type: 'bar',
+              stack: 'total',
+              label: {
+                show: false,
               },
-              position: 'inside',
+              emphasis: {
+                focus: 'series',
+              },
+              // data: popular.map(item=>{return item.success}),
+              // color: '#F3B142',
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 1,
+                y2: 0,
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: '#FCEDCC', // 0% 的颜色
+                  },
+                  {
+                    offset: 1,
+                    color: '#F3B041', // 100% 的颜色
+                  },
+                ],
+                global: false,
+              },
             },
-          },
-        ],
-      };
-      this.hotChart.setOption(option);
-    }
+            {
+              name: 'Fail',
+              type: 'bar',
+              stack: 'total',
+              label: {
+                show: false,
+              },
+
+              emphasis: {
+                focus: 'series',
+              },
+              color: '#DFDFDF',
+              // data: popular.map(item=>{return item.fail}),
+            },
+            {
+              name: 'Fail',
+              type: 'bar',
+              stack: 'total',
+              label: {
+                show: true,
+
+                formatter: function (params) {
+                  const total =
+                    Number(params.value.success.replace(',')) +
+                    Number(params.value.fail.replace(','));
+                  return _this.toolService.numberComma(total);
+                },
+                position: 'inside',
+              },
+            },
+          ],
+        };
+        this.hotChart.setOption(option);
+      }
+    }, 0);
   }
 
   //api流量分佈
@@ -663,99 +583,100 @@ export class DashboardComponent implements OnInit {
       ['fail', ...failPool],
     ];
     // console.log('dataset',dataset)
-
-    const targetEle = document.getElementById('apiTrafficDistributionReport');
-    if (targetEle) {
-      this.apiCountChart = echarts.init(targetEle);
-      // title: {
-      //   // text: 'api流量分佈'
-      // },
-      let option = {
-        zoom: 1,
-        tooltip: {
-          trigger: 'axis',
-          formatter: (params) => {
-            return `
+    setTimeout(() => {
+      const targetEle = document.getElementById('apiTrafficDistributionReport');
+      if (targetEle) {
+        this.apiCountChart = echarts.init(targetEle);
+        // title: {
+        //   // text: 'api流量分佈'
+        // },
+        let option = {
+          zoom: 1,
+          tooltip: {
+            trigger: 'axis',
+            formatter: (params) => {
+              return `
                       ${params[0].name} <br />
                       ${params[0].marker} ${
-              params[0].seriesName
-            }: ${this.toolService.numberComma(params[0].value[1])}<br />
+                params[0].seriesName
+              }: ${this.toolService.numberComma(params[0].value[1])}<br />
                       ${params[1].marker} ${
-              params[1].seriesName
-            }: ${this.toolService.numberComma(params[1].value[2])}
+                params[1].seriesName
+              }: ${this.toolService.numberComma(params[1].value[2])}
                       `;
+            },
           },
-        },
-        legend: {
-          data: ['Success', 'Fail'],
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true,
-        },
-        dataset: {
-          source: dataset,
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          // data: hhmmPool
-        },
-        yAxis: {
-          type: 'value',
-        },
+          legend: {
+            data: ['Success', 'Fail'],
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true,
+          },
+          dataset: {
+            source: dataset,
+          },
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            // data: hhmmPool
+          },
+          yAxis: {
+            type: 'value',
+          },
 
-        series: [
-          {
-            color: '#8dd6b7',
-            seriesLayoutBy: 'row',
-            name: 'Success',
-            type: 'line',
-            lineStyle: {
-              width: 3,
-            },
-            areaStyle: {
-              color: {
-                type: 'linear',
-                x: 0,
-                y: 1,
-                x2: 0,
-                y2: 0,
-                colorStops: [
-                  {
-                    offset: 1,
-                    color: 'rgba(135, 204, 14, 0.67)', // 0% 的颜色
-                  },
-                  {
-                    offset: 0,
-                    color: 'rgba(135, 204, 14, 0.03)', // 100% 的颜色
-                  },
-                ],
-                global: false,
+          series: [
+            {
+              color: '#8dd6b7',
+              seriesLayoutBy: 'row',
+              name: 'Success',
+              type: 'line',
+              lineStyle: {
+                width: 3,
               },
+              areaStyle: {
+                color: {
+                  type: 'linear',
+                  x: 0,
+                  y: 1,
+                  x2: 0,
+                  y2: 0,
+                  colorStops: [
+                    {
+                      offset: 1,
+                      color: 'rgba(135, 204, 14, 0.67)', // 0% 的颜色
+                    },
+                    {
+                      offset: 0,
+                      color: 'rgba(135, 204, 14, 0.03)', // 100% 的颜色
+                    },
+                  ],
+                  global: false,
+                },
+              },
+              // stack: 'Total',
+              showSymbol: false,
+              // data: successPool,
             },
-            // stack: 'Total',
-            showSymbol: false,
-            // data: successPool,
-          },
-          {
-            color: '#F6D8cb',
-            seriesLayoutBy: 'row',
-            name: 'Fail',
-            type: 'line',
-            lineStyle: {
-              width: 3,
+            {
+              color: '#F6D8cb',
+              seriesLayoutBy: 'row',
+              name: 'Fail',
+              type: 'line',
+              lineStyle: {
+                width: 3,
+              },
+              // stack: 'Total',
+              showSymbol: false,
+              // data: failPool
             },
-            // stack: 'Total',
-            showSymbol: false,
-            // data: failPool
-          },
-        ],
-      };
-      this.apiCountChart.setOption(option);
-    }
+          ],
+        };
+        this.apiCountChart.setOption(option);
+      }
+    }, 0);
   }
 
   // clientData: { [key: string]: any }[] = [
@@ -794,91 +715,92 @@ export class DashboardComponent implements OnInit {
       };
     });
     // console.log('clientUsagePercentage', clientUsagePercentage)
-
-    const targetEle = document.getElementById('clientReport');
-    if (targetEle) {
-      this.clientChart = echarts.init(targetEle);
-      let option = {
-        title: {
-          text: this.toolService.numberComma(clientUsagePercentage[0].total),
-          left: 'center',
-          top: 'center',
-        },
-        // color: this.clientData.map(item=>item['color']),
-        tooltip: {
-          trigger: 'item',
-          position: 'right',
-          formatter: (params) => {
-            return `
+    setTimeout(() => {
+      const targetEle = document.getElementById('clientReport');
+      if (targetEle) {
+        this.clientChart = echarts.init(targetEle);
+        let option = {
+          title: {
+            text: this.toolService.numberComma(clientUsagePercentage[0].total),
+            left: 'center',
+            top: 'center',
+          },
+          // color: this.clientData.map(item=>item['color']),
+          tooltip: {
+            trigger: 'item',
+            position: 'right',
+            formatter: (params) => {
+              return `
                     <span style="font-weight:bold">${params.marker} ${
-              params.name
-            }</span> <br />
+                params.name
+              }</span> <br />
                     Percentage:  ${params.data.percentage}%<br />
                     Request: ${this.toolService.numberComma(params.value)}
                       `;
+            },
           },
-        },
-        // legend: {
-        //   top: '0%',
-        //   left: 'center'
-        // },
-        series: [
-          {
-            // name: 'Access From',
-            type: 'pie',
-            radius: ['30%', '50%'],
-            avoidLabelOverlap: false,
-            itemStyle: {
-              borderRadius: 10,
-              borderColor: '#fff',
-              borderWidth: 1,
-            },
+          // legend: {
+          //   top: '0%',
+          //   left: 'center'
+          // },
+          series: [
+            {
+              // name: 'Access From',
+              type: 'pie',
+              radius: ['30%', '50%'],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 10,
+                borderColor: '#fff',
+                borderWidth: 1,
+              },
 
-            label: {
-              show: false,
-              position: 'center',
+              label: {
+                show: false,
+                position: 'center',
+              },
+              // emphasis: {
+              //   label: {
+              //     show: false,
+              //     fontSize: 20,
+              //     // fontWeight: 'bold'
+              //   }
+              // },
+              labelLine: {
+                show: false,
+              },
+              data: clientData,
+              // data: [
+              //   { value: 341, name: 'clientA' },
+              //   { value: 1760, name: 'clientB' },
+              //   { value: 1363, name: 'clientC' },
+              //   { value: 1022, name: 'clientD' },
+              //   { value: 681, name: 'clientE' },
+              //   { value: 511, name: 'Others' },
+              // ]
             },
-            // emphasis: {
-            //   label: {
-            //     show: false,
-            //     fontSize: 20,
-            //     // fontWeight: 'bold'
-            //   }
-            // },
-            labelLine: {
-              show: false,
-            },
-            data: clientData,
-            // data: [
-            //   { value: 341, name: 'clientA' },
-            //   { value: 1760, name: 'clientB' },
-            //   { value: 1363, name: 'clientC' },
-            //   { value: 1022, name: 'clientD' },
-            //   { value: 681, name: 'clientE' },
-            //   { value: 511, name: 'Others' },
-            // ]
-          },
-        ],
-      };
-      this.clientChart.setOption(option);
-      // console.log(this.clientChart.getOption().color)
-      // console.log(
-      //  this.clientChart.getModel().getSeries().map(s => {
-      //   console.log(s)
-      //   return {
-      //     seriesIndex: s.seriesIndex,
-      //     seriesColor: this.clientChart.getVisual({
-      //       seriesIndex: s.seriesIndex
-      //     }, 'color')
-      //   }
-      // })
-      // )
+          ],
+        };
+        this.clientChart.setOption(option);
+        // console.log(this.clientChart.getOption().color)
+        // console.log(
+        //  this.clientChart.getModel().getSeries().map(s => {
+        //   console.log(s)
+        //   return {
+        //     seriesIndex: s.seriesIndex,
+        //     seriesColor: this.clientChart.getVisual({
+        //       seriesIndex: s.seriesIndex
+        //     }, 'color')
+        //   }
+        // })
+        // )
 
-      // )
-    }
+        // )
+      }
+    }, 0);
   }
   getColor(idx) {
-    return this.clientChart?.getOption().color[idx];
+    return this.clientChart?.getOption()?.color[idx];
   }
 
   // const badattempEle = document.getElementById('charts-container');
@@ -960,7 +882,7 @@ export class DashboardComponent implements OnInit {
       // if (aa1211RespItem.clientUsagePercentage) this.generateClientReport(aa1211RespItem.clientUsagePercentage);
       // }
       this.ngxService.stopAll();
-      this.resizeReport();
+      // this.resizeReport();
     });
   }
 
