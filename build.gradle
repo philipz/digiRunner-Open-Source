@@ -226,7 +226,7 @@ project(':dgrv4_Gateway_serv'){
 	bootJar {
 		dependsOn createVersionTxt
 
-		archivesBaseName = "${rootProject.name}"
+		archivesBaseName = "digiRunner"
 
 		dependsOn myClearLib
 		dependsOn (myCopyLib)
