@@ -10,6 +10,7 @@
 build/
 
 logs/
+**/logs/**
 
 # User-specific stuff
 .idea
