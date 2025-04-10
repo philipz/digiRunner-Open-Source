@@ -21,7 +21,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1712,9 +1711,12 @@ public class CommForwardProcService {
 
 	public String convertMbody(String mbody, TsmpApiLogReq reqVo, String strContentLength)
 			throws UnsupportedEncodingException {
+		// 檢查是否為null以避免NPE
 		if (mbody == null) {
 			return "";
 		}
+		
+		// 原始代碼處理邏輯
 		// 取得是否全部遮罩資訊
 		boolean isMask = getTsmpSettingService().getVal_ES_MBODY_MASK_FLAG();
 
@@ -1747,8 +1749,23 @@ public class CommForwardProcService {
 				}
 			}
 		}
+		
+		// 添加大小限制處理
+		// 獲取最大大小配置，如果不存在使用默認值
+		int maxSizeMbodyMask = getTsmpSettingService().getVal_ES_MAX_SIZE_MBODY_MASK();
+		int maxSize = maxSizeMbodyMask > 0 ? maxSizeMbodyMask : 102400; // 默認100KB
+		
+		// 計算大小並截斷
+		boolean isTruncated = false;
+		
+		if (mbody.length() > maxSize) {
+			// 記錄截斷信息
+			TPILogger.tl.debug("日誌內容過大已截斷: " + reqVo.getId() + ", 原始大小: " + mbody.length() + "字符, 截斷至: " + maxSize + "字符");
+			mbody = mbody.substring(0, maxSize) + "... [內容已截斷]";
+			isTruncated = true;
+		}
 
-		// max size
+		// max size (原始代碼)
 		if (!isMask) {
 			int contentLength = 0;
 			try {
@@ -1760,13 +1777,12 @@ public class CommForwardProcService {
 				TPILogger.tl.error("content-type is parse number error [" + strContentLength + "]");
 			}
 
-			int maxSize = getTsmpSettingService().getVal_ES_MAX_SIZE_MBODY_MASK();
-			if (maxSize > 10 && contentLength > maxSize) {
+			if (maxSizeMbodyMask > 10 && contentLength > maxSizeMbodyMask) {
 				isMask = true;
 			}
 		}
 
-		// 判斷是否遮罩
+		// 判斷是否遮罩 (原始代碼邏輯)
 		if (isMask && StringUtils.hasText(mbody)) {
 			byte[] arrAllMbody = mbody.getBytes(StandardCharsets.UTF_8);
 			// 大於10長度,就取前尾各5byte
@@ -1775,9 +1791,9 @@ public class CommForwardProcService {
 				byte[] arrEnd = Arrays.copyOfRange(arrAllMbody, arrAllMbody.length - 5, arrAllMbody.length);
 				mbody = HexStringUtils.toString(arrStart) + "..." + HexStringUtils.toString(arrEnd);
 			}
-			return mbody;
+			return (isTruncated ? "[截斷] " : "") + "Content-Length:" + strContentLength + "\n" + mbody;
 		} else {
-			return mbody;
+			return (isTruncated ? "[截斷] " : "") + "Content-Length:" + strContentLength + "\n" + mbody;
 		}
 	}
 

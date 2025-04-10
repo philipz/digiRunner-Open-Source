@@ -65,7 +65,6 @@ import tpi.dgrv4.gateway.component.ServerConfigProperties;
 import tpi.dgrv4.gateway.component.ServiceConfig;
 import tpi.dgrv4.gateway.component.cache.core.GenericCache;
 import tpi.dgrv4.gateway.component.cache.proxy.TsmpSettingCacheProxy;
-import tpi.dgrv4.gateway.component.job.DeferrableJobManager;
 import tpi.dgrv4.gateway.component.job.JobHelper;
 import tpi.dgrv4.gateway.component.job.appt.ApptJobDispatcher;
 import tpi.dgrv4.gateway.constant.DgrDataType;
@@ -1370,7 +1369,11 @@ public class TPILogger extends ITPILogger {
 		nodeInfoPacket.webLocalIP = lc.getLocalIpAdress();
 		nodeInfoPacket.fqdn = lc.getLocalIpFQDN();
 		nodeInfoPacket.ES_Queue = DgrApiLog2ESQueue.ES_LoggerQueue.size() + " (-" + DgrApiLog2ESQueue.abortNum + ")(-"+ ESLogBuffer.abortNum + ")";
-		nodeInfoPacket.RDB_Queue = DgrApiLog2RdbQueue.rdb_LoggerQueue.size() + " (-"+ DgrApiLog2RdbQueue.abortNum +")";
+		if (DgrApiLog2RdbQueue.rdb_LoggerQueue != null) {
+			nodeInfoPacket.RDB_Queue = DgrApiLog2RdbQueue.rdb_LoggerQueue.size() + " (-"+ DgrApiLog2RdbQueue.getAbortNum() +")";
+		} else {
+			nodeInfoPacket.RDB_Queue = "0 (-0)"; // 未初始化時的默認值
+		}
 
 		nodeInfoPacket.lastUpdateTimeAPI = String.valueOf(lastUpdateTimeAPI.get());
 		nodeInfoPacket.lastUpdateTimeClient = String.valueOf(lastUpdateTimeClient.get());

@@ -1,0 +1,24 @@
+name: digirunner-open-source
+services:
+  dgr:
+  # Grafana agent batches and processes traces sent to it, generating
+  # auto-logs from those traces.
+    image: philipz/digirunner:h2-fix
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+    ports:
+      - "18080:18080"
+      - "8081:8081"
+    command: [ "java", "-Dcom.sun.management.jmxremote.host=0.0.0.0", "-Djava.rmi.server.hostname=0.0.0.0", "-Dcom.sun.management.jmxremote.local.only=false", "-Dcom.sun.management.jmxremote.port=8081", "-Dcom.sun.management.jmxremote.rmi.port=8081", "-Dcom.sun.management.jmxremote.ssl=false", "-Dcom.sun.management.jmxremote.authenticate=false", "-cp", "/opt/digirunner/digirunner.jar", "-Xms2g", "-Xmx4g", "-DdigiRunner.token.key-store.path=/opt/digirunner/keys", "-Dserver.port=18080", "org.springframework.boot.loader.launch.PropertiesLauncher" ]
+#    depends_on:
+#      - postgres
+#  postgres:
+#    image: postgres:17-alpine
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#    ports:
+#      - "5432:5432"
