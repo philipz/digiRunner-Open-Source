@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -74,14 +75,32 @@ public class DGRCServiceGet implements IApiCacheService{
 
 	@Async("async-workers-highway")
 	public CompletableFuture<ResponseEntity<?>> forwardToGetAsyncFast(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes) throws Exception {
-		var response = forwardToGet(httpHeaders, httpReq, httpRes);
-		return CompletableFuture.completedFuture(response);
+		// 直接返回 CompletableFuture，讓 Controller 處理
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return forwardToGet(httpHeaders, httpReq, httpRes);
+			} catch (Exception e) {
+				// 在異步線程中處理異常
+				TPILogger.tl.error("Error in async execution (fast): " + StackTraceUtil.logStackTrace(e));
+				// 可以返回一個表示錯誤的 ResponseEntity，或者拋出異常由 whenComplete 處理
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Async processing failed");
+			}
+		});
 	}
 	
 	@Async("async-workers")
 	public CompletableFuture<ResponseEntity<?>> forwardToGetAsyncSlow(HttpHeaders httpHeaders, HttpServletRequest httpReq, HttpServletResponse httpRes) throws Exception {
-		var response = forwardToGet(httpHeaders, httpReq, httpRes);
-		return CompletableFuture.completedFuture(response);
+		// 直接返回 CompletableFuture，讓 Controller 處理
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return forwardToGet(httpHeaders, httpReq, httpRes);
+			} catch (Exception e) {
+				// 在異步線程中處理異常
+				TPILogger.tl.error("Error in async execution (slow): " + StackTraceUtil.logStackTrace(e));
+				// 可以返回一個表示錯誤的 ResponseEntity，或者拋出異常由 whenComplete 處理
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Async processing failed");
+			}
+		});
 	}
 
 	public ResponseEntity<?> forwardToGet(HttpHeaders httpHeaders, HttpServletRequest httpReq, 
@@ -197,25 +216,49 @@ public class DGRCServiceGet implements IApiCacheService{
 				try {
 					IOUtils.copy(bi, httpRes.getOutputStream());
 				} catch (AsyncRequestNotUsableException e) {
-					TPILogger.tl.warn(httpRes.getStatus() + ", " + e.getLocalizedMessage());		
+					// 在異步模式下，原始響應可能已關閉，這裡記錄警告而不是錯誤
+					TPILogger.tl.warn("Could not copy response body in async mode: " + httpRes.getStatus() + ", " + e.getLocalizedMessage());		
 				}
 			}
 			
+			// 由於這是同步方法，我們不能直接修改 httpRes，因為 Controller 可能已經在處理異步響應
+			// 我們將響應數據構建成 ResponseEntity 返回給 CompletableFuture
+			HttpHeaders responseHeaders = new HttpHeaders();
+			for (String headerName : httpRes.getHeaderNames()) {
+				responseHeaders.addAll(headerName, new ArrayList<>(httpRes.getHeaders(headerName)));
+			}
+			ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(httpArray, responseHeaders, HttpStatus.valueOf(httpRes.getStatus()));
+
 			// 印出第四道log
-			StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length,
-					maskInfo, httpReq);
-			TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End DGRC】--\n" + resLog.toString());
+			// 注意：在同步方法內調用 getLogResp 可能會因為 httpRes 狀態問題而出錯
+			// 考慮將日誌記錄移到 CompletableFuture 的回調中
+			try {
+				StringBuffer resLog = getCommForwardProcService().getLogResp(httpRes, httpRespStr, content_Length,
+						maskInfo, httpReq);
+				TPILogger.tl.debug("\n--【LOGUUID】【" + uuid + "】【End DGRC】--\n" + resLog.toString());
+			} catch (Exception logEx) {
+				TPILogger.tl.warn("Error generating response log in forwardToGet: " + logEx.getMessage());
+			}
 
 			// 第一組ES RESP
-			getCommForwardProcService().addEsTsmpApiLogResp1(httpRes, dgrcGetDgrReqVo, httpRespStr, content_Length);
+			try {
+				getCommForwardProcService().addEsTsmpApiLogResp1(httpRes, dgrcGetDgrReqVo, httpRespStr, content_Length);
+			} catch (Exception esLogEx) {
+				TPILogger.tl.warn("Error adding ES response log 1: " + esLogEx.getMessage());
+			}
 			// 第一組RDB RESP
-			getCommForwardProcService().addRdbTsmpApiLogResp1(httpRes, dgrcGetDgrReqVo_rdb, httpRespStr,
-					content_Length);
+			try {
+				getCommForwardProcService().addRdbTsmpApiLogResp1(httpRes, dgrcGetDgrReqVo_rdb, httpRespStr,
+						content_Length);
+			} catch (Exception rdbLogEx) {
+				TPILogger.tl.warn("Error adding RDB response log 1: " + rdbLogEx.getMessage());
+			}
 			
-			return null;
+			return responseEntity; // 返回 ResponseEntity 而不是 null
 		}catch(Exception e) {
 			TPILogger.tl.error(StackTraceUtil.logStackTrace(e));
-			throw e;
+			// 在同步方法中遇到異常，也返回錯誤的 ResponseEntity
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); 
 		}
 	}
 	

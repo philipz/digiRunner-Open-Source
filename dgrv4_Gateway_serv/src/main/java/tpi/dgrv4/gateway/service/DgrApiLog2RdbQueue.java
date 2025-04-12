@@ -1,7 +1,9 @@
 package tpi.dgrv4.gateway.service;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -74,13 +76,17 @@ public abstract class DgrApiLog2RdbQueue {
 	private static boolean startFlag = false;
 	
 	// 原有功能變數
-	public static List<TsmpReqLog> arrayListQ = new LinkedList<TsmpReqLog>();
-	public static List<TsmpResLog> arrayListP = new LinkedList<TsmpResLog>();
+	public static List<TsmpReqLog> arrayListQ = new ArrayList<TsmpReqLog>();
+	public static List<TsmpResLog> arrayListP = new ArrayList<TsmpResLog>();
 	public static TsmpReqLogDao tsmpReqLogDaoObj;
 	public static TsmpResLogDao tsmpResLogDaoObj;
 	
 	// 定時刷新實例
 	private static DgrApiLog2RdbQueue instance;
+	
+	// 新增：為佇列和處理列表引入專用鎖定物件
+	private static final Object queueLock = new Object();
+	private static final Object pendingLock = new Object();
 	
 	public abstract void run();
 	
@@ -176,44 +182,72 @@ public abstract class DgrApiLog2RdbQueue {
 				"，丟棄日誌總數: " + totalDiscardedLogs.get());
 	}
 	
-	// 定時刷新日誌的方法
+	// 定時刷新日誌的方法 (修改後)
 	private void flushLogs() {
-		if (arrayListQ.isEmpty() && arrayListP.isEmpty()) {
-			return;
-		}
-		
-		long startTime = System.currentTimeMillis();
-		
-		synchronized (arrayListQ) {
+		List<TsmpReqLog> reqLogsToSave = null;
+		List<TsmpResLog> resLogsToSave = null;
+	
+		// 在 synchronized 塊內複製列表並清除原列表
+		synchronized (queueLock) {
 			if (!arrayListQ.isEmpty()) {
-				try {
-					int size = arrayListQ.size();
-					tsmpReqLogDaoObj.saveAll(arrayListQ);
-					totalProcessedLogs.addAndGet(size);
-					arrayListQ.clear();
-				} catch (Exception e) {
-					TPILogger.tl.error("批量保存請求日誌失敗: " + StackTraceUtil.logStackTrace(e));
-				}
+				// 創建副本
+				reqLogsToSave = new ArrayList<>(arrayListQ);
+				arrayListQ.clear(); // 清除原列表
 			}
 		}
-		
-		synchronized (arrayListP) {
+	
+		synchronized (pendingLock) {
 			if (!arrayListP.isEmpty()) {
-				try {
-					int size = arrayListP.size();
-					tsmpResLogDaoObj.saveAll(arrayListP);
+				// 創建副本
+				resLogsToSave = new ArrayList<>(arrayListP);
+				arrayListP.clear(); // 清除原列表
+			}
+		}
+	
+		// 在鎖之外處理副本的保存
+		long startTime = System.currentTimeMillis();
+		int savedCount = 0;
+	
+		if (reqLogsToSave != null && !reqLogsToSave.isEmpty()) {
+			try {
+				// 過濾可能的 null 元素（增加健壯性）
+				reqLogsToSave.removeIf(Objects::isNull);
+				if (!reqLogsToSave.isEmpty()) {
+					int size = reqLogsToSave.size();
+					tsmpReqLogDaoObj.saveAll(reqLogsToSave);
 					totalProcessedLogs.addAndGet(size);
-					arrayListP.clear();
-				} catch (Exception e) {
-					TPILogger.tl.error("批量保存回應日誌失敗: " + StackTraceUtil.logStackTrace(e));
+					savedCount += size;
 				}
+			} catch (Exception e) {
+				TPILogger.tl.error("批量保存請求日誌失敗: " + StackTraceUtil.logStackTrace(e));
+				// 考慮是否需要處理保存失敗的日誌，例如重新放入隊列？
+				// 目前的行為是失敗的日誌會丟失，因為原列表已被清除。
+			}
+		}
+	
+		if (resLogsToSave != null && !resLogsToSave.isEmpty()) {
+			try {
+				// 過濾可能的 null 元素（增加健壯性）
+				resLogsToSave.removeIf(Objects::isNull);
+				if (!resLogsToSave.isEmpty()) {
+					int size = resLogsToSave.size();
+					tsmpResLogDaoObj.saveAll(resLogsToSave);
+					totalProcessedLogs.addAndGet(size);
+					savedCount += size;
+				}
+			} catch (Exception e) {
+				TPILogger.tl.error("批量保存回應日誌失敗: " + StackTraceUtil.logStackTrace(e));
+				// 同上，考慮失敗處理
 			}
 		}
 		
-		long elapsedTime = System.currentTimeMillis() - startTime;
-		if (elapsedTime > 0) {
-			totalDbWriteTime.addAndGet(elapsedTime);
-			dbWriteCount.incrementAndGet();
+		// 只有實際保存了數據才記錄時間
+		if (savedCount > 0) {
+			long elapsedTime = System.currentTimeMillis() - startTime;
+			if (elapsedTime > 0) { // 避免除零錯誤或無意義的記錄
+				totalDbWriteTime.addAndGet(elapsedTime);
+				dbWriteCount.incrementAndGet();
+			}
 		}
 	}
 	
@@ -343,6 +377,8 @@ public abstract class DgrApiLog2RdbQueue {
 	}
 
 	public static void processLogOut() {
+		TPILogger.tl.info("RDB日誌處理線程啟動...");
+		long lastFlushTime = System.currentTimeMillis();
 		try {
 			int processedBatch = 0;
 			
@@ -372,42 +408,70 @@ public abstract class DgrApiLog2RdbQueue {
 				
 				// 批次寫入資料庫
 				long dbStartTime = System.currentTimeMillis();
-				
-				synchronized (arrayListQ) {
-					if (!arrayListQ.isEmpty()) {
-						try {
-							int size = arrayListQ.size();
-							tsmpReqLogDaoObj.saveAll(arrayListQ);
-							totalProcessedLogs.addAndGet(size);
-							arrayListQ.clear();
-						} catch (Exception e) {
-							TPILogger.tl.error("批量保存請求日誌失敗: " + StackTraceUtil.logStackTrace(e));
-						}
-					}
-				}
-				
-				synchronized (arrayListP) {
-					if (!arrayListP.isEmpty()) {
-						try {
-							int size = arrayListP.size();
-							tsmpResLogDaoObj.saveAll(arrayListP);
-							totalProcessedLogs.addAndGet(size);
-							arrayListP.clear();
-						} catch (Exception e) {
-							TPILogger.tl.error("批量保存回應日誌失敗: " + StackTraceUtil.logStackTrace(e));
-						}
-					}
-				}
-				
-				// 計算並記錄執行時間
-				long dbWriteTime = System.currentTimeMillis() - dbStartTime;
-				totalDbWriteTime.addAndGet(dbWriteTime);
-				dbWriteCount.incrementAndGet();
-				
-				// 計算批次處理總時間並調整批次大小
-				long batchProcessTime = System.currentTimeMillis() - batchStartTime;
-				lastBatchProcessTime.set(batchProcessTime);
-				adjustBatchSize(batchProcessTime, processedItems);
+				List<TsmpReqLog> reqLogsToSave = null;
+            	List<TsmpResLog> resLogsToSave = null;
+
+            	// 在 synchronized 塊內複製列表並清除原列表 (for arrayListQ)
+            	synchronized (queueLock) {
+                	if (!arrayListQ.isEmpty()) {
+                    	reqLogsToSave = new ArrayList<>(arrayListQ);
+                    	arrayListQ.clear();
+                	}
+            	}
+
+            	// 在 synchronized 塊內複製列表並清除原列表 (for arrayListP)
+            	synchronized (pendingLock) {
+                	if (!arrayListP.isEmpty()) {
+                    	resLogsToSave = new ArrayList<>(arrayListP);
+                    	arrayListP.clear();
+                	}
+            	}
+
+            	// 在鎖之外處理副本的保存
+            	int savedCount = 0; // 跟蹤此批次實際保存的數量
+
+            	if (reqLogsToSave != null && !reqLogsToSave.isEmpty()) {
+                	try {
+                    	reqLogsToSave.removeIf(Objects::isNull); // 過濾 null
+                    	if (!reqLogsToSave.isEmpty()) {
+                        	int size = reqLogsToSave.size();
+                        	tsmpReqLogDaoObj.saveAll(reqLogsToSave);
+                        	totalProcessedLogs.addAndGet(size);
+                        	savedCount += size;
+                    	}
+                	} catch (Exception e) {
+                    	TPILogger.tl.error("批量保存請求日誌失敗: " + StackTraceUtil.logStackTrace(e));
+                	}
+            	}
+
+            	if (resLogsToSave != null && !resLogsToSave.isEmpty()) {
+                	try {
+                    	resLogsToSave.removeIf(Objects::isNull); // 過濾 null
+                    	if (!resLogsToSave.isEmpty()) {
+                        	int size = resLogsToSave.size();
+                        	tsmpResLogDaoObj.saveAll(resLogsToSave);
+                        	totalProcessedLogs.addAndGet(size);
+                        	savedCount += size;
+                    	}
+                	} catch (Exception e) {
+                    	TPILogger.tl.error("批量保存回應日誌失敗: " + StackTraceUtil.logStackTrace(e));
+                	}
+            	}
+
+            	// 計算並記錄執行時間 (僅當此批次有保存數據時)
+            	if (savedCount > 0) {
+                 	long dbWriteTime = System.currentTimeMillis() - dbStartTime;
+                 	if (dbWriteTime > 0) { // 避免無效記錄
+                    	totalDbWriteTime.addAndGet(dbWriteTime);
+                    	dbWriteCount.incrementAndGet();
+                 	}
+                 	// 計算批次處理總時間並調整批次大小
+                 	long batchProcessTime = System.currentTimeMillis() - batchStartTime; // 包含 run() 調用的總時間
+                 	lastBatchProcessTime.set(batchProcessTime);
+                 	// 注意：adjustBatchSize 使用的是 processedItems (run() 調用次數)，而不是 savedCount (實際保存數量)
+                 	// 這維持了之前的邏輯，但如果調整基於資料庫性能可能需要改用 savedCount。
+                 	adjustBatchSize(batchProcessTime, processedItems);
+            	}
 				
 				// 每處理1000批次記錄日誌統計
 				if (processedBatch >= 1000) {

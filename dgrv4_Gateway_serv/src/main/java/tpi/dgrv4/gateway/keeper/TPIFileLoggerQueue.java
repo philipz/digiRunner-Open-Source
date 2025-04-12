@@ -43,7 +43,12 @@ public class TPIFileLoggerQueue {
 		// 稍後，消費者執行緒從佇列中取出元素，並中斷生產者執行緒，導致生產者執行緒在 put 方法中拋出 InterruptedException。
 		// 試著解決因為 Queue 滿了而丟出的 Exception.
 		try {
-			fileLoggerQueue.put(new TPIFileLoggerQueue(level, msg));
+			// 使用 offer 替代 put，如果隊列已滿則不阻塞
+			if (!fileLoggerQueue.offer(new TPIFileLoggerQueue(level, msg), 50, java.util.concurrent.TimeUnit.MILLISECONDS)) {
+				// 如果隊列滿了且無法在 50ms 內添加，記錄警告但不阻塞
+				logger.warn("日誌隊列已滿，無法添加新日誌。丟棄一條" + getLevelName(level) + "級別的日誌");
+				return;
+			}
 			
 			// add 時要寫一個 if 去判斷 queue 是否已滿 & 它的身份(TPILogger.tlDeployRole)為  
 			// memory (DgrDeployRole.MEMORY.value())
@@ -80,17 +85,55 @@ public class TPIFileLoggerQueue {
 		}
 	}
 	
+	/**
+	 * 獲取日誌級別名稱
+	 */
+	private static String getLevelName(int level) {
+		switch (level) {
+		case TRACE:
+			return "TRACE";
+		case DEBUG:
+			return "DEBUG";
+		case INFO:
+			return "INFO";
+		case WARN:
+			return "WARN";
+		case ERROR:
+			return "ERROR";
+		default:
+			return "UNKNOWN";
+		}
+	}
+	
 	public static void startThread() {
-		new Thread() {
+		Thread logThread = new Thread("FileLogger-Thread") {
 			public void run() {
-				processLogFileOut();
+				while (!Thread.currentThread().isInterrupted()) {
+					try {
+						processLogFileOut();
+					} catch (Exception e) {
+						logger.error("日誌處理線程遇到錯誤，將嘗試重啟: " + StackTraceUtil.logStackTrace(e));
+						try {
+							// 短暫休眠後再嘗試重啟
+							Thread.sleep(1000);
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+							logger.error("日誌處理線程被中斷，將退出: " + StackTraceUtil.logStackTrace(ie));
+							break;
+						}
+					}
+				}
+				logger.info("日誌處理線程已退出");
 			}
-		}.start();
+		};
+		logThread.setDaemon(true); // 設置為守護線程，避免阻止應用關閉
+		logThread.start();
+		logger.info("日誌處理線程已啟動");
 	}
 	
 	public static void processLogFileOut(){
 		try {
-			while (fileLoggerQueue.remainingCapacity() > -1) {
+			while (true) {
 				TPIFileLoggerQueue o = fileLoggerQueue.take();
 				o.procFlush();
 				
